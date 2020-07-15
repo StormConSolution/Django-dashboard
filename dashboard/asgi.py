@@ -1,6 +1,10 @@
-# -*- encoding: utf-8 -*-
 """
-Copyright (c) 2019 - present AppSeed.us
+ASGI config for dashboard project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 """
 
 import os
