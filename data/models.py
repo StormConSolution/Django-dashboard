@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
+
 
 LANGUAGES = (
     ('ar', 'Arabic (العربية)'),
@@ -28,17 +29,19 @@ LANGUAGES = (
     ('ur', 'Urdu (اردو)'),
 )
 
+
 class Project(models.Model):
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
-    
+
     def __str__(self):
         return self.name
 
+
 class Data(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
-    project = models.ForeignKey(Project)
-    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
     source = models.CharField(max_length=80, blank=True)
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0)
