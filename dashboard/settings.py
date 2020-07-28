@@ -14,8 +14,7 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 DEBUG = config('DEBUG', default=False)
 
 # load production server from .env
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 config('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -147,13 +146,17 @@ STATICFILES_DIRS = (
 # Variables expected from settings_local
 DB_NAME = ""
 USER_NAME = ""
-SQL_HOST = ""
 PASSWORD = ""
+SQL_HOST = '127.0.0.1'
 
 try:
     from .settings_local import *
 except:
     pass
+
+
+if (os.environ.get('DOCKER', False)):
+    SQL_HOST = 'postgres_data'
 
 
 DATABASES = {
