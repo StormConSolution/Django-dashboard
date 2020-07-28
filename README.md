@@ -55,6 +55,7 @@ $ sudo docker-compose pull && sudo docker-compose build && sudo docker-compose u
 > launching first time also run
 
 ```bash
+$ sudo docker-compose exec repustate-app python3 manage.py makemigrations
 $ sudo docker-compose exec repustate-app python3 manage.py migrate
 ```
 

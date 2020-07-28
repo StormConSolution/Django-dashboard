@@ -9,8 +9,6 @@ COPY dashboard dashboard
 
 RUN pip install -r requirements.txt
 
-CMD python manage.py makemigrations
-CMD command python manage.py migrate
 
 EXPOSE 5005
 CMD ["gunicorn", "--config", "gunicorn-cfg.py", "dashboard.wsgi"]
