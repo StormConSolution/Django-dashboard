@@ -7,16 +7,22 @@
       <use xlink:href="/static/assets/brand/coreui.svg#signet"></use>
     </svg>
   </div>
+
   <ul class="c-sidebar-nav">
     <li class="c-sidebar-nav-title">Projects</li>
-    <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/ui-colors.html">
+    {% if project_list %}
+
+    {%for project in project_list %}
+
+    <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/projects/{{project.id}}/">
         <svg class="c-sidebar-nav-icon">
           <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-        </svg> Project1</a></li>
-    <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/page-charts.html">
-        <svg class="c-sidebar-nav-icon">
-          <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-        </svg> Project2</a></li>
+        </svg> {{project.name}} </a></li>
+
+
+    {%endfor%}
+    {%endif%}
+
 
 
     <li class="c-sidebar-nav-divider"></li>
