@@ -40,8 +40,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'dashboard.urls'
-LOGIN_REDIRECT_URL = "home"   # Route defined in data/urls.py
-LOGOUT_REDIRECT_URL = "home"  # Route defined in data/urls.py
+
+LOGIN_REDIRECT_URL = "/login/"   # Route defined in data/urls.py
+LOGOUT_REDIRECT_URL = "/login/"  # Route defined in data/urls.py
+
 TEMPLATE_DIR = os.path.join(
     BASE_DIR, "dashboard/templates")  # ROOT dir for templates
 
