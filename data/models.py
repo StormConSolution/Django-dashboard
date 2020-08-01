@@ -31,12 +31,15 @@ LANGUAGES = (
 
 
 class Project(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
 
     def __str__(self):
         return self.name
-
+    
+    class Meta:
+      get_latest_by = 'date_created'
 
 class Data(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
