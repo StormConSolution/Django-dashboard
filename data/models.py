@@ -43,12 +43,12 @@ class Project(models.Model):
 
 def add_data(project, source, text, lang, with_entities=False, aspect_model=None):
     sentiment = requests.post('http://api.repustate.com/v4/APIKEY/score.json', 
-            {'text':text, 'lang':lang).json()['score']
+            {'text':text, 'lang':lang}).json()['score']
    
     entities = None
     if with_entities:
-        entities = requests.post('http://api.repustate.com/v4/APIKEY/entities.json'
-            {'text':text, 'lang':lang).json()
+        entities = requests.post('http://api.repustate.com/v4/APIKEY/entities.json',
+            {'text':text, 'lang':lang}).json()
     
     aspects = None
     if aspect_model is not None:
