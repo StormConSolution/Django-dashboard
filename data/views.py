@@ -18,10 +18,11 @@ from django.urls import reverse
 LOGIN_URL = '/login/'
 
 
-def date_handler(obj): 
+def date_handler(obj):
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
     return None
+
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -65,7 +66,7 @@ def projects(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
-    
+
     # TODO: aspect query
     # Aspect.objects.filter(data__project=this_project,
     # data__date_created__range=(start,
