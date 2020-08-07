@@ -13,14 +13,20 @@
 {% block content %}
 
 <main class="c-main">
+    {% if project_data %}
+
+    <script>
+        var a = '{{project_data|escapejs}}'
+    </script>
+
     <div class="container-fluid">
         <div class="fade-in">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4 class="card-title mb-0">Traffic</h4>
-                            <div class="small text-muted">September 2019</div>
+                            <h4 class="card-title mb-0">Sentiment</h4>
+                            <div class="small text-muted">Timeline</div>
                         </div>
                         <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
                             <div class="btn-group btn-group-toggle mx-3" data-toggle="buttons">
@@ -44,7 +50,7 @@
                         </div>
                     </div>
                     <div class="c-chart-wrapper" style="height:300px;margin-top:40px;">
-                        <canvas class="chart" id="main-chart" height="300"></canvas>
+                        <canvas class="chart" id="sentiment_f" height="300"></canvas>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -75,87 +81,60 @@
             </div>
             <div class="card-columns cols-2">
                 <div class="card">
-                    <div class="card-header">Line Chart
+                    <div class="card-header">Sentiment Overlook
                         <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
                                 target="_blank"><small class="text-muted">docs</small></a></div>
                     </div>
                     <div class="card-body">
                         <div class="c-chart-wrapper">
-                            <canvas id="canvas-1"></canvas>
+                            <canvas id="sentiment_f"></canvas>
                         </div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Bar Chart
+                    <div class="card-header">Aspect frequency
                         <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
                                 target="_blank"><small class="text-muted">docs</small></a></div>
                     </div>
                     <div class="card-body">
                         <div class="c-chart-wrapper">
-                            <canvas id="canvas-2"></canvas>
+                            <canvas id="aspect_f"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">Doughnut Chart
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
-                    <div class="card-body">
-                        <div class="c-chart-wrapper">
-                            <canvas id="canvas-3"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Radar Chart
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
-                    <div class="card-body">
-                        <div class="c-chart-wrapper">
-                            <canvas id="canvas-4"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Pie Chart
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
-                    <div class="card-body">
-                        <div class="c-chart-wrapper">
-                            <canvas id="canvas-5"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Polar Area Chart
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
-                    <div class="card-body">
-                        <div class="c-chart-wrapper">
-                            <canvas id="canvas-6"></canvas>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
+    {%else%}
+    <script>
+        var a = '{}' 
+    </script>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="clearfix">
+                <h1 class="float-left display-3 mr-4">No data</h1>
+                <h4 class="pt-3">Oops! Such project doesn't exist or has no data.</h4>
+                <p class="text-muted">
+                    The project you are looking for cannot be accesed - <a href="/">HOME</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+    {%endif%}
 </main>
+
+
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-
-
-
-
+{%if project_data%}
 
 <script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
 <script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 <script src="/static/assets/js/charts.js"></script>
 
+{%endif%}
 {% endblock javascripts %}
