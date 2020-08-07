@@ -55,3 +55,11 @@ class Data(models.Model):
 
     def __str__(self):
         return self.text
+
+class Aspect(models.Model):
+    data = models.ForeignKey(Data, on_delete=models.CASCADE)
+    label = models.CharField(max_length=80, blank=True)
+    count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return '{} ({})'.format(self.label, self.count)
