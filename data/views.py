@@ -83,7 +83,7 @@ def projects(request, project_id):
     for i in data_points:
         i['date_created'] = json.dumps(i['date_created'], default=date_handler)
 
-    context = {}
+    context = {'project_name': this_project}
     data = json.dumps({"data": data_points})
     if data_points:
         context['project_data'] = data
