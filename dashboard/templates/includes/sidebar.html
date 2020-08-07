@@ -1,16 +1,13 @@
 <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
   <div class="c-sidebar-brand d-lg-down-none">
-    <svg class="c-sidebar-brand-full" width="118" height="46" alt="CoreUI Logo">
-      <use xlink:href="/static/assets/brand/coreui.svg#full"></use>
-    </svg>
-    <svg class="c-sidebar-brand-minimized" width="46" height="46" alt="CoreUI Logo">
-      <use xlink:href="/static/assets/brand/coreui.svg#signet"></use>
-    </svg>
+
+    <img class='c-sidebar-brand-full' width="200" height="75" src="/static/assets/brand/logo-repustate-light.svg#full"
+      alt="Repustate">
   </div>
 
   <ul class="c-sidebar-nav">
-    <li class="c-sidebar-nav-title">Projects</li>
     {% if project_list %}
+    <li class="c-sidebar-nav-title">Projects</li>
 
     {%for project in project_list %}
 
@@ -22,8 +19,6 @@
 
     {%endfor%}
     {%endif%}
-
-
 
     <li class="c-sidebar-nav-divider"></li>
     <li class="c-sidebar-nav-title">System</li>
