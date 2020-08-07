@@ -14,9 +14,8 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
 
     aspects = None
     if aspect_model is not None:
-        aspects = requests.post('http://api.repustate.com/v4/APIKEY/aspect.json',
-                                {'text': text, 'lang': lang, 'model': model}
-                                ).json()
+        aspects = requests.post('http://api.repustate.com/v4/APIKEY/aspect.json', {
+                                'text': text, 'lang': lang, 'model': aspect_model}).json()
 
     data = Data.objects.create(
         project=project,
@@ -25,5 +24,20 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         language=lang
     )
 
-    # TODO: iterate over entities and create new instances of Entity.
-    # TODO: iterate over aspects and create new instances of Aspect.
+    for ent in entities['entities']:
+        Entity.objects.create(
+            data=data,
+            label=ent['title']
+        )
+
+    for key, value in aspects.items():
+        if key != "status":
+            for v in value:
+                Aspect.objects.create(
+                    data=data,
+                    label=key,
+                    chunk=v['chunk'],
+                    sentiment=v['sentiment'],
+                    topic=v['sentiment_topic'],
+                    sentiment_text=v['sentiment_text']
+                )
