@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Count, Q
 from django.urls import reverse
 
-from data.models import Data, Project, Aspect, Entity
+from data.models import Data, Project, Aspect, Entity, Charts
 
 import datetime
 import json
@@ -57,21 +57,19 @@ def pages(request):
 
 def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today()):
 
-    if 'sentiment_t' in this_project.chart:
+    charts_list = Charts.objects.filter(
+        project=this_project).values_list('chart_type', flat=True)
+
+    if 'sentiment_t' in charts_list:
         # TODO Sentiment frequency
         pass
-    if 'sentiment_f' in this_project.chart:
+    if 'sentiment_f' in charts_list:
         sentiment_f = Data.objects.filter(project=this_project).aggregate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)), negative=Count('sentiment', filter=Q(sentiment__lt=0)), neutral=Count('sentiment', filter=Q(sentiment=0)))
-
-        pass
-    if 'test' in this_project.chart:
-        print("1")
-        pass
-    if 'aspects_t' in this_project.chart:
+    if 'aspects_t' in charts_list:
         # TODO:aspects over time
         pass
-    if 'aspects_f' in this_project.chart:
+    if 'aspects_f' in charts_list:
         aspect_f = Aspect.objects.filter(data__project=this_project, data__date_created__range=(
             start, end)).order_by('label').annotate(total_count=Count('label'))
 
