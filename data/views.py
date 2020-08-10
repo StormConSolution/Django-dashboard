@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
 
 from data.models import Data, Project, Aspect, Entity
@@ -61,6 +61,13 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
         # TODO Sentiment frequency
         pass
     if 'sentiment_f' in this_project.chart:
+        Pos = Count('sentiment', filter=Q(sentiment__gt=0))
+        Neg = Count('sentiment', filter=Q(sentiment__lt=0))
+        Neu = Count('sentiment', filter=Q(sentiment=0))
+        sent = Data.objects.filter(project=this_project).aggregate(
+            positive=Pos, negative=Neg, neutral=Neu)
+
+        print(sent)
         # TODO sentiment querya
         pass
     if 'test' in this_project.chart:
