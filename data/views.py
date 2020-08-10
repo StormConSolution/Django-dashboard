@@ -61,14 +61,9 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
         # TODO Sentiment frequency
         pass
     if 'sentiment_f' in this_project.chart:
-        Pos = Count('sentiment', filter=Q(sentiment__gt=0))
-        Neg = Count('sentiment', filter=Q(sentiment__lt=0))
-        Neu = Count('sentiment', filter=Q(sentiment=0))
-        sent = Data.objects.filter(project=this_project).aggregate(
-            positive=Pos, negative=Neg, neutral=Neu)
+        sentiment_f = Data.objects.filter(project=this_project).aggregate(
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)), negative=Count('sentiment', filter=Q(sentiment__lt=0)), neutral=Count('sentiment', filter=Q(sentiment=0)))
 
-        print(sent)
-        # TODO sentiment querya
         pass
     if 'test' in this_project.chart:
         print("1")
@@ -77,10 +72,8 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
         # TODO:aspects over time
         pass
     if 'aspects_f' in this_project.chart:
-        # TODO: aspect query
         aspect_f = Aspect.objects.filter(data__project=this_project, data__date_created__range=(
             start, end)).order_by('label').annotate(total_count=Count('label'))
-        print(aspect_f)
 
     # Django standart date formater
     """
