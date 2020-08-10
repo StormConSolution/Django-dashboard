@@ -34,6 +34,7 @@ class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
+    chart = JSONField()  # used to list chart types and their sizes
 
     def __str__(self):
         return self.name
