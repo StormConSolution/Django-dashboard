@@ -30,11 +30,17 @@ LANGUAGES = (
 )
 
 
+def default_field():
+    return {"sentiment_t": 2, "sentiment_f": 1, "aspects_t": 2, "aspects_f": 1, "keywords": 1, "entities": 1}
+
+
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
-    chart = JSONField()  # used to list chart types and their sizes
+    # used to list chart types and their sizes
+    chart = JSONField(
+        default=default_field)
 
     def __str__(self):
         return self.name

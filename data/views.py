@@ -57,13 +57,27 @@ def pages(request):
 
 def get_chart_data(this_project):
 
-    # TODO: aspect query
-    # Aspect.objects.filter(data__project=this_project,
-    # data__date_created__range=(start,
-    # end)).order_by('label').annotate(total_count=Sum('count'))
+    if 'sentiment_t' in this_project.chart:
+        # TODO Sentiment frequency
+        pass
+    if 'sentiment_f' in this_project.chart:
+        # TODO sentiment query
+        pass
+    if 'test' in this_project.chart:
+        print("1")
+        pass
+    if 'aspects_t' in this_project.chart:
+        # TODO:aspects over time
+        pass
+    if 'aspects_f' in this_project.chart:
+        # TODO: aspect query
+        # Aspect.objects.filter(data__project=this_project,
+        # data__date_created__range=(start,
+        # end)).order_by('label').annotate(total_count=Sum('count'))
+        pass
 
     # Django standart date formater
-    """ 
+    """
     print(json.dumps(
         datetime,
         sort_keys=True,
@@ -74,14 +88,16 @@ def get_chart_data(this_project):
     return {}
 
 
-@login_required(login_url=LOGIN_URL)
+@ login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
 
     this_project = get_object_or_404(Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
+    print(this_project)
 
+    print(this_project.chart)
     if request.method == 'POST':
 
         return JsonResponse(get_chart_data(this_project))
