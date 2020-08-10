@@ -3,15 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
-from django.http import HttpResponse
-from data.models import Data, Project, Aspect, Entity
-from django import template
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
+from django.urls import reverse
+
+from data.models import Data, Project, Aspect, Entity
 
 import datetime
 import json
 
-from django.urls import reverse
 
 LOGIN_URL = '/login/'
 
@@ -55,13 +55,13 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project):
+def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today()):
 
     if 'sentiment_t' in this_project.chart:
         # TODO Sentiment frequency
         pass
     if 'sentiment_f' in this_project.chart:
-        # TODO sentiment query
+        # TODO sentiment querya
         pass
     if 'test' in this_project.chart:
         print("1")
@@ -71,10 +71,9 @@ def get_chart_data(this_project):
         pass
     if 'aspects_f' in this_project.chart:
         # TODO: aspect query
-        # Aspect.objects.filter(data__project=this_project,
-        # data__date_created__range=(start,
-        # end)).order_by('label').annotate(total_count=Sum('count'))
-        pass
+        aspect_f = Aspect.objects.filter(data__project=this_project, data__date_created__range=(
+            start, end)).order_by('label').annotate(total_count=Count('label'))
+        print(aspect_f)
 
     # Django standart date formater
     """
@@ -95,9 +94,7 @@ def projects(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
-    print(this_project)
 
-    print(this_project.chart)
     if request.method == 'POST':
 
         return JsonResponse(get_chart_data(this_project))
