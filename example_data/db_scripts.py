@@ -38,7 +38,6 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
 
     for ent in entities['entities']:
         entity_instance, created = Entity.objects.get_or_create(
-            data=data,
             label=ent['title']
         )
         
