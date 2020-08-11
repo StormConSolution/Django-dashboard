@@ -1,26 +1,24 @@
-from django import template
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.template import loader
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Count, Q
-from django.urls import reverse
-
-from data.models import Data, Project, Aspect, Entity, Charts
-
 import datetime
 import json
 
+from django import template
+from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models
+from django.db.models import Count, Q
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.template import loader
+from django.urls import reverse
+
+from data.models import Data, Project, Aspect, Entity, Chart
 
 LOGIN_URL = '/login/'
-
 
 def date_handler(obj):
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
     return None
-
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -55,23 +53,39 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today()):
+def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today(), entity_filter=None):
 
-    charts_list = Charts.objects.filter(
+    charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
 
     if 'sentiment_t' in charts_list:
         # TODO Sentiment frequency
         pass
+    
     if 'sentiment_f' in charts_list:
-        sentiment_f = Data.objects.filter(project=this_project).aggregate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)), negative=Count('sentiment', filter=Q(sentiment__lt=0)), neutral=Count('sentiment', filter=Q(sentiment=0)))
+        data_set = Data.objects.filter(project=this_project)
+        if entity_filter:
+            data_set = data_set.filter(entityes__label=entity_filter)
+        
+        sentiment_f = data_set.aggregate(
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)), 
+            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
+            neutral=Count('sentiment', filter=Q(sentiment=0))
+        )
+
     if 'aspects_t' in charts_list:
         # TODO:aspects over time
         pass
+
     if 'aspects_f' in charts_list:
-        aspect_f = Aspect.objects.filter(data__project=this_project, data__date_created__range=(
-            start, end)).order_by('label').annotate(total_count=Count('label'))
+        aspect_data_set = Aspect.objects.filter(
+                data__project=this_project,
+                data__date_created__range=(start, end)
+        )
+        if entity_filter:
+            aspect_data_set = aspect_data_set.filter(data__entities__label=entity_filter)
+
+        aspect_f = aspect_data_set.order_by('label').annotate(total_count=Count('label'))
 
     # Django standart date formater
     """
@@ -82,7 +96,7 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
         cls=DjangoJSONEncoder
     ))
     """
-    return {}
+    return {"status":"OK"}
 
 
 @ login_required(login_url=LOGIN_URL)
@@ -93,17 +107,38 @@ def projects(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    if request.method == 'POST':
+    entity_filter = request.GET.get('entity')
 
-        return JsonResponse(get_chart_data(this_project))
-
-    # Project name for the tab name
-    context = {'project_name': this_project}
-
+    context = {
+        'project': this_project,
+        'chart_data': get_chart_data(this_project, entity_filter=entity_filter),
+        'query_string': request.GET.urlencode(),
+    }
+    
     # List of projects for the sidebar
     context['project_list'] = list(
         Project.objects.filter(users=request.user).values())
 
-    context['chart_data'] = get_chart_data(this_project)
-
     return render(request,  "project.html", context)
+
+def entities(request, project_id):
+    """
+    Show the frequency of occurence for the entities for this data set.
+    """
+    entity_set = Entity.objects.all()
+    if 'entity' in request.GET:
+        entity_set = entity_set.filter(
+                data__in=Data.objects.filter(entities__label=request.GET['entity']))
+
+    entity_count = entity_set.annotate(
+            data_count=models.Count('data')).order_by('-data_count')
+    entities = {"data":[]}
+
+    for ec in entity_count:
+        entities["data"].append([
+            ec.label, 
+            ','.join(ec.classifications.values_list('label', flat=True)), 
+            ec.data_count
+        ])
+    
+    return JsonResponse(entities)

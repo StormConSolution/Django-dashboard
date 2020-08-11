@@ -1,22 +1,20 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} {{project_name}} {% endblock %}
+{% block title %} {{ project.name }} {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-
-
-<link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
-
+    <link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet"/>
+    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
 {% endblock stylesheets %}
 
 {% block content %}
 
 <main class="c-main">
-    {% if project_data %}
+    {% if chart_data %}
 
     <script>
-        var a = '{{project_data|escapejs}}'
+        var a = '{{ chart_data|escapejs }}'
     </script>
 
     <div class="container-fluid">
@@ -75,10 +73,7 @@
             </div>
             <div class="card-columns cols-2">
                 <div class="card">
-                    <div class="card-header">Sentiment Overlook
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
+                    <div class="card-header">Sentiment Overview</div>
                     <div class="card-body">
                         <div class="c-chart-wrapper">
                             <canvas id="sentiment_f"></canvas>
@@ -86,18 +81,30 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Aspect frequency
-                        <div class="card-header-actions"><a class="card-header-action" href="http://www.chartjs.org"
-                                target="_blank"><small class="text-muted">docs</small></a></div>
-                    </div>
+                    <div class="card-header">Aspect frequency</div>
                     <div class="card-body">
                         <div class="c-chart-wrapper">
                             <canvas id="aspect_f"></canvas>
                         </div>
                     </div>
                 </div>
-
             </div>
+	    <div class="card">
+		<div class="card-header">Entities</div>
+		<div class="card-body">
+		    <div class="c-chart-wrapper">
+			<table id="entities" class="display" style="width:100%">
+			    <thead>
+				<tr>
+				    <th>Entity</th>
+				    <th>Classifications</th>
+				    <th>Frequency</th>
+				</tr>
+			    </thead>
+			</table>
+		    </div>
+		</div>
+	    </div>
         </div>
     </div>
     {%else%}
@@ -107,28 +114,43 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="clearfix">
-                <h1 class="float-left display-3 mr-4">No data</h1>
-                <h4 class="pt-3">Oops! Such project doesn't exist or has no data.</h4>
-                <p class="text-muted">
-                    The project you are looking for cannot be accesed - <a href="/">HOME</a>.
+                <h4 class="float-left display-3 mr-4">No data</h4>
                 </p>
             </div>
         </div>
     </div>
     {%endif%}
 </main>
-
-
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-{%if project_data%}
+    {%if chart_data %}
+	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
+	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
+	<script src="/static/assets/js/charts.js"></script>
 
-<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
-<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
-<script src="/static/assets/js/charts.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+	<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
-{%endif%}
+	<script type="text/javascript">
+	    $(document).ready(function() {
+		$('#entities').DataTable( {
+		    "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?entity="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ]
+		});
+	    });
+	</script>
+    {%endif%}
 {% endblock javascripts %}
