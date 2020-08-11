@@ -112,12 +112,12 @@ def projects(request, project_id):
     default_start = datetime.date.today() - datetime.timedelta(days=30)
     default_end = datetime.date.today()
 
-    start = request.GET('start', default_start)
-    end = request.GET('end', default_end)
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
 
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter)
+        'chart_data': get_chart_data(this_project, start, end, entity_filter),
         'query_string': request.GET.urlencode(),
     }
     
@@ -143,7 +143,7 @@ def entities(request, project_id):
     for ec in entity_count:
         entities["data"].append([
             ec.label, 
-            ','.join(ec.classifications.values_list('label', flat=True)), 
+            ', '.join(ec.classifications.values_list('label', flat=True)), 
             ec.data_count
         ])
     
