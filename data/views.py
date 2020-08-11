@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Count, Q
 from django.urls import reverse
 
-from data.models import Data, Project, Aspect, Entity, Charts
+from data.models import Data, Project, Aspect, Entity, Chart
 
 import datetime
 import json
@@ -57,7 +57,7 @@ def pages(request):
 
 def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today()):
 
-    charts_list = Charts.objects.filter(
+    charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
 
     if 'sentiment_t' in charts_list:
