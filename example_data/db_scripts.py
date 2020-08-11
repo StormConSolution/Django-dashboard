@@ -39,11 +39,16 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         language=lang,
         keywords=()
     )
+    
+    emotions = []
+    entities = []
 
     for ent in entities['entities']:
         entity_instance, created = Entity.objects.get_or_create(
             label=ent['title']
         )
+
+        is_emotion = False
 
         for clas in ent['classifications']:
             c_instance, created = Classification.objects.get_or_create(
@@ -51,7 +56,18 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
             )
             entity_instance.classifications.add(c_instance)
 
+            if clas == 'Person.emotion':
+                is_emotion = True
+                emotions.append(entity_instance)
+        
+        if not is_emotion:
+            entities.append(entity_instance)
+
         data.entities.add(entity_instance)
+    
+    for entity in entities:
+        for emotion in emotions:
+            EmotionalEntity.objects.create(emotion=emotion, entity=entity, data=data)
 
     for key, value in aspects.items():
         if key != "status":
