@@ -12,10 +12,10 @@
 {% block content %}
 
 <main class="c-main">
-    {% if chart_data %}
+    {% if chart %}
 
     <script>
-        var a = '{{ chart_data|escapejs }}'
+        var a = '{{ chart|escapejs }}'
     </script>
 
     <div class="container-fluid">
@@ -126,7 +126,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-    {%if chart_data %}
+    {%if chart %}
 	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
 	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 	<script src="/static/assets/js/charts.js"></script>
