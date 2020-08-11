@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import ArrayField
 
 
 LANGUAGES = (
@@ -41,6 +41,18 @@ class Project(models.Model):
     class Meta:
         get_latest_by = 'date_created'
 
+class Classification(models.Model):
+    label = models.CharField(max_length=80)
+    
+    def __str__(self):
+        return self.label
+
+class Entity(models.Model):
+    label = models.CharField(max_length=80)
+    classifications = models.ManyToManyField(Classification)
+
+    def __str__(self):
+        return self.label
 
 class Data(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
@@ -51,18 +63,10 @@ class Data(models.Model):
     sentiment = models.FloatField(default=0)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     keywords = ArrayField(models.CharField(max_length=40))
+    entities = models.ManyToManyField(Entity)
 
     def __str__(self):
         return self.text
-
-
-class Entity(models.Model):
-    data = models.ForeignKey(Data, on_delete=models.CASCADE)
-    label = models.CharField(max_length=80, blank=True)
-
-    def __str__(self):
-        return self.label
-
 
 class Aspect(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
@@ -76,7 +80,7 @@ class Aspect(models.Model):
         return self.label
 
 
-class Charts(models.Model):
+class Chart(models.Model):
     project = models.ManyToManyField(Project)
     chart_type = models.CharField(max_length=80, blank=False)
     chart_size = models.IntegerField(blank=False)
