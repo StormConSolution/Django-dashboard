@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
 
-from data.models import Data, Project, Aspect, Entity, Chart
+from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, Emotion
 
 LOGIN_URL = '/login/'
 
@@ -57,6 +57,8 @@ def get_chart_data(this_project, start, end, entity_filter):
 
     charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
+    
+    chart_data = {}
 
     if 'sentiment_t' in charts_list:
         # TODO Sentiment frequency
@@ -86,6 +88,29 @@ def get_chart_data(this_project, start, end, entity_filter):
             aspect_data_set = aspect_data_set.filter(data__entities__label=entity_filter)
 
         aspect_f = aspect_data_set.order_by('label').annotate(total_count=Count('label'))
+    
+    # Get the chart data for the heatmap. For now, load it regardless of any
+    # flags being present in charts_list.
+    if True:
+        # Grab the top 10 entities mentioned with emotion.
+        top_ten_entities = EmotionalEntity.objects.annotate(
+                entity_count=models.Count('entity')).order_by('-entity_count')[:10]
+
+        chart_data['entities_for_emotions'] = json.dumps([
+            e.entity.label for e in top_ten_entities
+        ])
+        
+        top_ten_emotions = EmotionalEntity.objects.annotate(
+                emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
+        
+        emotion_count = {}
+        for e in Emotion.objects.all():
+            emotion_count[e.label] = EmotionalEntity.objects.filter(emotion=e).count()
+
+        sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
+        chart_data['emotions'] = json.dumps([
+            k for k,v  in sorted_emotion
+        ])
 
     # Django standart date formater
     """
@@ -96,10 +121,10 @@ def get_chart_data(this_project, start, end, entity_filter):
         cls=DjangoJSONEncoder
     ))
     """
-    return {"status":"OK"}
+    return chart_data
 
 
-@ login_required(login_url=LOGIN_URL)
+@login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
 
     this_project = get_object_or_404(Project, pk=project_id)

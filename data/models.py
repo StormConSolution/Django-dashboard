@@ -54,6 +54,12 @@ class Entity(models.Model):
     def __str__(self):
         return self.label
 
+class Emotion(models.Model):
+    label = models.CharField(max_length=80)
+
+    def __str__(self):
+        return self.label
+
 class Data(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -79,6 +85,10 @@ class Aspect(models.Model):
     def __str__(self):
         return self.label
 
+class EmotionalEntity(models.Model):
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
+    emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
+    data = models.ForeignKey(Data, on_delete=models.CASCADE)
 
 class Chart(models.Model):
     project = models.ManyToManyField(Project)
