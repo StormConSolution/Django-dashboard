@@ -9,6 +9,7 @@ __pycache__/
 
 env
 venv
+example_data
 
 .DS_Store
 package-lock.json
@@ -16,6 +17,7 @@ package-lock.json
 staticfiles/*
 !staticfiles/.gitkeep 
 .vscode/symbols.json
+
 
 
 settings_local.py
