@@ -136,8 +136,19 @@
 	<script type="text/javascript">
 	    $(document).ready(function() {
 		$('#entities').DataTable( {
-		    "ajax": "{% url 'entities' project.id %}",
-		    "order": [[2, "desc"]]
+		    "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?entity="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ]
 		});
 	    });
 	</script>
