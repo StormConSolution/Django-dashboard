@@ -9,7 +9,7 @@ __pycache__/
 
 env
 venv
-example_data
+
 
 .DS_Store
 package-lock.json
