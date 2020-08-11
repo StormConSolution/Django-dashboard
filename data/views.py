@@ -1,26 +1,24 @@
+import datetime
+import json
+
 from django import template
 from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models
+from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Count, Q
 from django.urls import reverse
 
 from data.models import Data, Project, Aspect, Entity, Chart
 
-import datetime
-import json
-
-
 LOGIN_URL = '/login/'
-
 
 def date_handler(obj):
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
     return None
-
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -82,7 +80,7 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
         cls=DjangoJSONEncoder
     ))
     """
-    return {}
+    return {"status":"OK"}
 
 
 @ login_required(login_url=LOGIN_URL)
@@ -94,11 +92,10 @@ def projects(request, project_id):
         return HttpResponseForbidden()
 
     if request.method == 'POST':
-
-        return JsonResponse(get_chart_data(this_project))
+        return JsonResponse(json.dumps(get_chart_data(this_project)))
 
     # Project name for the tab name
-    context = {'project_name': this_project}
+    context = {'project': this_project}
 
     # List of projects for the sidebar
     context['project_list'] = list(
@@ -107,3 +104,19 @@ def projects(request, project_id):
     context['chart_data'] = get_chart_data(this_project)
 
     return render(request,  "project.html", context)
+
+def entities(request, project_id):
+    print(request)
+
+    entity_count = Entity.objects.all().annotate(
+            data_count=models.Count('data')).order_by('-data_count')
+    entities = {"data":[]}
+
+    for ec in entity_count:
+        entities["data"].append([
+            ec.label, 
+            ','.join(ec.classifications.values_list('label', flat=True)), 
+            ec.data_count
+        ])
+    
+    return JsonResponse(entities)
