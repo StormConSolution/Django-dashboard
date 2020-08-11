@@ -53,7 +53,7 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelta(days=30), end=datetime.date.today(), entity_filter=None):
+def get_chart_data(this_project, start, end, entity_filter):
 
     charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
@@ -79,8 +79,8 @@ def get_chart_data(this_project, start=datetime.date.today() - datetime.timedelt
 
     if 'aspects_f' in charts_list:
         aspect_data_set = Aspect.objects.filter(
-                data__project=this_project,
-                data__date_created__range=(start, end)
+            data__project=this_project,
+            data__date_created__range=(start, end)
         )
         if entity_filter:
             aspect_data_set = aspect_data_set.filter(data__entities__label=entity_filter)
@@ -109,9 +109,15 @@ def projects(request, project_id):
 
     entity_filter = request.GET.get('entity')
 
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET('start', default_start)
+    end = request.GET('end', default_end)
+
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, entity_filter=entity_filter),
+        'chart_data': get_chart_data(this_project, start, end, entity_filter)
         'query_string': request.GET.urlencode(),
     }
     

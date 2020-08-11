@@ -6,6 +6,7 @@
 {% block stylesheets %}
     <link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet"/>
     <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 {% endblock stylesheets %}
 
 {% block content %}
@@ -132,9 +133,11 @@
 
 	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 	<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 	<script type="text/javascript">
-	    $(document).ready(function() {
+	    $(function() {
 		$('#entities').DataTable( {
 		    "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
 		    "order": [[2, "desc"]],
@@ -150,7 +153,15 @@
 			}
 		    ]
 		});
-	    });
+		$('input[name="daterange"]').daterangepicker({
+		    opens: 'left'
+		    }, function(start, end, label) {
+			const urlParams = new URLSearchParams(window.location.search);
+			urlParams.set('start', start.format('YYYY-MM-DD'));
+			urlParams.set('end', end.format('YYYY-MM-DD'));
+			window.location.href = window.location.origin + window.location.pathname + '?' + urlParams.toString();
+		    });
+	     });
 	</script>
     {%endif%}
 {% endblock javascripts %}
