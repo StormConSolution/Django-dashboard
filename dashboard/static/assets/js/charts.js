@@ -16,6 +16,7 @@ var random = function random() {
 }; // eslint-disable-next-line no-unused-vars
 
 var project = JSON.parse(a)
+
 aspects = {}
 
 
@@ -116,5 +117,41 @@ var aspect_s = new Chart(document.getElementById('aspect_s'), {
 }); // eslint-disable-next-line no-unused-vars
 
 
+labels = []
+datasets_2 = []
 
-//# sourceMappingURL=charts.js.map
+console.log(project.data[2].aspect_t)
+
+for(i in project.data[2].aspect_t){
+  labels.indexOf(project.data[2].aspect_t[i].data__date_created) === -1? labels.push(project.data[2].aspect_t[i].data__date_created):
+  datasets_2.push({
+    label: project.data[2].aspect_t[i].label,
+    backgroundColor: 'rgba(151, 187, 205, 0.5)',
+    borderColor: 'rgba(151, 187, 205, 0.8)',
+    highlightFill: 'rgba(151, 187, 205, 0.75)',
+    highlightStroke: 'rgba(151, 187, 205, 1)',
+    data: [project.data[2].aspect_t[i].label__count]
+  })
+}
+
+
+var aspect_t = new Chart(document.getElementById('aspect_t'), {
+type: 'bar',
+data: {
+  labels: labels,
+  datasets: datasets_2
+},
+options: {
+  responsive: true,
+  scales: {
+    yAxes: [{
+      display: true,
+      ticks: {
+        suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+        //suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+      }
+    }]
+  }
+}
+}); // eslint-disable-next-line no-unused-vars
+
