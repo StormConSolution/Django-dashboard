@@ -79,7 +79,7 @@ var barChart = new Chart(document.getElementById('aspect_f'), {
 var pieChart = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
   data: {
-    labels: ['Positive', 'Negative', 'Neutral'],
+    labels: ['Negative', 'Neutral','Positive'],
     datasets: [{
       data: Object.values(project.data[1].sentiment_f[0]),
       backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
@@ -110,7 +110,7 @@ for (i in project.data[4].aspect_s) {
 var aspect_s = new Chart(document.getElementById('aspect_s'), {
   type: 'bar',
   data: {
-    labels: ['Aspects_sentiment', "1", '2'],
+    labels: ['Positive', "Negative", 'Neutral'],
     datasets: datasets_1
   },
   options: {
@@ -167,17 +167,42 @@ var aspect_t = new Chart(document.getElementById('aspect_t'), {
 labels_1 = []
 datasets_3 = []
 
+positive = []
+negative = []
+neutral = []
+
 for (i in project.data[0].sentiment_t) {
-  labels_1.indexOf(project.data[0].sentiment_t[i].data__date_created) === -1 ? labels.push(project.data[0].sentiment_t[i].data__date_created) :
-    datasets_2.push({
-      label: ['Positive','Negative','Neutral'],
+  labels_1.indexOf(project.data[0].sentiment_t[i].date_created) === -1 ? labels_1.push(project.data[0].sentiment_t[i].date_created) : null;
+  
+  
+  datasets_3.push({
+      label: 'positive',
       backgroundColor: 'rgba(151, 187, 205, 0.5)',
       borderColor: 'rgba(151, 187, 205, 0.8)',
       highlightFill: 'rgba(151, 187, 205, 0.75)',
       highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].positive,project.data[0].sentiment_t[i].negative,project.data[0].sentiment_t[i].neutral]
+      data: [project.data[0].sentiment_t[i].positive]
+  })
+    datasets_3.push({
+      label: 'negative',
+      backgroundColor: 'rgba(151, 187, 205, 0.5)',
+      borderColor: 'rgba(151, 187, 205, 0.8)',
+      highlightFill: 'rgba(151, 187, 205, 0.75)',
+      highlightStroke: 'rgba(151, 187, 205, 1)',
+      data: [project.data[0].sentiment_t[i].negative]
+  })
+    datasets_3.push({
+      label: 'neutral',
+      backgroundColor: 'rgba(151, 187, 205, 0.5)',
+      borderColor: 'rgba(151, 187, 205, 0.8)',
+      highlightFill: 'rgba(151, 187, 205, 0.75)',
+      highlightStroke: 'rgba(151, 187, 205, 1)',
+      data: [project.data[0].sentiment_t[i].neutral]
     })
+
 }
+
+console.log(labels)
 
 
 var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
