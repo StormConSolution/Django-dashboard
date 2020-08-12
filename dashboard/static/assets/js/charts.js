@@ -16,33 +16,29 @@ var random = function random() {
 }; // eslint-disable-next-line no-unused-vars
 
 var project = JSON.parse(a)
-
 aspects = {}
 
-for (datapoint in project.data) {
-  for (const [key, value] of Object.entries(project.data[datapoint]['aspects'])) {
-    aspects[key] = (typeof aspects[key] === 'undefined') ? value.length : aspects[key] + value.length;
-  }
-}
+
 //Status:ok is in every aspect and should be removed
 delete aspects['status']
 
 var max = 0
 var datasets = []
-for (const [key, value] of Object.entries(aspects)) {
-  if (value > max) {
-    max = value
-  }
-  datasets.push({
-    label: key,
-    backgroundColor: 'rgba(151, 187, 205, 0.5)',
-    borderColor: 'rgba(151, 187, 205, 0.8)',
-    highlightFill: 'rgba(151, 187, 205, 0.75)',
-    highlightStroke: 'rgba(151, 187, 205, 1)',
-    data: [value]
-  })
-}
 
+for ( i in project.data[3].aspect_f){
+    
+    datasets.push({
+      label: project.data[3].aspect_f[i].label,
+      backgroundColor: 'rgba(151, 187, 205, 0.5)',
+      borderColor: 'rgba(151, 187, 205, 0.8)',
+      highlightFill: 'rgba(151, 187, 205, 0.75)',
+      highlightStroke: 'rgba(151, 187, 205, 1)',
+      data: [ project.data[3].aspect_f[i].label__count]
+    })
+    if (project.data[3].aspect_f[i].label__count > max) {
+      max = project.data[3].aspect_f[i].label__count
+    }
+}
 
 var barChart = new Chart(document.getElementById('aspect_f'), {
   type: 'bar',
@@ -64,26 +60,12 @@ var barChart = new Chart(document.getElementById('aspect_f'), {
   }
 }); // eslint-disable-next-line no-unused-vars
 
-var sentiment = [0, 0, 0]
-
-for (datapoint in project.data) {
-  if (project.data[datapoint]['sentiment'] > 0) {
-    sentiment[0]++;
-
-  } else if (project.data[datapoint]['sentiment'] < 0) {
-    sentiment[1]++;
-
-  } else {
-    sentiment[2]++
-  }
-}
-
 var pieChart = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
   data: {
     labels: ['Positive', 'Negative', 'Neutral'],
     datasets: [{
-      data: sentiment,
+      data: Object.values(project.data[1].sentiment_f[0]),
       backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
       hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
     }]
@@ -93,63 +75,46 @@ var pieChart = new Chart(document.getElementById('sentiment_f'), {
   }
 }); // eslint-disable-next-line no-unused-vars
 
-var mainChart = new Chart(document.getElementById('sentiment_t'), {
-  type: 'line',
+
+
+var max_1 = 0
+var datasets_1 = []
+
+
+for ( i in project.data[4].aspect_s){
+    
+    datasets_1.push({
+      label: project.data[4].aspect_s[i].label,
+      backgroundColor: 'rgba(151, 187, 205, 0.5)',
+      borderColor: 'rgba(151, 187, 205, 0.8)',
+      highlightFill: 'rgba(151, 187, 205, 0.75)',
+      highlightStroke: 'rgba(151, 187, 205, 1)',
+      data: [project.data[4].aspect_s[i].positive, project.data[4].aspect_s[i].negative ,project.data[4].aspect_s[i].neutral]
+    })
+    
+}
+//
+
+var aspect_s = new Chart(document.getElementById('aspect_s'), {
+  type: 'bar',
   data: {
-    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S'],
-    datasets: [{
-      label: 'My First dataset',
-      backgroundColor: coreui.Utils.hexToRgba(coreui.Utils.getStyle('--info'), 10),
-      borderColor: coreui.Utils.getStyle('--info'),
-      pointHoverBackgroundColor: '#fff',
-      borderWidth: 2,
-      data: [165, 180, 70, 69, 77, 57, 125, 165, 172, 91, 173, 138, 155, 89, 50, 161, 65, 163, 160, 103, 114, 185, 125, 196, 183, 64, 137, 95, 112, 175]
-    }, {
-      label: 'My Second dataset',
-      backgroundColor: 'transparent',
-      borderColor: coreui.Utils.getStyle('--success'),
-      pointHoverBackgroundColor: '#fff',
-      borderWidth: 2,
-      data: [92, 97, 80, 100, 86, 97, 83, 98, 87, 98, 93, 83, 87, 98, 96, 84, 91, 97, 88, 86, 94, 86, 95, 91, 98, 91, 92, 80, 83, 82]
-    }, {
-      label: 'My Third dataset',
-      backgroundColor: 'transparent',
-      borderColor: coreui.Utils.getStyle('--danger'),
-      pointHoverBackgroundColor: '#fff',
-      borderWidth: 1,
-      borderDash: [8, 5],
-      data: [65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65]
-    }]
+    labels: ['Aspects_sentiment',"1",'2'],
+    datasets: datasets_1
   },
   options: {
-    maintainAspectRatio: false,
-    legend: {
-      display: false
-    },
+    responsive: true,
     scales: {
-      xAxes: [{
-        gridLines: {
-          drawOnChartArea: false
-        }
-      }],
       yAxes: [{
+        display: true,
         ticks: {
-          beginAtZero: true,
-          maxTicksLimit: 5,
-          stepSize: Math.ceil(250 / 5),
-          max: 250
+          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+          suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
         }
       }]
-    },
-    elements: {
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 4,
-        hoverBorderWidth: 3
-      }
     }
   }
-});
+}); // eslint-disable-next-line no-unused-vars
+
+
 
 //# sourceMappingURL=charts.js.map
