@@ -18,7 +18,15 @@ var random = function random() {
 // Aliasing the variable that is declared in the template.
 var project = project_data;
 
-console.log(project)
+var colours = [
+     'rgba(255, 99, 132, 0.2)',
+     'rgba(54, 162, 235, 0.2)',
+     'rgba(255, 206, 86, 0.2)',
+     'rgba(75, 192, 192, 0.2)',
+     'rgba(153, 102, 255, 0.2)',
+     'rgba(255, 159, 64, 0.2)'
+];
+
 
 var ctx = document.getElementById('sentiment_source').getContext('2d');
 var sentimentSourceChart = new Chart(ctx, {
@@ -41,6 +49,7 @@ var sentimentSourceChart = new Chart(ctx, {
 var max = 0
 var datasets = []
 
+/*
 for (i in project.data[3].aspect_f) {
 
   datasets.push({
@@ -75,6 +84,7 @@ var barChart = new Chart(document.getElementById('aspect_f'), {
     }
   }
 }); // eslint-disable-next-line no-unused-vars
+*/
 
 var pieChart = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
@@ -82,8 +92,7 @@ var pieChart = new Chart(document.getElementById('sentiment_f'), {
     labels: ['Negative', 'Neutral','Positive'],
     datasets: [{
       data: Object.values(project.data[1].sentiment_f[0]),
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-      hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+      backgroundColor: colours.slice(3)
     }]
   },
   options: {
@@ -98,10 +107,7 @@ for (i in project.data[4].aspect_s) {
 
   datasets_1.push({
     label: project.data[4].aspect_s[i].label,
-    backgroundColor: 'rgba(151, 187, 205, 0.5)',
-    borderColor: 'rgba(151, 187, 205, 0.8)',
-    highlightFill: 'rgba(151, 187, 205, 0.75)',
-    highlightStroke: 'rgba(151, 187, 205, 1)',
+    backgroundColor: colours[i],
     data: [project.data[4].aspect_s[i].positive, project.data[4].aspect_s[i].negative, project.data[4].aspect_s[i].neutral]
   })
 
@@ -130,7 +136,7 @@ var aspect_s = new Chart(document.getElementById('aspect_s'), {
 labels = []
 datasets_2 = []
 
-for (i in project.data[2].aspect_t) {
+/*for (i in project.data[2].aspect_t) {
   labels.indexOf(project.data[2].aspect_t[i].data__date_created) === -1 ? labels.push(project.data[2].aspect_t[i].data__date_created) :
     datasets_2.push({
       label: project.data[2].aspect_t[i].label,
@@ -162,6 +168,7 @@ var aspect_t = new Chart(document.getElementById('aspect_t'), {
     }
   }
 }); // eslint-disable-next-line no-unused-vars
+*/
 
 
 labels_1 = []
@@ -170,6 +177,8 @@ datasets_3 = []
 positive = []
 negative = []
 neutral = []
+
+/*
 
 for (i in project.data[0].sentiment_t) {
   labels_1.indexOf(project.data[0].sentiment_t[i].date_created) === -1 ? labels_1.push(project.data[0].sentiment_t[i].date_created) : null;
@@ -202,10 +211,9 @@ for (i in project.data[0].sentiment_t) {
 
 }
 
-console.log(labels)
+*/
 
-
-var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
+/*var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
   type: 'bar',
   data: {
     labels: labels_1,
@@ -224,4 +232,5 @@ var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
     }
   }
 }); // eslint-disable-next-line no-unused-vars
+*/
 //# sourceMappingURL=charts.js.map

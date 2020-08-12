@@ -67,7 +67,7 @@ class Source(models.Model):
         return self.label
 
 class Data(models.Model):
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     source = models.ForeignKey(Source, on_delete=models.CASCADE)

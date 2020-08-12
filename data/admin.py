@@ -14,6 +14,7 @@ class DataAdmin(admin.ModelAdmin):
 class AspectAdmin(admin.ModelAdmin):
     list_display = ('label', 'sentiment', 'topic')
     list_filter = ('label',)
+    readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label', 'sentiment')
     search_fields = ('topic', 'chunk',)
 
 admin.site.register(Data, DataAdmin)

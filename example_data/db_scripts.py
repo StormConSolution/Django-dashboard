@@ -14,7 +14,7 @@ from data.models import *
 import requests
 
 APIKEY = 'repustatedemopage'
-HOST = 'http://localhost:9000/'
+HOST = 'http://localhost:9000'
 
 def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None, date=date.today()):
 
@@ -43,7 +43,6 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         sentiment=sentiment,
         language=lang,
     )
-
     emotions = []
     found_entities = []
 
@@ -91,15 +90,10 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
 
 
 def create_new_project(project_name):
-    this_project = Project.objects.create(name=project_name)
-    this_project.save()
+    return Project.objects.create(name=project_name)
 
-
-def assign_user_to_project(project_id, user_id):
-    this_project = get_object_or_404(Project, pk=project_id)
-    this_project.users.add(User.objects.get(id=user_id))
-    this_project.save
-
+def assign_user_to_project(project, user):
+    project.users.add(user)
 
 def add_chart_to_project(project_id, chart_type, chart_size):
     this_project = get_object_or_404(Project, pk=project_id)
@@ -109,14 +103,13 @@ def add_chart_to_project(project_id, chart_type, chart_size):
     )
     c.project.add(this_project)
 
-
 def remove_chart_from_project():
     pass
 
-
 def create_user(name, email, password):
-    # TODO add autoemail tor user created
-    user = User.objects.create_user(username=name,
-                                    email=email,
-                                    password=password)
-    return(user.id)
+    # TODO add autoemail to user created
+    return User.objects.create_user(
+            username=name,
+            email=email,
+            password=password
+        )

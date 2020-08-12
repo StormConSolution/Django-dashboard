@@ -167,6 +167,8 @@ def projects(request, project_id):
         'project': this_project,
         'chart_data': get_chart_data(this_project, start, end, entity_filter),
         'query_string': request.GET.urlencode(),
+        'start_date':start,
+        'end_date':end
     }
 
     # List of projects for the sidebar
