@@ -12,7 +12,7 @@
 {% block content %}
 
 <main class="c-main">
-    {% if chart %}
+    {% if chart_data %}
 
     <script>
 	var project_data = {{ chart_data|safe }};
@@ -150,7 +150,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-    {%if chart %}
+    {%if chart_data %}
 	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
 	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 	<script src="/static/assets/js/charts.js"></script>
