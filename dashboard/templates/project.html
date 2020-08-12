@@ -4,6 +4,7 @@
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
+    <link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet"/>
     <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 {% endblock stylesheets %}
@@ -97,16 +98,25 @@
                     </div>
                 </div>
             </div>
-	    <div class="card-columns cols-2">
-		<div class="card">
-                     <div class="card-header">Aspect frequency</div>
-                     <div class="card-body">
-                         <div class="c-chart-wrapper">
-                             <canvas id="aspect_f"></canvas>
-                         </div>
-                     </div>
-                 </div>
-             </div>
+            <div class="card-columns cols-2">
+                <div class="card">
+                    <div class="card-header">Sentiment/time</div>
+                    <div class="card-body">
+                        <div class="c-chart-wrapper">
+                            <canvas id="sentiment_t"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Aspect </div>
+                    <div class="card-body">
+                        <div class="c-chart-wrapper">
+                            <canvas id="aspect_f"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 	    <div class="card mt-3">
 		<div class="card-header">Sentiment by source</div>
 		<div class="card-body">
@@ -160,6 +170,7 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
     {%if chart_data %}
+	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 	<script src="/static/assets/js/charts.js"></script>
