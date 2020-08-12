@@ -77,8 +77,14 @@ def assign_user_to_project(project_id, user_id):
     this_project.save
 
 
-def add_chart_to_project():
-    pass
+def add_chart_to_project(project_id,chart_type,chart_size):
+    this_project = get_object_or_404(Project, pk=project_id)
+    c,create = Chart.objects.get_or_create(
+        chart_type=chart_type,
+        chart_size = chart_size
+    )
+    c.project.add(this_project)
+    
 
 
 def remove_chart_from_project():
