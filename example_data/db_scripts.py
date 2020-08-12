@@ -1,34 +1,35 @@
-
+from datetime import date
+import json
+import os
 
 import django
-import os
-import json
-import requests
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 django.setup()
 
 # Model imports have to be after
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from data.models import *
-from datetime import date
-APIKEY = 'repustatedemopage'
 
+from data.models import *
+import requests
+
+APIKEY = 'repustatedemopage'
+HOST = 'http://localhost:9000/'
 
 def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None, date=date.today()):
 
-    sentiment = requests.post('http://api.repustate.com/v4/{APIKEY}/score.json'.format(
-        APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
+    sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
+        HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
 
     entities = None
     if with_entities:
-        entities = requests.post('http://api.repustate.com/v4/{APIKEY}/entities.json'.format(
-            APIKEY=APIKEY), {'text': text, 'lang': lang}).json()
+        entities = requests.post('{HOST}/v4/{APIKEY}/entities.json'.format(
+            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang}).json()
 
     aspects = None
     if aspect_model is not None:
-        aspects = requests.post('http://api.repustate.com/v4/{APIKEY}/aspect.json'.format(
-            APIKEY=APIKEY), {'text': text, 'lang': lang, 'model': aspect_model}).json()
+        aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
+            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang, 'model': aspect_model}).json()
     else:
         aspects = json.loads(aspect)
 
