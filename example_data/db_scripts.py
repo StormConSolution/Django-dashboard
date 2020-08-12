@@ -32,6 +32,8 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
     else:
         aspects = json.loads(aspect)
 
+    source, _ = Source.objects.get_or_create(label=source)
+
     data = Data.objects.create(
         date_created=date,
         project=project,

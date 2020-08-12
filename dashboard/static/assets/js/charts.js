@@ -15,9 +15,10 @@ var random = function random() {
   return Math.round(Math.random() * 100);
 }; // eslint-disable-next-line no-unused-vars
 
-var project = JSON.parse(a)
-aspects = {}
+// Aliasing the variable that is declared in the template.
+var project = project_data;
 
+aspects = {}
 
 //Status:ok is in every aspect and should be removed
 delete aspects['status']
@@ -116,5 +117,13 @@ var aspect_s = new Chart(document.getElementById('aspect_s'), {
 }); // eslint-disable-next-line no-unused-vars
 
 
+
+var sentimentSourceChart = new Chart(document.getElementById('sentiment_source'), {
+    type: 'bar',
+    data: {
+	labels: project_data.source_labels,
+	datasets: project_data.source_datasets
+    }
+});
 
 //# sourceMappingURL=charts.js.map

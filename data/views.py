@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
 
-from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, Emotion
+from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, Emotion, Source
 
 LOGIN_URL = '/login/'
 
@@ -116,24 +116,30 @@ def get_chart_data(this_project, start, end, entity_filter):
         top_ten_entities = EmotionalEntity.objects.annotate(
                 entity_count=models.Count('entity')).order_by('-entity_count')[:10]
 
-        result['entities_for_emotions'] = json.dumps([
-            e.entity.label for e in top_ten_entities
-        ])
-        
+        result['entities_for_emotions'] = [e.entity.label for e in top_ten_entities]
         top_ten_emotions = EmotionalEntity.objects.annotate(
                 emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
         
         emotion_count = {}
         for e in Emotion.objects.all():
             emotion_count[e.label] = EmotionalEntity.objects.filter(emotion=e).count()
-
         sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
-        result['emotions'] = json.dumps([
-            k for k,v  in sorted_emotion
-        ])
+        result['emotions'] = [k for k,v  in sorted_emotion]
+    
+    if True:
+        # Show sentiment by source.
+        result['source_datasets'] = []
+        result['source_labels'] = []
+        
+        for source in Source.objects.all():
+            positive = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__gt=0).count()
+            negative = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__lt=0).count()
+            
+            result['source_labels'].append(source.label)
+            result['source_datasets'].append([positive, negative])
+
     
     return json.dumps(result, sort_keys=True, default=default)
-
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
@@ -153,7 +159,7 @@ def projects(request, project_id):
 
     context = {
         'project': this_project,
-        'chart': get_chart_data(this_project, start, end, entity_filter),
+        'chart_data': get_chart_data(this_project, start, end, entity_filter),
         'query_string': request.GET.urlencode(),
     }
 
