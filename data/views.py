@@ -115,16 +115,17 @@ def get_chart_data(this_project, start, end, entity_filter):
     # flags being present in charts_list.
     if True:
         # Grab the top 10 entities mentioned with emotion.
-        top_ten_entities = EmotionalEntity.objects.annotate(
-                entity_count=models.Count('entity')).order_by('-entity_count')[:10]
-
-        result['entities_for_emotions'] = [e.entity.label for e in top_ten_entities]
-        top_ten_emotions = EmotionalEntity.objects.annotate(
+        top_ten_entities = Entity.objects.filter(data__in=data_set).annotate(
+                data_count=Count('data')).order_by('-data_count')
+        result['entities_for_emotions'] = [e.label for e in top_ten_entities]
+        
+        top_ten_emotions = EmotionalEntity.objects.filter(entity__in=top_ten_entities).annotate(
                 emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
         
         emotion_count = {}
         for e in Emotion.objects.all():
             emotion_count[e.label] = EmotionalEntity.objects.filter(emotion=e).count()
+        
         sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
         result['emotions'] = [k for k,v  in sorted_emotion]
     
