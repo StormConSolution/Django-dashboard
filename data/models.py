@@ -77,6 +77,9 @@ class Data(models.Model):
     keywords = ArrayField(models.CharField(max_length=40))
     entities = models.ManyToManyField(Entity)
 
+    class Meta:
+        verbose_name_plural = 'Data'
+
     def __str__(self):
         return self.text
 
