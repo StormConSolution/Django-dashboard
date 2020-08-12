@@ -73,7 +73,7 @@ def get_chart_data(this_project, start, end, entity_filter):
             data__entities__label=entity_filter)
         data_set = data_set.filter(entities__label=entity_filter)
 
-    if 'sentiment_t' in charts_list:
+    if True or 'sentiment_t' in charts_list:
         sentiment_t = data_set.values('date_created').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
@@ -82,7 +82,7 @@ def get_chart_data(this_project, start, end, entity_filter):
 
         result['data'].append({"sentiment_t":list(sentiment_t)})
 
-    if 'sentiment_f' in charts_list:
+    if True or 'sentiment_f' in charts_list:
         sentiment_f = data_set.aggregate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
@@ -90,17 +90,17 @@ def get_chart_data(this_project, start, end, entity_filter):
         )
         result['data'].append({"sentiment_f": [sentiment_f]})
 
-    if 'aspect_t' in charts_list:
+    if True or 'aspect_t' in charts_list:
         aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created")
         result['data'].append({"aspect_t":list(aspect_t)})
 
-    if 'aspect_f' in charts_list:
+    if True or 'aspect_f' in charts_list:
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
 
         result['data'].append({"aspect_f": list(aspect_f)})
 
-    if 'aspect_s' in charts_list:
+    if True or 'aspect_s' in charts_list:
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
