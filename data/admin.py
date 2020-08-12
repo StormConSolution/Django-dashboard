@@ -8,7 +8,7 @@ from data.models import *
 class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
     list_filter = ('source',)
-    search_fields = ('text',)
+    search_fields = ('text', 'emotionalentity__entity__label', 'emotionalentity__emotion__label',)
     readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
 
 class AspectAdmin(admin.ModelAdmin):
