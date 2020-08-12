@@ -129,16 +129,20 @@ def get_chart_data(this_project, start, end, entity_filter):
     if True:
         # Show sentiment by source.
         result['source_datasets'] = []
-        result['source_labels'] = []
+        result['source_labels'] = list(Source.objects.values_list('label', flat=True))
         
-        for source in Source.objects.all():
-            positive = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__gt=0).count()
-            negative = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__lt=0).count()
-            
-            result['source_labels'].append(source.label)
-            result['source_datasets'].append([positive, negative])
+        positive = {'label':'positive', 'data':[], 'backgroundColor':'rgba(255, 99, 132, 0.2)'}
+        negative = {'label':'negative', 'data':[], 'backgroundColor':'rgba(54, 162, 235, 0.2)'}
 
-    
+        for label in result['source_labels']:
+            positive['data'].append(Data.objects.filter(
+                date_created__range=(start, end), source__label=label, sentiment__gt=0).count())
+            
+            negative['data'].append(Data.objects.filter(
+                date_created__range=(start, end), source__label=label, sentiment__lt=0).count())
+            
+        result['source_datasets'] = [positive, negative]
+
     return json.dumps(result, sort_keys=True, default=default)
 
 @login_required(login_url=LOGIN_URL)
