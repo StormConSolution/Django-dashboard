@@ -48,14 +48,20 @@ class Classification(models.Model):
         return self.label
 
 class Entity(models.Model):
-    label = models.CharField(max_length=80)
+    label = models.CharField(max_length=80, unique=True, db_index=True)
     classifications = models.ManyToManyField(Classification)
 
     def __str__(self):
         return self.label
 
 class Emotion(models.Model):
-    label = models.CharField(max_length=80)
+    label = models.CharField(max_length=80, unique=True, db_index=True)
+
+    def __str__(self):
+        return self.label
+
+class Source(models.Model):
+    label = models.CharField(max_length=80, unique=True, db_index=True)
 
     def __str__(self):
         return self.label
@@ -64,7 +70,7 @@ class Data(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    source = models.CharField(max_length=80, blank=True)
+    source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)

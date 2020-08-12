@@ -15,7 +15,8 @@ var random = function random() {
   return Math.round(Math.random() * 100);
 }; // eslint-disable-next-line no-unused-vars
 
-var project = JSON.parse(a)
+// Aliasing the variable that is declared in the template.
+var project = project_data;
 
 aspects = {}
 
@@ -150,6 +151,14 @@ var mainChart = new Chart(document.getElementById('sentiment_t'), {
       }
     }
   }
+});
+
+var sentimentSourceChart = new Chart(document.getElementById('sentiment_source'), {
+    type: 'bar',
+    data: {
+	labels: project_data.source_labels,
+	datasets: project_data.source_datasets
+    }
 });
 
 //# sourceMappingURL=charts.js.map

@@ -15,7 +15,7 @@
     {% if chart_data %}
 
     <script>
-        var a = '{{ chart_data|escapejs }}'
+	var project_data = {{ chart_data|safe }};
     </script>
 
     <div class="container-fluid">
@@ -91,6 +91,14 @@
                 </div>
             </div>
 	    <div class="card mt-3">
+		<div class="card-header">Sentiment by source</div>
+		<div class="card-body">
+		    <div class="c-chart-wrapper">
+			<canvas id="sentiment_source"></canvas>
+		    </div>
+		</div>
+	    </div>
+	    <div class="card mt-3">
 		<div class="card-header">Entities</div>
 		<div class="card-body">
 		    <div class="c-chart-wrapper">
@@ -118,7 +126,7 @@
     </div>
     {%else%}
     <script>
-        var a = '{}' 
+	var project_data = {};
     </script>
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -194,11 +202,11 @@
 		},
 
 		xAxis: {
-		    categories: {{ chart_data.entities_for_emotions|safe }} 
+		    categories: project_data.entities_for_emotions
 		},
 
 		yAxis: {
-		    categories: {{ chart_data.emotions|safe }},
+		    categories: project_data.emotions,
 		    title: null,
 		    reversed: true
 		},

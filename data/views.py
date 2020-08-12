@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
 
-from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, Emotion
+from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, Emotion, Source
 
 LOGIN_URL = '/login/'
 
@@ -96,9 +96,7 @@ def get_chart_data(this_project, start, end, entity_filter):
         top_ten_entities = EmotionalEntity.objects.annotate(
                 entity_count=models.Count('entity')).order_by('-entity_count')[:10]
 
-        chart_data['entities_for_emotions'] = json.dumps([
-            e.entity.label for e in top_ten_entities
-        ])
+        chart_data["entities_for_emotions"] = [e.entity.label for e in top_ten_entities]
         
         top_ten_emotions = EmotionalEntity.objects.annotate(
                 emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
@@ -108,9 +106,19 @@ def get_chart_data(this_project, start, end, entity_filter):
             emotion_count[e.label] = EmotionalEntity.objects.filter(emotion=e).count()
 
         sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
-        chart_data['emotions'] = json.dumps([
-            k for k,v  in sorted_emotion
-        ])
+        chart_data["emotions"] = [k for k,v  in sorted_emotion]
+
+    if True:
+        # Show sentiment by source.
+        chart_data['source_datasets'] = []
+        chart_data['source_labels'] = []
+        
+        for source in Source.objects.all():
+            positive = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__gt=0).count()
+            negative = Data.objects.filter(date_created__range=(start, end), source=source, sentiment__lt=0).count()
+            
+            chart_data['source_labels'].append(source.label)
+            chart_data['source_datasets'].append([positive, negative])
 
     # Django standart date formater
     """
@@ -142,7 +150,7 @@ def projects(request, project_id):
 
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter),
+        'chart_data': json.dumps(get_chart_data(this_project, start, end, entity_filter)),
         'query_string': request.GET.urlencode(),
     }
     
