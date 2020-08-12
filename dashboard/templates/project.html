@@ -12,15 +12,23 @@
 {% block content %}
 
 <main class="c-main">
-    {% if chart_data %}
+    {% if chart %}
 
     <script>
-        var a = '{{ chart_data|escapejs }}'
+        var a = '{{ chart|escapejs }}'
     </script>
 
     <div class="container-fluid">
         <div class="fade-in">
             <div class="card">
+                <div class="card-header">Sentiment Overview</div>
+                <div class="card-body">
+                    <div class="c-chart-wrapper">
+                        <canvas id="aspect_s"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -71,7 +79,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <div class="card-columns cols-2">
                 <div class="card">
                     <div class="card-header">Sentiment Overview</div>
@@ -134,7 +142,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-    {%if chart_data %}
+    {%if chart %}
 	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
 	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 	<script src="/static/assets/js/charts.js"></script>

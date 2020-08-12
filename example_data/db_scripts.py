@@ -6,6 +6,7 @@ import requests
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 django.setup()
 
+from datetime import date
 # Model imports have to be after
 from data.models import *
 from django.shortcuts import get_object_or_404
@@ -14,7 +15,7 @@ from django.contrib.auth.models import User
 APIKEY = 'repustatedemopage'
 
 
-def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None):
+def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None,date = date.today()):
 
     sentiment = requests.post('http://api.repustate.com/v4/{APIKEY}/score.json'.format(
         APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
@@ -32,6 +33,7 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         aspects = json.loads(aspect)
 
     data = Data.objects.create(
+        date_created=date,
         project=project,
         source=source,
         text=text,
@@ -93,17 +95,23 @@ def assign_user_to_project(project_id, user_id):
     this_project.save
 
 
-def add_chart_to_project():
-    pass
+def add_chart_to_project(project_id,chart_type,chart_size):
+    this_project = get_object_or_404(Project, pk=project_id)
+    c,create = Chart.objects.get_or_create(
+        chart_type=chart_type,
+        chart_size = chart_size
+    )
+    c.project.add(this_project)
+    
 
 
 def remove_chart_from_project():
     pass
 
 
-def create_user():
-    #TODO improve logic for user creation
-    user = User.objects.create_user(username='john',
-                                    email='jlennon@beatles.com',
-                                    password='glass onion')
+def create_user(name,email,password):
+    #TODO add autoemail tor user created
+    user = User.objects.create_user(username=name,
+                                    email=email,
+                                    password=password)
     return(user.id)

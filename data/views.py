@@ -5,7 +5,7 @@ from django import template
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -15,10 +15,9 @@ from data.models import Data, Project, Aspect, Entity, Chart, EmotionalEntity, E
 
 LOGIN_URL = '/login/'
 
-def date_handler(obj):
-    if isinstance(obj, (datetime.datetime, datetime.date)):
-        return obj.isoformat()
-    return None
+def default(o):
+    if isinstance(o, (datetime.date, datetime.datetime)):
+        return o.isoformat()
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -58,36 +57,55 @@ def get_chart_data(this_project, start, end, entity_filter):
     charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
     
-    chart_data = {}
+    result = {"status": "OK", "data": [], 'list': list(charts_list)}
+    aspect_data_set = Aspect.objects.filter(
+        data__project=this_project,
+        data__date_created__range=(start, end)
+    )
+
+    data_set = Data.objects.filter(
+        project=this_project,
+        date_created__range=(start, end)
+    )
+
+    if entity_filter:
+        aspect_data_set = aspect_data_set.filter(
+            data__entities__label=entity_filter)
+        data_set = data_set.filter(entities__label=entity_filter)
 
     if 'sentiment_t' in charts_list:
-        # TODO Sentiment frequency
-        pass
-    
+        sentiment_t = data_set.values('date_created').annotate(
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
+            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
+            neutral=Count('sentiment', filter=Q(sentiment=0))
+        ).order_by('date_created')
+
+        result['data'].append({"sentiment_t":list(sentiment_t)})
+
     if 'sentiment_f' in charts_list:
-        data_set = Data.objects.filter(project=this_project)
-        if entity_filter:
-            data_set = data_set.filter(entityes__label=entity_filter)
-        
         sentiment_f = data_set.aggregate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)), 
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
+        result['data'].append({"sentiment_f": [sentiment_f]})
 
-    if 'aspects_t' in charts_list:
-        # TODO:aspects over time
-        pass
+    if 'aspect_t' in charts_list:
+        aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created")
+        result['data'].append({"aspect_t":list(aspect_t)})
 
-    if 'aspects_f' in charts_list:
-        aspect_data_set = Aspect.objects.filter(
-            data__project=this_project,
-            data__date_created__range=(start, end)
+    if 'aspect_f' in charts_list:
+        aspect_f = aspect_data_set.values('label').annotate(
+            Count('label')).order_by('label')
+
+        result['data'].append({"aspect_f": list(aspect_f)})
+
+    if 'aspect_s' in charts_list:
+        aspect_s = aspect_data_set.values('label').annotate(
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
+            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
+            neutral=Count('sentiment', filter=Q(sentiment=0))
         )
-        if entity_filter:
-            aspect_data_set = aspect_data_set.filter(data__entities__label=entity_filter)
-
-        aspect_f = aspect_data_set.order_by('label').annotate(total_count=Count('label'))
     
     # Get the chart data for the heatmap. For now, load it regardless of any
     # flags being present in charts_list.
@@ -111,17 +129,10 @@ def get_chart_data(this_project, start, end, entity_filter):
         chart_data['emotions'] = json.dumps([
             k for k,v  in sorted_emotion
         ])
-
-    # Django standart date formater
-    """
-    print(json.dumps(
-        datetime,
-        sort_keys=True,
-        indent=1,
-        cls=DjangoJSONEncoder
-    ))
-    """
-    return chart_data
+        
+        result['data'].append({"aspect_s": list(aspect_s)})
+    
+    return json.dumps(result, sort_keys=True, default=default)
 
 
 @login_required(login_url=LOGIN_URL)
@@ -142,15 +153,16 @@ def projects(request, project_id):
 
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter),
+        'chart': get_chart_data(this_project, start, end, entity_filter),
         'query_string': request.GET.urlencode(),
     }
-    
+
     # List of projects for the sidebar
     context['project_list'] = list(
         Project.objects.filter(users=request.user).values())
-
+  
     return render(request,  "project.html", context)
+
 
 def entities(request, project_id):
     """
@@ -159,17 +171,17 @@ def entities(request, project_id):
     entity_set = Entity.objects.all()
     if 'entity' in request.GET:
         entity_set = entity_set.filter(
-                data__in=Data.objects.filter(entities__label=request.GET['entity']))
+            data__in=Data.objects.filter(entities__label=request.GET['entity']))
 
     entity_count = entity_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')
-    entities = {"data":[]}
+        data_count=models.Count('data')).order_by('-data_count')
+    entities = {"data": []}
 
     for ec in entity_count:
         entities["data"].append([
-            ec.label, 
-            ', '.join(ec.classifications.values_list('label', flat=True)), 
+            ec.label,
+            ', '.join(ec.classifications.values_list('label', flat=True)),
             ec.data_count
         ])
-    
+
     return JsonResponse(entities)
