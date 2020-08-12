@@ -106,6 +106,8 @@ def get_chart_data(this_project, start, end, entity_filter):
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
+        
+        result['data'].append({"aspect_s": list(aspect_s)})
     
     # Get the chart data for the heatmap. For now, load it regardless of any
     # flags being present in charts_list.
@@ -114,7 +116,7 @@ def get_chart_data(this_project, start, end, entity_filter):
         top_ten_entities = EmotionalEntity.objects.annotate(
                 entity_count=models.Count('entity')).order_by('-entity_count')[:10]
 
-        chart_data['entities_for_emotions'] = json.dumps([
+        result['entities_for_emotions'] = json.dumps([
             e.entity.label for e in top_ten_entities
         ])
         
@@ -126,11 +128,9 @@ def get_chart_data(this_project, start, end, entity_filter):
             emotion_count[e.label] = EmotionalEntity.objects.filter(emotion=e).count()
 
         sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
-        chart_data['emotions'] = json.dumps([
+        result['emotions'] = json.dumps([
             k for k,v  in sorted_emotion
         ])
-        
-        result['data'].append({"aspect_s": list(aspect_s)})
     
     return json.dumps(result, sort_keys=True, default=default)
 
