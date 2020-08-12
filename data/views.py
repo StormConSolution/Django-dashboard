@@ -15,12 +15,9 @@ from data.models import Data, Project, Aspect, Entity, Chart
 
 LOGIN_URL = '/login/'
 
-
-def date_handler(obj):
-    if isinstance(obj, (datetime.datetime, datetime.date)):
-        return obj.isoformat()
-    return None
-
+def default(o):
+    if isinstance(o, (datetime.date, datetime.datetime)):
+        return o.isoformat()
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -56,14 +53,14 @@ def pages(request):
 
 
 def get_chart_data(this_project, start, end, entity_filter):
-    
+
     charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
-    result = {"status": "OK" ,"data":[],'list':charts_list}
+    result = {"status": "OK", "data": [], 'list': charts_list}
     aspect_data_set = Aspect.objects.filter(
-            data__project=this_project,
-            data__date_created__range=(start, end)
-        )
+        data__project=this_project,
+        data__date_created__range=(start, end)
+    )
 
     data_set = Data.objects.filter(
         project=this_project,
@@ -71,7 +68,8 @@ def get_chart_data(this_project, start, end, entity_filter):
     )
 
     if entity_filter:
-        aspect_data_set = aspect_data_set.filter(data__entities__label=entity_filter)
+        aspect_data_set = aspect_data_set.filter(
+            data__entities__label=entity_filter)
         data_set = data_set.filter(entities__label=entity_filter)
 
     if 'sentiment_t' in charts_list:
@@ -79,31 +77,38 @@ def get_chart_data(this_project, start, end, entity_filter):
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
-        )
-        result['data'].append(sentiment_t)
+        ).order_by('date_created')
+        sentiment_t = json.dumps(list(sentiment_t),sort_keys=True,default=default)
+        result['data'].append({"sentiment_t":sentiment_t})
+
     if 'sentiment_f' in charts_list:
         sentiment_f = data_set.aggregate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
-        result['data'].append(sentiment_f)
+        result['data'].append({'sentiment_f': json.dumps(sentiment_f)})
     if 'aspect_t' in charts_list:
-        aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created = F("data__date_created"))
-        result['data'].append(aspect_t)
+        aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created")
+
+        aspect_t = json.dumps(list(aspect_t),sort_keys=True,default=default)
+        result['data'].append({"aspect_t":aspect_t})
 
     if 'aspect_f' in charts_list:
-        aspect_f = aspect_data_set.values('label').annotate(Count('label'))
+        aspect_f = aspect_data_set.values('label').annotate(
+            Count('label')).order_by('label')
+        aspect_f = json.dumps(list(aspect_f))
+        result['data'].append({"aspect_f": aspect_f})
 
-        print(aspect_f)
-        result['data'].append(aspect_f)
     if 'aspect_s' in charts_list:
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
-        result['data'].append(aspect_s)
+
+        aspect_s = json.dumps(list(aspect_s))
+        result['data'].append({"aspect_s": aspect_s})
 
     """
     print(json.dumps(
@@ -141,8 +146,8 @@ def projects(request, project_id):
     # List of projects for the sidebar
     context['project_list'] = list(
         Project.objects.filter(users=request.user).values())
-
-    
+  
+  
     return render(request,  "project.html", context)
 
 
