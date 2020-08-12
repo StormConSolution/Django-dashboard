@@ -74,7 +74,6 @@ class Data(models.Model):
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
-    keywords = ArrayField(models.CharField(max_length=40))
     entities = models.ManyToManyField(Entity)
 
     class Meta:

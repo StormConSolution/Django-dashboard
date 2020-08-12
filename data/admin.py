@@ -9,5 +9,6 @@ class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
     list_filter = ('source',)
     search_fields = ('text',)
+    readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
 
 admin.site.register(Data, DataAdmin)

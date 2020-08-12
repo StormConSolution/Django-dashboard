@@ -41,7 +41,6 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         text=text,
         sentiment=sentiment,
         language=lang,
-        keywords=()
     )
 
     emotions = []
