@@ -93,9 +93,9 @@ def remove_chart_from_project():
     pass
 
 
-def create_user():
-    #TODO improve logic for user creation
-    user = User.objects.create_user(username='john',
-                                    email='jlennon@beatles.com',
-                                    password='glass onion')
+def create_user(name,email,password):
+    #TODO add autoemail tor user created
+    user = User.objects.create_user(username=name,
+                                    email=email,
+                                    password=password)
     return(user.id)
