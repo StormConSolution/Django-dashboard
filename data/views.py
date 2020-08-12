@@ -56,7 +56,7 @@ def get_chart_data(this_project, start, end, entity_filter):
 
     charts_list = Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
-    result = {"status": "OK", "data": [], 'list': charts_list}
+    result = {"status": "OK", "data": [], 'list': list(charts_list)}
     aspect_data_set = Aspect.objects.filter(
         data__project=this_project,
         data__date_created__range=(start, end)
@@ -78,8 +78,8 @@ def get_chart_data(this_project, start, end, entity_filter):
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         ).order_by('date_created')
-        sentiment_t = json.dumps(list(sentiment_t),sort_keys=True,default=default)
-        result['data'].append({"sentiment_t":sentiment_t})
+
+        result['data'].append({"sentiment_t":list(sentiment_t)})
 
     if 'sentiment_f' in charts_list:
         sentiment_f = data_set.aggregate(
@@ -87,18 +87,17 @@ def get_chart_data(this_project, start, end, entity_filter):
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
-        result['data'].append({'sentiment_f': json.dumps(sentiment_f)})
+        result['data'].append({"sentiment_f": [sentiment_f]})
+
     if 'aspect_t' in charts_list:
         aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created")
-
-        aspect_t = json.dumps(list(aspect_t),sort_keys=True,default=default)
-        result['data'].append({"aspect_t":aspect_t})
+        result['data'].append({"aspect_t":list(aspect_t)})
 
     if 'aspect_f' in charts_list:
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
-        aspect_f = json.dumps(list(aspect_f))
-        result['data'].append({"aspect_f": aspect_f})
+
+        result['data'].append({"aspect_f": list(aspect_f)})
 
     if 'aspect_s' in charts_list:
         aspect_s = aspect_data_set.values('label').annotate(
@@ -107,8 +106,8 @@ def get_chart_data(this_project, start, end, entity_filter):
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
 
-        aspect_s = json.dumps(list(aspect_s))
-        result['data'].append({"aspect_s": aspect_s})
+        
+        result['data'].append({"aspect_s": list(aspect_s)})
 
     """
     print(json.dumps(
@@ -118,7 +117,7 @@ def get_chart_data(this_project, start, end, entity_filter):
         cls=DjangoJSONEncoder
     ))
     """
-    return result
+    return json.dumps(result,sort_keys=True,default=default)
 
 
 @ login_required(login_url=LOGIN_URL)
@@ -146,7 +145,6 @@ def projects(request, project_id):
     # List of projects for the sidebar
     context['project_list'] = list(
         Project.objects.filter(users=request.user).values())
-  
   
     return render(request,  "project.html", context)
 
