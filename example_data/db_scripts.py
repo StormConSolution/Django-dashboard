@@ -6,6 +6,7 @@ import requests
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 django.setup()
 
+from datetime import date
 # Model imports have to be after
 from data.models import *
 from django.shortcuts import get_object_or_404
@@ -14,7 +15,7 @@ from django.contrib.auth.models import User
 APIKEY = 'repustatedemopage'
 
 
-def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None):
+def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None,date = date.today()):
 
     sentiment = requests.post('http://api.repustate.com/v4/{APIKEY}/score.json'.format(
         APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
@@ -32,6 +33,7 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         aspects = json.loads(aspect)
 
     data = Data.objects.create(
+        date_created=date,
         project=project,
         source=source,
         text=text,
