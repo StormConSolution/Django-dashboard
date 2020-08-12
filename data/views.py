@@ -91,7 +91,9 @@ def get_chart_data(this_project, start, end, entity_filter):
         result['data'].append({"sentiment_f": [sentiment_f]})
 
     if True or 'aspect_t' in charts_list:
-        aspect_t = aspect_data_set.values('label').annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created")
+        aspect_t = aspect_data_set.values('label').annotate(Count('label')
+                ).annotate(data__date_created=F("data__date_created")
+                ).order_by("data__date_created")
         result['data'].append({"aspect_t":list(aspect_t)})
 
     if True or 'aspect_f' in charts_list:

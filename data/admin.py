@@ -11,4 +11,10 @@ class DataAdmin(admin.ModelAdmin):
     search_fields = ('text',)
     readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
 
+class AspectAdmin(admin.ModelAdmin):
+    list_display = ('label', 'sentiment', 'topic')
+    list_filter = ('label',)
+    search_fields = ('topic', 'chunk',)
+
 admin.site.register(Data, DataAdmin)
+admin.site.register(Aspect, AspectAdmin)
