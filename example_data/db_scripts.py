@@ -1,4 +1,5 @@
 
+
 import django
 import os
 import json
@@ -6,16 +7,15 @@ import requests
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 django.setup()
 
-from datetime import date
 # Model imports have to be after
-from data.models import *
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-
+from django.shortcuts import get_object_or_404
+from data.models import *
+from datetime import date
 APIKEY = 'repustatedemopage'
 
 
-def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None,date = date.today()):
+def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None, date=date.today()):
 
     sentiment = requests.post('http://api.repustate.com/v4/{APIKEY}/score.json'.format(
         APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
@@ -43,9 +43,9 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         language=lang,
         keywords=()
     )
-    
+
     emotions = []
-    entities = []
+    found_entities = []
 
     for ent in entities['entities']:
         entity_instance, created = Entity.objects.get_or_create(
@@ -62,16 +62,20 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
 
             if clas == 'Person.emotion':
                 is_emotion = True
-                emotions.append(entity_instance)
-        
+                emotion_instance, created = Emotion.objects.get_or_create(
+                    label=ent['title']
+                )
+                emotions.append(emotion_instance)
+
         if not is_emotion:
-            entities.append(entity_instance)
+            found_entities.append(entity_instance)
 
         data.entities.add(entity_instance)
-    
-    for entity in entities:
+
+    for entity in found_entities:
         for emotion in emotions:
-            EmotionalEntity.objects.create(emotion=emotion, entity=entity, data=data)
+            EmotionalEntity.objects.create(
+                emotion=emotion, entity=entity, data=data)
 
     for key, value in aspects.items():
         if key != "status":
@@ -97,22 +101,21 @@ def assign_user_to_project(project_id, user_id):
     this_project.save
 
 
-def add_chart_to_project(project_id,chart_type,chart_size):
+def add_chart_to_project(project_id, chart_type, chart_size):
     this_project = get_object_or_404(Project, pk=project_id)
-    c,create = Chart.objects.get_or_create(
+    c, create = Chart.objects.get_or_create(
         chart_type=chart_type,
-        chart_size = chart_size
+        chart_size=chart_size
     )
     c.project.add(this_project)
-    
 
 
 def remove_chart_from_project():
     pass
 
 
-def create_user(name,email,password):
-    #TODO add autoemail tor user created
+def create_user(name, email, password):
+    # TODO add autoemail tor user created
     user = User.objects.create_user(username=name,
                                     email=email,
                                     password=password)

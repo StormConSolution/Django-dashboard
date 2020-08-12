@@ -14,7 +14,7 @@ Project.objects.all().delete()
 Data.objects.all().delete()
 
 db_scripts.create_new_project("Project 1")
-user_id = db_scripts.create_user()
+user_id = db_scripts.create_user("test2","123@gmail.com",'123')
 db_scripts.assign_user_to_project(Project.objects.get(name = 'Project 1').id,user_id)
 
 aspects = open('example_data/AR.txt').readlines()
