@@ -12,10 +12,14 @@ class DataAdmin(admin.ModelAdmin):
     readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
 
 class AspectAdmin(admin.ModelAdmin):
-    list_display = ('label', 'sentiment', 'topic')
+    list_display = ('label', '_text', 'sentiment', 'topic')
     list_filter = ('label',)
     readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label', 'sentiment')
     search_fields = ('topic', 'chunk',)
+
+    def _text(self, obj):
+        return obj.data.text
+    _text.short_description = 'Text'
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
