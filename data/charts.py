@@ -98,11 +98,11 @@ class SentimentTimeTable(BaseChart):
         date_list = list(data_set.values_list('date_created', flat=True).distinct())
         
         positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)'}
+                    'backgroundColor': 'rgba(255, 99, 132, 0.2)',"fill":False,}
         negative = {'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
-                    'backgroundColor': 'rgba(54, 162, 235, 0.2)'}
+                    'backgroundColor': 'rgba(54, 162, 235, 0.2)',"fill":False}
         neutral = {'label': 'Neutral', 'data': list(map(lambda d: d['neutral'], list(sentiment_t))),
-                   'backgroundColor': 'rgba(154, 162, 235, 0.2)'}
+                   'backgroundColor': 'rgba(154, 162, 235, 0.2)',"fill":False}
         result['sentiment_t_data'] = [positive,negative,neutral]
         
         return result
@@ -177,7 +177,13 @@ class AspectTimeTable(BaseChart):
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
                 data__entities__label=entity_filter)
-        return {"aspect_t_data":[]}
+        result = {"aspects":{}}
+        result["aspect_t_labels"] = list(aspect_data_set.values_list('label',flat = True).distinct())
+        
+        for aspect in result["aspect_t_labels"]:
+            result["aspects"][aspect] = list(aspect_data_set.filter(label = aspect).values("label").annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created"))
+    
+        return result
 
 
 class SentimentSourseTabel(BaseChart):
