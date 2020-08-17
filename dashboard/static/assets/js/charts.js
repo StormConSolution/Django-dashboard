@@ -99,7 +99,7 @@ var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
   data: {
     labels: project.sentiment_t_labels,
     datasets: project.sentiment_t_data,
-    
+
   },
   options: {
     responsive: true,
@@ -123,7 +123,7 @@ for (const aspect in project.aspects) {
   aspect_t_data.push({
     label: aspect,
     data: data,
-    fill:false,
+    fill: false,
   })
 }
 
@@ -200,5 +200,4 @@ Highcharts.chart('emotion-map', {
       }
     }
   }],
-}
-)
+})
