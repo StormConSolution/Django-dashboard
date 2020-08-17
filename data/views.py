@@ -16,9 +16,12 @@ from data import charts
 
 LOGIN_URL = '/login/'
 
+
+
 def default(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
+
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -54,100 +57,18 @@ def pages(request):
 
 
 def get_chart_data(this_project, start, end, entity_filter):
-
     charts_list = data_models.Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
-    
-    result = {"status": "OK", "data": [], 'list': list(charts_list)}
-    aspect_data_set = data_models.Aspect.objects.filter(
-        data__project=this_project,
-        data__date_created__range=(start, end)
-    )
 
-    data_set = data_models.Data.objects.filter(
-        project=this_project,
-        date_created__range=(start, end)
-    )
-
-    if entity_filter:
-        aspect_data_set = aspect_data_set.filter(
-            data__entities__label=entity_filter)
-        data_set = data_set.filter(entities__label=entity_filter)
-
-    if True or 'sentiment_t' in charts_list:
-        sentiment_t = data_set.values('date_created').annotate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
-            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
-            neutral=Count('sentiment', filter=Q(sentiment=0))
-        ).order_by('date_created')
-
-        result['data'].append({"sentiment_t":list(sentiment_t)})
-
-    if True or 'sentiment_f' in charts_list:
-        sentiment_f = data_set.aggregate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
-            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
-            neutral=Count('sentiment', filter=Q(sentiment=0))
-        )
-        result['data'].append({"sentiment_f": [sentiment_f]})
-
-    if True or 'aspect_t' in charts_list:
-        aspect_t = aspect_data_set.values('label').annotate(Count('label')
-                ).annotate(data__date_created=F("data__date_created")
-                ).order_by("data__date_created")
-        result['data'].append({"aspect_t":list(aspect_t)})
-
-    if True or 'aspect_f' in charts_list:
-        aspect_f = aspect_data_set.values('label').annotate(
-            Count('label')).order_by('label')
-
-        result['data'].append({"aspect_f": list(aspect_f)})
-
-    if True or 'aspect_s' in charts_list:
-        aspect_s = aspect_data_set.values('label').annotate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
-            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
-            neutral=Count('sentiment', filter=Q(sentiment=0))
-        )
-        
-        result['data'].append({"aspect_s": list(aspect_s)})
-    
-    # Get the chart data for the heatmap. For now, load it regardless of any
-    # flags being present in charts_list.
-    if True:
-        # Grab the top 10 entities mentioned with emotion.
-        top_ten_entities = data_models.Entity.objects.filter(data__in=data_set).annotate(
-                data_count=Count('data')).order_by('-data_count')
-        result['entities_for_emotions'] = [e.label for e in top_ten_entities]
-        
-        top_ten_emotions = data_models.EmotionalEntity.objects.filter(entity__in=top_ten_entities).annotate(
-                emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
-        
-        emotion_count = {}
-        for e in data_models.Emotion.objects.all():
-            emotion_count[e.label] = data_models.EmotionalEntity.objects.filter(emotion=e).count()
-        
-        sorted_emotion = sorted(emotion_count.items(), key=lambda item:item[1])
-        result['emotions'] = [k for k,v  in sorted_emotion]
-    
-    if True:
-        # Show sentiment by source.
-        result['source_datasets'] = []
-        result['source_labels'] = list(data_models.Source.objects.values_list('label', flat=True))
-        
-        positive = {'label':'positive', 'data':[], 'backgroundColor':'rgba(255, 99, 132, 0.2)'}
-        negative = {'label':'negative', 'data':[], 'backgroundColor':'rgba(54, 162, 235, 0.2)'}
-
-        for label in result['source_labels']:
-            positive['data'].append(data_models.Data.objects.filter(
-                date_created__range=(start, end), source__label=label, sentiment__gt=0).count())
-            
-            negative['data'].append(data_models.Data.objects.filter(
-                date_created__range=(start, end), source__label=label, sentiment__lt=0).count())
-            
-        result['source_datasets'] = [positive, negative]
+    result = {"status": "OK", 'list': list(charts_list)}
+    for chart_type in charts_list:
+        instance = charts.CHART_LOOKUP[chart_type](this_project, start, end, entity_filter)
+        data = instance.render_data()
+        for key,value in data.items():
+            result[key] = value
 
     return json.dumps(result, sort_keys=True, default=default)
+
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
@@ -169,14 +90,14 @@ def projects(request, project_id):
         'project': this_project,
         'chart_data': get_chart_data(this_project, start, end, entity_filter),
         'query_string': request.GET.urlencode(),
-        'start_date':start,
-        'end_date':end
+        'start_date': start,
+        'end_date': end
     }
 
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
-  
+ 
     return render(request,  "project.html", context)
 
 
@@ -188,7 +109,7 @@ def entities(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
-    
+
     default_start = datetime.date.today() - datetime.timedelta(days=30)
     default_end = datetime.date.today()
 
@@ -196,5 +117,6 @@ def entities(request, project_id):
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
 
-    table = charts.EntityTable(this_project, start, end, request.GET.get('entity'))
+    table = charts.EntityTable(
+        this_project, start, end, request.GET.get('entity'))
     return JsonResponse(table.render_data())
