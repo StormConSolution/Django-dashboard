@@ -80,11 +80,12 @@ def projects(request, project_id):
 
     entity_filter = request.GET.get('entity')
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
+    default_start = str(datetime.date.today() - datetime.timedelta(days=30))
+    default_end = str(datetime.date.today())
 
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = datetime.datetime.strptime(request.GET.get('start', default_start),"%Y-%m-%d")
+    end = datetime.datetime.strptime(request.GET.get('end', default_end),"%Y-%m-%d")    
+         
 
     context = {
         'project': this_project,
@@ -97,7 +98,7 @@ def projects(request, project_id):
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
- 
+
     return render(request,  "project.html", context)
 
 

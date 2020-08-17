@@ -156,10 +156,7 @@
 			}
 		    ]
 		});
-
-		var start = moment().subtract(29, 'days');
-		var end = moment();
-
+		
 		$('input[name="daterange"]').daterangepicker({
 		    opens: 'left',
 		    startDate:'{{ start_date|date:"m-d-Y" }}',
