@@ -28,15 +28,6 @@
                     </div>
                 </div>
             </div>
-	    <div class="card">
-		<div class="card-header">Sentiment Overview</div>
-		<div class="card-body">
-		    <div class="c-chart-wrapper">
-			<canvas id="sentiment_f"></canvas>
-		    </div>
-		</div>
-	    </div>
-	    <!--
             <div class="card-columns cols-2">
                 <div class="card">
                     <div class="card-header">Sentiment Overview</div>
@@ -73,7 +64,7 @@
                     </div>
                 </div>
             </div>
-	    -->
+	   
         </div>
 	    <div class="card mt-3">
 		<div class="card-header">Sentiment by source</div>
@@ -187,18 +178,17 @@
 		    marginBottom: 140,
 		    plotBorderWidth: 1
 		},
-
-
+		
 		title: {
 		    text: 'Emotion expressed by entity'
 		},
 
 		xAxis: {
-		    categories: project_data.entities_for_emotions
+		    categories: project.entities_for_emotions
 		},
 
 		yAxis: {
-		    categories: project_data.emotions,
+		    categories: project.emotions,
 		    title: null,
 		    reversed: true
 		},
