@@ -19,17 +19,15 @@ var random = function random() {
 var project = project_data;
 
 var colours = [
-     'rgba(255, 99, 132, 0.2)',
-     'rgba(54, 162, 235, 0.2)',
-     'rgba(255, 206, 86, 0.2)',
-     'rgba(75, 192, 192, 0.2)',
-     'rgba(153, 102, 255, 0.2)',
-     'rgba(255, 159, 64, 0.2)'
+  'rgba(255, 99, 132, 0.2)',
+  'rgba(54, 162, 235, 0.2)',
+  'rgba(255, 206, 86, 0.2)',
+  'rgba(75, 192, 192, 0.2)',
+  'rgba(153, 102, 255, 0.2)',
+  'rgba(255, 159, 64, 0.2)'
 ];
 
-
-var ctx = document.getElementById('sentiment_source').getContext('2d');
-var sentimentSourceChart = new Chart(ctx, {
+var sentimentSourceChart = new Chart(document.getElementById('sentiment_source').getContext('2d'), {
   type: 'bar',
   data: {
     labels: project.source_labels,
@@ -46,191 +44,93 @@ var sentimentSourceChart = new Chart(ctx, {
   }
 });
 
-var max = 0
-var datasets = []
-
-/*
-for (i in project.data[3].aspect_f) {
-
-  datasets.push({
-    label: project.data[3].aspect_f[i].label,
-    backgroundColor: 'rgba(151, 187, 205, 0.5)',
-    borderColor: 'rgba(151, 187, 205, 0.8)',
-    highlightFill: 'rgba(151, 187, 205, 0.75)',
-    highlightStroke: 'rgba(151, 187, 205, 1)',
-    data: [project.data[3].aspect_f[i].label__count]
-  })
-  if (project.data[3].aspect_f[i].label__count > max) {
-    max = project.data[3].aspect_f[i].label__count
-  }
-}
-
 var barChart = new Chart(document.getElementById('aspect_f'), {
   type: 'bar',
   data: {
     labels: ['Aspects'],
-    datasets: datasets
+    datasets: project.aspect_f_data
   },
   options: {
     responsive: true,
     scales: {
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          suggestedMax: Math.floor(max * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
-*/
+});
 
 var pieChart = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
   data: {
-    labels: ['Negative', 'Neutral','Positive'],
+    labels: ['Positive', 'Negative', 'Neutral'],
     datasets: [{
-      data: Object.values(project.data[1].sentiment_f[0]),
+      data: project.sentiment_f_data,
       backgroundColor: colours.slice(3)
     }]
   },
   options: {
     responsive: true
   }
-}); // eslint-disable-next-line no-unused-vars
-
-var max_1 = 0
-var datasets_1 = []
-
-for (i in project.data[4].aspect_s) {
-
-  datasets_1.push({
-    label: project.data[4].aspect_s[i].label,
-    backgroundColor: colours[i],
-    data: [project.data[4].aspect_s[i].positive, project.data[4].aspect_s[i].negative, project.data[4].aspect_s[i].neutral]
-  })
-
-}
+});
 
 var aspect_s = new Chart(document.getElementById('aspect_s'), {
   type: 'bar',
   data: {
-    labels: ['Positive', "Negative", 'Neutral'],
-    datasets: datasets_1
+    labels: project.aspect_s_labels, // labes could be ether [p,n,n] or individual aspects , for now individual aspects , but later we could implement a switch
+    datasets: project.aspect_s_data
   },
   options: {
     responsive: true,
     scales: {
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
+});
 
-labels = []
-datasets_2 = []
+var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
+  type: 'line',
+  data: {
+    labels: project.sentiment_t_labels,
+    datasets: project.sentiment_t_data
+  },
+  options: {
+    responsive: true,
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+});
 
-/*for (i in project.data[2].aspect_t) {
-  labels.indexOf(project.data[2].aspect_t[i].data__date_created) === -1 ? labels.push(project.data[2].aspect_t[i].data__date_created) :
-    datasets_2.push({
-      label: project.data[2].aspect_t[i].label,
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[2].aspect_t[i].label__count]
-    })
-}
-
-
-var aspect_t = new Chart(document.getElementById('aspect_t'), {
+/* var aspect_t = new Chart(document.getElementById('aspect_t'), {
   type: 'bar',
   data: {
-    labels: labels,
-    datasets: datasets_2
+    labels: project.aspect_t_labels,
+    datasets: project.aspect_t_data
   },
   options: {
     responsive: true,
     scales: {
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          //suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
-*/
+});
+ */
 
 
-labels_1 = []
-datasets_3 = []
 
-positive = []
-negative = []
-neutral = []
 
-/*
-
-for (i in project.data[0].sentiment_t) {
-  labels_1.indexOf(project.data[0].sentiment_t[i].date_created) === -1 ? labels_1.push(project.data[0].sentiment_t[i].date_created) : null;
-  
-  
-  datasets_3.push({
-      label: 'positive',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].positive]
-  })
-    datasets_3.push({
-      label: 'negative',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].negative]
-  })
-    datasets_3.push({
-      label: 'neutral',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].neutral]
-    })
-
-}
-
-*/
-
-/*var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
-  type: 'bar',
-  data: {
-    labels: labels_1,
-    datasets: datasets_3
-  },
-  options: {
-    responsive: true,
-    scales: {
-      yAxes: [{
-        display: true,
-        ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          //suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
-        }
-      }]
-    }
-  }
-}); // eslint-disable-next-line no-unused-vars
-*/
-//# sourceMappingURL=charts.js.map
