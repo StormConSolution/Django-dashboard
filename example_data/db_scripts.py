@@ -16,22 +16,10 @@ import requests
 APIKEY = 'repustatedemopage'
 HOST = 'http://localhost:9000'
 
-def add_data(project, source, text, lang, with_entities=False, aspect_model=None, aspect=None, date=date.today()):
+def add_data(project, source, text, lang, with_entities=False, aspect_model=None, default_aspect=None, date=date.today()):
 
     sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
         HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang}).json()['score']
-
-    entities = None
-    if with_entities:
-        entities = requests.post('{HOST}/v4/{APIKEY}/entities.json'.format(
-            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang}).json()
-
-    aspects = None
-    if aspect_model is not None:
-        aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
-            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang, 'model': aspect_model}).json()
-    else:
-        aspects = json.loads(aspect)
 
     source, _ = Source.objects.get_or_create(label=source)
 
@@ -46,7 +34,12 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
     emotions = []
     found_entities = []
 
-    for ent in entities['entities']:
+    entities = {}
+    if with_entities:
+        entities = requests.post('{HOST}/v4/{APIKEY}/entities.json'.format(
+            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang}).json()
+
+    for ent in entities.get('entities', []):
         entity_instance, created = Entity.objects.get_or_create(
             label=ent['title']
         )
@@ -75,6 +68,13 @@ def add_data(project, source, text, lang, with_entities=False, aspect_model=None
         for emotion in emotions:
             EmotionalEntity.objects.create(
                 emotion=emotion, entity=entity, data=data)
+    
+    aspects = {}
+    if aspect_model is not None:
+        aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
+            HOST=HOST, APIKEY=APIKEY), {'text': text, 'lang': lang, 'model': aspect_model}).json()
+    elif default_aspect:
+        aspects = json.loads(default_aspect)
 
     for key, value in aspects.items():
         if key != "status":

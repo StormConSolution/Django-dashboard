@@ -5,9 +5,13 @@ Copyright (c) 2019 - present AppSeed.us
 from django.contrib import admin
 from data.models import *
 
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ('date_created', 'name')
+    search_fields = ('name',)
+
 class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
-    list_filter = ('source',)
+    list_filter = ('project', 'source',)
     search_fields = ('text', 'emotionalentity__entity__label', 'emotionalentity__emotion__label',)
     readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
 
@@ -23,3 +27,4 @@ class AspectAdmin(admin.ModelAdmin):
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
+admin.site.register(Project, ProjectAdmin)
