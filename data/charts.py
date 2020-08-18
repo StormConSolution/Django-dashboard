@@ -186,7 +186,7 @@ class AspectTimeTable(BaseChart):
         return result
 
 
-class SentimentSourseTabel(BaseChart):
+class SentimentSourseTable(BaseChart):
 
     def render_data(self):
         # Show sentiment by source.
@@ -239,12 +239,12 @@ class EmotionalEntitiesTable(BaseChart):
         return result
 
 CHART_LOOKUP = {
+    'aspect_f':AspectFrequencyTable,
+    'aspect_s':AspectSentimentTable,
+    'aspect_t':AspectTimeTable,
+    'emotional_entities':EmotionalEntitiesTable,
     'entity_table':EntityTable,
     'sentiment_f':SentimenFrequencyTable,
+    'sentiment_source':SentimentSourseTable,
     'sentiment_t':SentimentTimeTable,
-    'aspect_s':AspectSentimentTable,
-    'aspect_f':AspectFrequencyTable,
-    'aspect_t':AspectTimeTable,
-    'sentiment_source':SentimentSourseTabel,
-    'emotional_entities':EmotionalEntitiesTable
 }
