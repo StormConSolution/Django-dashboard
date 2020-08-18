@@ -19,12 +19,9 @@ var random = function random() {
 var project = project_data;
 
 var colours = [
-  'rgba(255, 99, 132, 0.2)',
-  'rgba(54, 162, 235, 0.2)',
-  'rgba(255, 206, 86, 0.2)',
-  'rgba(75, 192, 192, 0.2)',
-  'rgba(153, 102, 255, 0.2)',
-  'rgba(255, 159, 64, 0.2)'
+  'rgba(60, 180, 75, 0.5)',
+  'rgba(230, 25, 75,0.5)',
+  'rgba(67, 99, 216,0.5)',
 ];
 
 var sentimentSourceChart = new Chart(document.getElementById('sentiment_source').getContext('2d'), {
@@ -44,7 +41,7 @@ var sentimentSourceChart = new Chart(document.getElementById('sentiment_source')
   }
 });
 
-var barChart = new Chart(document.getElementById('aspect_f'), {
+var aspect_f = new Chart(document.getElementById('aspect_f'), {
   type: 'bar',
   data: {
     labels: ['Aspects'],
@@ -62,13 +59,13 @@ var barChart = new Chart(document.getElementById('aspect_f'), {
   }
 });
 
-var pieChart = new Chart(document.getElementById('sentiment_f'), {
+var sentiment_f = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
   data: {
     labels: ['Positive', 'Negative', 'Neutral'],
     datasets: [{
       data: project.sentiment_f_data,
-      backgroundColor: colours.slice(3)
+      backgroundColor: colours
     }]
   },
   options: {
@@ -113,18 +110,22 @@ var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
   }
 });
 
-
 aspect_t_data = []
+var indexOfObject = 0 //iterating over objects is not determenistic, we need a separate index
 for (const aspect in project.aspects) {
   data = []
   for (k in project.aspects[aspect]) {
     data.push({ x: new Date(project.aspects[aspect][k]['data__date_created']), y: project.aspects[aspect][k]["label__count"] })
   }
+  
   aspect_t_data.push({
     label: aspect,
     data: data,
+    backgroundColor:project.colors[indexOfObject%project.colors.length],
+    borderColor:project.colors[indexOfObject%project.colors.length],
     fill: false,
   })
+  indexOfObject+=1
 }
 
 var aspect_t = new Chart(document.getElementById('aspect_t'), {
@@ -138,7 +139,12 @@ var aspect_t = new Chart(document.getElementById('aspect_t'), {
       xAxes: [{
         type: 'time',
         time: {
-          unit: 'month'
+          unit: 'day'
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
         }
       }]
     }

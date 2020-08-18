@@ -4,18 +4,33 @@ from django.db.models import Count, Q, F
 
 from data.models import Entity, Data, Aspect, Source
 
+DEFAULT_COLORS = ['rgba(230, 25, 75,0.5)',
+                  'rgba(60, 180, 75,0.5)',
+                  'rgba(255, 225, 25,0.5)',
+                  'rgba(67, 99, 216,0.5)',
+                  'rgba(245, 130, 49,0.5)',
+                  'rgba(66, 212, 244,0.5)',
+                  'rgba(240, 50, 230,0.5)',
+                  'rgba(250, 190, 212,0.5)',
+                  'rgba(70, 153, 144,0.5)',
+                  'rgba(220, 190, 255,0.5)',
+                  'rgba(255, 250, 200,0.5)',
+                  'rgba(128, 0, 0,0.5)',
+                  'rgba(170, 255, 195,0.5)',
+                  'rgba(0, 0, 117,0.5)'
+                  ]
+COLORS = {
+    'positive': 'rgba(60, 180, 75,0.5)',
+    'negative': 'rgba(230, 25, 75,0.5)',
+    'neutral': 'rgba(67, 99, 216,0.5)',
+    'contrasts': DEFAULT_COLORS
+}
 
+def colors_converter(h):
+    """hex to rgb"""
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 class BaseChart:
-    colours = [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 206, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)'
-    ]
-
     def __init__(self, project, start, end, entity_filter):
         self.project = project
         self.start = start
@@ -30,7 +45,6 @@ class BaseChart:
 
 
 class EntityTable(BaseChart):
-
 
     def render_data(self):
         entity_set = Entity.objects.filter(
@@ -71,11 +85,10 @@ class SentimenFrequencyTable(BaseChart):
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
 
-        return {"sentiment_f_data":list(sentiment_f.values())}
+        return {"sentiment_f_data": list(sentiment_f.values())}
 
 
 class SentimentTimeTable(BaseChart):
-
 
     def render_data(self):
         data_set = Data.objects.filter(
@@ -91,27 +104,26 @@ class SentimentTimeTable(BaseChart):
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         ).order_by('date_created')
-        
-        result = {'sentiment_t_labels':[]}
+
+        result = {'sentiment_t_labels': []}
         for sentiment in list(sentiment_t):
             result['sentiment_t_labels'].append(sentiment['date_created'])
-        date_list = list(data_set.values_list('date_created', flat=True).distinct())
-        
+        date_list = list(data_set.values_list(
+            'date_created', flat=True).distinct())
+
         positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)',"fill":False,}
+                    'backgroundColor': COLORS['positive'], 'borderColor': COLORS['positive'], "fill": False, }
         negative = {'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
-                    'backgroundColor': 'rgba(54, 162, 235, 0.2)',"fill":False}
+                    'backgroundColor': COLORS['negative'], 'borderColor': COLORS['negative'], "fill": False}
         neutral = {'label': 'Neutral', 'data': list(map(lambda d: d['neutral'], list(sentiment_t))),
-                   'backgroundColor': 'rgba(154, 162, 235, 0.2)',"fill":False}
-        result['sentiment_t_data'] = [positive,negative,neutral]
-        
+                   'backgroundColor': COLORS['neutral'], 'borderColor': COLORS['neutral'], "fill": False}
+        result['sentiment_t_data'] = [positive, negative, neutral]
+
         return result
 
 
 class AspectSentimentTable(BaseChart):
 
-
-    
     def render_data(self):
         aspect_data_set = Aspect.objects.filter(
             data__project=self.project,
@@ -122,29 +134,27 @@ class AspectSentimentTable(BaseChart):
             aspect_data_set = aspect_data_set.filter(
                 data__entities__label=entity_filter)
 
-
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
-        result = {'aspect_s_labels':[]}
+        result = {'aspect_s_labels': []}
         for aspect in list(aspect_s):
             result['aspect_s_labels'].append(aspect['label'])
 
         positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(aspect_s))),
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)'}
+                    'backgroundColor': COLORS['positive']}
         negative = {'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(aspect_s))),
-                    'backgroundColor': 'rgba(54, 162, 235, 0.2)'}
+                    'backgroundColor': COLORS['negative']}
         neutral = {'label': 'Neutral', 'data': list(map(lambda d: d['neutral'], list(aspect_s))),
-                   'backgroundColor': 'rgba(154, 162, 235, 0.2)'}
-        result['aspect_s_data'] = [positive,negative,neutral]
- 
+                   'backgroundColor': COLORS['neutral']}
+        result['aspect_s_data'] = [positive, negative, neutral]
+
         return result
 
 
 class AspectFrequencyTable(BaseChart):
-
 
     def render_data(self):
 
@@ -160,10 +170,13 @@ class AspectFrequencyTable(BaseChart):
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
         aspect_f_data = []
+        k = 0
         for i in list(aspect_f):
-            aspect_f_data.append({'label': i['label'], 'data': [i['label__count']], "backgroundColor": 'rgba(151, 187, 205, 0.5)',
-                                  "borderColor": 'rgba(151, 187, 205, 0.8)', "highlightFill": 'rgba(151, 187, 205, 0.75)', "highlightStroke": 'rgba(151, 187, 205, 1)'})
-        return {'aspect_f_data':aspect_f_data}
+            color = COLORS['contrasts'][k%len(COLORS['contrasts'])]
+            aspect_f_data.append({'label': i['label'], 'data': [i['label__count']], "backgroundColor":color,"borderColor": color})
+            k+=1
+
+        return {'aspect_f_data': aspect_f_data}
 
 
 class AspectTimeTable(BaseChart):
@@ -177,12 +190,15 @@ class AspectTimeTable(BaseChart):
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
                 data__entities__label=entity_filter)
-        result = {"aspects":{}}
-        result["aspect_t_labels"] = list(aspect_data_set.values_list('label',flat = True).distinct())
-        
+        result = {"aspects": {}}
+        result["aspect_t_labels"] = list(
+            aspect_data_set.values_list('label', flat=True).distinct())
+
         for aspect in result["aspect_t_labels"]:
-            result["aspects"][aspect] = list(aspect_data_set.filter(label = aspect).values("label").annotate(Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created"))
-    
+            result["aspects"][aspect] = list(aspect_data_set.filter(label=aspect).values("label").annotate(
+                Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created"))
+        
+
         return result
 
 
@@ -191,12 +207,13 @@ class SentimentSourseTabel(BaseChart):
     def render_data(self):
         # Show sentiment by source.
         result = {}
-        result['source_labels'] = list(Source.objects.values_list('label', flat=True))
+        result['source_labels'] = list(
+            Source.objects.values_list('label', flat=True))
 
         positive = {'label': 'positive', 'data': [],
-                    'backgroundColor': 'rgba(255, 99, 132, 0.2)'}
+                    'backgroundColor': COLORS['positive']}
         negative = {'label': 'negative', 'data': [],
-                    'backgroundColor': 'rgba(54, 162, 235, 0.2)'}
+                    'backgroundColor': COLORS['negative']}
 
         for label in result['source_labels']:
             positive['data'].append(data_models.Data.objects.filter(
@@ -235,16 +252,17 @@ class EmotionalEntitiesTable(BaseChart):
         sorted_emotion = sorted(emotion_count.items(),
                                 key=lambda item: item[1])
         result['emotions'] = [k for k, v in sorted_emotion]
-        
+
         return result
 
+
 CHART_LOOKUP = {
-    'entity_table':EntityTable,
-    'sentiment_f':SentimenFrequencyTable,
-    'sentiment_t':SentimentTimeTable,
-    'aspect_s':AspectSentimentTable,
-    'aspect_f':AspectFrequencyTable,
-    'aspect_t':AspectTimeTable,
-    'sentiment_source':SentimentSourseTabel,
-    'emotional_entities':EmotionalEntitiesTable
+    'entity_table': EntityTable,
+    'sentiment_f': SentimenFrequencyTable,
+    'sentiment_t': SentimentTimeTable,
+    'aspect_s': AspectSentimentTable,
+    'aspect_f': AspectFrequencyTable,
+    'aspect_t': AspectTimeTable,
+    'sentiment_source': SentimentSourseTabel,
+    'emotional_entities': EmotionalEntitiesTable
 }
