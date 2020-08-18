@@ -60,7 +60,7 @@ def get_chart_data(this_project, start, end, entity_filter):
     charts_list = data_models.Chart.objects.filter(
         project=this_project).values_list('chart_type', flat=True)
 
-    result = {"status": "OK", 'list': list(charts_list)}
+    result = {"status": "OK", 'list': list(charts_list),'colors' : charts.COLORS['contrasts']}
     for chart_type in charts_list:
         instance = charts.CHART_LOOKUP[chart_type](this_project, start, end, entity_filter)
         data = instance.render_data()
@@ -93,8 +93,9 @@ def projects(request, project_id):
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
-        'colors' :charts.COLORS['contrasts']
     }
+
+
 
     # List of projects for the sidebar
     context['project_list'] = list(
