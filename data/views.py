@@ -57,7 +57,7 @@ def pages(request):
 
 
 def get_chart_data(this_project, start, end, entity_filter):
-    charts_list = this_project.charts.values_list('chart_type', flat=True)
+    charts_list = this_project.charts.values_list('label', flat=True)
 
     result = {"status": "OK", 'list': list(charts_list)}
     for chart_type in charts_list:
