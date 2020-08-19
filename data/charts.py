@@ -136,7 +136,7 @@ class AspectSentimentTable(BaseChart):
 
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
-                data__entities__label=entity_filter)
+                data__entities__label=self.entity_filter)
 
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -169,7 +169,7 @@ class AspectFrequencyTable(BaseChart):
 
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
-                data__entities__label=entity_filter)
+                data__entities__label=self.entity_filter)
 
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
@@ -195,7 +195,7 @@ class AspectTimeTable(BaseChart):
 
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
-                data__entities__label=entity_filter)
+                data__entities__label=self.entity_filter)
         result = {"aspects": {}}
         result["aspect_t_labels"] = list(
             aspect_data_set.values_list('label', flat=True).distinct())
