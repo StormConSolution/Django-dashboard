@@ -121,8 +121,8 @@ for (const aspect in project.aspects) {
   aspect_t_data.push({
     label: aspect,
     data: data,
-    backgroundColor:project.colors[indexOfObject%project.colors.length],
-    borderColor:project.colors[indexOfObject%project.colors.length],
+    backgroundColor:project.colors[indexOfObject%(project.colors.length-1)],
+    borderColor:project.colors[indexOfObject%(project.colors.length-1)],
     fill: false,
   })
   indexOfObject+=1

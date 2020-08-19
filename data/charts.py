@@ -174,12 +174,11 @@ class AspectFrequencyTable(BaseChart):
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
         aspect_f_data = []
-        k = 0
-        for i in list(aspect_f):
-            color = COLORS['contrasts'][k % len(COLORS['contrasts'])]
+    
+        for index,i in enumerate(list(aspect_f)):
+            color = COLORS['contrasts'][index % (len(COLORS['contrasts'])-1)]
             aspect_f_data.append({'label': i['label'], 'data': [
                                  i['label__count']], "backgroundColor": color, "borderColor": color})
-            k += 1
         aspect_f_data = sorted(
             aspect_f_data, key=itemgetter('data'), reverse=True)
         return {'aspect_f_data': aspect_f_data}
