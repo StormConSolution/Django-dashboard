@@ -42,7 +42,7 @@ var sentimentSourceChart = new Chart(document.getElementById('sentiment_source')
 });
 
 var aspect_f = new Chart(document.getElementById('aspect_f'), {
-  type: 'bar',
+  type: 'horizontalBar',
   data: {
     labels: ['Aspects'],
     datasets: project.aspect_f_data

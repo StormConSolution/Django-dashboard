@@ -4,6 +4,8 @@ from django.db.models import Count, Q, F
 
 from data.models import Entity, Data, Aspect, Source
 
+from operator import itemgetter
+
 DEFAULT_COLORS = ['rgba(230, 25, 75,0.5)',
                   'rgba(60, 180, 75,0.5)',
                   'rgba(255, 225, 25,0.5)',
@@ -175,7 +177,7 @@ class AspectFrequencyTable(BaseChart):
             color = COLORS['contrasts'][k%len(COLORS['contrasts'])]
             aspect_f_data.append({'label': i['label'], 'data': [i['label__count']], "backgroundColor":color,"borderColor": color})
             k+=1
-
+        aspect_f_data = sorted(aspect_f_data, key=itemgetter('data'),reverse=True) 
         return {'aspect_f_data': aspect_f_data}
 
 
