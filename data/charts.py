@@ -251,14 +251,12 @@ class EmotionalEntitiesTable(BaseChart):
         top_ten_emotions = data_models.EmotionalEntity.objects.filter(entity__in=top_ten_entities).values('emotion__label').annotate(
             emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
         result['emotions'] = [e['emotion__label'] for e in top_ten_emotions]
-
         result['emotional_entity_data'] = []
-        for index_m, emotion in enumerate(result['emotions']):
-            for index_n, entity in enumerate(result['entities_for_emotions']):
-                x = data_models.EmotionalEntity.objects.filter(
-                    entity__label=entity, emotion__label=emotion).aggregate(models.Count("emotion"))
-                result['emotional_entity_data'].append(
-                    [index_m, index_n, x['emotion__count']])
+        
+        for index_n, entity in enumerate(result['entities_for_emotions']):
+            x = list(data_models.EmotionalEntity.objects.filter(entity__label = entity,emotion__label__in=result['emotions']).values("emotion__label").annotate(Count("emotion")).order_by("-emotion__count"))
+            for index_m,emotion in enumerate(list(x)):
+                result['emotional_entity_data'].append([index_m, index_n, emotion['emotion__count']])
         return result
 
 
