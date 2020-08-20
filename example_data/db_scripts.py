@@ -95,13 +95,12 @@ def create_new_project(project_name):
 def assign_user_to_project(project, user):
     project.users.add(user)
 
-def add_chart_to_project(project_id, chart_type, chart_size):
+def add_chart_to_project(project_id, chart_type):
     this_project = get_object_or_404(Project, pk=project_id)
-    c, create = Chart.objects.get_or_create(
-        chart_type=chart_type,
-        chart_size=chart_size
+    c, create = ChartType.objects.get_or_create(
+        label=chart_type
     )
-    c.project.add(this_project)
+    this_project.charts.add(c)
 
 def remove_chart_from_project():
     pass

@@ -19,17 +19,12 @@ var random = function random() {
 var project = project_data;
 
 var colours = [
-     'rgba(255, 99, 132, 0.2)',
-     'rgba(54, 162, 235, 0.2)',
-     'rgba(255, 206, 86, 0.2)',
-     'rgba(75, 192, 192, 0.2)',
-     'rgba(153, 102, 255, 0.2)',
-     'rgba(255, 159, 64, 0.2)'
+  'rgba(60, 180, 75, 0.5)',
+  'rgba(230, 25, 75,0.5)',
+  'rgba(67, 99, 216,0.5)',
 ];
 
-
-var ctx = document.getElementById('sentiment_source').getContext('2d');
-var sentimentSourceChart = new Chart(ctx, {
+var sentimentSourceChart = new Chart(document.getElementById('sentiment_source').getContext('2d'), {
   type: 'bar',
   data: {
     labels: project.source_labels,
@@ -46,191 +41,169 @@ var sentimentSourceChart = new Chart(ctx, {
   }
 });
 
-var max = 0
-var datasets = []
-
-/*
-for (i in project.data[3].aspect_f) {
-
-  datasets.push({
-    label: project.data[3].aspect_f[i].label,
-    backgroundColor: 'rgba(151, 187, 205, 0.5)',
-    borderColor: 'rgba(151, 187, 205, 0.8)',
-    highlightFill: 'rgba(151, 187, 205, 0.75)',
-    highlightStroke: 'rgba(151, 187, 205, 1)',
-    data: [project.data[3].aspect_f[i].label__count]
-  })
-  if (project.data[3].aspect_f[i].label__count > max) {
-    max = project.data[3].aspect_f[i].label__count
-  }
-}
-
-var barChart = new Chart(document.getElementById('aspect_f'), {
-  type: 'bar',
+var aspect_f = new Chart(document.getElementById('aspect_f'), {
+  type: 'horizontalBar',
   data: {
     labels: ['Aspects'],
-    datasets: datasets
+    datasets: project.aspect_f_data
   },
   options: {
     responsive: true,
     scales: {
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          suggestedMax: Math.floor(max * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
-*/
+});
 
-var pieChart = new Chart(document.getElementById('sentiment_f'), {
+var sentiment_f = new Chart(document.getElementById('sentiment_f'), {
   type: 'pie',
   data: {
-    labels: ['Negative', 'Neutral','Positive'],
+    labels: ['Positive', 'Negative', 'Neutral'],
     datasets: [{
-      data: Object.values(project.data[1].sentiment_f[0]),
-      backgroundColor: colours.slice(3)
+      data: project.sentiment_f_data,
+      backgroundColor: colours
     }]
   },
   options: {
     responsive: true
   }
-}); // eslint-disable-next-line no-unused-vars
-
-var max_1 = 0
-var datasets_1 = []
-
-for (i in project.data[4].aspect_s) {
-
-  datasets_1.push({
-    label: project.data[4].aspect_s[i].label,
-    backgroundColor: colours[i],
-    data: [project.data[4].aspect_s[i].positive, project.data[4].aspect_s[i].negative, project.data[4].aspect_s[i].neutral]
-  })
-
-}
+});
 
 var aspect_s = new Chart(document.getElementById('aspect_s'), {
   type: 'bar',
   data: {
-    labels: ['Positive', "Negative", 'Neutral'],
-    datasets: datasets_1
+    labels: project.aspect_s_labels, // labes could be ether [p,n,n] or individual aspects , for now individual aspects , but later we could implement a switch
+    datasets: project.aspect_s_data
   },
   options: {
     responsive: true,
     scales: {
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
+});
 
-labels = []
-datasets_2 = []
+var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
+  type: 'line',
+  data: {
+    labels: project.sentiment_t_labels,
+    datasets: project.sentiment_t_data,
 
-/*for (i in project.data[2].aspect_t) {
-  labels.indexOf(project.data[2].aspect_t[i].data__date_created) === -1 ? labels.push(project.data[2].aspect_t[i].data__date_created) :
-    datasets_2.push({
-      label: project.data[2].aspect_t[i].label,
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[2].aspect_t[i].label__count]
-    })
+  },
+  options: {
+    responsive: true,
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+});
+
+aspect_t_data = []
+var indexOfObject = 0 //iterating over objects is not determenistic, we need a separate index
+for (const aspect in project.aspects) {
+  data = []
+  for (k in project.aspects[aspect]) {
+    data.push({ x: new Date(project.aspects[aspect][k]['data__date_created']), y: project.aspects[aspect][k]["label__count"] })
+  }
+  
+  aspect_t_data.push({
+    label: aspect,
+    data: data,
+    backgroundColor:project.colors[indexOfObject%(project.colors.length-1)],
+    borderColor:project.colors[indexOfObject%(project.colors.length-1)],
+    fill: false,
+  })
+  indexOfObject+=1
 }
-
 
 var aspect_t = new Chart(document.getElementById('aspect_t'), {
-  type: 'bar',
+  type: 'line',
   data: {
-    labels: labels,
-    datasets: datasets_2
+    datasets: aspect_t_data
   },
   options: {
     responsive: true,
     scales: {
+      xAxes: [{
+        type: 'time',
+        time: {
+          unit: 'day'
+        }
+      }],
       yAxes: [{
-        display: true,
         ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          //suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
+          beginAtZero: true
         }
       }]
     }
   }
-}); // eslint-disable-next-line no-unused-vars
-*/
+});
 
+Highcharts.chart('emotion-map', {
 
-labels_1 = []
-datasets_3 = []
-
-positive = []
-negative = []
-neutral = []
-
-/*
-
-for (i in project.data[0].sentiment_t) {
-  labels_1.indexOf(project.data[0].sentiment_t[i].date_created) === -1 ? labels_1.push(project.data[0].sentiment_t[i].date_created) : null;
-  
-  
-  datasets_3.push({
-      label: 'positive',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].positive]
-  })
-    datasets_3.push({
-      label: 'negative',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].negative]
-  })
-    datasets_3.push({
-      label: 'neutral',
-      backgroundColor: 'rgba(151, 187, 205, 0.5)',
-      borderColor: 'rgba(151, 187, 205, 0.8)',
-      highlightFill: 'rgba(151, 187, 205, 0.75)',
-      highlightStroke: 'rgba(151, 187, 205, 1)',
-      data: [project.data[0].sentiment_t[i].neutral]
-    })
-
-}
-
-*/
-
-/*var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
-  type: 'bar',
-  data: {
-    labels: labels_1,
-    datasets: datasets_3
+  chart: {
+    type: 'heatmap',
+    marginTop: 40,
+    marginBottom: 140,
+    plotBorderWidth: 1
   },
-  options: {
-    responsive: true,
-    scales: {
-      yAxes: [{
-        display: true,
-        ticks: {
-          suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-          //suggestedMax: Math.floor(max_1 * (120 / 100)) //tallest bar is always about 20% below the top of the chart
-        }
-      }]
+
+  title: {
+    text: 'Emotion expressed by entity'
+  },
+
+  xAxis: {
+    categories: project.entities_for_emotions
+  },
+
+  yAxis: {
+    categories: project.emotions,
+    title: null,
+    reversed: true
+  },
+
+  colorAxis: {
+    min: 0,
+    minColor: '#FFFFFF',
+    maxColor: Highcharts.getOptions().colors[0]
+  },
+
+  legend: {
+    align: 'right',
+    layout: 'vertical',
+    margin: 0,
+    verticalAlign: 'top',
+    y: 25,
+    symbolHeight: 280
+  },
+
+  tooltip: {
+    formatter: function () {
+      return '<b>' + this.point.value + '</b>';
     }
-  }
-}); // eslint-disable-next-line no-unused-vars
-*/
-//# sourceMappingURL=charts.js.map
+  },
+
+  series: [{
+    name: 'Mentions',
+    data: project.emotional_entity_data, 
+    dataLabels: {
+      enabled: false,
+      style: {
+        fontWeight: 'bold',
+        textOutline: ''
+      }
+    }
+  }],
+})

@@ -29,11 +29,17 @@ LANGUAGES = (
     ('ur', 'Urdu (اردو)'),
 )
 
+class ChartType(models.Model):
+    label = models.CharField(max_length=80, blank=False, unique=True)
+
+    def __str__(self):
+        return self.label
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
+    charts = models.ManyToManyField(ChartType)
 
     def __str__(self):
         return self.name
@@ -97,11 +103,3 @@ class EmotionalEntity(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
     emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
-
-class Chart(models.Model):
-    project = models.ManyToManyField(Project)
-    chart_type = models.CharField(max_length=80, blank=False)
-    chart_size = models.IntegerField(blank=False)
-
-    def __str__(self):
-        return self

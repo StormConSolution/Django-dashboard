@@ -1,7 +1,5 @@
 # -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
+
 from django.contrib import admin
 from data.models import *
 
@@ -14,6 +12,7 @@ class DataAdmin(admin.ModelAdmin):
     list_filter = ('project', 'source',)
     search_fields = ('text', 'emotionalentity__entity__label', 'emotionalentity__emotion__label',)
     readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
+    date_hierarchy = 'date_created'
 
 class AspectAdmin(admin.ModelAdmin):
     list_display = ('label', '_text', 'sentiment', 'topic')
@@ -24,6 +23,14 @@ class AspectAdmin(admin.ModelAdmin):
     def _text(self, obj):
         return obj.data.text
     _text.short_description = 'Text'
+
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ('name', '_data_count')
+    filter_horizontal = ('users', 'charts')
+    
+    def _data_count(self, obj):
+        return obj.data_set.count()
+    _data_count.short_description = 'Data'
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
