@@ -28,13 +28,8 @@ COLORS = {
     'contrasts': DEFAULT_COLORS
 }
 
-
-def colors_converter(h):
-    """hex to rgb"""
-    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-
-
 class BaseChart:
+    
     def __init__(self, project, start, end, entity_filter):
         self.project = project
         self.start = start
@@ -74,6 +69,7 @@ class EntityTable(BaseChart):
 
 
 class SentimenFrequencyTable(BaseChart):
+    
     def render_data(self):
         data_set = Data.objects.filter(
             project=self.project,
@@ -112,8 +108,6 @@ class SentimentTimeTable(BaseChart):
         result = {'sentiment_t_labels': []}
         for sentiment in list(sentiment_t):
             result['sentiment_t_labels'].append(sentiment['date_created'])
-        date_list = list(data_set.values_list(
-            'date_created', flat=True).distinct())
 
         positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
                     'backgroundColor': COLORS['positive'], 'borderColor': COLORS['positive'], "fill": False, }
@@ -175,12 +169,13 @@ class AspectFrequencyTable(BaseChart):
             Count('label')).order_by('label')
         aspect_f_data = []
     
-        for index,i in enumerate(list(aspect_f)):
-            color = COLORS['contrasts'][index % (len(COLORS['contrasts'])-1)]
-            aspect_f_data.append({'label': i['label'], 'data': [
-                                 i['label__count']], "backgroundColor": color, "borderColor": color})
+        for i, aspect in enumerate(list(aspect_f)):
+            color = COLORS['contrasts'][i % (len(COLORS['contrasts'])-1)]
+            aspect_f_data.append({'label': aspect['label'], 'data': [
+                                 aspect['label__count']], "backgroundColor": color, "borderColor": color})
         aspect_f_data = sorted(
             aspect_f_data, key=itemgetter('data'), reverse=True)
+
         return {'aspect_f_data': aspect_f_data}
 
 
@@ -248,15 +243,22 @@ class EmotionalEntitiesTable(BaseChart):
         result['entities_for_emotions'] = [e.label for e in top_ten_entities]
 
         # Query 10 most frequent emotions for the entities
-        top_ten_emotions = data_models.EmotionalEntity.objects.filter(entity__in=top_ten_entities).values('emotion__label').annotate(
+        top_ten_emotions = data_models.EmotionalEntity.objects.filter(
+                entity__in=top_ten_entities).values('emotion__label').annotate(
             emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
         result['emotions'] = [e['emotion__label'] for e in top_ten_emotions]
         result['emotional_entity_data'] = []
         
         for index_n, entity in enumerate(result['entities_for_emotions']):
-            x = list(data_models.EmotionalEntity.objects.filter(entity__label = entity,emotion__label__in=result['emotions']).values("emotion__label").annotate(Count("emotion")).order_by("-emotion__count"))
-            for index_m,emotion in enumerate(list(x)):
+            x = list(data_models.EmotionalEntity.objects.filter(
+                entity__label=entity,
+                emotion__label__in=result['emotions']).values(
+                    "emotion__label").annotate(
+                        Count("emotion")).order_by("-emotion__count"))
+            
+            for index_m, emotion in enumerate(list(x)):
                 result['emotional_entity_data'].append([index_m, index_n, emotion['emotion__count']])
+
         return result
 
 

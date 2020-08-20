@@ -17,8 +17,7 @@ from data import charts
 LOGIN_URL = '/login/'
 
 
-
-def default(o):
+def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
 
@@ -57,16 +56,19 @@ def pages(request):
 
 
 def get_chart_data(this_project, start, end, entity_filter):
-    charts_list = this_project.charts.values_list('label', flat=True)
+    
+    result = {
+        "status": "OK", 
+        "colors": charts.COLORS["contrasts"],
+    }
 
-    result = {"status": "OK", 'list': list(charts_list),'colors' : charts.COLORS['contrasts']}
-    for chart_type in charts_list:
+    for chart_type in this_project.charts.values_list('label', flat=True):
         instance = charts.CHART_LOOKUP[chart_type](this_project, start, end, entity_filter)
         data = instance.render_data()
-        for key,value in data.items():
+        for key, value in data.items():
             result[key] = value
 
-    return json.dumps(result, sort_keys=True, default=default)
+    return json.dumps(result, sort_keys=True, default=default_encoder)
 
 
 @login_required(login_url=LOGIN_URL)
@@ -95,12 +97,11 @@ def projects(request, project_id):
     }
 
 
-
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
 
-    return render(request,  "project.html", context)
+    return render(request, "project.html", context)
 
 
 def entities(request, project_id):
@@ -121,4 +122,5 @@ def entities(request, project_id):
 
     table = charts.EntityTable(
         this_project, start, end, request.GET.get('entity'))
+    
     return JsonResponse(table.render_data())
