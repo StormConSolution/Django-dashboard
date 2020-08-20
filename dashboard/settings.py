@@ -151,6 +151,10 @@ USER_NAME = ""
 PASSWORD = ""
 SQL_HOST = '127.0.0.1'
 
+# Used by the add_data view. Set proper values in settings_local
+HOST = 'http://api.repustate.com'
+APIKEY = 'APIKEY'
+
 try:
     from .settings_local import *
 except:
@@ -159,7 +163,6 @@ except:
 
 if (os.environ.get('DOCKER', False)):
     SQL_HOST = 'postgres_data'
-
 
 DATABASES = {
     "default": {

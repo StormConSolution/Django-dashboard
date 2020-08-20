@@ -46,6 +46,9 @@ class Project(models.Model):
 
     class Meta:
         get_latest_by = 'date_created'
+    
+    def show_entities(self):
+        return self.charts.filter(label='entity_table').count() > 0
 
 class Classification(models.Model):
     label = models.CharField(max_length=80)

@@ -10,11 +10,12 @@ urlpatterns = [
 
     # The home page
     path('', views.index, name='home'),
-    path('projects/<int:project_id>/', views.projects, name='projects'),
     
-    path('entities/<int:project_id>/', views.entities, name='entities'),
-    
+    path('add-data-to-project/<int:project_id>/', views.add_data, name='add-data-to-project'),
     path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),
+    path('create-project/', views.create_project, name='create-project'),
+    path('entities/<int:project_id>/', views.entities, name='entities'),
+    path('projects/<int:project_id>/', views.projects, name='projects'),
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),

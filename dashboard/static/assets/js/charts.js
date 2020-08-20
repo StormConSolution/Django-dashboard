@@ -73,18 +73,34 @@ var sentiment_f = new Chart(document.getElementById('sentiment_f'), {
   }
 });
 
+// labels could be ether [p,n,n] or individual aspects, for now individual
+// aspects, but later we could implement a switch
 var aspect_s = new Chart(document.getElementById('aspect_s'), {
   type: 'bar',
   data: {
-    labels: project.aspect_s_labels, // labes could be ether [p,n,n] or individual aspects , for now individual aspects , but later we could implement a switch
+    labels: project.aspect_s_labels, 
     datasets: project.aspect_s_data
   },
   options: {
     responsive: true,
+      layout: {
+            padding: {
+                left: 50,
+                right: 0,
+                top: 0,
+                bottom: 0
+            }
+        },
     scales: {
       yAxes: [{
         ticks: {
           beginAtZero: true
+        }
+      }],
+      xAxes: [{
+        ticks: {
+	    autoSkip:false,
+	    padding:20
         }
       }]
     }

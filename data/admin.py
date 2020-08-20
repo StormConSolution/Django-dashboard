@@ -32,6 +32,11 @@ class ProjectAdmin(admin.ModelAdmin):
         return obj.data_set.count()
     _data_count.short_description = 'Data'
 
+class EntityAdmin(admin.ModelAdmin):
+    list_display = ('label',)
+    search_fields = ('label',)
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Entity, EntityAdmin)

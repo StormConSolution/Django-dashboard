@@ -5,7 +5,7 @@
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
     <link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet"/>
-    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="/static/assets/css/jquery.dataTables.min.css" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 {% endblock stylesheets %}
 
@@ -72,6 +72,8 @@
 		    </div>
 		</div>
 	    </div>
+
+	    {% if project.show_entities %}
 	    <div class="card mt-3">
 		<div class="card-header">Entities</div>
 		<div class="card-body">
@@ -88,6 +90,8 @@
 		    </div>
 		</div>
 	    </div>
+	    {% endif %}
+
 	    <div class="card mt-3">
 		<div class="card-header">Aspect topics</div>
 		<div class="card-body">
@@ -104,7 +108,7 @@
 		    </div>
 		</div>
 	    </div>
-	    <div class="card mt-3">
+	    <div class="card mt-3" {% if not project_data.emotions %}style="display:none;"{% endif %}>
 		<div class="card-header">Emotion &amp; Entities</div>
 		<div class="card-body">
 		    <div class="c-chart-wrapper">
@@ -134,8 +138,8 @@
 {% block javascripts %}
 	{%if chart_data %}
 	
-	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-	<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+	<script type="text/javascript" src="/static/assets/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 	
@@ -145,9 +149,8 @@
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
 	<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-
 	<script src="/static/assets/vendors/@coreui/chartjs/js/coreui-chartjs.bundle.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+    	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 	<script src="/static/assets/vendors/@coreui/utils/js/coreui-utils.js"></script>
 
 	<!-- has to be last -->
@@ -155,6 +158,7 @@
 
 	<script type="text/javascript">
 	    $(function() {
+		{% if project.show_entities %}
 		$('#entities').DataTable( {
 		    "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
 		    "order": [[2, "desc"]],
@@ -170,10 +174,22 @@
 			}
 		    ]
 		});
+		{% endif %}
 		
 		$('#aspect-topics').DataTable( {
 		    "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
-		    "order": [[2, "desc"]]
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?aspecttopic="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ]
 		});
 		
 		$('input[name="daterange"]').daterangepicker({
