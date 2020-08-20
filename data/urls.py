@@ -13,6 +13,8 @@ urlpatterns = [
     path('projects/<int:project_id>/', views.projects, name='projects'),
     
     path('entities/<int:project_id>/', views.entities, name='entities'),
+    
+    path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),

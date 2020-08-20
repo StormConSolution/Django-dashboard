@@ -67,6 +67,29 @@ class EntityTable(BaseChart):
 
         return entities
 
+class AspectTopicTable(BaseChart):
+
+    def render_data(self):
+        aspect_set = Aspect.objects.filter(
+            data__date_created__range=(self.start, self.end),
+            data__project=self.project
+        )
+        if self.entity_filter:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(entities__label=self.entity_filter))
+
+        aspect_count = aspect_set.values_list('topic').annotate(
+                topic_count=Count('topic')).order_by('-topic_count')
+        
+        aspects = {"data": []}
+        for topic, count in aspect_count:
+            aspects["data"].append([
+                topic,
+                Aspect.objects.filter(topic=topic)[0].label,
+                count
+            ])
+
+        return aspects
 
 class SentimenFrequencyTable(BaseChart):
     
@@ -266,6 +289,7 @@ CHART_LOOKUP = {
     'aspect_f':AspectFrequencyTable,
     'aspect_s':AspectSentimentTable,
     'aspect_t':AspectTimeTable,
+    'aspect_table':AspectTopicTable,
     'emotional_entities':EmotionalEntitiesTable,
     'entity_table':EntityTable,
     'sentiment_f':SentimenFrequencyTable,

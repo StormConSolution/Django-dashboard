@@ -91,6 +91,22 @@
 		</div>
 	    </div>
 	    <div class="card mt-3">
+		<div class="card-header">Aspect topics</div>
+		<div class="card-body">
+		    <div class="c-chart-wrapper">
+			<table id="aspect-topics" class="display" style="width:100%">
+			    <thead>
+				<tr>
+				    <th>Topic</th>
+				    <th>Aspect</th>
+				    <th>Frequency</th>
+				</tr>
+			    </thead>
+			</table>
+		    </div>
+		</div>
+	    </div>
+	    <div class="card mt-3">
 		<div class="card-header">Emotion &amp; Entities</div>
 		<div class="card-body">
 		    <div class="c-chart-wrapper">
@@ -155,6 +171,11 @@
 			    "targets": 0
 			}
 		    ]
+		});
+		
+		$('#aspect-topics').DataTable( {
+		    "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]]
 		});
 		
 		$('input[name="daterange"]').daterangepicker({

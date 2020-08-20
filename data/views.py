@@ -21,7 +21,6 @@ def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
 
-
 @login_required(login_url=LOGIN_URL)
 def index(request):
     """
@@ -77,7 +76,7 @@ def projects(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
-        return HttpResponseForbidden()
+        return HttpResponseRedirect(LOGIN_URL)
 
     entity_filter = request.GET.get('entity')
 
@@ -116,11 +115,30 @@ def entities(request, project_id):
     default_start = datetime.date.today() - datetime.timedelta(days=30)
     default_end = datetime.date.today()
 
-    # TODO: pass the start/end values.
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
 
     table = charts.EntityTable(
+        this_project, start, end, request.GET.get('entity'))
+    
+    return JsonResponse(table.render_data())
+
+def aspect_topics(request, project_id):
+    """
+    Show the frequency of occurence for the topics found in the aspects.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.AspectTopicTable(
         this_project, start, end, request.GET.get('entity'))
     
     return JsonResponse(table.render_data())
