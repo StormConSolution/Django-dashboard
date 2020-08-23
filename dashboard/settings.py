@@ -155,11 +155,8 @@ SQL_HOST = '127.0.0.1'
 HOST = 'http://api.repustate.com'
 APIKEY = 'APIKEY'
 
-try:
-    from .settings_local import *
-except:
-    pass
-
+# This has the side affect of shadowing variables and overriding them.
+from .settings_local import *
 
 if (os.environ.get('DOCKER', False)):
     SQL_HOST = 'postgres_data'
