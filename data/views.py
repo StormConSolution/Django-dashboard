@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import Count, Q, F
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
@@ -20,7 +20,6 @@ from data import models as data_models
 from data import charts
 
 LOGIN_URL = '/login/'
-
 
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):

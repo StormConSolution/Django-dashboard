@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
-
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+
 from data.models import *
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -25,9 +26,17 @@ class AspectAdmin(admin.ModelAdmin):
     _text.short_description = 'Text'
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', '_data_count')
+    list_display = ('name', '_data_count', '_view')
     filter_horizontal = ('users', 'charts')
-    
+
+    def _view(self, obj):
+        return mark_safe('<a href="{0}">{1}</a>'.format(
+            obj.get_absolute_url(),
+            ("View on site"))
+        )
+    _view.allow_tags = True
+    _view.short_description = "View on site"
+
     def _data_count(self, obj):
         return obj.data_set.count()
     _data_count.short_description = 'Data'

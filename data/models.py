@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
+from django.urls import reverse
 
 
 LANGUAGES = (
@@ -50,6 +51,9 @@ class Project(models.Model):
     def show_entities(self):
         return self.charts.filter(label='entity_table').count() > 0
 
+    def get_absolute_url(self):
+        return reverse('projects', kwargs={'project_id':self.id})
+
 class Classification(models.Model):
     label = models.CharField(max_length=80)
     
@@ -62,6 +66,9 @@ class Entity(models.Model):
 
     def __str__(self):
         return self.label
+
+    class Meta:
+        verbose_name_plural = 'Entities'
 
 class Emotion(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
