@@ -157,6 +157,9 @@ def create_project(request):
     `project_name`: the name of the Project. If it doesn't exist, create it.
     `user`: the user name to add to this project, if it doesn't exist. User is assumed to exist.
     """
+    if 'name' not in request.POST or 'username' not in request.POST:
+        return JsonResponse({"status":"Fail", "description":"Both `name` and `username` are required"})
+
     proj, _ = data_models.Project.objects.get_or_create(name=request.POST['name'])
     user, _ = User.objects.get_or_create(username=request.POST['user'])
     proj.users.add(user)
