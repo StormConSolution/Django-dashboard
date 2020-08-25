@@ -161,7 +161,7 @@ def create_project(request):
         return JsonResponse({"status":"Fail", "description":"Both `name` and `username` are required"})
 
     proj, _ = data_models.Project.objects.get_or_create(name=request.POST['name'])
-    user, _ = User.objects.get_or_create(username=request.POST['user'])
+    user, _ = User.objects.get_or_create(username=request.POST['username'])
     proj.users.add(user)
 
     return JsonResponse({"status":"OK", "project_id":proj.id})
