@@ -152,7 +152,7 @@ PASSWORD = ""
 SQL_HOST = '127.0.0.1'
 
 # Used by the add_data view. Set proper values in settings_local
-HOST = 'http://api.repustate.com'
+HOST = 'https://api.repustate.com'
 APIKEY = 'APIKEY'
 
 # This has the side affect of shadowing variables and overriding them.
