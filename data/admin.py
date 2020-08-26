@@ -1,8 +1,50 @@
 # -*- encoding: utf-8 -*-
+import datetime
+
 from django.contrib import admin
+from django.http import HttpResponse
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
+
+import unicodecsv
 
 from data.models import *
+
+# Action for exporting a queryset.
+def export_selected_objects(modeladmin, request, queryset):
+
+    model = queryset.model
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(model.__name__)
+    writer = unicodecsv.writer(response, encoding='utf-8')
+
+    # Write headers to CSV file
+    headers = []
+    for field in model._meta.fields:
+        headers.append(field.verbose_name.title())
+
+    writer.writerow(headers)
+
+    # Write data to CSV file
+    for obj in queryset:
+        row = []
+        for field in model._meta.fields:
+            try:
+                val = getattr(obj, field.name, None)
+            except:
+                row.append('')
+                continue
+            if callable(val):
+                val = val()
+            if isinstance(val, datetime.datetime):
+                row.append(val.strftime('%m-%d-%Y'))
+            else:
+                row.append(val)
+        writer.writerow(row)
+    return response
+
+export_selected_objects.short_description = 'Export search results'
+admin.site.add_action(export_selected_objects)
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'name')
@@ -17,7 +59,7 @@ class DataAdmin(admin.ModelAdmin):
 
 class AspectAdmin(admin.ModelAdmin):
     list_display = ('label', '_text', 'sentiment', 'topic')
-    list_filter = ('label',)
+    list_filter = ('label', 'data__project')
     readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label', 'sentiment')
     search_fields = ('topic', 'chunk',)
 
