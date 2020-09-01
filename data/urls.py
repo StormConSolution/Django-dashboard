@@ -11,9 +11,9 @@ urlpatterns = [
     # The home page
     path('', views.index, name='home'),
     
-    path('add-data-to-project/<int:project_id>/', views.add_data, name='add-data-to-project'),
-    path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),
     path('create-project/', views.create_project, name='create-project'),
+    path('add-data/<int:project_id>/', views.add_data, name='add-data'),
+    path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),
     path('entities/<int:project_id>/', views.entities, name='entities'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
 

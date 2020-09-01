@@ -155,7 +155,7 @@ def create_project(request):
     API endpoint for creating a project. May need some work as we go.
 
     `project_name`: the name of the Project. If it doesn't exist, create it.
-    `user`: the user name to add to this project, if it doesn't exist. User is assumed to exist.
+    `user`: the user name to add to this project. User is assumed to exist.
     """
     if 'name' not in request.POST or 'username' not in request.POST:
         return JsonResponse({"status":"Fail", "description":"Both `name` and `username` are required"})
@@ -188,7 +188,7 @@ def add_data(request, project_id):
     source, _ = data_models.Source.objects.get_or_create(label=request.POST['source'])
 
     data = data_models.Data.objects.create(
-        date_created=datetime.datetime.now().date(),
+        date_created=request.POST.get('date', datetime.datetime.now().date()),
         project=data_models.Project.objects.get(pk=project_id),
         source=source,
         text=text,
