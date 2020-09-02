@@ -50,6 +50,9 @@ class Project(models.Model):
     
     def show_entities(self):
         return self.charts.filter(label='entity_table').count() > 0
+    
+    def show_aspects(self):
+        return self.charts.filter(label='aspect_s').count() > 0
 
     def get_absolute_url(self):
         return reverse('projects', kwargs={'project_id':self.id})

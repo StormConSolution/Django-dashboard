@@ -20,14 +20,16 @@
 
     <div class="container-fluid">
         <div class="fade-in">
-            <div class="card">
-                <div class="card-header">Aspect Sentiment</div>
-                <div class="card-body">
-                    <div class="c-chart-wrapper">
-                        <canvas id="aspect_s"></canvas>
-                    </div>
-                </div>
-            </div>
+			{% if project.show_aspects %}
+				<div class="card">
+					<div class="card-header">Aspect Sentiment</div>
+					<div class="card-body">
+						<div class="c-chart-wrapper">
+							<canvas id="aspect_s"></canvas>
+						</div>
+					</div>
+				</div>
+			{% endif %}
             <div class="card-columns cols-2">
                 <div class="card">
                     <div class="card-header">Sentiment Overview</div>
@@ -56,14 +58,17 @@
 		</div>
             </div>
 	    
-	    <div class="card mt-3">
-		<div class="card-header">Aspect/Time</div>
-		<div class="card-body">
-		    <div class="c-chart-wrapper">
-			<canvas id="aspect_t"></canvas>
-		    </div>
-		</div>
-	    </div>
+		{% if project.show_aspects %}
+			<div class="card mt-3">
+				<div class="card-header">Aspect/Time</div>
+				<div class="card-body">
+					<div class="c-chart-wrapper">
+					<canvas id="aspect_t"></canvas>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
 	    <div class="card mt-3">
 		<div class="card-header">Sentiment by source</div>
 		<div class="card-body">
@@ -91,45 +96,48 @@
 		</div>
 	    </div>
 	    {% endif %}
-
+		
+		{% if project.show_aspects %}
 	    <div class="card mt-3">
-		<div class="card-header">Aspect topics</div>
-		<div class="card-body">
-		    <div class="c-chart-wrapper">
-			<table id="aspect-topics" class="display" style="width:100%">
-			    <thead>
-				<tr>
-				    <th>Topic</th>
-				    <th>Aspect</th>
-				    <th>Frequency</th>
-				</tr>
-			    </thead>
-			</table>
-		    </div>
-		</div>
+			<div class="card-header">Aspect topics</div>
+			<div class="card-body">
+				<div class="c-chart-wrapper">
+				<table id="aspect-topics" class="display" style="width:100%">
+					<thead>
+					<tr>
+						<th>Topic</th>
+						<th>Aspect</th>
+						<th>Frequency</th>
+					</tr>
+					</thead>
+				</table>
+				</div>
+			</div>
 	    </div>
+		{% endif %}
+
 	    <div class="card mt-3" {% if not project_data.emotions %}style="display:none;"{% endif %}>
-		<div class="card-header">Emotion &amp; Entities</div>
-		<div class="card-body">
-		    <div class="c-chart-wrapper">
-			<div id="emotion-map"></div>
-		    </div>
-		</div>
-	    </div>
+			<div class="card-header">Emotion &amp; Entities</div>
+			<div class="card-body">
+				<div class="c-chart-wrapper">
+				<div id="emotion-map"></div>
+				</div>
+			</div>
+			</div>
         </div>
     </div>
     {%else%}
-    <script>
-	var project_data = {};
-    </script>
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="clearfix">
-                <h4 class="float-left display-3 mr-4">No data</h4>
-                </p>
-            </div>
-        </div>
-    </div>
+		<script>
+		var project_data = {};
+		</script>
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="clearfix">
+					<h4 class="float-left display-3 mr-4">No data</h4>
+					</p>
+				</div>
+			</div>
+		</div>
     {%endif%}
 </main>
 {% endblock content %}
