@@ -7,6 +7,10 @@
     <link href="/static/assets/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet"/>
     <link href="/static/assets/css/jquery.dataTables.min.css" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+	<style type="text/css">
+		.hidden {display:none;}
+	</style>
 {% endblock stylesheets %}
 
 {% block content %}
@@ -20,16 +24,14 @@
 
     <div class="container-fluid">
         <div class="fade-in">
-			{% if project.show_aspects %}
-				<div class="card">
-					<div class="card-header">Aspect Sentiment</div>
-					<div class="card-body">
-						<div class="c-chart-wrapper">
-							<canvas id="aspect_s"></canvas>
-						</div>
+			<div class="card {% if not project.show_aspects %}hidden{% endif %}">
+				<div class="card-header">Aspect Sentiment</div>
+				<div class="card-body">
+					<div class="c-chart-wrapper">
+						<canvas id="aspect_s"></canvas>
 					</div>
 				</div>
-			{% endif %}
+			</div>
             <div class="card-columns cols-2">
                 <div class="card">
                     <div class="card-header">Sentiment Overview</div>
@@ -58,16 +60,14 @@
 		</div>
             </div>
 	    
-		{% if project.show_aspects %}
-			<div class="card mt-3">
-				<div class="card-header">Aspect/Time</div>
-				<div class="card-body">
-					<div class="c-chart-wrapper">
-					<canvas id="aspect_t"></canvas>
-					</div>
+		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">
+			<div class="card-header">Aspect/Time</div>
+			<div class="card-body">
+				<div class="c-chart-wrapper">
+				<canvas id="aspect_t"></canvas>
 				</div>
 			</div>
-		{% endif %}
+		</div>
 
 	    <div class="card mt-3">
 		<div class="card-header">Sentiment by source</div>
@@ -97,8 +97,7 @@
 	    </div>
 	    {% endif %}
 		
-		{% if project.show_aspects %}
-	    <div class="card mt-3">
+		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">
 			<div class="card-header">Aspect topics</div>
 			<div class="card-body">
 				<div class="c-chart-wrapper">
@@ -114,7 +113,6 @@
 				</div>
 			</div>
 	    </div>
-		{% endif %}
 
 	    <div class="card mt-3" {% if not project_data.emotions %}style="display:none;"{% endif %}>
 			<div class="card-header">Emotion &amp; Entities</div>
@@ -184,6 +182,7 @@
 		});
 		{% endif %}
 		
+		{% if project.show_aspects %}
 		$('#aspect-topics').DataTable( {
 		    "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
 		    "order": [[2, "desc"]],
@@ -199,6 +198,7 @@
 			}
 		    ]
 		});
+		{% endif %}
 		
 		$('input[name="daterange"]').daterangepicker({
 		    opens: 'left',
