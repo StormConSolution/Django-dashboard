@@ -85,7 +85,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class EntityAdmin(admin.ModelAdmin):
     list_display = ('label',)
-    search_fields = ('label',)
+    search_fields = ('label', 'classification__label')
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
