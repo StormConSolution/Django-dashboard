@@ -65,8 +65,10 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
         "colors": charts.COLORS["contrasts"],
     }
 
-    for chart_type in this_project.charts.values_list('label', flat=True):
-        instance = charts.CHART_LOOKUP[chart_type](this_project, start, end, entity_filter, aspect_topic)
+    for chart in this_project.charts.all():
+        if chart.load_async:
+            continue
+        instance = charts.CHART_LOOKUP[chart.label](this_project, start, end, entity_filter, aspect_topic)
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
