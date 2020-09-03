@@ -58,7 +58,7 @@ class Project(models.Model):
         return reverse('projects', kwargs={'project_id':self.id})
 
 class Classification(models.Model):
-    label = models.CharField(max_length=80)
+    label = models.CharField(max_length=80, db_index=True)
     
     def __str__(self):
         return self.label
@@ -91,7 +91,7 @@ class Data(models.Model):
 
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
-    sentiment = models.FloatField(default=0)
+    sentiment = models.FloatField(default=0, db_index=True)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     entities = models.ManyToManyField(Entity)
 
@@ -103,10 +103,10 @@ class Data(models.Model):
 
 class Aspect(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
-    label = models.CharField(max_length=80, blank=True)
-    sentiment = models.FloatField(default=0)
+    label = models.CharField(max_length=80, blank=True, db_index=True)
+    sentiment = models.FloatField(default=0, db_index=True)
     chunk = models.TextField(blank=False)
-    topic = models.TextField(blank=False)
+    topic = models.TextField(blank=False, db_index=True)
     sentiment_text = ArrayField(models.CharField(max_length=40))
 
     def __str__(self):
