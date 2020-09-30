@@ -87,10 +87,14 @@ class EntityAdmin(admin.ModelAdmin):
     list_display = ('label',)
     search_fields = ('label', 'classifications__label')
 
+class TwitterSearchAdmin(admin.ModelAdmin):
+    readonly_fields = ('completed',)
+    list_display = ('query', 'project_name', 'completed',)
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Entity, EntityAdmin)
 admin.site.register(ChartType)
-admin.site.register(TwitterSearch)
+admin.site.register(TwitterSearch, TwitterSearchAdmin)
 admin.site.register(AspectType)
