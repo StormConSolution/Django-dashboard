@@ -89,15 +89,14 @@ def projects(request, project_id):
     
     # Find the most recent data item.
     if this_project.data_set.count() > 0:
-        default_end = this_project.data_set.order_by('-date_created')[0]
+        end = this_project.data_set.order_by('-date_created')[0].date_created
     else:
-        default_end = datetime.date.today()
-
-    default_start = str(default_end - datetime.timedelta(days=30))
-
-
-    start = datetime.datetime.strptime(request.GET.get('start', default_start),"%Y-%m-%d")
-    end = datetime.datetime.strptime(request.GET.get('end', default_end),"%Y-%m-%d")    
+        end = datetime.date.today()
+    start = end - datetime.timedelta(days=30)
+    
+    if 'start' in request.GET and 'end' in request.GET:
+        start = datetime.datetime.strptime(request.GET.get('start'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")    
          
     context = {
         'project': this_project,
@@ -188,7 +187,7 @@ def add_data(request, project_id):
     """
 
     text = request.POST['text']
-    lang = request.POST['lang']
+    lang = request.POST.get('lang', 'en')
 
     sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
         HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()['score']

@@ -18,8 +18,8 @@ def run():
 
             tweets = collect_results(rule, max_results=5000, result_stream_args=premium_search_args)
 
-            resp = requests.post('http://localhost:8000/create-project/', 
-                    {'name':'Pizza Hut', 'username':ts.created_by.username})
+            resp = requests.post('https://dashboard.repustate.com/create-project/', 
+                    {'name':ts.project_name, 'username':ts.created_by.username})
             project_id = resp.json()['project_id']
 
             for tweet in tweets:
@@ -27,7 +27,7 @@ def run():
                     source='Twitter',
                     text=tweet.text,
                     lang=tweet.lang,
-                    date=tweet.created_at_datetime,
+                    date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
                 )
                 
                 if ts.entities:
@@ -37,7 +37,7 @@ def run():
                     post_data['aspect_model'] = ts.aspect.label
 
                 try:
-                    requests.post('http://localhost:8000/add-data/{}/'.format(project_id), data=post_data)
+                    requests.post('https://dashboard.repustate.com/add-data/{}/'.format(project_id), data=post_data)
                 except Exception as e:
                     print(e)
                     break
