@@ -1,5 +1,5 @@
 search_tweets_api:
   account_type: premium
-  endpoint: 'https://api.twitter.com/1.1/tweets/search/30day/repustatedevFullArchive.json'
+  endpoint: 'https://api.twitter.com/1.1/tweets/search/fullarchive/repustatedevFullArchive.json'
   consumer_key: ak8leZHB1Xh5xrj4EJA457Gav
   consumer_secret: xlkK8dW9LdJHfssgA7fd6sCNUtFLqU5aFS44ikD614K1sNjUVK

@@ -86,9 +86,15 @@ def projects(request, project_id):
 
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
+    
+    # Find the most recent data item.
+    if this_project.data_set.count() > 0:
+        default_end = this_project.data_set.order_by('-date_created')[0]
+    else:
+        default_end = datetime.date.today()
 
-    default_start = str(datetime.date.today() - datetime.timedelta(days=30))
-    default_end = str(datetime.date.today())
+    default_start = str(default_end - datetime.timedelta(days=30))
+
 
     start = datetime.datetime.strptime(request.GET.get('start', default_start),"%Y-%m-%d")
     end = datetime.datetime.strptime(request.GET.get('end', default_end),"%Y-%m-%d")    
@@ -157,7 +163,7 @@ def create_project(request):
     API endpoint for creating a project. May need some work as we go.
 
     `project_name`: the name of the Project. If it doesn't exist, create it.
-    `user`: the user name to add to this project. User is assumed to exist.
+    `username`: the user name to add to this project. User is assumed to exist.
     """
     if 'name' not in request.POST or 'username' not in request.POST:
         return JsonResponse({"status":"Fail", "description":"Both `name` and `username` are required"})

@@ -117,3 +117,18 @@ class EmotionalEntity(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
     emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
+
+
+class TwitterSearch(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    query = models.CharField(max_length=80)
+    project_name = models.CharField(max_length=80)
+    completed = models.BooleanField(default=False, help_text='Set automatically')
+    
+    def __str__(self):
+        return self.query
+
+    class Meta:
+        verbose_name_plural = 'Twitter Searches'
