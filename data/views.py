@@ -245,7 +245,7 @@ def add_data(request, project_id):
     if request.POST.get('aspect_model'):
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
             HOST=settings.HOST, APIKEY=settings.APIKEY), 
-            {'text': text, 'lang': lang, 'model': request.POST['aspect_model']}).json()
+            {'text': text, 'neutral':1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
     for key, value in aspects.items():
         if key != "status":

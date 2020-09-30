@@ -37,6 +37,12 @@ class ChartType(models.Model):
     def __str__(self):
         return self.label
 
+class AspectType(models.Model):
+    label = models.CharField(max_length=80, blank=False, unique=True)
+
+    def __str__(self):
+        return self.label
+
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
@@ -125,6 +131,13 @@ class TwitterSearch(models.Model):
     
     query = models.CharField(max_length=80)
     project_name = models.CharField(max_length=80)
+
+    entities = models.BooleanField(default=False, help_text='Do you want to detect entities?')
+    aspect = models.ForeignKey(AspectType, 
+            default=None,
+            blank=True,
+            help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
+    
     completed = models.BooleanField(default=False, help_text='Set automatically')
     
     def __str__(self):

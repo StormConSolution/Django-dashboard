@@ -29,6 +29,13 @@ def run():
                     lang=tweet.lang,
                     date=tweet.created_at_datetime,
                 )
+                
+                if ts.entities:
+                    post_data['with_entities'] = 1
+                
+                if ts.aspect:
+                    post_data['aspect_model'] = ts.aspect.label
+
                 try:
                     requests.post('http://localhost:8000/add-data/{}/'.format(project_id), data=post_data)
                 except Exception as e:
