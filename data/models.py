@@ -37,6 +37,12 @@ class ChartType(models.Model):
     def __str__(self):
         return self.label
 
+class AspectType(models.Model):
+    label = models.CharField(max_length=80, blank=False, unique=True)
+
+    def __str__(self):
+        return self.label
+
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
@@ -117,3 +123,25 @@ class EmotionalEntity(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
     emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
+
+
+class TwitterSearch(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    query = models.CharField(max_length=80)
+    project_name = models.CharField(max_length=80)
+
+    entities = models.BooleanField(default=False, help_text='Do you want to detect entities?')
+    aspect = models.ForeignKey(AspectType, 
+            default=None,
+            blank=True,
+            help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
+    
+    completed = models.BooleanField(default=False, help_text='Set automatically')
+    
+    def __str__(self):
+        return self.query
+
+    class Meta:
+        verbose_name_plural = 'Twitter Searches'
