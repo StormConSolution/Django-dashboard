@@ -188,9 +188,12 @@ def add_data(request, project_id):
 
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
-
-    sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
-        HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()['score']
+    
+    try:
+        sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
+            HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()['score']
+    except:
+        return JsonResponse({"status":"FAIL", "message":"Could not add text = {} lang = {}".format(text, lang)})
 
     source, _ = data_models.Source.objects.get_or_create(label=request.POST['source'])
 

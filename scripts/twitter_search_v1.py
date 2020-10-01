@@ -1,11 +1,14 @@
 import time
 
+from django.conf import settings
 import requests
 from searchtweets import load_credentials, gen_rule_payload, collect_results
 
 from data.models import TwitterSearch
 
 MAX_RESULTS = 2000
+
+VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 def run():
     premium_search_args = load_credentials(".twitter_keys.yaml",
@@ -36,9 +39,13 @@ def run():
                 post_data = dict(
                     source='Twitter',
                     text=tweet.text,
-                    lang=tweet.lang,
                     date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
                 )
+                
+                # Twitter does a bad job of detecting language.
+                lang = tweet.lang
+                if lang not in VALID_LANGS:
+                    lang = 'en'
                 
                 if ts.entities:
                     post_data['with_entities'] = 1
