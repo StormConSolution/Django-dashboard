@@ -129,7 +129,7 @@ class TwitterSearch(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     
-    query = models.CharField(max_length=80)
+    query = models.CharField(max_length=80, help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
     project_name = models.CharField(max_length=80)
 
     entities = models.BooleanField(default=False, help_text='Do you want to detect entities?')
