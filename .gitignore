@@ -19,5 +19,6 @@ staticfiles/*
 .vscode/symbols.json
 
 
+.twitter_keys.yaml
 
 settings_local.py
