@@ -126,6 +126,17 @@ class EmotionalEntity(models.Model):
 
 
 class TwitterSearch(models.Model):
+    NOT_RUNNING = 0
+    RUNNING = 1
+    ERROR = 2
+    DONE = 3
+
+    STATUSES = (
+        (NOT_RUNNING, 'Not Running'),
+        (RUNNING, 'Running'),
+        (ERROR, 'Error'),
+        (DONE, 'Done'),
+    )
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     
@@ -138,7 +149,7 @@ class TwitterSearch(models.Model):
             blank=True,
             help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
     
-    completed = models.BooleanField(default=False, help_text='Set automatically')
+    status = models.IntegerField(choices=STATUSES, default=NOT_RUNNING)
     
     def __str__(self):
         return self.query
