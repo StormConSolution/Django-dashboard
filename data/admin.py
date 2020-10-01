@@ -88,7 +88,6 @@ class EntityAdmin(admin.ModelAdmin):
     search_fields = ('label', 'classifications__label')
 
 class TwitterSearchAdmin(admin.ModelAdmin):
-    readonly_fields = ('status',)
     list_display = ('query', 'project_name', 'status',)
 
 admin.site.register(Data, DataAdmin)

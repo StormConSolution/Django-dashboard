@@ -43,7 +43,7 @@ def run():
                 if ts.entities:
                     post_data['with_entities'] = 1
                 
-                if ts.aspect:
+                if ts.aspect_id:
                     post_data['aspect_model'] = ts.aspect.label
 
                 try:
