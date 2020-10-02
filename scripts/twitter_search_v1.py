@@ -4,17 +4,32 @@ from django.conf import settings
 import requests
 from searchtweets import load_credentials, gen_rule_payload, collect_results
 
-from data.models import TwitterSearch
+from django.core.mail import EmailMessage, mail_admins
+from data.models import TwitterSearch, Project, ChartType
 
-MAX_RESULTS = 2000
+MAX_RESULTS = 3000
 
 VALID_LANGS = [l[0] for l in settings.LANGUAGES]
+
+def notify(ts):
+    if not settings.DEBUG:
+        message = 'Your request status is now {}'.format(ts.get_status_display())
+        msg = EmailMessage(
+            subject='Update about your Twitter Search {}'.format(ts.project_name),
+            body=message,
+            from_email='info@repustate.com',
+            to=ts.created_by.email,
+        )
+        try:
+            msg.send()
+        except Exception as e:
+            print(e)
 
 def run():
     premium_search_args = load_credentials(".twitter_keys.yaml",
                                            yaml_key="search_tweets_api",
                                            env_overwrite=False)
-
+    
     while True:
         for ts in TwitterSearch.objects.filter(status=TwitterSearch.NOT_RUNNING):
             print("Running", ts)
@@ -29,10 +44,21 @@ def run():
                 resp = requests.post('https://dashboard.repustate.com/create-project/', 
                         {'name':ts.project_name, 'username':ts.created_by.username})
                 project_id = resp.json()['project_id']
+
+                # Add the necessary chart types automatically.
+                project = Project.objects.get(pk=project_id)
+                for ct in ChartType.objects.all():
+                    if ts.entities and ct.label in ('entity_table', 'emotional_entities'):
+                        project.charts.add(ct)
+                    elif ts.aspect_id and ct.label.startswith('aspect'):
+                        project.charts.add(ct)
+                    else:
+                        project.charts.add(ct)
             except Exception as e:
                 print(e)
                 ts.status = TwitterSearch.ERROR
                 ts.save()
+                notify(ts)
                 continue
 
             for tweet in tweets:
@@ -61,6 +87,7 @@ def run():
 
             ts.status = TwitterSearch.DONE
             ts.save()
-        
+            notify(ts)
+
         print("Sleeping ...")
-        time.sleep(60)
+        time.sleep(120)
