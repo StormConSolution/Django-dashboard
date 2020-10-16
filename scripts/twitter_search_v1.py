@@ -18,7 +18,7 @@ def notify(ts):
             subject='Update about your Twitter Search {}'.format(ts.project_name),
             body=message,
             from_email='info@repustate.com',
-            to=ts.created_by.email,
+            to=(ts.created_by.email,),
         )
         try:
             msg.send()
@@ -35,6 +35,7 @@ def run():
             print("Running", ts)
             ts.status = TwitterSearch.RUNNING
             ts.save()
+            notify(ts)
 
             rule = gen_rule_payload(ts.query, results_per_call=100) # testing with a sandbox account
 
