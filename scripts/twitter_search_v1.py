@@ -36,8 +36,9 @@ def run():
             ts.status = TwitterSearch.RUNNING
             ts.save()
             notify(ts)
-
-            rule = gen_rule_payload(ts.query, results_per_call=100) # testing with a sandbox account
+            
+            # Automatically omit retweets.
+            rule = gen_rule_payload(ts.query + ' -is:retweet', results_per_call=100)
 
             tweets = collect_results(rule, max_results=MAX_RESULTS, result_stream_args=premium_search_args)
             
