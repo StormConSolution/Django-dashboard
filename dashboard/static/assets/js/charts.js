@@ -19,9 +19,9 @@ var random = function random() {
 var project = project_data;
 
 var colours = [
-  'rgba(60, 180, 75, 0.5)',
-  'rgba(230, 25, 75,0.5)',
-  'rgba(67, 99, 216,0.5)',
+	'rgba(90, 141, 238, 0.5)',
+	'rgba(253, 172, 65, 0.5)',
+	'rgba(0, 207, 221, 0.5)',
 ];
 
 var sentimentSourceChart = new Chart(document.getElementById('sentiment_source').getContext('2d'), {

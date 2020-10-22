@@ -6,25 +6,22 @@ from data.models import Entity, Data, Aspect, Source
 
 from operator import itemgetter
 
-DEFAULT_COLORS = ['rgba(230, 25, 75,0.5)',
-                  'rgba(60, 180, 75,0.5)',
-                  'rgba(255, 225, 25,0.5)',
-                  'rgba(67, 99, 216,0.5)',
-                  'rgba(245, 130, 49,0.5)',
-                  'rgba(66, 212, 244,0.5)',
-                  'rgba(240, 50, 230,0.5)',
-                  'rgba(250, 190, 212,0.5)',
-                  'rgba(70, 153, 144,0.5)',
-                  'rgba(220, 190, 255,0.5)',
-                  'rgba(255, 250, 200,0.5)',
-                  'rgba(128, 0, 0,0.5)',
-                  'rgba(170, 255, 195,0.5)',
-                  'rgba(0, 0, 117,0.5)'
-                  ]
+DEFAULT_COLORS = [
+    "rgba(13, 19, 33, 1)",
+    "rgba(29, 45, 68, 1)",
+    "rgba(62, 92, 118, 1)",
+    "rgba(116, 140, 171, 1)",
+    "rgba(240, 235, 216, 1)",
+    "rgba(131, 181, 209, 1)",
+    "rgba(105, 153, 93, 1)",
+    "rgba(203, 172, 136, 1)",
+    "rgba(237, 182, 163, 1)",
+]
+
 COLORS = {
-    'positive': 'rgba(60, 180, 75,0.5)',
-    'negative': 'rgba(230, 25, 75,0.5)',
-    'neutral': 'rgba(67, 99, 216,0.5)',
+    'positive': 'rgba(90, 141, 238, 0.5)',
+    'negative': 'rgba(253, 172, 65, 0.5)',
+    'neutral': 'rgba(0, 207, 221, 0.5)',
     'contrasts': DEFAULT_COLORS
 }
 

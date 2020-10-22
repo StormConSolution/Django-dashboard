@@ -86,6 +86,7 @@ class ProjectAdmin(admin.ModelAdmin):
 class EntityAdmin(admin.ModelAdmin):
     list_display = ('label',)
     search_fields = ('label', 'classifications__label')
+    filter_horizontal = ('classifications',)
 
 class TwitterSearchAdmin(admin.ModelAdmin):
     list_display = ('query', 'project_name', 'status',)
