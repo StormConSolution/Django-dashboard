@@ -10,7 +10,6 @@ urlpatterns = [
 
     # The home page
     path('', views.index, name='home'),
-    
     path('create-project/', views.create_project, name='create-project'),
     path('add-data/<int:project_id>/', views.add_data, name='add-data'),
     path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),

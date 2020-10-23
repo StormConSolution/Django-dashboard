@@ -3,7 +3,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 
-
 LANGUAGES = (
     ('ar', 'Arabic (العربية)'),
     ('zh', 'Chinese (中文)'),
@@ -30,6 +29,7 @@ LANGUAGES = (
     ('ur', 'Urdu (اردو)'),
 )
 
+
 class ChartType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
     load_async = models.BooleanField(default=False)
@@ -37,11 +37,13 @@ class ChartType(models.Model):
     def __str__(self):
         return self.label
 
+
 class AspectType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
 
     def __str__(self):
         return self.label
+
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
@@ -54,21 +56,23 @@ class Project(models.Model):
 
     class Meta:
         get_latest_by = 'date_created'
-    
+
     def show_entities(self):
         return self.charts.filter(label='entity_table').count() > 0
-    
+
     def show_aspects(self):
         return self.charts.filter(label='aspect_s').count() > 0
 
     def get_absolute_url(self):
-        return reverse('projects', kwargs={'project_id':self.id})
+        return reverse('projects', kwargs={'project_id': self.id})
+
 
 class Classification(models.Model):
     label = models.CharField(max_length=80, db_index=True)
-    
+
     def __str__(self):
         return self.label
+
 
 class Entity(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
@@ -80,17 +84,20 @@ class Entity(models.Model):
     class Meta:
         verbose_name_plural = 'Entities'
 
+
 class Emotion(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
 
     def __str__(self):
         return self.label
 
+
 class Source(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
 
     def __str__(self):
         return self.label
+
 
 class Data(models.Model):
     date_created = models.DateField()
@@ -108,6 +115,7 @@ class Data(models.Model):
     def __str__(self):
         return self.text
 
+
 class Aspect(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
     label = models.CharField(max_length=80, blank=True, db_index=True)
@@ -118,6 +126,7 @@ class Aspect(models.Model):
 
     def __str__(self):
         return self.label
+
 
 class EmotionalEntity(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
@@ -139,18 +148,20 @@ class TwitterSearch(models.Model):
     )
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-    query = models.CharField(max_length=80, help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
+
+    query = models.CharField(max_length=80,
+                             help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
     project_name = models.CharField(max_length=80)
 
     entities = models.BooleanField(default=False, help_text='Do you want to detect entities?')
-    aspect = models.ForeignKey(AspectType, 
-            default=None,
-            blank=True,
-            help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
-    
+    aspect = models.ForeignKey(AspectType,
+                               default=None,
+                               null=True, # test
+                               blank=True,
+                               help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
+
     status = models.IntegerField(choices=STATUSES, default=NOT_RUNNING)
-    
+
     def __str__(self):
         return self.query
 

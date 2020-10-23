@@ -1,29 +1,25 @@
 import datetime
 import json
-
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db import models
-from django.db.models import Count, Q, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-
 import requests
-
 from data import models as data_models
 from data import charts
 
 LOGIN_URL = '/login/'
 
+
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
+
 
 @login_required(login_url=LOGIN_URL)
 def index(request):
@@ -41,7 +37,6 @@ def index(request):
 
 @login_required(login_url=LOGIN_URL)
 def pages(request):
-
     context = {}
 
     # All resource paths end in .html.
@@ -59,9 +54,8 @@ def pages(request):
 
 
 def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
-    
     result = {
-        "status": "OK", 
+        "status": "OK",
         "colors": charts.COLORS["contrasts"],
     }
 
@@ -72,13 +66,12 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
-    
+
     return json.dumps(result, sort_keys=True, default=default_encoder)
 
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
-
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
@@ -86,18 +79,18 @@ def projects(request, project_id):
 
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
-    
+
     # Find the most recent data item.
     if this_project.data_set.count() > 0:
         end = this_project.data_set.order_by('-date_created')[0].date_created
     else:
         end = datetime.date.today()
     start = end - datetime.timedelta(days=30)
-    
+
     if 'start' in request.GET and 'end' in request.GET:
         start = datetime.datetime.strptime(request.GET.get('start'), "%Y-%m-%d")
-        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")    
-         
+        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
+
     context = {
         'project': this_project,
         'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic),
@@ -106,12 +99,10 @@ def projects(request, project_id):
         'end_date': end,
     }
 
-
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
-
-    return render(request, "project.html", context)
+    return render(request, "project_new.html", context)
 
 
 def entities(request, project_id):
@@ -132,8 +123,9 @@ def entities(request, project_id):
     table = charts.EntityTable(
         this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
     )
-    
+
     return JsonResponse(table.render_data())
+
 
 def aspect_topics(request, project_id):
     """
@@ -153,8 +145,9 @@ def aspect_topics(request, project_id):
     table = charts.AspectTopicTable(
         this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
     )
-    
+
     return JsonResponse(table.render_data())
+
 
 @csrf_exempt
 def create_project(request):
@@ -165,13 +158,14 @@ def create_project(request):
     `username`: the user name to add to this project. User is assumed to exist.
     """
     if 'name' not in request.POST or 'username' not in request.POST:
-        return JsonResponse({"status":"Fail", "description":"Both `name` and `username` are required"})
+        return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
 
     proj, _ = data_models.Project.objects.get_or_create(name=request.POST['name'])
     user, _ = User.objects.get_or_create(username=request.POST['username'])
     proj.users.add(user)
 
-    return JsonResponse({"status":"OK", "project_id":proj.id})
+    return JsonResponse({"status": "OK", "project_id": proj.id})
+
 
 @csrf_exempt
 def add_data(request, project_id):
@@ -188,12 +182,12 @@ def add_data(request, project_id):
 
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
-    
+
     try:
         sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
             HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()['score']
     except:
-        return JsonResponse({"status":"FAIL", "message":"Could not add text = {} lang = {}".format(text, lang)})
+        return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {}".format(text, lang)})
 
     source, _ = data_models.Source.objects.get_or_create(label=request.POST['source'])
 
@@ -242,12 +236,12 @@ def add_data(request, project_id):
         for emotion in emotions:
             data_models.EmotionalEntity.objects.create(
                 emotion=emotion, entity=entity, data=data)
-    
+
     aspects = {}
     if request.POST.get('aspect_model'):
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
-            HOST=settings.HOST, APIKEY=settings.APIKEY), 
-            {'text': text, 'neutral':1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
+            HOST=settings.HOST, APIKEY=settings.APIKEY),
+            {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
     for key, value in aspects.items():
         if key != "status":
@@ -260,5 +254,9 @@ def add_data(request, project_id):
                     topic=v['sentiment_topic'],
                     sentiment_text=v['sentiment_text']
                 )
-    
-    return JsonResponse({"status":"OK"})
+
+    return JsonResponse({"status": "OK"})
+
+
+def export_card(request):
+    pass

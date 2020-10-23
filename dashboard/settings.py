@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'data'  # Enable the inner app
+    'data',
+    'authentication'# Enable the inner app
 ]
 
 MIDDLEWARE = [
@@ -169,6 +170,6 @@ DATABASES = {
         "USER": USER_NAME,
         "PASSWORD": PASSWORD,
         "HOST": SQL_HOST,
-        "PORT": "",
+        "PORT": "5432",
     }
 }
