@@ -253,14 +253,30 @@ class SentimentSourceTable(BaseChart):
                     'backgroundColor': COLORS['negative']}
 
         for label in Source.objects.values_list('label', flat=True):
-            pos_total = data_models.Data.objects.filter(
+            data_set = data_models.Data.objects.filter(
                 project=self.project,
-                date_created__range=(self.start, self.end), source__label=label, sentiment__gt=0).count()
+                date_created__range=(self.start, self.end), source__label=label, sentiment__gt=0)
             
-            neg_total = data_models.Data.objects.filter(
+            if self.entity_filter:
+                data_set = data_set.filter(entities__label=self.entity_filter)
+            
+            if self.aspect_topic:
+                data_set = data_set.filter(aspect__topic=self.aspect_topic)
+            
+            pos_total = data_set.count()
+
+            data_set = data_models.Data.objects.filter(
                 project=self.project,
-                date_created__range=(self.start, self.end), source__label=label, sentiment__lt=0).count()
+                date_created__range=(self.start, self.end), source__label=label, sentiment__lt=0)
             
+            if self.entity_filter:
+                data_set = data_set.filter(entities__label=self.entity_filter)
+            
+            if self.aspect_topic:
+                data_set = data_set.filter(aspect__topic=self.aspect_topic)
+            
+            neg_total = data_set.count()
+
             if pos_total or neg_total:
                 result['source_labels'].append(label)
                 positive['data'].append(pos_total)
