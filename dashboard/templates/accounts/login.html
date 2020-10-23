@@ -1,58 +1,115 @@
-{% extends "layouts/base-fullscreen.html" %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
 
-{% block title %} Login {% endblock %}
+    <title>Try Repustate - Login</title>
 
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sign-in/">
 
-{% block content %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
 
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card-group">
-      <div class="card p-4">
-        <div class="card-body">
-          <h1>Repustate Login</h1>
-          <p class="text-muted">
+	<style type="text/css">
+		html,
+		body {
+		height: 100%;
+		}
 
-            {% if msg %}
-            {{ msg | safe }}
-            {% endif %}
-          </p>
+		body {
+			display: -ms-flexbox;
+			display: -webkit-box;
+			display: flex;
+			-ms-flex-align: center;
+			-ms-flex-pack: center;
+			-webkit-box-align: center;
+			align-items: center;
+			-webkit-box-pack: center;
+			justify-content: center;
+			padding-top: 40px;
+			padding-bottom: 40px;
+			background-image: url("{% static 'assets/img/alt-header-bg@2x.png' %}");
+			background-size: cover;
+		}
 
-          <form role="form" method="post" action="">
+		.form-signin {
+			width: 100%;
+			max-width: 330px;
+			padding: 15px;
+			margin: 0 auto;
+		}
+		.form-signin .checkbox {
+			font-weight: 400;
+		}
+		.form-signin .form-control {
+			position: relative;
+			box-sizing: border-box;
+			height: auto;
+			padding: 10px;
+			font-size: 16px;
+		}
+		.form-signin .form-control:focus {
+			z-index: 2;
+		}
+		.form-signin input[type="email"] {
+			margin-bottom: -1px;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+		.form-signin input[type="password"] {
+			margin-bottom: 10px;
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+		}
+		.btn-primary {
+		  font-variant-ligatures: none;
+		  color: #000;
+		  background: #2fffa5!important;
+		  border-radius:50px;
+		  border-color: #2fffa5;
+		  font-size:16px;
+		  border-width: 2px;
+		  text-shadow: none;
+		}
+		.btn-primary:hover {
+		  font-variant-ligatures: none;
+		  color: #000;
+		  background: #2fffa5!important;
+		  border-radius:50px;
+		  border-color: #2fffa5;
+		  font-size:16px;
+		  border-width: 2px;
+		  text-shadow: none;
+		}
+	</style>
 
-            {% csrf_token %}
+  </head>
 
-            <div class="input-group mb-3">
-              <div class="input-group-prepend"><span class="input-group-text">
-                  <svg class="c-icon">
-                    <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
-                  </svg></span></div>
-              {{ form.username }}
-            </div>
+  <body class="text-center">
+	<div class="container">
+		<form class="form-signin" method="POST" action="">
+		  {% csrf_token %}
+		  {% if next %}
+			  <input type="hidden" name="next" value="{{ next }}"/>
+		  {% endif %}
+		  
+		  <img class="mb-4" src="{% static 'assets/brand/logo-repustate-light.svg' %}" alt="repustate logo" width="200"/>
+		  
+		  <label for="inputEmail" class="sr-only">Email address</label>
+		  <input type="email" name="username" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+		  
+		  <label for="inputPassword" class="sr-only">Password</label>
+		  <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
 
-            <div class="input-group mb-4">
-              <div class="input-group-prepend"><span class="input-group-text">
-                  <svg class="c-icon">
-                    <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use>
-                  </svg></span></div>
-              {{ form.password }}
-            </div>
+		  <button class="btn btn-lg btn-primary btn-block mt-4" type="submit">Sign in</button>
+		</form>
+	</div>
+  </body>
+</html>
 
-            <div class="row">
-              <div class="col-6">
-                <button type="submit" name="login" class="btn btn-primary px-4">Login</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}

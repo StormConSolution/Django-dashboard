@@ -39,23 +39,30 @@ class BaseChart:
         Returns the data necessary to render a chart in JavaScript.
         """
         raise NotImplementedError
+    
+    def data_set(self):
+        data_set = Data.objects.filter(
+            date_created__range=(self.start, self.end),
+            project=self.project
+        )
 
+        if self.entity_filter:
+            data_set = data_set.filter(
+                entities__label=self.entity_filter
+            )
+        
+        if self.aspect_topic:
+            data_set = data_set.filter(
+                aspect__topic=self.aspect_topic
+            )
+        
+        return data_set
 
 class EntityTable(BaseChart):
 
     def render_data(self):
-        entity_set = Entity.objects.filter(
-            data__date_created__range=(self.start, self.end),
-            data__project=self.project
-        )
-        if self.entity_filter:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(entities__label=self.entity_filter))
-        if self.aspect_topic:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-
-        entity_count = entity_set.annotate(
+        
+        entity_count = Entity.objects.filter(data__in=self.data_set()).annotate(
             data_count=models.Count('data')).order_by('-data_count')
         entities = {"data": []}
 
@@ -98,18 +105,8 @@ class AspectTopicTable(BaseChart):
 class SentimenFrequencyTable(BaseChart):
     
     def render_data(self):
-        data_set = Data.objects.filter(
-            project=self.project,
-            date_created__range=(self.start, self.end)
-        )
 
-        if self.entity_filter:
-            data_set = data_set.filter(entities__label=self.entity_filter)
-        
-        if self.aspect_topic:
-            data_set = data_set.filter(aspect__topic=self.aspect_topic)
-
-        sentiment_f = data_set.aggregate(
+        sentiment_f = self.data_set().aggregate(
             positive=models.Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
