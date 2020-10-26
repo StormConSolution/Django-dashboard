@@ -79,22 +79,22 @@
 	    </div>
 
 	    {% if project.show_entities %}
-	    <div class="card mt-3">
-		<div class="card-header">Entities</div>
-		<div class="card-body">
-		    <div class="c-chart-wrapper">
-			<table id="entities" class="display" style="width:100%">
-			    <thead>
-				<tr>
-				    <th>Entity</th>
-				    <th>Classifications</th>
-				    <th>Frequency</th>
-				</tr>
-			    </thead>
-			</table>
-		    </div>
-		</div>
-	    </div>
+            <div class="card mt-3">
+                <div class="card-header">Entities</div>
+                <div class="card-body">
+                    <div class="c-chart-wrapper">
+                        <table id="entities" class="display" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Classifications</th>
+                                <th>Frequency</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
 	    {% endif %}
 		
 		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">

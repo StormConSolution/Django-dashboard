@@ -65,22 +65,14 @@
             <div class="navbar-container content">
                 <div class="navbar-collapse" id="navbar-mobile">
                     <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
-                    </div>
-                    <ul class="nav navbar-nav float-right d-flex align-items-center">
+                </div>
 
-                        <li class="nav-item nav-search"><a class="nav-link nav-link-search pt-2"><i class="ficon bx bx-search"></i></a>
-                            <div class="search-input">
-                                <div class="search-input-icon"><i class="bx bx-search primary"></i></div>
-                                <input class="input" type="text" placeholder="Date range" tabindex="-1" data-search="template-search">
-                                <div class="search-input-close"><i class="bx bx-x"></i></div>
-                                <ul class="search-list"></ul>
-                            </div>
-                        </li>
-                        <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
-                                <div class="user-nav d-lg-flex d-none"></div><span><img class="round" src="/static/app-assets/images/portrait/small/avatar-s-11.jpg" alt="avatar" height="40" width="40"></span>
+                    <ul class="nav d-flex ali">
+]                        <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
+                                <div class="user-nav d-lg-flex d-none"></div><span><img class="round" src="/static/app-assets/images/portrait/small/avatar-s-11.png" alt="avatar" height="40" width="40"></span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right pb-0"><a class="dropdown-item" href="page-user-profile.html"><i class="bx bx-user mr-50"></i> Admin</a>
-                                <div class="dropdown-divider mb-0"></div><a class="dropdown-item" href="auth-login.html"><i class="bx bx-power-off mr-50"></i> Logout</a>
+                            <div class="dropdown-menu dropdown-menu-right pb-0"><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bx bx-user mr-50"></i> Admin</a>
+                                <div class="dropdown-divider mb-0"></div><a class="dropdown-item" href="{% url 'logout' %}"><i class="bx bx-power-off mr-50"></i> Logout</a>
                             </div>
                         </li>
                     </ul>
@@ -107,12 +99,16 @@
         <div class="navbar-container main-menu-content" data-menu="menu-container">
             <!-- include /static/includes/mixins-->
             <ul class="nav navbar-nav" id="main-menu-navigation" data-menu="menu-navigation" data-icon-style="lines">
-<li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown"><span>Projects</span></a>
+                <li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown"><span>Projects</span></a>
                     <ul class="dropdown-menu">
-                        <li data-menu=""><a class="dropdown-item align-items-center" href="form-layout.html" data-toggle="dropdown"><i class="bx bx-right-arrow-alt"></i>Project 1</a>
-                        </li>
+                       {% for project in project_list %}
+                            <li data-menu=""><a class="dropdown-item align-items-center" href="{% url 'projects' project_id=project.id %}" data-toggle="dropdown"><i class="bx bx-right-arrow-alt"></i>{{project.name}}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </li>
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link nav-link-search pt-2"><i class="ficon bx bx-search"></i></a>
+                            </li>
 
             </ul>
         </div>
@@ -128,7 +124,6 @@
             </div>
             <div class="content-body">
                 <!-- Dashboard Analytics Start -->
-                <section id="dashboard-analytics">
                     <div class="row">
                         <!-- Website Analytics Starts-->
                         <div class="col-md-6 col-sm-12">
@@ -141,7 +136,6 @@
                                     <div class="card-body pb-1">
                                         <div class="d-flex justify-content-around align-items-center flex-wrap">
                                             <div class="user-analytics">
-                                                <i class="bx bx-user mr-25 align-middle"></i>
                                                 <span class="align-middle text-muted">Total data items</span>
                                                 <div class="d-flex">
                                                     <div id="radial-success-chart"></div>
@@ -149,7 +143,6 @@
                                                 </div>
                                             </div>
                                             <div class="sessions-analytics">
-                                                <i class="bx bx-trending-up align-middle mr-25"></i>
                                                 <span class="align-middle text-muted">Total positive</span>
                                                 <div class="d-flex">
                                                     <div id="radial-warning-chart"></div>
@@ -157,7 +150,6 @@
                                                 </div>
                                             </div>
                                             <div class="bounce-rate-analytics">
-                                                <i class="bx bx-pie-chart-alt align-middle mr-25"></i>
                                                 <span class="align-middle text-muted">Total negative</span>
                                                 <div class="d-flex">
                                                     <div id="radial-danger-chart"></div>
@@ -190,6 +182,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-xl-3 col-md-12 col-sm-12">
                             <div class="row">
                                 <!-- Conversion Chart Starts-->
@@ -219,13 +212,9 @@
                                             <div class="card">
                                                 <div class="card-body d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center">
-                                                        <div class="avatar bg-rgba-primary m-0 p-25 mr-75 mr-xl-2">
-                                                            <div class="avatar-content">
-                                                                <i class="bx bx-user text-primary font-medium-2"></i>
-                                                            </div>
-                                                        </div>
+
                                                         <div class="total-amount">
-                                                            <h5 class="mb-0">$38,566</h5>
+                                                            <h5 class="mb-0">38,566</h5>
                                                             <small class="text-muted">Top aspect</small>
                                                         </div>
                                                     </div>
@@ -237,13 +226,8 @@
                                             <div class="card">
                                                 <div class="card-body d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center">
-                                                        <div class="avatar bg-rgba-warning m-0 p-25 mr-75 mr-xl-2">
-                                                            <div class="avatar-content">
-                                                                <i class="bx bx-dollar text-warning font-medium-2"></i>
-                                                            </div>
-                                                        </div>
                                                         <div class="total-amount">
-                                                            <h5 class="mb-0">$53,659</h5>
+                                                            <h5 class="mb-0">53,659</h5>
                                                             <small class="text-muted">Top entity</small>
                                                         </div>
                                                     </div>
@@ -308,7 +292,7 @@
                                 </div>
                             </div>
                         </div>
-                                <div class="col-md-12 col-sm-6">
+ <div class="col-md-12 col-sm-6">
                                     <div class="card">
                                         <div class="card-header">
                                             <h4 class="card-title">Trending topics</h4>
@@ -317,28 +301,72 @@
                                             <div class="card-body">
                                                 <div class="d-flex align-items-end justify-content-around">
                                                     <div class="registration-content mr-xl-2">
-                                                        <h4 class="mb-0">56.3k</h4>
+                                                        <h4 class="mb-5">56.3k</h4>
                                                         <i class="bx bx-trending-up success align-middle"></i>
                                                         <span class="text-success">12.8%</span>
                                                     </div>
-                                                </div>
+{% if project.show_entities %}
+
+                        <table id="top-entities" class="display" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Classifications</th>
+                                <th>Frequency</th>
+                            </tr>
+                            </thead>
+                        </table>
+
+	    {% endif %}                                      </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+    	    {% if project.show_entities %}
+            <div class="card mt-3">
+                <div class="card-header">Entities</div>
+                <div class="card-body">
+                    <div class="c-chart-wrapper">
+                        <table id="entities" class="display" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Classifications</th>
+                                <th>Frequency</th>
+                            </tr>
+                            </thead>
+                        </table>
                     </div>
-                </section>
+                </div>
+            </div>
+	    {% endif %}
+
+		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">
+			<div class="card-header">Aspect topics</div>
+			<div class="card-body">
+				<div class="c-chart-wrapper">
+				<table id="aspect-topics" class="display" style="width:100%">
+					<thead>
+					<tr>
+						<th>Topic</th>
+						<th>Aspect</th>
+						<th>Frequency</th>
+					</tr>
+					</thead>
+				</table>
+				</div>
+			</div>
+	    </div>
                 <!-- Dashboard Analytics end -->
 
-            </div>
-        </div>
-    </div>
+
     <!-- END: Content-->
 
 
-    </div>
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
 
@@ -370,11 +398,68 @@
     <script src="/static/app-assets/js/scripts/components.js"></script>
     <script src="/static/app-assets/js/scripts/footer.js"></script>
     <!-- END: Theme JS-->
+    <script type="text/javascript" src="/static/assets/js/jquery.dataTables.min.js"></script>
 
     <!-- BEGIN: Page JS-->
     <script src="/static/app-assets/js/scripts/pages/dashboard-analytics.js"></script>
     <!-- END: Page JS-->
+    	<script type="text/javascript">
+	    $(function() {
+		{% if project.show_entities %}
+		$('#top-entities').DataTable( {
+		    "ajax": "{% url 'top-entities' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?entity="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ],
+            'paging': false,
+            'filter': false,
+            'info': false,
+		});
+				$('#entities').DataTable( {
+		    "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?entity="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ]
+		});
+		{% endif %}
+		{% if project.show_aspects %}
+		$('#aspect-topics').DataTable( {
+		    "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
+		    "order": [[2, "desc"]],
+		    "columnDefs": [
+			{
+			    // The `data` parameter refers to the data for the cell (defined by the
+			    // `data` option, which defaults to the column being worked with, in
+			    // this case `data: 0`.
+			    "render": function ( data, type, row ) {
+				return "<a href='?aspecttopic="+data+"'>"+data+"</a>";
+			    },
+			    "targets": 0
+			}
+		    ]
+		});
+		{% endif %}
 
+         });
+	</script>
 </body>
 <!-- END: Body-->
 

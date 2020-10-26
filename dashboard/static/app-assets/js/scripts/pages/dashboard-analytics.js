@@ -371,7 +371,7 @@ $(window).on("load", function () {
             },
             total: {
               show: true,
-              label: 'Impression',
+              label: 'Sentiments',
               color: $gray_light,
               formatter: function (w) {
                 return w.globals.seriesTotals.reduce(function (a, b) {

@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from data import models as data_models
 from django.db.models import Count, Q, F
@@ -44,9 +45,40 @@ class BaseChart:
         raise NotImplementedError
 
 
+class TopEntityTable(BaseChart):
+
+    def render_data(self):
+        # prior 7 days
+        today = datetime.datetime.today()
+        datetime_start = today - datetime.timedelta(days=7)
+        entity_set = Entity.objects.filter(
+            data__date_created__range=(datetime_start, today),
+            data__project=self.project
+        )
+        if self.entity_filter:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(entities__label=self.entity_filter))
+        if self.aspect_topic:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+
+        entity_count = entity_set.annotate(
+            data_count=models.Count('data')).order_by('-data_count')
+        entities = {"data": []}
+
+        for ec in entity_count:
+            entities["data"].append([
+                ec.label,
+                ', '.join(ec.classifications.values_list('label', flat=True)),
+                ec.data_count
+            ])
+        entities['data'] = entities['data'][:5]
+        return entities
+
 class EntityTable(BaseChart):
 
     def render_data(self):
+        # prior 7 days
         entity_set = Entity.objects.filter(
             data__date_created__range=(self.start, self.end),
             data__project=self.project
@@ -68,8 +100,8 @@ class EntityTable(BaseChart):
                 ', '.join(ec.classifications.values_list('label', flat=True)),
                 ec.data_count
             ])
-
         return entities
+
 
 class AspectTopicTable(BaseChart):
 
@@ -158,6 +190,7 @@ class SentimentTimeTable(BaseChart):
 class AspectSentimentTable(BaseChart):
 
     def render_data(self):
+
         aspect_data_set = Aspect.objects.filter(
             data__project=self.project,
             data__date_created__range=(self.start, self.end)
@@ -320,6 +353,7 @@ CHART_LOOKUP = {
     'aspect_t':AspectTimeTable,
     'aspect_table':AspectTopicTable,
     'emotional_entities':EmotionalEntitiesTable,
+    'top_entity_table':TopEntityTable,
     'entity_table':EntityTable,
     'sentiment_f':SentimenFrequencyTable,
     'sentiment_source':SentimentSourceTable,

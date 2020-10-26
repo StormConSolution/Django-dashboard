@@ -14,6 +14,7 @@ urlpatterns = [
     path('add-data/<int:project_id>/', views.add_data, name='add-data'),
     path('aspect-topics/<int:project_id>/', views.aspect_topics, name='aspect-topics'),
     path('entities/<int:project_id>/', views.entities, name='entities'),
+    path('top-entities/<int:project_id>/', views.top_entities, name='top-entities'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
 
     # Matches any html file

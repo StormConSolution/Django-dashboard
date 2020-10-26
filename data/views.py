@@ -105,6 +105,26 @@ def projects(request, project_id):
     return render(request, "project_new.html", context)
 
 
+def top_entities(request, project_id):
+    """
+    Show the frequency of occurence for the entities for this data set.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.TopEntityTable(
+        this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
+    )
+
+    return JsonResponse(table.render_data())
 def entities(request, project_id):
     """
     Show the frequency of occurence for the entities for this data set.
