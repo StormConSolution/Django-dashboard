@@ -72,6 +72,8 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
+    #TODO-  aspects_total_data - test data, write function to compute element
+    # TODO - date filter
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
@@ -102,6 +104,24 @@ def projects(request, project_id):
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
+    context['aspects_total_data'] = []
+    chart_data = json.loads(context['chart_data'])
+    total_sum = 0
+    color_index = 0
+    colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark', 'white']
+    for aspect in chart_data['aspect_t_labels']:
+        aspect_data = dict()
+        aspect_data['name'] = aspect
+        aspect_data['total_data'] = sum(item['label__count'] for item in chart_data['aspects'][aspect])
+        aspect_data['color'] = colors[color_index]
+        if color_index == len(colors):
+            color_index = 0
+        total_sum += aspect_data['total_data']
+        color_index += 1
+        context['aspects_total_data'].append(aspect_data)
+    for i in range(len(context['aspects_total_data'])):
+        context['aspects_total_data'][i]['width'] = (context['aspects_total_data'][i]['total_data'] / total_sum)*100
+        print(context['aspects_total_data'][i]['width'])
     return render(request, "project_new.html", context)
 
 

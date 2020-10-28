@@ -19,6 +19,9 @@
     <link rel="stylesheet" type="text/css" href="/static/app-assets/vendors/css/vendors.min.css">
     <link rel="stylesheet" type="text/css" href="/static/app-assets/vendors/css/charts/apexcharts.css">
     <link rel="stylesheet" type="text/css" href="/static/app-assets/vendors/css/extensions/dragula.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/app-assets/vendors/css/tables/datatable/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
     <!-- END: Vendor CSS-->
 
     <!-- BEGIN: Theme CSS-->
@@ -51,52 +54,15 @@
 	var project_data = {{ chart_data|safe }};
     </script>
     {% endif %}
-    <!-- BEGIN: Header-->
-    <nav class="header-navbar navbar-expand-lg navbar navbar-with-menu navbar-static-top bg-primary navbar-brand-center">
-        <div class="navbar-header d-xl-block d-none">
-            <ul class="nav navbar-nav flex-row">
-                <li class="nav-item"><a class="navbar-brand" href="/static/html/ltr/horizontal-menu-template-dark/index.html">
-                        <div class="brand-logo"><img class="logo" src="/static/app-assets/images/logo/logo-light.png"></div>
-                        <h2 class="brand-text mb-0">Frest</h2>
-                    </a></li>
-            </ul>
-        </div>
-        <div class="navbar-wrapper">
-            <div class="navbar-container content">
-                <div class="navbar-collapse" id="navbar-mobile">
-                    <div class="mr-auto float-left bookmark-wrapper d-flex align-items-center">
-                </div>
 
-                    <ul class="nav d-flex ali">
-]                        <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
-                                <div class="user-nav d-lg-flex d-none"></div><span><img class="round" src="/static/app-assets/images/portrait/small/avatar-s-11.png" alt="avatar" height="40" width="40"></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right pb-0"><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bx bx-user mr-50"></i> Admin</a>
-                                <div class="dropdown-divider mb-0"></div><a class="dropdown-item" href="{% url 'logout' %}"><i class="bx bx-power-off mr-50"></i> Logout</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <!-- END: Header-->
 
 
     <!-- BEGIN: Main Menu-->
     <div class="header-navbar navbar-expand-sm navbar navbar-horizontal navbar-sticky navbar-dark navbar-without-dd-arrow" role="navigation" data-menu="menu-wrapper">
-        <div class="navbar-header d-xl-none d-block">
-            <ul class="nav navbar-nav flex-row">
-                <li class="nav-item mr-auto"><a class="navbar-brand" href="index.html">
-                        <div class="brand-logo"><img class="logo" src="/static/app-assets/images/logo/logo.png" /></div>
-                        <h2 class="brand-text mb-0">Frest</h2>
-                    </a></li>
-                <li class="nav-item nav-toggle"><a class="nav-link modern-nav-toggle pr-0" data-toggle="collapse"><i class="bx bx-x d-block d-xl-none font-medium-4 primary toggle-icon"></i></a></li>
-            </ul>
-        </div>
+
         <div class="shadow-bottom"></div>
         <!-- Horizontal menu content-->
-        <div class="navbar-container main-menu-content" data-menu="menu-container">
+        <div class="navbar-container" data-menu="menu-container">
             <!-- include /static/includes/mixins-->
             <ul class="nav navbar-nav" id="main-menu-navigation" data-menu="menu-navigation" data-icon-style="lines">
                 <li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown"><span>Projects</span></a>
@@ -107,10 +73,20 @@
                         {% endfor %}
                     </ul>
                 </li>
-                    <li class="nav-item d-none d-lg-block"><a class="nav-link nav-link-search pt-2"><i class="ficon bx bx-search"></i></a>
-                            </li>
-
+                <li class="c-header-nav-item">
+                    <label>Change  location (daterange)</label>
+                    <input type="text" name="daterange">
+                </li>
+                <li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown"><span>Change icon (User Management)</span></a>
+                    <div class="dropdown-menu dropdown-menu-right pb-0"><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bx bx-user mr-50"></i> Admin</a>
+                        <div class="dropdown-divider mb-0"></div><a class="dropdown-item" href="{% url 'logout' %}"><i class="bx bx-power-off mr-50"></i> Logout</a>
+                    </div>
+                </li>
             </ul>
+
+
+
+
         </div>
         <!-- /horizontal menu content-->
     </div>
@@ -118,6 +94,7 @@
 
     <!-- BEGIN: Content-->
     <div class="app-content content">
+
         <div class="content-overlay"></div>
         <div class="content-wrapper">
             <div class="content-header row">
@@ -127,7 +104,7 @@
                     <div class="row">
                         <!-- Website Analytics Starts-->
                         <div class="col-md-6 col-sm-12">
-                            <div class="card">
+                            <div class="card border-0">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h4 class="card-title">Website Analytics</h4>
                                     <i class="bx bx-dots-vertical-rounded font-medium-3 cursor-pointer"></i>
@@ -167,7 +144,7 @@
                             <div class="row">
                                 <!-- Impression Radial Chart Starts-->
                                 <div class="col-xl-12 col-12">
-                                    <div class="card">
+                                    <div class="card border-0">
                                         <div class="card-content">
                                             <div class="card-body donut-chart-wrapper">
                                                 <div id="donut-chart" class="d-flex justify-content-center"></div>
@@ -187,7 +164,7 @@
                             <div class="row">
                                 <!-- Conversion Chart Starts-->
                                 <div class="col-xl-12 col-md-6 col-12">
-                                    <div class="card">
+                                    <div class="card border-0">
                                         <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
                                             <div class="conversion-title">
                                                 <h4 class="card-title">Conversion</h4>
@@ -209,7 +186,7 @@
                                 <div class="col-xl-12 col-md-6 col-12">
                                     <div class="row">
                                         <div class="col-12">
-                                            <div class="card">
+                                            <div class="card border-0">
                                                 <div class="card-body d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center">
 
@@ -218,12 +195,11 @@
                                                             <small class="text-muted">Top aspect</small>
                                                         </div>
                                                     </div>
-                                                    <div id="primary-line-chart"></div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div class="card">
+                                            <div class="card border-0">
                                                 <div class="card-body d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center">
                                                         <div class="total-amount">
@@ -231,7 +207,6 @@
                                                             <small class="text-muted">Top entity</small>
                                                         </div>
                                                     </div>
-                                                    <div id="warning-line-chart"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -243,57 +218,31 @@
                     <div class="row">
                         <!-- Activity Card Starts-->
                         <div class="col-xl-3 col-md-6 col-12 activity-card">
-                            <div class="card">
+                            <div class="card border-0">
                                 <div class="card-header">
                                     <h4 class="card-title">Aspects</h4>
                                 </div>
                                 <div class="card-content">
-                                    <div class="card-body pt-1">
-                                        <div class="d-flex activity-content">
+                                        <div class="card-body pt-1">
+                                            {% for aspect in aspects_total_data %}
 
+                                                <div class="d-flex activity-content">
 
-                                            <div class="activity-progress flex-grow-1">
-                                                <small class="text-muted d-inline-block mb-50">Total Sales</small>
-                                                <small class="float-right">$8,125</small>
-                                                <div class="progress progress-bar-primary progress-sm">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="50" style="width:50%"></div>
+                                                    <div class="activity-progress flex-grow-1">
+                                                        <small class="text-muted d-inline-block mb-50">{{aspect.name}}</small>
+                                                        <small class="float-right">{{ aspect.total_data }}</small>
+                                                        <div class="progress progress-bar-{{ aspect.color }} progress-sm">
+                                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ aspect.width }}" style="width:{{ aspect.width }}%"></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex activity-content">
-
-                                            <div class="activity-progress flex-grow-1">
-                                                <small class="text-muted d-inline-block mb-50">Income Amount</small>
-                                                <small class="float-right">$18,963</small>
-                                                <div class="progress progress-bar-success progress-sm">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="80" style="width:80%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex activity-content">
-                                            <div class="activity-progress flex-grow-1">
-                                                <small class="text-muted d-inline-block mb-50">Total Budget</small>
-                                                <small class="float-right">$14,150</small>
-                                                <div class="progress progress-bar-warning progress-sm">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" style="width:60%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex mb-75">
-                                            <div class="activity-progress flex-grow-1">
-                                                <small class="text-muted d-inline-block mb-50">Completed Tasks</small>
-                                                <small class="float-right">106</small>
-                                                <div class="progress progress-bar-danger progress-sm">
-                                                    <div class="progress-bar" role="progressbar" aria-valuenow="30" style="width:30%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            {% endfor %}
                                     </div>
                                 </div>
                             </div>
                         </div>
  <div class="col-md-12 col-sm-6">
-                                    <div class="card">
+                                    <div class="card border-0">
                                         <div class="card-header">
                                             <h4 class="card-title">Trending topics</h4>
                                         </div>
@@ -301,23 +250,42 @@
                                             <div class="card-body">
                                                 <div class="d-flex align-items-end justify-content-around">
                                                     <div class="registration-content mr-xl-2">
-                                                        <h4 class="mb-5">56.3k</h4>
+                                                        <h4 class="mb-5"></h4>
                                                         <i class="bx bx-trending-up success align-middle"></i>
-                                                        <span class="text-success">12.8%</span>
+                                                        <span class="text-success"></span>
                                                     </div>
 {% if project.show_entities %}
 
-                        <table id="top-entities" class="display" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>Entity</th>
-                                <th>Classifications</th>
-                                <th>Frequency</th>
-                            </tr>
-                            </thead>
-                        </table>
+                <section id="basic-datatable">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card border-0">
+                                <div class="card-header">
+                                    <h4 class="card-title">Entities</h4>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-body card-dashboard">
+                                        <p class="card-text"></p>
+                                        <div class="table-responsive">
+                                            <table class="table" id="top-entities">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Entity</th>
+                                                        <th>Classifications</th>
+                                                        <th>Frequency</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            {% endif %}
 
-	    {% endif %}                                      </div>
+                                      </div>
                                             </div>
                                         </div>
                                     </div>
@@ -327,43 +295,64 @@
                                 </div>
                             </div>
     	    {% if project.show_entities %}
-            <div class="card mt-3">
-                <div class="card-header">Entities</div>
-                <div class="card-body">
-                    <div class="c-chart-wrapper">
-                        <table id="entities" class="display" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>Entity</th>
-                                <th>Classifications</th>
-                                <th>Frequency</th>
-                            </tr>
-                            </thead>
-                        </table>
+                <section id="basic-datatable">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card border-0">
+                                <div class="card-header">
+                                    <h4 class="card-title">Entities</h4>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-body card-dashboard">
+                                        <p class="card-text"></p>
+                                        <div class="table-responsive">
+                                            <table class="table" id="entities">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Entity</th>
+                                                        <th>Classifications</th>
+                                                        <th>Frequency</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-	    {% endif %}
-
-		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">
-			<div class="card-header">Aspect topics</div>
-			<div class="card-body">
-				<div class="c-chart-wrapper">
-				<table id="aspect-topics" class="display" style="width:100%">
-					<thead>
-					<tr>
-						<th>Topic</th>
-						<th>Aspect</th>
-						<th>Frequency</th>
-					</tr>
-					</thead>
-				</table>
-				</div>
-			</div>
-	    </div>
+                </section>
+            {% endif %}
+        {% if project.show_aspects %}
+                <section id="basic-datatable">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card border-0">
+                                <div class="card-header">
+                                    <h4 class="card-title">Aspects</h4>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-body card-dashboard">
+                                        <p class="card-text"></p>
+                                        <div class="table-responsive">
+                                            <table class="table" id="aspect-topics">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Topic</th>
+                                                        <th>Aspect</th>
+                                                        <th>Frequency</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            {% endif %}
                 <!-- Dashboard Analytics end -->
-
-
     <!-- END: Content-->
 
 
@@ -386,8 +375,17 @@
 
     <!-- BEGIN: Page Vendor JS-->
     <script src="/static/app-assets/vendors/js/ui/jquery.sticky.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="/static/app-assets/vendors/js/charts/apexcharts.min.js"></script>
     <script src="/static/app-assets/vendors/js/extensions/dragula.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/datatables.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/dataTables.buttons.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/buttons.html5.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/buttons.print.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/buttons.bootstrap.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/pdfmake.min.js"></script>
+    <script src="/static/app-assets/vendors/js/tables/datatable/vfs_fonts.js"></script>
     <!-- END: Page Vendor JS-->
 
     <!-- BEGIN: Theme JS-->
@@ -398,7 +396,7 @@
     <script src="/static/app-assets/js/scripts/components.js"></script>
     <script src="/static/app-assets/js/scripts/footer.js"></script>
     <!-- END: Theme JS-->
-    <script type="text/javascript" src="/static/assets/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
     <!-- BEGIN: Page JS-->
     <script src="/static/app-assets/js/scripts/pages/dashboard-analytics.js"></script>
@@ -457,7 +455,16 @@
 		    ]
 		});
 		{% endif %}
-
+            $('input[name="daterange"]').daterangepicker({
+		    opens: 'left',
+		    startDate:'{{ start_date|date:"m-d-Y" }}',
+		    endDate:'{{ end_date|date:"m-d-Y" }}',
+		    }, function(start, end, label) {
+			const urlParams = new URLSearchParams(window.location.search);
+			urlParams.set('start', start.format('YYYY-MM-DD'));
+			urlParams.set('end', end.format('YYYY-MM-DD'));
+			window.location.href = window.location.origin + window.location.pathname + '?' + urlParams.toString();
+		    });
          });
 	</script>
 </body>
