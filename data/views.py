@@ -108,20 +108,20 @@ def projects(request, project_id):
     chart_data = json.loads(context['chart_data'])
     total_sum = 0
     color_index = 0
-    colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark', 'white']
+    colors = ['pink', 'red', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green',
+              'light-green', 'lime', 'yellow', 'amber']
     for aspect in chart_data['aspect_t_labels']:
         aspect_data = dict()
         aspect_data['name'] = aspect
         aspect_data['total_data'] = sum(item['label__count'] for item in chart_data['aspects'][aspect])
         aspect_data['color'] = colors[color_index]
-        if color_index == len(colors):
+        if color_index == len(colors) - 1:
             color_index = 0
         total_sum += aspect_data['total_data']
         color_index += 1
         context['aspects_total_data'].append(aspect_data)
     for i in range(len(context['aspects_total_data'])):
         context['aspects_total_data'][i]['width'] = (context['aspects_total_data'][i]['total_data'] / total_sum)*100
-        print(context['aspects_total_data'][i]['width'])
     return render(request, "project_new.html", context)
 
 
