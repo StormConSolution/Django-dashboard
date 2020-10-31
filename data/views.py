@@ -62,7 +62,8 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
     for chart in this_project.charts.all():
         if chart.load_async:
             continue
-        instance = charts.CHART_LOOKUP[chart.label](this_project, start, end, entity_filter, aspect_topic)
+        instance = charts.CHART_LOOKUP[chart.label](
+            this_project, start, end, entity_filter, aspect_topic)
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
@@ -72,7 +73,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
-    #TODO-  aspects_total_data - test data, write function to compute element
+    # TODO-  aspects_total_data - test data, write function to compute element
     # TODO - date filter
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
@@ -90,7 +91,8 @@ def projects(request, project_id):
     start = end - datetime.timedelta(days=30)
 
     if 'start' in request.GET and 'end' in request.GET:
-        start = datetime.datetime.strptime(request.GET.get('start'), "%Y-%m-%d")
+        start = datetime.datetime.strptime(
+            request.GET.get('start'), "%Y-%m-%d")
         end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
 
     context = {
@@ -113,7 +115,8 @@ def projects(request, project_id):
     for aspect in chart_data['aspect_t_labels']:
         aspect_data = dict()
         aspect_data['name'] = aspect
-        aspect_data['total_data'] = sum(item['label__count'] for item in chart_data['aspects'][aspect])
+        aspect_data['total_data'] = sum(
+            item['label__count'] for item in chart_data['aspects'][aspect])
         aspect_data['color'] = colors[color_index]
         if color_index == len(colors) - 1:
             color_index = 0
@@ -121,7 +124,8 @@ def projects(request, project_id):
         color_index += 1
         context['aspects_total_data'].append(aspect_data)
     for i in range(len(context['aspects_total_data'])):
-        context['aspects_total_data'][i]['width'] = (context['aspects_total_data'][i]['total_data'] / total_sum)*100
+        context['aspects_total_data'][i]['width'] = (
+            context['aspects_total_data'][i]['total_data'] / total_sum)*100
     return render(request, "project_new.html", context)
 
 
@@ -141,10 +145,13 @@ def top_entities(request, project_id):
     end = request.GET.get('end', default_end)
 
     table = charts.TopEntityTable(
-        this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'),
     )
 
     return JsonResponse(table.render_data())
+
+
 def entities(request, project_id):
     """
     Show the frequency of occurence for the entities for this data set.
@@ -161,7 +168,8 @@ def entities(request, project_id):
     end = request.GET.get('end', default_end)
 
     table = charts.EntityTable(
-        this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'),
     )
 
     return JsonResponse(table.render_data())
@@ -183,7 +191,8 @@ def aspect_topics(request, project_id):
     end = request.GET.get('end', default_end)
 
     table = charts.AspectTopicTable(
-        this_project, start, end, request.GET.get('entity'), request.GET.get('aspecttopic'),
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'),
     )
 
     return JsonResponse(table.render_data())
@@ -200,7 +209,8 @@ def create_project(request):
     if 'name' not in request.POST or 'username' not in request.POST:
         return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
 
-    proj, _ = data_models.Project.objects.get_or_create(name=request.POST['name'])
+    proj, _ = data_models.Project.objects.get_or_create(
+        name=request.POST['name'])
     user, _ = User.objects.get_or_create(username=request.POST['username'])
     proj.users.add(user)
 
@@ -229,7 +239,8 @@ def add_data(request, project_id):
     except:
         return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {}".format(text, lang)})
 
-    source, _ = data_models.Source.objects.get_or_create(label=request.POST['source'])
+    source, _ = data_models.Source.objects.get_or_create(
+        label=request.POST['source'])
 
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),

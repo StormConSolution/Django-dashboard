@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 
 from .forms import LoginForm, SignUpForm
 
+
 def login_view(request):
     form = LoginForm(request.POST or None)
 

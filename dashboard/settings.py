@@ -1,3 +1,4 @@
+from .settings_local import *
 import os
 from decouple import config
 from unipath import Path
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'data',
-    'authentication'# Enable the inner app
+    'authentication',  # Enable the inner app
 ]
 
 MIDDLEWARE = [
@@ -148,9 +149,9 @@ STATICFILES_DIRS = (
 #############################################################
 
 # Variables expected from settings_local
-DB_NAME = ""
-USER_NAME = ""
-PASSWORD = ""
+DB_NAME = "django-dashboard"
+USER_NAME = "postgres"
+PASSWORD = "root"
 SQL_HOST = '127.0.0.1'
 
 # Used by the add_data view. Set proper values in settings_local
@@ -158,7 +159,6 @@ HOST = 'https://api.repustate.com'
 APIKEY = 'APIKEY'
 
 # This has the side affect of shadowing variables and overriding them.
-from .settings_local import *
 
 if (os.environ.get('DOCKER', False)):
     SQL_HOST = 'postgres_data'

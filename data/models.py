@@ -153,10 +153,11 @@ class TwitterSearch(models.Model):
                              help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
     project_name = models.CharField(max_length=80)
 
-    entities = models.BooleanField(default=False, help_text='Do you want to detect entities?')
+    entities = models.BooleanField(
+        default=False, help_text='Do you want to detect entities?')
     aspect = models.ForeignKey(AspectType,
                                default=None,
-                               null=True, # test
+                               null=True,  # test
                                blank=True,
                                help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
 
