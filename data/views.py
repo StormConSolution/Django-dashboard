@@ -125,7 +125,12 @@ def projects(request, project_id):
         context['aspects_total_data'].append(aspect_data)
     for i in range(len(context['aspects_total_data'])):
         context['aspects_total_data'][i]['width'] = (
-            context['aspects_total_data'][i]['total_data'] / total_sum)*100
+                                                            context['aspects_total_data'][i][
+                                                                'total_data'] / total_sum) * 100
+    context['total_data'] = sum(chart_data['sentiment_f_data'])
+    context['total_positive'] = chart_data['sentiment_f_data'][0]
+    context['total_negative'] = chart_data['sentiment_f_data'][1]
+
     return render(request, "project_new.html", context)
 
 

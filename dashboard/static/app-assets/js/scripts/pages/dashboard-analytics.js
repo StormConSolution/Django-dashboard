@@ -232,15 +232,9 @@ $(window).on("load", function () {
         stops: [0, 70, 100]
       },
     },
-    series: [{
-      name: '2019',
-      data: [80, 95, 150, 210, 140, 230, 300, 280, 130]
-    }, {
-      name: '2018',
-      data: [50, 70, 130, 180, 90, 180, 270, 220, 110]
-    }],
+    series: project_data.sentiment_t_data,
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+      categories: project_data.sentiment_t_labels,
       axisBorder: {
         show: false
       },
@@ -256,7 +250,7 @@ $(window).on("load", function () {
     yaxis: {
       min: 0,
       max: 300,
-      tickAmount: 3,
+      tickAmount: 10,
       labels: {
         style: {
           color: $gray_light
@@ -269,7 +263,7 @@ $(window).on("load", function () {
     tooltip: {
       y: {
         formatter: function (val) {
-          return "$ " + val + " thousands"
+          return val
         }
       }
     }

@@ -216,30 +216,22 @@
                       class="d-flex justify-content-around align-items-center flex-wrap"
                     >
                       <div class="user-analytics">
-                        <span class="align-middle text-muted"
-                          >Total data items</span
-                        >
+                        <span class="align-middle text-muted">Total data items</span>
                         <div class="d-flex">
-                          <div id="radial-success-chart"></div>
-                          <h3 class="mt-1 ml-50">64</h3>
+                          <h3 class="mt-1 ml-50">{{ total_data }}</h3>
                         </div>
                       </div>
                       <div class="sessions-analytics">
                         <span class="align-middle text-muted"
-                          >Total positive</span
-                        >
+                          >Total positive</span>
                         <div class="d-flex">
-                          <div id="radial-warning-chart"></div>
-                          <h3 class="mt-1 ml-50"></h3>
+                          <h3 class="mt-1 ml-50">{{ total_positive }}</h3>
                         </div>
                       </div>
                       <div class="bounce-rate-analytics">
-                        <span class="align-middle text-muted"
-                          >Total negative</span
-                        >
+                        <span class="align-middle text-muted">Total negative</span>
                         <div class="d-flex">
-                          <div id="radial-danger-chart"></div>
-                          <h3 class="mt-1 ml-50">72.6%</h3>
+                          <h3 class="mt-1 ml-50">{{ total_negative }}</h3>
                         </div>
                       </div>
                     </div>

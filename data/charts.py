@@ -145,7 +145,7 @@ class SentimenFrequencyTable(BaseChart):
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
 
         sentiment_f = data_set.aggregate(
-            positive=models.Count('sentiment', filter=Q(sentiment__gt=0)),
+            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
@@ -169,20 +169,17 @@ class SentimentTimeTable(BaseChart):
         sentiment_t = data_set.values('date_created').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
             negative=Count('sentiment', filter=Q(sentiment__lt=0)),
-            neutral=Count('sentiment', filter=Q(sentiment=0))
         ).order_by('date_created')
 
         result = {'sentiment_t_labels': []}
         for sentiment in list(sentiment_t):
             result['sentiment_t_labels'].append(sentiment['date_created'])
 
-        positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
+        positive = {'name': 'Positive', 'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
                     'backgroundColor': COLORS['positive'], 'borderColor': COLORS['positive'], "fill": False, }
-        negative = {'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
+        negative = {'name': 'Negative','label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
                     'backgroundColor': COLORS['negative'], 'borderColor': COLORS['negative'], "fill": False}
-        neutral = {'label': 'Neutral', 'data': list(map(lambda d: d['neutral'], list(sentiment_t))),
-                   'backgroundColor': COLORS['neutral'], 'borderColor': COLORS['neutral'], "fill": False}
-        result['sentiment_t_data'] = [positive, negative, neutral]
+        result['sentiment_t_data'] = [positive, negative]
 
         return result
 

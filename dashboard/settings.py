@@ -149,10 +149,6 @@ STATICFILES_DIRS = (
 #############################################################
 
 # Variables expected from settings_local
-DB_NAME = "django-dashboard"
-USER_NAME = "postgres"
-PASSWORD = "root"
-SQL_HOST = '127.0.0.1'
 
 # Used by the add_data view. Set proper values in settings_local
 HOST = 'https://api.repustate.com'
