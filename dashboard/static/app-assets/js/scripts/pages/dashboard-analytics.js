@@ -9,19 +9,19 @@
 ==========================================================================================*/
 
 $(window).on("load", function () {
-
-  var $primary = '#5A8DEE';
-  var $success = '#39DA8A';
-  var $danger = '#FF5B5C';
-  var $warning = '#FDAC41';
-  var $info = '#00CFDD';
-  var $label_color = '#475f7b';
-  var $primary_light = '#E2ECFF';
-  var $danger_light = '#ffeed9';
-  var $gray_light = '#828D99';
+  var $primary = "#5A8DEE";
+  var $success = "#39DA8A";
+  var $danger = "#FF5B5C";
+  var $warning = "#FDAC41";
+  var $info = "#00CFDD";
+  var $label_color = "#475f7b";
+  var $primary_light = "#E2ECFF";
+  var $danger_light = "#ffeed9";
+  var $gray_light = "#828D99";
   var $sub_label_color = "#596778";
   var $radial_bg = "#e7edf3";
-
+  var $postive = "#537fd6";
+  var $negative = "#dd9942";
 
   // Radial-Success-chart
   // --------------------------------
@@ -29,7 +29,7 @@ $(window).on("load", function () {
     chart: {
       height: 40,
       width: 40,
-      type: "radialBar"
+      type: "radialBar",
     },
     grid: {
       show: false,
@@ -37,40 +37,40 @@ $(window).on("load", function () {
         left: -30,
         right: -30,
         top: 0,
-      }
+      },
     },
     series: [30],
     colors: [$success],
     plotOptions: {
       radialBar: {
         hollow: {
-          size: "30%"
+          size: "30%",
         },
         dataLabels: {
           showOn: "always",
           name: {
-            show: false
+            show: false,
           },
           value: {
             show: false,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'light',
+        shade: "light",
         type: "horizontal",
         gradientToColors: [$success],
         opacityFrom: 1,
         opacityTo: 0.8,
-        stops: [0, 70, 100]
-      }
+        stops: [0, 70, 100],
+      },
     },
     stroke: {
       lineCap: "round",
-    }
+    },
   };
   var radialSuccessChart = new ApexCharts(
     document.querySelector("#radial-success-chart"),
@@ -85,7 +85,7 @@ $(window).on("load", function () {
     chart: {
       height: 40,
       width: 40,
-      type: "radialBar"
+      type: "radialBar",
     },
     grid: {
       show: false,
@@ -93,40 +93,40 @@ $(window).on("load", function () {
         left: -30,
         right: -30,
         top: 0,
-      }
+      },
     },
     series: [80],
     colors: [$warning],
     plotOptions: {
       radialBar: {
         hollow: {
-          size: "30%"
+          size: "30%",
         },
         dataLabels: {
           showOn: "always",
           name: {
-            show: false
+            show: false,
           },
           value: {
             show: false,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'light',
+        shade: "light",
         type: "horizontal",
         gradientToColors: [$warning],
         opacityFrom: 1,
         opacityTo: 0.8,
-        stops: [0, 70, 100]
-      }
+        stops: [0, 70, 100],
+      },
     },
     stroke: {
       lineCap: "round",
-    }
+    },
   };
   var radialWarningChart = new ApexCharts(
     document.querySelector("#radial-warning-chart"),
@@ -149,40 +149,40 @@ $(window).on("load", function () {
         left: -30,
         right: -30,
         top: 0,
-      }
+      },
     },
     series: [50],
     colors: [$danger],
     plotOptions: {
       radialBar: {
         hollow: {
-          size: "30%"
+          size: "30%",
         },
         dataLabels: {
           showOn: "always",
           name: {
-            show: false
+            show: false,
           },
           value: {
             show: false,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'light',
+        shade: "light",
         type: "horizontal",
         gradientToColors: [$danger],
         opacityFrom: 1,
         opacityTo: 0.8,
-        stops: [0, 70, 100]
-      }
+        stops: [0, 70, 100],
+      },
     },
     stroke: {
       lineCap: "round",
-    }
+    },
   };
   var radialDangerChart = new ApexCharts(
     document.querySelector("#radial-danger-chart"),
@@ -196,56 +196,56 @@ $(window).on("load", function () {
   var analyticsBarChartOptions = {
     chart: {
       height: 260,
-      type: 'bar',
+      type: "bar",
       toolbar: {
-        show: false
-      }
+        show: false,
+      },
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: '20%',
-        endingShape: 'rounded'
+        columnWidth: "20%",
+        endingShape: "rounded",
       },
     },
     legend: {
-      horizontalAlign: 'right',
+      horizontalAlign: "right",
       offsetY: -10,
       markers: {
         radius: 50,
         height: 8,
-        width: 8
-      }
+        width: 8,
+      },
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
-    colors: [$primary, $primary_light],
+    colors: [$postive, $negative],
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'light',
+        shade: "light",
         type: "vertical",
         inverseColors: true,
         opacityFrom: 1,
         opacityTo: 1,
-        stops: [0, 70, 100]
+        stops: [0, 70, 100],
       },
     },
     series: project_data.sentiment_t_data,
     xaxis: {
       categories: project_data.sentiment_t_labels,
       axisBorder: {
-        show: false
+        show: false,
       },
       axisTicks: {
-        show: false
+        show: false,
       },
       labels: {
         style: {
-          colors: $gray_light
-        }
-      }
+          colors: $gray_light,
+        },
+      },
     },
     yaxis: {
       min: 0,
@@ -253,21 +253,21 @@ $(window).on("load", function () {
       tickAmount: 10,
       labels: {
         style: {
-          color: $gray_light
-        }
-      }
+          color: $gray_light,
+        },
+      },
     },
     legend: {
-      show: false
+      show: false,
     },
     tooltip: {
       y: {
         formatter: function (val) {
-          return val
-        }
-      }
-    }
-  }
+          return val;
+        },
+      },
+    },
+  };
 
   var analyticsBarChart = new ApexCharts(
     document.querySelector("#analytics-bar-chart"),
@@ -281,16 +281,16 @@ $(window).on("load", function () {
   var successLineChartOption = {
     chart: {
       height: 100,
-      type: 'line',
+      type: "line",
       toolbar: {
-        show: false
-      }
+        show: false,
+      },
     },
     grid: {
       show: false,
       padding: {
         bottom: -20,
-      }
+      },
     },
     colors: [$success],
     dataLabels: {
@@ -298,24 +298,26 @@ $(window).on("load", function () {
     },
     stroke: {
       width: 3,
-      curve: 'smooth'
+      curve: "smooth",
     },
-    series: [{
-      data: [50, 0, 50, 40, 90, 0, 40, 25, 80, 40, 45]
-    }],
+    series: [
+      {
+        data: [50, 0, 50, 40, 90, 0, 40, 25, 80, 40, 45],
+      },
+    ],
     xaxis: {
       show: false,
       labels: {
-        show: false
+        show: false,
       },
       axisBorder: {
-        show: false
-      }
+        show: false,
+      },
     },
     yaxis: {
-      show: false
+      show: false,
     },
-  }
+  };
 
   var successLineChart = new ApexCharts(
     document.querySelector("#success-line-chart"),
@@ -328,59 +330,59 @@ $(window).on("load", function () {
   var donutChartOption = {
     chart: {
       width: 200,
-      type: 'donut',
+      type: "donut",
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
     series: project_data.sentiment_f_data,
     labels: ["Positive", "Negative", "Neutral"],
     stroke: {
       width: 0,
-      lineCap: 'round',
+      lineCap: "round",
     },
-    colors: [$primary, $info, $warning],
+    colors: [$postive, $negative, $info],
     plotOptions: {
       pie: {
         donut: {
-          size: '90%',
+          size: "90%",
           labels: {
             show: true,
             name: {
               show: true,
-              fontSize: '15px',
+              fontSize: "15px",
               colors: $sub_label_color,
               offsetY: 20,
-              fontFamily: 'IBM Plex Sans',
+              fontFamily: "IBM Plex Sans",
             },
             value: {
               show: true,
-              fontSize: '26px',
-              fontFamily: 'Rubik',
+              fontSize: "26px",
+              fontFamily: "Rubik",
               color: $label_color,
               offsetY: -20,
               formatter: function (val) {
-                return val
-              }
+                return val;
+              },
             },
             total: {
               show: true,
-              label: 'Sentiments',
+              label: "Sentiments",
               color: $gray_light,
               formatter: function (w) {
                 return w.globals.seriesTotals.reduce(function (a, b) {
-                  return a + b
-                }, 0)
-              }
-            }
-          }
-        }
-      }
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
+        },
+      },
     },
     legend: {
-      show: false
-    }
-  }
+      show: false,
+    },
+  };
 
   var donutChart = new ApexCharts(
     document.querySelector("#donut-chart"),
@@ -389,53 +391,76 @@ $(window).on("load", function () {
 
   donutChart.render();
 
-  // Stacked Bar Nagetive Chart
+  // Stacked Bar Negative Chart
   // ----------------------------------
-  var barNegativeChartoptions = {
+
+
+  project_data.aspect_s_data[0]['data'].map(function(e, i) {
+   var donutChartOption = {
     chart: {
-      height: 110,
-      stacked: true,
-      type: 'bar',
-      toolbar: { show: false },
-      sparkline: {
-        enabled: true,
-      },
+      width: 200,
+      type: "donut",
     },
+    dataLabels: {
+      enabled: false,
+    },
+    series: [e, project_data.aspect_s_data[1]['data'][i]],
+    labels: ["Positive", "Negative"],
+    stroke: {
+      width: 0,
+      lineCap: "round",
+    },
+    colors: [$postive, $negative],
     plotOptions: {
-      bar: {
-        columnWidth: '20%',
-        endingShape: 'rounded',
+      pie: {
+        donut: {
+          size: "90%",
+          labels: {
+            show: true,
+            name: {
+              show: true,
+              fontSize: "15px",
+              colors: $sub_label_color,
+              offsetY: 20,
+              fontFamily: "IBM Plex Sans",
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Rubik",
+              color: $label_color,
+              offsetY: -20,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              label: "Net score",
+              style: {
+                colors: '#333'
+              },
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function () {
+                  return e - project_data.aspect_s_data[1]['data'][i];
+                }, 0);
+              },
+            },
+          },
+        },
       },
-      distributed: true,
-    },
-    colors: [$primary, $warning],
-    series: [{
-      name: 'New Clients',
-      data: [75, 150, 225, 200, 35, 50, 150, 180, 50, 150, 240, 140, 75, 35, 60, 120]
-    }, {
-      name: 'Retained Clients',
-      data: [-100, -55, -40, -120, -70, -40, -60, -50, -70, -30, -60, -40, -50, -70, -40, -50],
-    }],
-    grid: {
-      show: false,
     },
     legend: {
       show: false,
     },
-    dataLabels: {
-      enabled: false
-    },
-    tooltip: {
-      x: { show: false }
-    },
-  }
+  };
+    var donut_chart = new ApexCharts(
+      document.querySelector(`#${project_data.aspect_s_labels[i]}-bar-negative-chart`),
+      donutChartOption
+    );
 
-  var barNegativeChart = new ApexCharts(
-    document.querySelector("#bar-negative-chart"),
-    barNegativeChartoptions
-  );
-
-  barNegativeChart.render();
+    donut_chart.render();
+  });
 
   // Primary Line Chart
   // -----------------------------
@@ -443,9 +468,9 @@ $(window).on("load", function () {
     chart: {
       height: 40,
       // width: 180,
-      type: 'line',
+      type: "line",
       toolbar: {
-        show: false
+        show: false,
       },
       sparkline: {
         enabled: true,
@@ -457,8 +482,8 @@ $(window).on("load", function () {
         bottom: 5,
         top: 5,
         left: 10,
-        right: 0
-      }
+        right: 0,
+      },
     },
     colors: [$primary],
     dataLabels: {
@@ -466,35 +491,37 @@ $(window).on("load", function () {
     },
     stroke: {
       width: 3,
-      curve: 'smooth'
+      curve: "smooth",
     },
-    series: [{
-      data: [50, 100, 0, 60, 20, 30]
-    }],
+    series: [
+      {
+        data: [50, 100, 0, 60, 20, 30],
+      },
+    ],
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'dark',
+        shade: "dark",
         type: "horizontal",
         gradientToColors: [$primary],
         opacityFrom: 0,
         opacityTo: 0.9,
-        stops: [0, 30, 70, 100]
-      }
+        stops: [0, 30, 70, 100],
+      },
     },
     xaxis: {
       show: false,
       labels: {
-        show: false
+        show: false,
       },
       axisBorder: {
-        show: false
-      }
+        show: false,
+      },
     },
     yaxis: {
-      show: false
+      show: false,
     },
-  }
+  };
 
   var primaryLineChart = new ApexCharts(
     document.querySelector("#primary-line-chart"),
@@ -508,9 +535,9 @@ $(window).on("load", function () {
     chart: {
       height: 40,
       // width: 90,
-      type: 'line',
+      type: "line",
       toolbar: {
-        show: false
+        show: false,
       },
       sparkline: {
         enabled: true,
@@ -522,8 +549,8 @@ $(window).on("load", function () {
         bottom: 5,
         top: 5,
         left: 10,
-        right: 0
-      }
+        right: 0,
+      },
     },
     colors: [$warning],
     dataLabels: {
@@ -531,35 +558,37 @@ $(window).on("load", function () {
     },
     stroke: {
       width: 3,
-      curve: 'smooth'
+      curve: "smooth",
     },
-    series: [{
-      data: [30, 60, 30, 80, 20, 70]
-    }],
+    series: [
+      {
+        data: [30, 60, 30, 80, 20, 70],
+      },
+    ],
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'dark',
+        shade: "dark",
         type: "horizontal",
         gradientToColors: [$warning],
         opacityFrom: 0,
         opacityTo: 0.9,
-        stops: [0, 30, 70, 100]
-      }
+        stops: [0, 30, 70, 100],
+      },
     },
     xaxis: {
       show: false,
       labels: {
-        show: false
+        show: false,
       },
       axisBorder: {
-        show: false
-      }
+        show: false,
+      },
     },
     yaxis: {
-      show: false
+      show: false,
     },
-  }
+  };
 
   var warningLineChart = new ApexCharts(
     document.querySelector("#warning-line-chart"),
@@ -575,8 +604,8 @@ $(window).on("load", function () {
       width: 40,
       type: "radialBar",
       sparkline: {
-        show: true
-      }
+        show: true,
+      },
     },
     grid: {
       show: false,
@@ -584,30 +613,30 @@ $(window).on("load", function () {
         left: -30,
         right: -30,
         top: 0,
-        bottom: -70
-      }
+        bottom: -70,
+      },
     },
     series: [50],
     colors: [$primary],
     plotOptions: {
       radialBar: {
         hollow: {
-          size: "30%"
+          size: "30%",
         },
         dataLabels: {
           showOn: "always",
           name: {
-            show: false
+            show: false,
           },
           value: {
             show: false,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     stroke: {
       lineCap: "round",
-    }
+    },
   };
   var profitPrimaryChart = new ApexCharts(
     document.querySelector("#profit-primary-chart"),
@@ -615,9 +644,5 @@ $(window).on("load", function () {
   );
 
   profitPrimaryChart.render();
-
-
-
-
 });
 console.log(project_data); //test

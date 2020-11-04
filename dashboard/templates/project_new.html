@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 
 <html class="loading" lang="en" data-textdirection="ltr">
@@ -143,7 +144,11 @@
     >
       <div class="shadow-bottom"></div>
       <!-- Horizontal menu content-->
-      <div class="navbar-container" id="navbarResponsive" data-menu="menu-container">
+      <div
+        class="navbar-container"
+        id="navbarResponsive"
+        data-menu="menu-container"
+      >
         <!-- include /static/includes/mixins-->
         <ul
           class="nav navbar-nav"
@@ -151,38 +156,50 @@
           data-menu="menu-navigation"
           data-icon-style="lines"
         >
-          <li class="dropdown nav-item" data-menu="dropdown">
-            <a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown"
-              ><span>Projects</span></a
-            >
-            <ul class="dropdown-menu">
-              {% for project in project_list %}
-              <li data-menu="">
-                <a
-                  class="dropdown-item align-items-center"
-                  href="{% url 'projects' project_id=project.id %}"
-                  data-toggle="dropdown"
-                  ><i class="bx bx-right-arrow-alt"></i>{{project.name}}</a
-                >
-              </li>
-              {% endfor %}
-            </ul>
+          <li class="nav-item">
+           <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static "assets/brand/logo-repustate-light.svg" %}"
+                 height="36" object-fit="contain" alt="Repustate Logo"/>
+              </a>
           </li>
-        <form class="form-inline my-2 my-lg-0">
-             <button class="btn btn-outline-success my-2 my-sm-0" ><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-calendar" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                 <path fill-rule="evenodd" d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-               </svg></button>
-                <input class="form-control mr-sm-2" type="text" name="daterange">
-        </form>
-            <li class="nav-item" id="account" style="position:absolute; right: 100px;">
-              <a class="nav-link" href="{% url 'admin:index' %}"
-                ><i class="bx bx-user ml-50"></i> Admin</a
+          <li class="dropdown">
+            <button class="btn btn-outline-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span>Projects</span>
+            </button>
+            <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton">
+              {% for project in project_list %}
+              <a class="dropdown-item align-items-center" href="{% url 'projects' project_id=project.id %}"><i class="bx bx-right-arrow-alt"></i>{{project.name}}</a>
+              {% endfor %}
+            </div>
+          </li>
+         <form class="form-inline my-2 my-lg-0">
+            <button class="btn btn-outline-success my-2 my-sm-0">
+              <svg
+                width="2em"
+                height="2em"
+                viewBox="0 0 16 16"
+                class="bi bi-calendar"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
               >
-            </li>
-            <li class="nav-item" id="logout" style="position:absolute; right: 0;">
-              <a class="nav-link" href="{% url 'logout' %}"
-                ><i class="bx bx-power-off"></i> Logout</a>
-            </li>
+                <path
+                  fill-rule="evenodd"
+                  d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"
+                />
+              </svg>
+            </button>
+            <input class="form-control mr-sm-2" type="text" name="daterange" />
+          </form>
+          <li class="nav-item" id="account">
+            <a class="nav-link" href="{% url 'admin:index' %}"
+              ><i class="bx bx-user ml-50"></i> Admin</a
+            >
+          </li>
+          <li class="nav-item" id="logout">
+            <a class="nav-link" href="{% url 'logout' %}"
+              ><i class="bx bx-power-off"></i> Logout</a
+            >
+          </li>
         </ul>
       </div>
       <!-- /horizontal menu content-->
@@ -203,7 +220,7 @@
                 <div
                   class="card-header d-flex justify-content-between align-items-center"
                 >
-                  <h4 class="card-title"><S></S>entiment Trend</h4>
+                  <h4 class="card-title"><s></s>Sentiment Trend</h4>
                   <i
                     class="bx bx-dots-vertical-rounded font-medium-3 cursor-pointer"
                   ></i>
@@ -214,20 +231,25 @@
                       class="d-flex justify-content-around align-items-center flex-wrap"
                     >
                       <div class="user-analytics">
-                        <span class="align-middle text-muted">Total data items</span>
+                        <span class="align-middle text-muted"
+                          >Total data items</span
+                        >
                         <div class="d-flex">
                           <h3 class="mt-1 ml-50">{{ total_data }}</h3>
                         </div>
                       </div>
                       <div class="sessions-analytics">
                         <span class="align-middle text-muted"
-                          >Total positive</span>
+                          >Total positive</span
+                        >
                         <div class="d-flex">
                           <h3 class="mt-1 ml-50">{{ total_positive }}</h3>
                         </div>
                       </div>
                       <div class="bounce-rate-analytics">
-                        <span class="align-middle text-muted">Total negative</span>
+                        <span class="align-middle text-muted"
+                          >Total negative</span
+                        >
                         <div class="d-flex">
                           <h3 class="mt-1 ml-50">{{ total_negative }}</h3>
                         </div>
@@ -282,32 +304,7 @@
 
             <div class="col-xl-3 col-md-12 col-sm-12">
               <div class="row">
-                <!-- Conversion Chart Starts-->
-                <div class="col-xl-12 col-md-6 col-12">
-                  <div class="card border-0">
-                    <div
-                      class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1"
-                    >
-                      <div class="conversion-title">
-                        <h4 class="card-title">Conversion</h4>
-                        <p>
-                          <i
-                            class="bx text-success font-size-small align-middle mr-25"
-                          ></i>
-                        </p>
-                      </div>
-                      <div class="conversion-rate">
-                        <h2>89k</h2>
-                      </div>
-                    </div>
-                    <div class="card-content">
-                      <div class="card-body text-center">
-                        <div id="bar-negative-chart"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-xl-12 col-md-6 col-12">
+              <div class="col-xl-12 col-md-6 col-12">
                   <div class="row">
                     <div class="col-12">
                       <div class="card border-0">
@@ -342,42 +339,80 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <!-- Activity Card Starts-->
-            <div class="col-xl-3 col-md-6 col-12 activity-card">
-              <div class="card border-0">
-                <div class="card-header">
-                  <h4 class="card-title">Aspects</h4>
-                </div>
-                <div class="card-content">
-                  <div class="card-body pt-1">
-                    {% for aspect in aspects_total_data|dictsortreversed:"total_data" %}
 
-                    <div class="d-flex activity-content">
-                      <div class="activity-progress flex-grow-1">
-                        <small class="text-muted d-inline-block mb-50"
-                          >{{aspect.name}}</small
-                        >
-                        <small class="float-right"
-                          >{{ aspect.total_data }}</small
-                        >
-                        <div
-                          class="progress progress-bar-{{ aspect.color }} progress-sm"
-                        >
-                          <div
-                            class="progress-bar"
-                            role="progressbar"
-                            aria-valuenow="{{ aspect.width }}"
-                            style="width:{{ aspect.width }}%; background-color:{{ aspect.color }} !important;"
-                          ></div>
-                        </div>
+          <div class="container-fluid">
+            <!-- Activity Card Starts-->
+            <div class="d-flex flex-row flex-wrap">
+                <div class="col-xl-3 col-md-6 col-12 activity-card">
+                  <div class="card border-0">
+                    <div class="card-header">
+                      <h4 class="card-title">Aspects</h4>
+                    </div>
+                    <div class="card-content">
+                      <div class="card-body pt-1">
+                        
+                        {% for aspect in aspects_total_data|dictsortreversed:"total_data" %}
+                        <a href="{% url 'aspect-names' project.id %}?aspectname={{aspect.name}} ">
+                          <!-- /project/
+                          id/?aspect_filter=$name_of_aspect -->
+                          <div class="d-flex activity-content">
+                            <div class="activity-progress flex-grow-1">
+                              <small class="text-muted d-inline-block mb-50"
+                                >{{aspect.name}}</small
+                              >
+                              <small class="float-right"
+                                >{{ aspect.total_data }}</small
+                              >
+                              <div
+                                class="progress progress-bar-{{ aspect.color }} progress-sm"
+                              >
+                                <div
+                                  class="progress-bar"
+                                  role="progressbar"
+                                  aria-valuenow="{{ aspect.width }}"
+                                  style="width:{{ aspect.width }}%; background-color:{{ aspect.color }} !important;"
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                        {% endfor %}
                       </div>
                     </div>
-                    {% endfor %}
                   </div>
                 </div>
+          
+                {% for aspect in aspects_total_data %}
+                      <div class="card card-block mx-2 border-0" style="min-width: 300px;">
+                      <!-- Conversion Chart Starts-->
+                      <div class="col-xl-12 col-md-6 col-12">
+                          <div class="card border-0">
+                            <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
+                              <div class="conversion-title">
+                                <h4 class="card-title">{{ aspect.name }}</h4>
+                                <p>
+                                  <i class="bx text-success font-size-small align-middle mr-25"></i>
+                                </p>
+                              </div>
+
+                            </div>
+                            <div class="card-content">
+                              <div class="card-body text-center">
+                                <div id="{{ aspect.name }}-bar-negative-chart" class="donut-chart"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  {% endfor %}
+                  <!-- <div class="card card-block mx-2" style="min-width: 300px;">Card</div>
+                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>                     
+                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>
+                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>                      -->
               </div>
             </div>
+            
+            
             <div class="col-md-12 col-sm-6">
               <div class="card border-0">
                 <div class="card-header">
@@ -430,10 +465,10 @@
         </div>
       </div>
     </div>
-    {% if project.show_entities %}
-    <section id="basic-datatable">
-      <div class="row">
-        <div class="col-12">
+    <div class="row">
+      {% if project.show_entities %}
+      <div class="col-6">
+        <section id="basic-datatable">
           <div class="card border-0">
             <div class="card-header">
               <h4 class="card-title">Entities</h4>
@@ -455,13 +490,11 @@
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </section>
-    {% endif %} {% if project.show_aspects %}
-    <section id="basic-datatable">
-      <div class="row">
-        <div class="col-12">
+      {% endif %} {% if project.show_aspects %}
+      <div class="col-6">
+        <section id="basic-datatable">
           <div class="card border-0">
             <div class="card-header">
               <h4 class="card-title">Aspects</h4>
@@ -483,10 +516,10 @@
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </section>
-    {% endif %}
+      {% endif %}
+    </div>
     <!-- Dashboard Analytics end -->
     <!-- END: Content-->
 
@@ -539,6 +572,7 @@
     <script src="/static/app-assets/js/scripts/pages/dashboard-analytics.js"></script>
     <!-- END: Page JS-->
     <script type="text/javascript">
+
          $(function() {
       {% if project.show_entities %}
       $('#top-entities').DataTable( {
@@ -592,7 +626,8 @@
           ]
       });
       {% endif %}
-       $('input[name="daterange"]').daterangepicker({
+
+     $('input[name="daterange"]').daterangepicker({
           opens: 'left',
           startDate:'{{ start_date |date:"m-d-Y" }}',
           endDate:'{{ end_date |date:"m-d-Y" }}',

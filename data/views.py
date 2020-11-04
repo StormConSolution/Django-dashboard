@@ -53,7 +53,7 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
+def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name):
     result = {
         "status": "OK",
         "colors": charts.COLORS["contrasts"],
@@ -63,7 +63,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic):
         if chart.load_async:
             continue
         instance = charts.CHART_LOOKUP[chart.label](
-            this_project, start, end, entity_filter, aspect_topic)
+            this_project, start, end, entity_filter, aspect_topic, aspect_name)
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
@@ -82,6 +82,7 @@ def projects(request, project_id):
 
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
 
     # Find the most recent data item.
     if this_project.data_set.count() > 0:
@@ -97,7 +98,7 @@ def projects(request, project_id):
 
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic),
+        'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name),
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
@@ -123,14 +124,19 @@ def projects(request, project_id):
         total_sum += aspect_data['total_data']
         color_index += 1
         context['aspects_total_data'].append(aspect_data)
+    for i in range(len(chart_data['aspect_t_labels'])):
+        positive_data = chart_data['aspect_s_data'][0]['data'][i]
+        negative_data = chart_data['aspect_s_data'][1]['data'][i]
+        context['aspects_total_data'][i]['net_data'] = positive_data - negative_data
+
     for i in range(len(context['aspects_total_data'])):
         context['aspects_total_data'][i]['width'] = (
-                                                            context['aspects_total_data'][i][
-                                                                'total_data'] / total_sum) * 100
+            context['aspects_total_data'][i][
+                'total_data'] / total_sum) * 100
     context['total_data'] = sum(chart_data['sentiment_f_data'])
     context['total_positive'] = chart_data['sentiment_f_data'][0]
     context['total_negative'] = chart_data['sentiment_f_data'][1]
-
+    print(context)
     return render(request, "project_new.html", context)
 
 
@@ -152,6 +158,7 @@ def top_entities(request, project_id):
     table = charts.TopEntityTable(
         this_project, start, end, request.GET.get(
             'entity'), request.GET.get('aspecttopic'),
+        request.GET.get('aspectname'),
     )
 
     return JsonResponse(table.render_data())
@@ -174,9 +181,8 @@ def entities(request, project_id):
 
     table = charts.EntityTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'),
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
     )
-
     return JsonResponse(table.render_data())
 
 
@@ -194,10 +200,33 @@ def aspect_topics(request, project_id):
 
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
-
     table = charts.AspectTopicTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'),
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'),
+    )
+
+
+    return JsonResponse(table.render_data())
+
+
+def aspect_name(request, project_id):
+    """
+    Show the frequency of occurence of the topics related to the given aspect.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.AspectNameTable(
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'),
     )
 
     return JsonResponse(table.render_data())

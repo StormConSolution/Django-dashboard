@@ -107,5 +107,14 @@
 }
 
 #account {
+  position: absolute;
+  right: 100px;
+}
+#logout {
+  position: absolute;
+  right: 0;
+}
 
+.donut-chart > text{
+  color: red !important;
 }

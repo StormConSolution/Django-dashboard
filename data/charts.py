@@ -23,20 +23,22 @@ DEFAULT_COLORS = ['rgba(230, 25, 75,0.5)',
                   'rgba(0, 0, 117,0.5)'
                   ]
 COLORS = {
-    'positive': 'rgba(60, 180, 75,0.5)',
-    'negative': 'rgba(230, 25, 75,0.5)',
+    'positive': 'rgb(83,127,214)',
+    'negative': 'rgb(221,153,66)',
     'neutral': 'rgba(67, 99, 216,0.5)',
     'contrasts': DEFAULT_COLORS
 }
 
+
 class BaseChart:
-    
-    def __init__(self, project, start, end, entity_filter, aspect_topic):
+
+    def __init__(self, project, start, end, entity_filter, aspect_topic, aspect_name):
         self.project = project
         self.start = start
         self.end = end
         self.entity_filter = entity_filter
         self.aspect_topic = aspect_topic
+        self.aspect_name = aspect_name
 
     def render_data(self):
         """
@@ -61,6 +63,9 @@ class TopEntityTable(BaseChart):
         if self.aspect_topic:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+        if self.aspect_topic:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(aspect__label=self.aspect_name))
 
         entity_count = entity_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')
@@ -74,6 +79,7 @@ class TopEntityTable(BaseChart):
             ])
         entities['data'] = entities['data'][:5]
         return entities
+
 
 class EntityTable(BaseChart):
 
@@ -89,6 +95,9 @@ class EntityTable(BaseChart):
         if self.aspect_topic:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+        if self.aspect_topic:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(aspect__label=self.aspect_name))
 
         entity_count = entity_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')
@@ -116,10 +125,13 @@ class AspectTopicTable(BaseChart):
         if self.aspect_topic:
             aspect_set = aspect_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+        if self.aspect_name:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(aspect__label=self.aspect_name))
 
         aspect_count = aspect_set.values_list('topic').annotate(
-                topic_count=Count('topic')).order_by('-topic_count')
-        
+            topic_count=Count('topic')).order_by('-topic_count')
+
         aspects = {"data": []}
         for topic, count in aspect_count:
             aspects["data"].append([
@@ -130,8 +142,40 @@ class AspectTopicTable(BaseChart):
 
         return aspects
 
+
+class AspectNameTable(BaseChart):
+
+    def render_data(self):
+        aspect_set = Aspect.objects.filter(
+            data__date_created__range=(self.start, self.end),
+            data__project=self.project
+        )
+        if self.entity_filter:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(entities__label=self.entity_filter))
+        if self.aspect_topic:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+        if self.aspect_name:
+            aspect_set = aspect_set.filter(
+                data_in=Data.objects.filter(aspect__label=self.aspect_name))
+
+        aspect_count = aspect_set.values_list('label').annotate(
+            label_count=Count('label')).order_by('-label_count')
+
+        aspects = {"data": []}
+        for label, count in aspect_count:
+            aspects["data"].append([
+                label,
+                Aspect.objects.filter(label=label)[0].label,
+                count
+            ])
+
+        return aspects
+
+
 class SentimenFrequencyTable(BaseChart):
-    
+
     def render_data(self):
         data_set = Data.objects.filter(
             project=self.project,
@@ -140,9 +184,11 @@ class SentimenFrequencyTable(BaseChart):
 
         if self.entity_filter:
             data_set = data_set.filter(entities__label=self.entity_filter)
-        
+
         if self.aspect_topic:
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
+        if self.aspect_name:
+            data_set = data_set.filter(aspect__label=self.aspect_name)
 
         sentiment_f = data_set.aggregate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -165,6 +211,8 @@ class SentimentTimeTable(BaseChart):
             data_set = data_set.filter(entities__label=self.entity_filter)
         if self.aspect_topic:
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
+        if self.aspect_name:
+            data_set = data_set.filter(aspect__label=self.aspect_name)
 
         sentiment_t = data_set.values('date_created').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -177,7 +225,7 @@ class SentimentTimeTable(BaseChart):
 
         positive = {'name': 'Positive', 'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(sentiment_t))),
                     'backgroundColor': COLORS['positive'], 'borderColor': COLORS['positive'], "fill": False, }
-        negative = {'name': 'Negative','label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
+        negative = {'name': 'Negative', 'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
                     'backgroundColor': COLORS['negative'], 'borderColor': COLORS['negative'], "fill": False}
         result['sentiment_t_data'] = [positive, negative]
 
@@ -196,10 +244,13 @@ class AspectSentimentTable(BaseChart):
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
                 data__entities__label=self.entity_filter)
-        
+
         if self.aspect_topic:
             aspect_data_set = aspect_data_set.filter(
                 topic=self.aspect_topic)
+        if self.aspect_name:
+            aspect_data_set = aspect_data_set.filter(
+                label=self.aspect_name)
 
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -233,11 +284,14 @@ class AspectFrequencyTable(BaseChart):
         if self.aspect_topic:
             aspect_data_set = aspect_data_set.filter(
                 topic=self.aspect_topic)
+        if self.aspect_name:
+            aspect_data_set = aspect_data_set.filter(
+                label=self.aspect_name)
 
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
         aspect_f_data = []
-    
+
         for i, aspect in enumerate(list(aspect_f)):
             color = COLORS['contrasts'][i % (len(COLORS['contrasts'])-1)]
             aspect_f_data.append({'label': aspect['label'], 'data': [
@@ -259,10 +313,13 @@ class AspectTimeTable(BaseChart):
         if self.entity_filter:
             aspect_data_set = aspect_data_set.filter(
                 data__entities__label=self.entity_filter)
-        
+
         if self.aspect_topic:
             aspect_data_set = aspect_data_set.filter(
                 topic=self.aspect_topic)
+        if self.aspect_name:
+            aspect_data_set = aspect_data_set.filter(
+                label=self.aspect_name)
 
         result = {"aspects": {}}
         result["aspect_t_labels"] = list(
@@ -280,7 +337,7 @@ class SentimentSourceTable(BaseChart):
     def render_data(self):
         # Show sentiment by source.
         result = {}
-        
+
         result['source_labels'] = []
 
         positive = {'label': 'positive', 'data': [],
@@ -292,19 +349,20 @@ class SentimentSourceTable(BaseChart):
             pos_total = data_models.Data.objects.filter(
                 project=self.project,
                 date_created__range=(self.start, self.end), source__label=label, sentiment__gt=0).count()
-            
+
             neg_total = data_models.Data.objects.filter(
                 project=self.project,
                 date_created__range=(self.start, self.end), source__label=label, sentiment__lt=0).count()
-            
+
             if pos_total or neg_total:
                 result['source_labels'].append(label)
                 positive['data'].append(pos_total)
                 negative['data'].append(neg_total)
 
         result['source_datasets'] = [positive, negative]
-        
+
         return result
+
 
 class EmotionalEntitiesTable(BaseChart):
 
@@ -326,33 +384,34 @@ class EmotionalEntitiesTable(BaseChart):
 
         # Query 10 most frequent emotions for the entities
         top_ten_emotions = data_models.EmotionalEntity.objects.filter(
-                entity__in=top_ten_entities).values('emotion__label').annotate(
+            entity__in=top_ten_entities).values('emotion__label').annotate(
             emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
         result['emotions'] = [e['emotion__label'] for e in top_ten_emotions]
         result['emotional_entity_data'] = []
-        
+
         for index_n, entity in enumerate(result['entities_for_emotions']):
             x = list(data_models.EmotionalEntity.objects.filter(
                 entity__label=entity,
                 emotion__label__in=result['emotions']).values(
                     "emotion__label").annotate(
                         Count("emotion")).order_by("-emotion__count"))
-            
+
             for index_m, emotion in enumerate(list(x)):
-                result['emotional_entity_data'].append([index_m, index_n, emotion['emotion__count']])
+                result['emotional_entity_data'].append(
+                    [index_m, index_n, emotion['emotion__count']])
 
         return result
 
 
 CHART_LOOKUP = {
-    'aspect_f':AspectFrequencyTable,
-    'aspect_s':AspectSentimentTable,
-    'aspect_t':AspectTimeTable,
-    'aspect_table':AspectTopicTable,
-    'emotional_entities':EmotionalEntitiesTable,
-    'top_entity_table':TopEntityTable,
-    'entity_table':EntityTable,
-    'sentiment_f':SentimenFrequencyTable,
-    'sentiment_source':SentimentSourceTable,
-    'sentiment_t':SentimentTimeTable,
+    'aspect_f': AspectFrequencyTable,
+    'aspect_s': AspectSentimentTable,
+    'aspect_t': AspectTimeTable,
+    'aspect_table': AspectTopicTable,
+    'emotional_entities': EmotionalEntitiesTable,
+    'top_entity_table': TopEntityTable,
+    'entity_table': EntityTable,
+    'sentiment_f': SentimenFrequencyTable,
+    'sentiment_source': SentimentSourceTable,
+    'sentiment_t': SentimentTimeTable,
 }
