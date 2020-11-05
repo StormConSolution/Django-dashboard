@@ -14,13 +14,13 @@ $(window).on("load", function () {
   var $danger = "#FF5B5C";
   var $warning = "#FDAC41";
   var $info = "#00CFDD";
-  var $label_color = "#475f7b";
+  var $label_color = "#FFFFFF";
   var $primary_light = "#E2ECFF";
   var $danger_light = "#ffeed9";
   var $gray_light = "#828D99";
   var $sub_label_color = "#596778";
   var $radial_bg = "#e7edf3";
-  var $postive = "#537fd6";
+  var $positive = "#537fd6";
   var $negative = "#dd9942";
 
   // Radial-Success-chart
@@ -220,7 +220,7 @@ $(window).on("load", function () {
     dataLabels: {
       enabled: false,
     },
-    colors: [$postive, $negative],
+    colors: [$positive, $negative],
     fill: {
       type: "gradient",
       gradient: {
@@ -341,7 +341,7 @@ $(window).on("load", function () {
       width: 0,
       lineCap: "round",
     },
-    colors: [$postive, $negative, $info],
+    colors: [$positive, $negative, $info],
     plotOptions: {
       pie: {
         donut: {
@@ -368,7 +368,7 @@ $(window).on("load", function () {
             total: {
               show: true,
               label: "Sentiments",
-              color: $gray_light,
+              color: $label_color,
               formatter: function (w) {
                 return w.globals.seriesTotals.reduce(function (a, b) {
                   return a + b;
@@ -395,7 +395,14 @@ $(window).on("load", function () {
   // ----------------------------------
 
 
-  project_data.aspect_s_data[0]['data'].map(function(e, i) {
+  project_data.aspect_s_data[0]['data'].map(function(positive_data, i) {
+    let $net_color;
+    if (positive_data - project_data.aspect_s_data[1]['data'][i] < 0) {
+      $net_color = '#eb303f'
+    } else {
+      $net_color = '#FFA500'
+    }
+    console.log($net_color);
    var donutChartOption = {
     chart: {
       width: 200,
@@ -404,13 +411,13 @@ $(window).on("load", function () {
     dataLabels: {
       enabled: false,
     },
-    series: [e, project_data.aspect_s_data[1]['data'][i]],
+    series: [positive_data, project_data.aspect_s_data[1]['data'][i]],
     labels: ["Positive", "Negative"],
     stroke: {
       width: 0,
       lineCap: "round",
     },
-    colors: [$postive, $negative],
+    colors: [$positive, $negative],
     plotOptions: {
       pie: {
         donut: {
@@ -420,7 +427,7 @@ $(window).on("load", function () {
             name: {
               show: true,
               fontSize: "15px",
-              colors: $sub_label_color,
+              color: $net_color,
               offsetY: 20,
               fontFamily: "IBM Plex Sans",
             },
@@ -428,21 +435,20 @@ $(window).on("load", function () {
               show: true,
               fontSize: "26px",
               fontFamily: "Rubik",
-              color: $label_color,
+              color: $net_color,
               offsetY: -20,
               formatter: function (val) {
                 return val;
               },
             },
+
             total: {
               show: true,
               label: "Net score",
-              style: {
-                colors: '#333'
-              },
+              color: $net_color,
               formatter: function (w) {
                 return w.globals.seriesTotals.reduce(function () {
-                  return e - project_data.aspect_s_data[1]['data'][i];
+                  return positive_data - project_data.aspect_s_data[1]['data'][i];
                 }, 0);
               },
             },

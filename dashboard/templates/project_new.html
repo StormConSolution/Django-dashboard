@@ -342,8 +342,8 @@
 
           <div class="container-fluid">
             <!-- Activity Card Starts-->
-            <div class="d-flex flex-row flex-wrap">
-                <div class="col-xl-3 col-md-6 col-12 activity-card">
+            <div class="d-flex flex-row flex-wrap" >
+                <div class="col-xl-3 col-md-6 col-12 activity-card" style="max-width: 300px;">
                   <div class="card border-0">
                     <div class="card-header">
                       <h4 class="card-title">Aspects</h4>
@@ -383,10 +383,10 @@
                 </div>
           
                 {% for aspect in aspects_total_data %}
-                      <div class="card card-block mx-2 border-0" style="min-width: 300px;">
+                      <div class="card ml-3 card-block border-0" style="max-width: 300px;">
                       <!-- Conversion Chart Starts-->
                       <div class="col-xl-12 col-md-6 col-12">
-                          <div class="card border-0">
+                          <div class="card border-0" class="aspects-cards">
                             <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
                               <div class="conversion-title">
                                 <h4 class="card-title">{{ aspect.name }}</h4>

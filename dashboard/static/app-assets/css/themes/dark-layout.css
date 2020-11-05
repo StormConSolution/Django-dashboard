@@ -1486,9 +1486,7 @@ body.dark-layout .apexcharts-canvas .apexcharts-yaxistooltip-left:after {
   border-left-color: #1a233a;
 }
 
-body.dark-layout .apexcharts-canvas text {
-  fill: #FFFFFF !important;
-}
+
 
 body.dark-layout .apexcharts-canvas .apexcharts-legend-series .apexcharts-legend-text {
   color: #8a99b5 !important;
