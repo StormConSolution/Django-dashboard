@@ -156,15 +156,15 @@
           data-menu="menu-navigation"
           data-icon-style="lines"
         >
-          <li class="nav-item">
+          <li class="nav-item align-items-center">
            <a class="navbar-brand" href="{% url 'home' %}">
                 <img src="{% static "assets/brand/logo-repustate-light.svg" %}"
                  height="36" object-fit="contain" alt="Repustate Logo"/>
               </a>
           </li>
-          <li class="dropdown">
-            <button class="btn btn-outline-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span>Projects</span>
+          <li class="nav-item dropdown">
+            <button class="btn btn-outline btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Projects
             </button>
             <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton">
               {% for project in project_list %}
@@ -173,7 +173,7 @@
             </div>
           </li>
          <form class="form-inline my-2 my-lg-0">
-            <button class="btn btn-outline-success my-2 my-sm-0">
+            <button class="btn btn-outline-none my-2 my-sm-0">
               <svg
                 width="2em"
                 height="2em"
@@ -190,12 +190,12 @@
             </button>
             <input class="form-control mr-sm-2" type="text" name="daterange" />
           </form>
-          <li class="nav-item" id="account">
+          <li class="nav-item mr-5" id="account">
             <a class="nav-link" href="{% url 'admin:index' %}"
               ><i class="bx bx-user ml-50"></i> Admin</a
             >
           </li>
-          <li class="nav-item" id="logout">
+          <li class="nav-item mr-5" id="logout">
             <a class="nav-link" href="{% url 'logout' %}"
               ><i class="bx bx-power-off"></i> Logout</a
             >
