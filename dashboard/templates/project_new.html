@@ -213,7 +213,7 @@
         <div class="content-header row"></div>
         <div class="content-body">
           <!-- Dashboard Analytics Start -->
-          <div class="row">
+          <div class="row ml-3">
             <!-- Website Analytics Starts-->
             <div class="col-md-6 col-sm-12">
               <div class="card border-0">
@@ -385,35 +385,32 @@
                 {% for aspect in aspects_total_data %}
                       <div class="card ml-3 card-block border-0" style="max-width: 300px;">
                       <!-- Conversion Chart Starts-->
-                      <div class="col-xl-12 col-md-6 col-12">
-                          <div class="card border-0" class="aspects-cards">
-                            <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
-                              <div class="conversion-title">
-                                <h4 class="card-title">{{ aspect.name }}</h4>
-                                <p>
-                                  <i class="bx text-success font-size-small align-middle mr-25"></i>
-                                </p>
-                              </div>
+                          <div class="col-xl-12 col-md-6 col-12">
+                              <div class="card border-0" class="aspects-cards">
+                                <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
+                                  <div class="conversion-title">
+                                    <h4 class="card-title">{{ aspect.name }}</h4>
+                                    <p>
+                                      <i class="bx text-success font-size-small align-middle mr-25"></i>
+                                    </p>
+                                  </div>
 
-                            </div>
-                            <div class="card-content">
-                              <div class="card-body text-center">
-                                <div id="{{ aspect.name }}-bar-negative-chart" class="donut-chart"></div>
+                                </div>
+                                <div class="card-content">
+                                  <div class="card-body text-center">
+                                    <div id="{{ aspect.name }}-bar-negative-chart" class="donut-chart"></div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
                   {% endfor %}
-                  <!-- <div class="card card-block mx-2" style="min-width: 300px;">Card</div>
-                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>                     
-                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>
-                  <div class="card card-block mx-2" style="min-width: 300px;">Card</div>                      -->
+            </div>
               </div>
             </div>
             
             
-            <div class="col-md-12 col-sm-6">
+            <div class="col-md-12 col-sm-6 ml-3">
               <div class="card border-0">
                 <div class="card-header">
                   <h4 class="card-title">Trending topics</h4>
@@ -426,6 +423,7 @@
                         <i class="bx bx-trending-up success align-middle"></i>
                         <span class="text-success"></span>
                       </div>
+
                       {% if project.show_entities %}
 
                       <section id="basic-datatable">
@@ -463,37 +461,38 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="row">
+
       {% if project.show_entities %}
-      <div class="col-6">
-        <section id="basic-datatable">
-          <div class="card border-0">
-            <div class="card-header">
-              <h4 class="card-title">Entities</h4>
-            </div>
-            <div class="card-content">
-              <div class="card-body card-dashboard">
-                <p class="card-text"></p>
-                <div class="table-responsive">
-                  <table class="table" id="entities">
-                    <thead>
-                      <tr>
-                        <th>Entity</th>
-                        <th>Classifications</th>
-                        <th>Frequency</th>
-                      </tr>
-                    </thead>
-                  </table>
+      <div class="row">
+          <div class="col-6 ml-5">
+            <section id="basic-datatable">
+              <div class="card border-0 ml-3">
+                <div class="card-header">
+                  <h4 class="card-title">Entities</h4>
+                </div>
+                <div class="card-content">
+                  <div class="card-body card-dashboard">
+                    <p class="card-text"></p>
+                    <div class="table-responsive">
+                      <table class="table" id="entities">
+                        <thead>
+                          <tr>
+                            <th>Entity</th>
+                            <th>Classifications</th>
+                            <th>Frequency</th>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
+          </section>
+
       </div>
-      {% endif %} {% if project.show_aspects %}
-      <div class="col-6">
+      {% endif %}
+        {% if project.show_aspects %}
+      <div class="col-5">
         <section id="basic-datatable">
           <div class="card border-0">
             <div class="card-header">

@@ -398,9 +398,9 @@ $(window).on("load", function () {
   project_data.aspect_s_data[0]['data'].map(function(positive_data, i) {
     let $net_color;
     if (positive_data - project_data.aspect_s_data[1]['data'][i] < 0) {
-      $net_color = '#eb303f'
+      $net_color = $negative
     } else {
-      $net_color = '#FFA500'
+      $net_color = $positive
     }
     console.log($net_color);
    var donutChartOption = {
@@ -425,7 +425,7 @@ $(window).on("load", function () {
           labels: {
             show: true,
             name: {
-              show: true,
+              show: false,
               fontSize: "15px",
               color: $net_color,
               offsetY: 20,
@@ -433,10 +433,11 @@ $(window).on("load", function () {
             },
             value: {
               show: true,
-              fontSize: "26px",
+              fontSize: "48px",
               fontFamily: "Rubik",
               color: $net_color,
-              offsetY: -20,
+
+              offsetY: 9,
               formatter: function (val) {
                 return val;
               },
