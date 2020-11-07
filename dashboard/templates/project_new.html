@@ -343,29 +343,23 @@
           <div class="container-fluid">
             <!-- Activity Card Starts-->
             <div class="d-flex flex-row flex-wrap" >
-                <div class="col-xl-3 col-md-6 col-12 activity-card" style="max-width: 300px;">
+                <div class="col-12 activity-card">
                   <div class="card border-0">
                     <div class="card-header">
                       <h4 class="card-title">Aspects</h4>
                     </div>
                     <div class="card-content">
                       <div class="card-body pt-1">
-                        
+
                         {% for aspect in aspects_total_data|dictsortreversed:"total_data" %}
                         <a href="{% url 'aspect-names' project.id %}?aspectname={{aspect.name}} ">
                           <!-- /project/
                           id/?aspect_filter=$name_of_aspect -->
                           <div class="d-flex activity-content">
                             <div class="activity-progress flex-grow-1">
-                              <small class="text-muted d-inline-block mb-50"
-                                >{{aspect.name}}</small
-                              >
-                              <small class="float-right"
-                                >{{ aspect.total_data }}</small
-                              >
-                              <div
-                                class="progress progress-bar-{{ aspect.color }} progress-sm"
-                              >
+                              <small class="text-muted d-inline-block mb-50">{{aspect.name}}</small>
+                              <small class="float-right">{{ aspect.total_data }}</small>
+                              <div class="progress progress-bar-{{ aspect.color }} progress-sm">
                                 <div
                                   class="progress-bar"
                                   role="progressbar"
@@ -381,12 +375,14 @@
                     </div>
                   </div>
                 </div>
-          
-                {% for aspect in aspects_total_data %}
-                      <div class="card ml-3 card-block border-0" style="max-width: 300px;">
+            </div>
+          </div>
+            <div class="container-fluid">
+                <div class="row pl-3 pr-4">
+                {% for aspect in aspects_total_data|dictsortreversed:'net_data' %}
+                      <div class="card card-block border-0 ml-3 mr-2 col-sm">
                       <!-- Conversion Chart Starts-->
-                          <div class="col-xl-12 col-md-6 col-12">
-                              <div class="card border-0" class="aspects-cards">
+                              <div class="card border-0">
                                 <div class="card-header d-flex justify-content-between pb-xl-0 pt-xl-1">
                                   <div class="conversion-title">
                                     <h4 class="card-title">{{ aspect.name }}</h4>
@@ -394,7 +390,6 @@
                                       <i class="bx text-success font-size-small align-middle mr-25"></i>
                                     </p>
                                   </div>
-
                                 </div>
                                 <div class="card-content">
                                   <div class="card-body text-center">
@@ -403,13 +398,14 @@
                                 </div>
                               </div>
                             </div>
-                          </div>
                   {% endfor %}
-            </div>
+                </div>
               </div>
             </div>
-            
-            
+      </div>
+    </div>
+
+
             <div class="col-md-12 col-sm-6 ml-3">
               <div class="card border-0">
                 <div class="card-header">
