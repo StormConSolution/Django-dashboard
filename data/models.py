@@ -99,10 +99,29 @@ class Source(models.Model):
         return self.label
 
 
+class Comment(models.Model):
+    label = models.CharField(max_length=300, blank=True, null=True)
+    frequency = models.IntegerField()
+
+    def __str__(self):
+        return self.adjectives
+
+
+class Country(models.Model):
+    country_name = models.CharField(max_length=300, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Country'
+
+    def __str__(self):
+        return self.country_name
+
+
 class Data(models.Model):
     date_created = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-
+    adjectives = models.ManyToManyField(Comment)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0, db_index=True)

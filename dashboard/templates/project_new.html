@@ -116,6 +116,7 @@
       type="text/css"
       href="/static/assets/css/style.css"
     />
+    
     <!-- END: Custom CSS-->
   </head>
   <!-- END: Head-->
@@ -260,85 +261,54 @@
                 </div>
               </div>
             </div>
-            <div
-              class="col-xl-3 col-md-6 col-sm-12 dashboard-referral-impression"
-            >
-              <div class="row">
-                <!-- Impression Radial Chart Starts-->
-                <div class="col-xl-12 col-12">
-                  <div class="card border-0">
-                    <div class="card-content">
-                      <div class="card-body donut-chart-wrapper">
-                        <div
-                          id="donut-chart"
-                          class="d-flex justify-content-center"
-                        ></div>
-                        <ul
-                          class="list-inline d-flex justify-content-around mb-0"
+
+            <div class="col-md-6 col-sm-12 pr-5">
+              <div class="card border-0">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                >
+                  <h4 class="card-title"><s></s>Overall Sentiment</h4>
+                  <i
+                    class="bx bx-dots-vertical-rounded font-medium-3 cursor-pointer"
+                  ></i>
+                </div>
+                <div class="card-content ">
+                  <div class="card-body pb-1 mb-1">
+                  <div class="card-body donut-chart-wrapper ">
+                  
+                      <ul
+                          class="list-inline d-flex justify-content-around align-items-center mb-1 mt-3"
                         >
-                          <li>
+                          <li class="d-flex align-items-center">
                             <span
-                              class="bullet bullet-xs bullet-warning mr-50"
+                              class="bullet bullet-xm bullet-warning mr-50"
                             ></span
                             >Positive
                           </li>
-                          <li>
+                          <li class="d-flex align-items-center">
                             <span
-                              class="bullet bullet-xs bullet-info mr-50"
+                              class="bullet bullet-xm bullet-info mr-50"
                             ></span
                             >Negative
                           </li>
-                          <li>
+                          <li class="d-flex align-items-center">
                             <span
-                              class="bullet bullet-xs bullet-primary mr-50"
+                              class="bullet bullet-xm bullet-primary mr-50"
                             ></span
                             >Neutral
                           </li>
                         </ul>
-                      </div>
-                    </div>
+                      
+                   <div id="donut-chart" class="d-flex flex-1 justify-content-center"></div>
+                   </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="col-xl-3 col-md-12 col-sm-12">
-              <div class="row">
-              <div class="col-xl-12 col-md-6 col-12">
-                  <div class="row pr-4">
-                    <div class="col-12">
-                      <div class="card border-0">
-                        <div
-                          class="card-body d-flex align-items-center justify-content-between"
-                        >
-                          <div class="d-flex align-items-center">
-                            <div class="total-amount">
-                              <h5 class="mb-0">38,566</h5>
-                              <small class="text-muted">Top aspect</small>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="card border-0">
-                        <div
-                          class="card-body d-flex align-items-center justify-content-between"
-                        >
-                          <div class="d-flex align-items-center">
-                            <div class="total-amount">
-                              <h5 class="mb-0">53,659</h5>
-                              <small class="text-muted">Top entity</small>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
+           {% comment %} 
+           <!--Test end-->
+          </div> {% endcomment %}
 
           <div class="container-fluid">
             <!-- Activity Card Starts-->
@@ -398,62 +368,89 @@
               </div>
             </div>
       </div>
-    </div>
-
+    {% comment %} </div> {% endcomment %}
+<!-------->
   <div class="container-fluid">
             <div class="col-md-12 col-sm-6 pl-5 pr-4">
               <div class="card border-0 mr-4">
                 <div class="card-header">
-                  <h4 class="card-title">Trending topics</h4>
+                  <h4 class="card-title">Word Cloud</h4>
                 </div>
-                <div class="card-content">
-                  <div class="card-body">
-                    <div class="d-flex align-items-end justify-content-around">
-                      <div class="registration-content mr-xl-2">
-                        <h4 class="mb-5"></h4>
-                        <i class="bx bx-trending-up success align-middle"></i>
-                        <span class="text-success"></span>
-                      </div>
-  </div>
-      
-
+                  <div class="card-content">
+                    <div class="card-body">
+                     <div class="d-flex flex-row flex-wrap" >       
                       {% if project.show_entities %}
 
-                      <section id="basic-datatable">
-                        <div class="row pl-3 pr-4">
-                          <div class="col-12">
-                            <div class="card border-0">
-                              <div class="card-header">
-                                <h4 class="card-title">Entities</h4>
-                              </div>
-                              <div class="card-content">
-                                <div class="card-body card-dashboard">
-                                  <p class="card-text"></p>
-                                  <div class="table-responsive">
-                                    <table class="table" id="top-entities">
-                                      <thead>
-                                        <tr>
-                                          <th>Entity</th>
-                                          <th>Classifications</th>
-                                          <th>Frequency</th>
-                                        </tr>
-                                      </thead>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
+                      <div style="width: 100%; height: 300px;" id="chartdiv"></div>                       
+                      
                       {% endif %}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+          </div>
+  <div class="container-fluid">
+            <div class="col-md-12 col-sm-6 pl-5 pr-4">
+              <div class="card border-0 mr-4">
+                <div class="card-header">
+                  <h4 class="card-title">Source Data</h4>
+                </div>
+                  <div class="card-content" >
+                         <div class="card-body">
+                          <div class="d-flex flex-row flex-wrap" >  
+                                 <div style="width: 100%; height: 300px;" id="treemap-chart"></div>
+                            </div>
+                            </div>
+                        </div>
+                  </div>
+              </div>
+          </div>
+  <div class="container-fluid">
+            <div class="col-md-12 col-sm-6 pl-5 pr-4">
+              <div class="card border-0 mr-4">
+                <div class="card-header">
+                  <h4 class="card-title">Geo Source</h4>
+                </div>
+                  <div class="card-content">
+                    <div class="card-body">
+                     <div class="d-flex flex-row flex-wrap" >       
+                      <div style="width: 100%; height: 300px;" id="treemapGeo-chart"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+  <div class="container-fluid">
+            <div class="col-md-12 col-sm-6 pl-5 pr-4">
+            <section id="basic-datatable">
+              <div class="card border-0 mr-4">
+                <div class="card-header">
+                  <h4 class="card-title">Data Entries</h4>
+                </div>
+                  <div class="card-content">
+                    <div class="card-body card-dashboard">
+                     <p class="card-text"></p>
+                      <div class="table-responsive">
+                        <table class="table" id="data-entries">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Text</th>
+                              <th>Source</th>
+                              <th>weighted Score</th>
+                              <th>Location</th>
+                            </tr>
+                          </thead>                   
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
-        </div>
 
       {% if project.show_entities %}
       <div class="row pl-3 pr-4">
@@ -562,12 +559,20 @@
 
     <!-- BEGIN: Page JS-->
     <script src="/static/app-assets/js/scripts/pages/dashboard-analytics.js"></script>
+    
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/plugins/wordCloud.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/dataviz.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+    <script src="/static/assets/js/amcharts.js"></script>
     <!-- END: Page JS-->
     <script type="text/javascript">
 
          $(function() {
       {% if project.show_entities %}
-      $('#top-entities').DataTable( {
+
+       $('#top-entities').DataTable( {
           "ajax": "{% url 'top-entities' project.id %}?{{ query_string }}",
           "order": [[2, "desc"]],
           "columnDefs": [
@@ -585,6 +590,23 @@
                 'filter': false,
                 'info': false,
       });
+
+      $('#data-entries').DataTable( {
+          "ajax": "{% url 'data-entries' project.id %}?{{ query_string }}",
+          "order": [[2, "desc"]],
+          "columnDefs": [
+      	{
+      	    // The `data` parameter refers to the data for the cell (defined by the
+      	    // `data` option, which defaults to the column being worked with, in
+      	    // this case `data: 0`.
+      	    "render": function ( data, type, row ) {
+      		return "<a href='?entry="+data+"'>"+data+"</a>";
+      	    },
+      	    "targets": 0
+      	}
+          ]
+      });
+
       		$('#entities').DataTable( {
           "ajax": "{% url 'entities' project.id %}?{{ query_string }}",
           "order": [[2, "desc"]],

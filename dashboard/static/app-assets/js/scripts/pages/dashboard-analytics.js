@@ -77,7 +77,7 @@ $(window).on("load", function () {
     radialSuccessoptions
   );
 
-  radialSuccessChart.render();
+  // radialSuccessChart.render();
 
   // Radial-Warning-chart
   // --------------------------------
@@ -133,7 +133,7 @@ $(window).on("load", function () {
     radialWarningoptions
   );
 
-  radialWarningChart.render();
+  // radialWarningChart.render();
 
   // Radial-Danger-chart
   // --------------------------------
@@ -189,7 +189,7 @@ $(window).on("load", function () {
     radialDangeroptions
   );
 
-  radialDangerChart.render();
+  // radialDangerChart.render();
 
   // Bar Chart
   // ---------
@@ -323,13 +323,163 @@ $(window).on("load", function () {
     document.querySelector("#success-line-chart"),
     successLineChartOption
   );
-  successLineChart.render();
+  // successLineChart.render();
+
+  //treemap chart for source data
+  //------------------------
+  var entry_data = [];
+  function entry() {
+    var i, j;
+    var y = 0;
+    for (i = 0; i < project_data.source_labels.length; i++) {
+      for (j = 0; j < 2; j++) {
+        entry_data.push({
+          x: project_data.source_labels[i],
+          y:
+            project_data.source_datasets[j]["label"] == "negative"
+              ? 0 - parseInt(project_data.source_datasets[j]["data"][i])
+              : project_data.source_datasets[j]["data"][i],
+        });
+      }
+    }
+    console.log("data:", entry_data);
+  }
+  entry();
+  var treemapoptions = {
+    series: [
+      {
+        data: entry_data,
+      },
+    ],
+    legend: {
+      show: false,
+    },
+    chart: {
+      height: 350,
+      type: "treemap",
+    },
+
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: "26px",
+      },
+      formatter: function (text, op) {
+        return [text, op.value];
+      },
+      offsetY: -4,
+    },
+    plotOptions: {
+      treemap: {
+        enableShades: false,
+        shadeIntensity: 0.5,
+        reverseNegativeShade: true,
+        colorScale: {
+          ranges: [
+            {
+              from: -1000000,
+              to: 0,
+              color: $negative,
+            },
+            {
+              from: 0,
+              to: 1000000,
+              color: $positive,
+            },
+          ],
+        },
+      },
+    },
+  };
+
+  var Treechart = new ApexCharts(
+    document.querySelector("#treemap-chart"),
+    treemapoptions
+  );
+  Treechart.render();
+
+  //-----------
+
+  //treemap chart for country based data
+  //-------------------------
+  var country_data = [];
+  function country() {
+    var i, j;
+    var y = 0;
+    for (i = 0; i < project_data?.country_labels?.length; i++) {
+      for (j = 0; j < 2; j++) {
+        country_data.push({
+          x: project_data.country_labels[i],
+          y:
+            project_data.country_datasets[j]["label"] == "negative"
+              ? 0 - parseInt(project_data.country_datasets[j]["data"][i])
+              : project_data.country_datasets[j]["data"][i],
+        });
+      }
+    }
+    console.log("country data:", country_data);
+  }
+  country();
+  var treemapGeooptions = {
+    series: [
+      {
+        data: country_data,
+      },
+    ],
+    legend: {
+      show: false,
+    },
+    chart: {
+      height: 350,
+      type: "treemap",
+    },
+
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: "26px",
+      },
+      formatter: function (text, op) {
+        return [text, op.value];
+      },
+      offsetY: -4,
+    },
+    plotOptions: {
+      treemap: {
+        enableShades: false,
+        shadeIntensity: 0.5,
+        reverseNegativeShade: true,
+        colorScale: {
+          ranges: [
+            {
+              from: -1000000,
+              to: 0,
+              color: $negative,
+            },
+            {
+              from: 0,
+              to: 1000000,
+              color: $positive,
+            },
+          ],
+        },
+      },
+    },
+  };
+
+  var GeoTreechart = new ApexCharts(
+    document.querySelector("#treemapGeo-chart"),
+    treemapGeooptions
+  );
+  GeoTreechart.render();
+
+  //-----------
 
   // Donut Chart
   // ---------------------
   var donutChartOption = {
     chart: {
-      width: 200,
+      width: 320,
       type: "donut",
     },
     dataLabels: {
@@ -394,75 +544,78 @@ $(window).on("load", function () {
   // Stacked Bar Negative Chart
   // ----------------------------------
 
-
-  project_data.aspect_s_data[0]['data'].map(function(positive_data, i) {
+  project_data.aspect_s_data[0]["data"].map(function (positive_data, i) {
     let $net_color;
-    if (positive_data - project_data.aspect_s_data[1]['data'][i] < 0) {
-      $net_color = $negative
+    if (positive_data - project_data.aspect_s_data[1]["data"][i] < 0) {
+      $net_color = $negative;
     } else {
-      $net_color = $positive
+      $net_color = $positive;
     }
     console.log($net_color);
-   var donutChartOption = {
-    chart: {
-      width: 200,
-      type: "donut",
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    series: [positive_data, project_data.aspect_s_data[1]['data'][i]],
-    labels: ["Positive", "Negative"],
-    stroke: {
-      width: 0,
-      lineCap: "round",
-    },
-    colors: [$positive, $negative],
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "90%",
-          labels: {
-            show: true,
-            name: {
-              show: false,
-              fontSize: "15px",
-              color: $net_color,
-              offsetY: 20,
-              fontFamily: "IBM Plex Sans",
-            },
-            value: {
+    var donutChartOption = {
+      chart: {
+        width: 200,
+        type: "donut",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      series: [positive_data, project_data.aspect_s_data[1]["data"][i]],
+      labels: ["Positive", "Negative"],
+      stroke: {
+        width: 0,
+        lineCap: "round",
+      },
+      colors: [$positive, $negative],
+      plotOptions: {
+        pie: {
+          donut: {
+            size: "90%",
+            labels: {
               show: true,
-              fontSize: "48px",
-              fontFamily: "Rubik",
-              color: $net_color,
-
-              offsetY: 9,
-              formatter: function (val) {
-                return val;
+              name: {
+                show: false,
+                fontSize: "15px",
+                color: $net_color,
+                offsetY: 20,
+                fontFamily: "IBM Plex Sans",
               },
-            },
+              value: {
+                show: true,
+                fontSize: "48px",
+                fontFamily: "Rubik",
+                color: $net_color,
 
-            total: {
-              show: true,
-              label: "Net score",
-              color: $net_color,
-              formatter: function (w) {
-                return w.globals.seriesTotals.reduce(function () {
-                  return positive_data - project_data.aspect_s_data[1]['data'][i];
-                }, 0);
+                offsetY: 9,
+                formatter: function (val) {
+                  return val;
+                },
+              },
+
+              total: {
+                show: true,
+                label: "Net score",
+                color: $net_color,
+                formatter: function (w) {
+                  return w.globals.seriesTotals.reduce(function () {
+                    return (
+                      positive_data - project_data.aspect_s_data[1]["data"][i]
+                    );
+                  }, 0);
+                },
               },
             },
           },
         },
       },
-    },
-    legend: {
-      show: false,
-    },
-  };
+      legend: {
+        show: false,
+      },
+    };
     var donut_chart = new ApexCharts(
-      document.querySelector(`#${project_data.aspect_s_labels[i]}-bar-negative-chart`),
+      document.querySelector(
+        `#${project_data.aspect_s_labels[i]}-bar-negative-chart`
+      ),
       donutChartOption
     );
 
@@ -534,7 +687,7 @@ $(window).on("load", function () {
     document.querySelector("#primary-line-chart"),
     primaryLineChartOption
   );
-  primaryLineChart.render();
+  // primaryLineChart.render();
 
   // Warning Line Chart
   // -----------------------------
@@ -601,7 +754,7 @@ $(window).on("load", function () {
     document.querySelector("#warning-line-chart"),
     warningLineChartOption
   );
-  warningLineChart.render();
+  // warningLineChart.render();
 
   // Profit Primary Chart
   // --------------------------------
@@ -650,6 +803,6 @@ $(window).on("load", function () {
     profitPrimaryOptions
   );
 
-  profitPrimaryChart.render();
+  // profitPrimaryChart.render();
 });
 console.log(project_data); //test

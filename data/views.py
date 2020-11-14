@@ -113,6 +113,7 @@ def projects(request, project_id):
     color_index = 0
     colors = ['pink', 'red', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green',
               'light-green', 'lime', 'yellow', 'amber']
+
     for aspect in chart_data['aspect_t_labels']:
         aspect_data = dict()
         aspect_data['name'] = aspect
@@ -136,7 +137,7 @@ def projects(request, project_id):
     context['total_data'] = sum(chart_data['sentiment_f_data'])
     context['total_positive'] = chart_data['sentiment_f_data'][0]
     context['total_negative'] = chart_data['sentiment_f_data'][1]
-    print(context)
+
     return render(request, "project_new.html", context)
 
 
@@ -186,6 +187,72 @@ def entities(request, project_id):
     return JsonResponse(table.render_data())
 
 
+def adjectives(request, project_id):
+    """
+    Show the frequency of occurence for the adjectives for this data set.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.AdjectivesTable(
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+    )
+    return JsonResponse(table.render_data())
+
+
+def countries(request, project_id):
+    """
+    Show the total postive and negative sentiment for the countries for this data set.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.AdjectivesTable(
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+    )
+    return JsonResponse(table.render_data())
+
+
+def data_entries(request, project_id):
+    """
+    list all data entries for this project.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    default_start = datetime.date.today() - datetime.timedelta(days=30)
+    default_end = datetime.date.today()
+
+    start = request.GET.get('start', default_start)
+    end = request.GET.get('end', default_end)
+
+    table = charts.Data_EntryTable(
+        this_project, start, end, request.GET.get(
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+    )
+    return JsonResponse(table.render_data())
+
+
 def aspect_topics(request, project_id):
     """
     Show the frequency of occurence for the topics found in the aspects.
@@ -204,7 +271,6 @@ def aspect_topics(request, project_id):
         this_project, start, end, request.GET.get(
             'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'),
     )
-
 
     return JsonResponse(table.render_data())
 

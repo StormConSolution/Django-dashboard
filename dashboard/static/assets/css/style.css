@@ -18795,6 +18795,9 @@ a.text-dark:focus {
 #entities td a {
   color: #8a99b5 !important;
 }
+#data-entries td a {
+  color: #8a99b5 !important;
+}
 #account {
   margin-left: 700px;
 }

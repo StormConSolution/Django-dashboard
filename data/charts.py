@@ -2,8 +2,10 @@ import datetime
 from django.db import models
 from data import models as data_models
 from django.db.models import Count, Q, F
+from django.core.exceptions import ObjectDoesNotExist
 
-from data.models import Entity, Data, Aspect, Source
+
+from data.models import Entity, Data, Aspect, Source, EmotionalEntity, Comment, Country
 
 from operator import itemgetter
 
@@ -109,7 +111,113 @@ class EntityTable(BaseChart):
                 ', '.join(ec.classifications.values_list('label', flat=True)),
                 ec.data_count
             ])
+
         return entities
+
+
+class AdjectivesTable(BaseChart):
+
+    def render_data(self):
+        # prior 7 days
+        comment_set = Comment.objects.filter(
+            data__date_created__range=(self.start, self.end),
+            data__project=self.project
+        )
+        if self.entity_filter:
+            comment_set = comment_set.filter(
+                data__in=Data.objects.filter(entities__label=self.entity_filter))
+        if self.aspect_topic:
+            comment_set = comment_set.filter(
+                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
+        if self.aspect_topic:
+            comment_set = comment_set.filter(
+                data__in=Data.objects.filter(aspect__label=self.aspect_name))
+
+        adjective_count = comment_set.order_by('-frequency')[:10]
+        result = {'adjectives': []}
+        print("adjectives:>", result)
+        for ad in adjective_count:
+            result["adjectives"].append([
+                ad.label,
+                ad.frequency,
+            ])
+
+        print("adjectives:>", result)
+        return result
+
+
+class CountriesTable(BaseChart):
+
+    def render_data(self):
+        # Show sentiment by county.
+        result = {}
+
+        result['country_labels'] = []
+
+        positive = {'label': 'positive', 'data': [],
+                    'backgroundColor': COLORS['positive']}
+        negative = {'label': 'negative', 'data': [],
+                    'backgroundColor': COLORS['negative']}
+
+        for country in Country.objects.values_list('country_name', flat=True):
+            pos_total = data_models.Data.objects.filter(
+                project=self.project,
+                date_created__range=(self.start, self.end), country__country_name=country, sentiment__gt=0).count()
+
+            neg_total = data_models.Data.objects.filter(
+                project=self.project,
+                date_created__range=(self.start, self.end), country__country_name=country, sentiment__lt=0).count()
+
+            if pos_total or neg_total:
+                result['country_labels'].append(country)
+                positive['data'].append(pos_total)
+                negative['data'].append(neg_total)
+
+        result['country_datasets'] = [positive, negative]
+
+        return result
+
+
+class Data_EntryTable(BaseChart):
+
+    def render_data(self):
+
+        # prior 7 days
+
+        entry_data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end)).all()
+
+        if self.entity_filter:
+            entry_data_set = entry_data_set.filter(
+                entities__label=self.entity_filter)
+
+        if self.aspect_topic:
+            entry_data_set = entry_data_set.filter(
+                aspect__topic=self.aspect_topic)
+        if self.aspect_name:
+            entry_data_set = entry_data_set.filter(
+                aspect__label=self.aspect_name)
+
+        data_count = entry_data_set.order_by('-sentiment')
+
+        def getCountry(id):
+            try:
+                country = str(Country.objects.get(id=id))
+            except ObjectDoesNotExist:
+                country = None
+
+            return country
+
+        entry_data = {"data": []}
+        for entry in data_count.values('date_created', 'text', 'source', 'weighted_score', 'country'):
+            entry_data["data"].append([
+                entry['date_created'],
+                entry['text'],
+                str(Source.objects.get(id=entry['source'])),
+                entry['weighted_score'], getCountry(entry['country']),
+            ])
+
+        return entry_data
 
 
 class AspectTopicTable(BaseChart):
@@ -379,13 +487,13 @@ class EmotionalEntitiesTable(BaseChart):
         result = {}
         # Get 10 most frequent entities
         top_ten_entities = Entity.objects.filter(data__in=data_set).annotate(
-            data_count=Count('data')).order_by('-data_count')[:10]
+            data_count=Count('data')).order_by('-data_count')[: 10]
         result['entities_for_emotions'] = [e.label for e in top_ten_entities]
 
         # Query 10 most frequent emotions for the entities
         top_ten_emotions = data_models.EmotionalEntity.objects.filter(
             entity__in=top_ten_entities).values('emotion__label').annotate(
-            emotion_count=models.Count('emotion')).order_by('-emotion_count')[:10]
+            emotion_count=models.Count('emotion')).order_by('-emotion_count')[: 10]
         result['emotions'] = [e['emotion__label'] for e in top_ten_emotions]
         result['emotional_entity_data'] = []
 
@@ -411,7 +519,10 @@ CHART_LOOKUP = {
     'emotional_entities': EmotionalEntitiesTable,
     'top_entity_table': TopEntityTable,
     'entity_table': EntityTable,
+    'data_entrytable': Data_EntryTable,
+    'adjectives_table': AdjectivesTable,
     'sentiment_f': SentimenFrequencyTable,
     'sentiment_source': SentimentSourceTable,
     'sentiment_t': SentimentTimeTable,
+    'countries_t': CountriesTable,
 }

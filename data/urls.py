@@ -15,6 +15,8 @@ urlpatterns = [
     path('aspect-topics/<int:project_id>/',
          views.aspect_topics, name='aspect-topics'),
     path('entities/<int:project_id>/', views.entities, name='entities'),
+    path('data-entries/<int:project_id>/',
+         views.data_entries, name='data-entries'),
     path('top-entities/<int:project_id>/',
          views.top_entities, name='top-entities'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
