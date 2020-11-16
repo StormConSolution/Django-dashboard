@@ -99,28 +99,29 @@ class Source(models.Model):
         return self.label
 
 
-class Comment(models.Model):
-    label = models.CharField(max_length=300, blank=True, null=True)
-    frequency = models.IntegerField()
+class Keyword(models.Model):
+    label = models.CharField(
+        max_length=300, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.label
 
 
 class Country(models.Model):
-    label = models.CharField(max_length=300, blank=True, null=True)
+    label = models.CharField(
+        max_length=300, unique=True, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Countries'
 
     def __str__(self):
-        return self.country_name
+        return self.label
 
 
 class Data(models.Model):
     date_created = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    adjectives = models.ManyToManyField(Comment)
+    adjectives = models.ManyToManyField(Keyword)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)

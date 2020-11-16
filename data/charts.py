@@ -5,7 +5,7 @@ from django.db.models import Count, Q, F
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from data.models import Entity, Data, Aspect, Source, EmotionalEntity, Comment, Country
+from data.models import Entity, Data, Aspect, Source, EmotionalEntity, Keyword, Country
 
 from operator import itemgetter
 
@@ -119,27 +119,29 @@ class AdjectivesTable(BaseChart):
 
     def render_data(self):
         # prior 7 days
-        comment_set = Comment.objects.filter(
+        keyword_set = Keyword.objects.filter(
             data__date_created__range=(self.start, self.end),
             data__project=self.project
         )
         if self.entity_filter:
-            comment_set = comment_set.filter(
+            keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(entities__label=self.entity_filter))
         if self.aspect_topic:
-            comment_set = comment_set.filter(
+            keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
         if self.aspect_topic:
-            comment_set = comment_set.filter(
+            keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(aspect__label=self.aspect_name))
 
-        adjective_count = comment_set.order_by('-frequency')[:10]
+        adjective_count = keyword_set.annotate(
+            data_count=models.Count('data')).order_by('-data_count')[:10]
+
         result = {'adjectives': []}
         print("adjectives:>", result)
         for ad in adjective_count:
             result["adjectives"].append([
                 ad.label,
-                ad.frequency,
+                ad.data_count,
             ])
 
         print("adjectives:>", result)
@@ -159,14 +161,14 @@ class CountriesTable(BaseChart):
         negative = {'label': 'negative', 'data': [],
                     'backgroundColor': COLORS['negative']}
 
-        for country in Country.objects.values_list('country_name', flat=True):
+        for country in Country.objects.values_list('label', flat=True):
             pos_total = data_models.Data.objects.filter(
                 project=self.project,
-                date_created__range=(self.start, self.end), country__country_name=country, sentiment__gt=0).count()
+                date_created__range=(self.start, self.end), country__label=country, sentiment__gt=0).count()
 
             neg_total = data_models.Data.objects.filter(
                 project=self.project,
-                date_created__range=(self.start, self.end), country__country_name=country, sentiment__lt=0).count()
+                date_created__range=(self.start, self.end), country__label=country, sentiment__lt=0).count()
 
             if pos_total or neg_total:
                 result['country_labels'].append(country)
