@@ -104,14 +104,14 @@ class Comment(models.Model):
     frequency = models.IntegerField()
 
     def __str__(self):
-        return self.adjectives
+        return self.label
 
 
 class Country(models.Model):
-    country_name = models.CharField(max_length=300, blank=True, null=True)
+    label = models.CharField(max_length=300, blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = 'Country'
+        verbose_name_plural = 'Countries'
 
     def __str__(self):
         return self.country_name
@@ -128,7 +128,6 @@ class Data(models.Model):
     weighted_score = models.FloatField(default=0, db_index=True)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     entities = models.ManyToManyField(Entity)
-    location = models.CharField(max_length=2, default='US')
 
     class Meta:
         verbose_name_plural = 'Data'
