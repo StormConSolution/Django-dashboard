@@ -2,6 +2,8 @@ import datetime
 from django.db import models
 from data import models as data_models
 from django.db.models import Count, Q, F
+from operator import or_
+from functools import reduce
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -34,13 +36,15 @@ COLORS = {
 
 class BaseChart:
 
-    def __init__(self, project, start, end, entity_filter, aspect_topic, aspect_name):
+    def __init__(self, project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter):
         self.project = project
         self.start = start
         self.end = end
         self.entity_filter = entity_filter
         self.aspect_topic = aspect_topic
         self.aspect_name = aspect_name
+        self.lang_filter = lang_filter
+        self.source_filter = source_filter
 
     def render_data(self):
         """
@@ -59,15 +63,22 @@ class TopEntityTable(BaseChart):
             data__date_created__range=(datetime_start, today),
             data__project=self.project
         )
+
         if self.entity_filter:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(entities__label=self.entity_filter))
         if self.aspect_topic:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_topic:
+        if self.aspect_name:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__label=self.aspect_name))
+        if self.lang_filter and self.lang_filter[0]:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
+        if self.source_filter and self.source_filter[0]:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         entity_count = entity_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')
@@ -97,9 +108,15 @@ class EntityTable(BaseChart):
         if self.aspect_topic:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_topic:
+        if self.aspect_name:
             entity_set = entity_set.filter(
                 data__in=Data.objects.filter(aspect__label=self.aspect_name))
+        if self.lang_filter and self.lang_filter[0]:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
+        if self.source_filter and self.source_filter[0]:
+            entity_set = entity_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         entity_count = entity_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')
@@ -129,9 +146,15 @@ class AdjectivesTable(BaseChart):
         if self.aspect_topic:
             keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_topic:
+        if self.aspect_name:
             keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(aspect__label=self.aspect_name))
+        if self.lang_filter and self.lang_filter[0]:
+            keyword_set = keyword_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
+        if self.source_filter and self.source_filter[0]:
+            keyword_set = keyword_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         adjective_count = keyword_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')[:10]
@@ -199,6 +222,12 @@ class Data_EntryTable(BaseChart):
         if self.aspect_name:
             entry_data_set = entry_data_set.filter(
                 aspect__label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
+            entry_data_set = entry_data_set.filter(
+                language__in=self.lang_filter)
+        if self.source_filter and self.source_filter[0]:
+            entry_data_set = entry_data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
 
         data_count = entry_data_set.order_by('-sentiment')
 
@@ -238,6 +267,12 @@ class AspectTopicTable(BaseChart):
         if self.aspect_name:
             aspect_set = aspect_set.filter(
                 data__in=Data.objects.filter(aspect__label=self.aspect_name))
+        if self.lang_filter and self.lang_filter[0]:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
+        if self.source_filter and self.source_filter[0]:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         aspect_count = aspect_set.values_list('topic').annotate(
             topic_count=Count('topic')).order_by('-topic_count')
@@ -268,7 +303,13 @@ class AspectNameTable(BaseChart):
                 data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
         if self.aspect_name:
             aspect_set = aspect_set.filter(
-                data_in=Data.objects.filter(aspect__label=self.aspect_name))
+                data__in=Data.objects.filter(aspect__label=self.aspect_name))
+        if self.lang_filter and self.lang_filter[0]:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
+        if self.source_filter and self.source_filter[0]:
+            aspect_set = aspect_set.filter(
+                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         aspect_count = aspect_set.values_list('label').annotate(
             label_count=Count('label')).order_by('-label_count')
@@ -299,6 +340,12 @@ class SentimenFrequencyTable(BaseChart):
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
         if self.aspect_name:
             data_set = data_set.filter(aspect__label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(language=c)for c in self.lang_filter]))
+        if self.source_filter and self.source_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
 
         sentiment_f = data_set.aggregate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -323,6 +370,12 @@ class SentimentTimeTable(BaseChart):
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
         if self.aspect_name:
             data_set = data_set.filter(aspect__label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(language=c)for c in self.lang_filter]))
+        if self.source_filter and self.source_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
 
         sentiment_t = data_set.values('date_created').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -361,6 +414,12 @@ class AspectSentimentTable(BaseChart):
         if self.aspect_name:
             aspect_data_set = aspect_data_set.filter(
                 label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
+            aspect_data_set = aspect_data_set.filter(
+                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
+        if self.source_filter and self.source_filter[0]:
+            aspect_data_set = aspect_data_set.filter(
+                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
 
         aspect_s = aspect_data_set.values('label').annotate(
             positive=Count('sentiment', filter=Q(sentiment__gt=0)),
@@ -395,8 +454,13 @@ class AspectFrequencyTable(BaseChart):
             aspect_data_set = aspect_data_set.filter(
                 topic=self.aspect_topic)
         if self.aspect_name:
+            aspect_data_set = aspect_data_set.filter(label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
             aspect_data_set = aspect_data_set.filter(
-                label=self.aspect_name)
+                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
+        if self.source_filter and self.source_filter[0]:
+            aspect_data_set = aspect_data_set.filter(
+                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
 
         aspect_f = aspect_data_set.values('label').annotate(
             Count('label')).order_by('label')
@@ -428,8 +492,13 @@ class AspectTimeTable(BaseChart):
             aspect_data_set = aspect_data_set.filter(
                 topic=self.aspect_topic)
         if self.aspect_name:
+            aspect_data_set = aspect_data_set.filter(label=self.aspect_name)
+        if self.lang_filter and self.lang_filter[0]:
             aspect_data_set = aspect_data_set.filter(
-                label=self.aspect_name)
+                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
+        if self.source_filter and self.source_filter[0]:
+            aspect_data_set = aspect_data_set.filter(
+                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
 
         result = {"aspects": {}}
         result["aspect_t_labels"] = list(

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 from data import models as data_models
 from data import charts
-
+from urllib.parse import urlsplit, parse_qs
 LOGIN_URL = '/login/'
 
 
@@ -53,7 +53,7 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name):
+def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter):
     result = {
         "status": "OK",
         "colors": charts.COLORS["contrasts"],
@@ -63,7 +63,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
         if chart.load_async:
             continue
         instance = charts.CHART_LOOKUP[chart.label](
-            this_project, start, end, entity_filter, aspect_topic, aspect_name)
+            this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter)
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
@@ -84,7 +84,19 @@ def projects(request, project_id):
     aspect_topic = request.GET.get('aspecttopic')
     aspect_name = request.GET.get('aspectname')
 
-    # Find the most recent data item.
+    # getting list of query params
+    lang = request.GET.getlist('filter_language')
+    src = request.GET.getlist('filter_source')
+    # cleaning up the query params
+    if lang:
+        lang_filter = lang[0].split(",")
+    else:
+        lang_filter = lang
+    if src:
+        source_filter = src[0].split(",")
+    else:
+        source_filter = src
+
     if this_project.data_set.count() > 0:
         end = this_project.data_set.order_by('-date_created')[0].date_created
     else:
@@ -98,10 +110,12 @@ def projects(request, project_id):
 
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name),
+        'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter),
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
+        'languages': data_models.LANGUAGES,
+        'sources': data_models.Source.objects.all(),
     }
 
     # List of projects for the sidebar
@@ -159,7 +173,8 @@ def top_entities(request, project_id):
     table = charts.TopEntityTable(
         this_project, start, end, request.GET.get(
             'entity'), request.GET.get('aspecttopic'),
-        request.GET.get('aspectname'),
+        request.GET.get('aspectname'), request.GET.getlist(
+            'filter_language'), request.GET.getlist('filter_source'),
     )
 
     return JsonResponse(table.render_data())
@@ -182,7 +197,7 @@ def entities(request, project_id):
 
     table = charts.EntityTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
@@ -204,7 +219,7 @@ def adjectives(request, project_id):
 
     table = charts.AdjectivesTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
@@ -226,7 +241,7 @@ def countries(request, project_id):
 
     table = charts.AdjectivesTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
@@ -248,7 +263,7 @@ def data_entries(request, project_id):
 
     table = charts.Data_EntryTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname')
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
@@ -269,7 +284,7 @@ def aspect_topics(request, project_id):
     end = request.GET.get('end', default_end)
     table = charts.AspectTopicTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'),
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
 
     return JsonResponse(table.render_data())
@@ -292,7 +307,7 @@ def aspect_name(request, project_id):
 
     table = charts.AspectNameTable(
         this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'),
+            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
     )
 
     return JsonResponse(table.render_data())
