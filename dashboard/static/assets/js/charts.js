@@ -19,207 +19,230 @@ var random = function random() {
 var project = project_data;
 
 var colours = [
-	'rgba(90, 141, 238, 0.5)',
-	'rgba(253, 172, 65, 0.5)',
-	'rgba(0, 207, 221, 0.5)',
+  "rgba(60, 180, 75, 0.5)",
+  "rgba(230, 25, 75,0.5)",
+  "rgba(67, 99, 216,0.5)",
 ];
 
-var sentimentSourceChart = new Chart(document.getElementById('sentiment_source').getContext('2d'), {
-  type: 'bar',
-  data: {
-    labels: project.source_labels,
-    datasets: project.source_datasets
-  },
-  options: {
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
+var sentimentSourceChart = new Chart(
+  document.getElementById("sentiment_source").getContext("2d"),
+  {
+    type: "bar",
+    data: {
+      labels: project.source_labels,
+      datasets: project.source_datasets,
+    },
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+    },
   }
-});
+);
 
-var aspect_f = new Chart(document.getElementById('aspect_f'), {
-  type: 'horizontalBar',
+var aspect_f = new Chart(document.getElementById("aspect_f"), {
+  type: "horizontalBar",
   data: {
-    labels: ['Aspects'],
-    datasets: project.aspect_f_data
+    labels: ["Aspects"],
+    datasets: project.aspect_f_data,
   },
   options: {
     responsive: true,
     scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
-  }
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  },
 });
 
-var sentiment_f = new Chart(document.getElementById('sentiment_f'), {
-  type: 'pie',
+var sentiment_f = new Chart(document.getElementById("sentiment_f"), {
+  type: "pie",
   data: {
-    labels: ['Positive', 'Negative', 'Neutral'],
-    datasets: [{
-      data: project.sentiment_f_data,
-      backgroundColor: colours
-    }]
+    labels: ["Positive", "Negative", "Neutral"],
+    datasets: [
+      {
+        data: project.sentiment_f_data,
+        backgroundColor: colours,
+      },
+    ],
   },
   options: {
-    responsive: true
-  }
+    responsive: true,
+  },
 });
 
 // labels could be ether [p,n,n] or individual aspects, for now individual
 // aspects, but later we could implement a switch
-var aspect_s = new Chart(document.getElementById('aspect_s'), {
-  type: 'bar',
+var aspect_s = new Chart(document.getElementById("aspect_s"), {
+  type: "bar",
   data: {
-    labels: project.aspect_s_labels, 
-    datasets: project.aspect_s_data
+    labels: project.aspect_s_labels,
+    datasets: project.aspect_s_data,
   },
   options: {
     responsive: true,
-      layout: {
-            padding: {
-                left: 50,
-                right: 0,
-                top: 0,
-                bottom: 0
-            }
-        },
+    layout: {
+      padding: {
+        left: 50,
+        right: 0,
+        top: 0,
+        bottom: 0,
+      },
+    },
     scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }],
-      xAxes: [{
-        ticks: {
-	    autoSkip:false,
-	    padding:20
-        }
-      }]
-    }
-  }
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+      xAxes: [
+        {
+          ticks: {
+            autoSkip: false,
+            padding: 20,
+          },
+        },
+      ],
+    },
+  },
 });
 
-var sentiment_t = new Chart(document.getElementById('sentiment_t'), {
-  type: 'line',
+var sentiment_t = new Chart(document.getElementById("sentiment_t"), {
+  type: "line",
   data: {
     labels: project.sentiment_t_labels,
     datasets: project.sentiment_t_data,
-
   },
   options: {
     responsive: true,
     scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
-  }
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  },
 });
 
-aspect_t_data = []
-var indexOfObject = 0 //iterating over objects is not determenistic, we need a separate index
+aspect_t_data = [];
+var indexOfObject = 0; //iterating over objects is not determenistic, we need a separate index
 for (const aspect in project.aspects) {
-  data = []
+  data = [];
   for (k in project.aspects[aspect]) {
-    data.push({ x: new Date(project.aspects[aspect][k]['data__date_created']), y: project.aspects[aspect][k]["label__count"] })
+    data.push({
+      x: new Date(project.aspects[aspect][k]["data__date_created"]),
+      y: project.aspects[aspect][k]["label__count"],
+    });
   }
-  
+
   aspect_t_data.push({
     label: aspect,
     data: data,
-    backgroundColor:project.colors[indexOfObject%(project.colors.length-1)],
-    borderColor:project.colors[indexOfObject%(project.colors.length-1)],
+    backgroundColor:
+      project.colors[indexOfObject % (project.colors.length - 1)],
+    borderColor: project.colors[indexOfObject % (project.colors.length - 1)],
     fill: false,
-  })
-  indexOfObject+=1
+  });
+  indexOfObject += 1;
 }
 
-var aspect_t = new Chart(document.getElementById('aspect_t'), {
-  type: 'line',
+var aspect_t = new Chart(document.getElementById("aspect_t"), {
+  type: "line",
   data: {
-    datasets: aspect_t_data
+    datasets: aspect_t_data,
   },
   options: {
     responsive: true,
     scales: {
-      xAxes: [{
-        type: 'time',
-        time: {
-          unit: 'day'
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
-  }
+      xAxes: [
+        {
+          type: "time",
+          time: {
+            unit: "day",
+          },
+        },
+      ],
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  },
 });
 
-Highcharts.chart('emotion-map', {
-
+Highcharts.chart("emotion-map", {
   chart: {
-    type: 'heatmap',
+    type: "heatmap",
     marginTop: 40,
     marginBottom: 140,
-    plotBorderWidth: 1
+    plotBorderWidth: 1,
   },
 
   title: {
-    text: 'Emotion expressed by entity'
+    text: "Emotion expressed by entity",
   },
 
   xAxis: {
-    categories: project.entities_for_emotions
+    categories: project.entities_for_emotions,
   },
 
   yAxis: {
     categories: project.emotions,
     title: null,
-    reversed: true
+    reversed: true,
   },
 
   colorAxis: {
     min: 0,
-    minColor: '#FFFFFF',
-    maxColor: Highcharts.getOptions().colors[0]
+    minColor: "#FFFFFF",
+    maxColor: Highcharts.getOptions().colors[0],
   },
 
   legend: {
-    align: 'right',
-    layout: 'vertical',
+    align: "right",
+    layout: "vertical",
     margin: 0,
-    verticalAlign: 'top',
+    verticalAlign: "top",
     y: 25,
-    symbolHeight: 280
+    symbolHeight: 280,
   },
 
   tooltip: {
     formatter: function () {
-      return '<b>' + this.point.value + '</b>';
-    }
+      return "<b>" + this.point.value + "</b>";
+    },
   },
 
-  series: [{
-    name: 'Mentions',
-    data: project.emotional_entity_data, 
-    dataLabels: {
-      enabled: false,
-      style: {
-        fontWeight: 'bold',
-        textOutline: ''
-      }
-    }
-  }],
-})
+  series: [
+    {
+      name: "Mentions",
+      data: project.emotional_entity_data,
+      dataLabels: {
+        enabled: false,
+        style: {
+          fontWeight: "bold",
+          textOutline: "",
+        },
+      },
+    },
+  ],
+});

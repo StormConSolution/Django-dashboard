@@ -69,12 +69,47 @@
 				</div>
 			</div>
 
-			<div class="shadow card mt-3">
-				<div class="card-header"><h4>Sentiment by source</h4></div>
-				<div class="card-body">
-					<div class="c-chart-wrapper">
-					<canvas id="sentiment_source"></canvas>
-					</div>
+	    <div class="card mt-3">
+		<div class="card-header">Sentiment by source</div>
+		<div class="card-body">
+		    <div class="c-chart-wrapper">
+			<canvas id="sentiment_source"></canvas>
+		    </div>
+		</div>
+	    </div>
+
+	    {% if project.show_entities %}
+            <div class="card mt-3">
+                <div class="card-header">Entities</div>
+                <div class="card-body">
+                    <div class="c-chart-wrapper">
+                        <table id="entities" class="display" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Classifications</th>
+                                <th>Frequency</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+	    {% endif %}
+		
+		<div class="card mt-3 {% if not project.show_aspects %}hidden{% endif %}">
+			<div class="card-header">Aspect topics</div>
+			<div class="card-body">
+				<div class="c-chart-wrapper">
+				<table id="aspect-topics" class="display" style="width:100%">
+					<thead>
+					<tr>
+						<th>Topic</th>
+						<th>Aspect</th>
+						<th>Frequency</th>
+					</tr>
+					</thead>
+				</table>
 				</div>
 			</div>
 
@@ -212,5 +247,5 @@
 		    });
 	     });
 	</script>
-    {%endif%}
+    {% endif %}
 {% endblock javascripts %}

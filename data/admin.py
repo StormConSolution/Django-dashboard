@@ -11,11 +11,14 @@ import unicodecsv
 from data.models import *
 
 # Action for exporting a queryset.
+
+
 def export_selected_objects(modeladmin, request, queryset):
 
     model = queryset.model
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(model.__name__)
+    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
+        model.__name__)
     writer = unicodecsv.writer(response, encoding='utf-8')
 
     # Write headers to CSV file
@@ -43,30 +46,35 @@ def export_selected_objects(modeladmin, request, queryset):
         writer.writerow(row)
     return response
 
+
 export_selected_objects.short_description = 'Export search results'
 admin.site.add_action(export_selected_objects)
+
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'name')
     search_fields = ('name',)
 
+
 class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
-    list_filter = ('project', 'source', 'aspect__label')
-    list_editable = ('sentiment',)
-    search_fields = ('text', 'emotionalentity__entity__label', 'emotionalentity__emotion__label',)
-    readonly_fields = ('entities', 'language', 'text', 'source',)
+    list_filter = ('project', 'source',)
+    search_fields = ('text',)
+    readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
     date_hierarchy = 'date_created'
+
 
 class AspectAdmin(admin.ModelAdmin):
     list_display = ('label', '_text', 'sentiment', 'topic')
     list_filter = ('label', 'data__project')
-    readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label', 'sentiment')
+    readonly_fields = ('data', 'chunk', 'topic',
+                       'sentiment_text', 'label', 'sentiment')
     search_fields = ('topic', 'chunk',)
 
     def _text(self, obj):
         return obj.data.text
     _text.short_description = 'Text'
+
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', '_data_count', '_view')
@@ -84,13 +92,16 @@ class ProjectAdmin(admin.ModelAdmin):
         return obj.data_set.count()
     _data_count.short_description = 'Data'
 
+
 class EntityAdmin(admin.ModelAdmin):
     list_display = ('label',)
     search_fields = ('label', 'classifications__label')
     filter_horizontal = ('classifications',)
 
+
 class TwitterSearchAdmin(admin.ModelAdmin):
     list_display = ('query', 'project_name', 'status',)
+
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
@@ -99,3 +110,5 @@ admin.site.register(Entity, EntityAdmin)
 admin.site.register(ChartType)
 admin.site.register(TwitterSearch, TwitterSearchAdmin)
 admin.site.register(AspectType)
+admin.site.register(Keyword)
+admin.site.register(Country)
