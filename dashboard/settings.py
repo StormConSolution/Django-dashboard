@@ -1,4 +1,3 @@
-from .settings_local import *
 import os
 from decouple import config
 from unipath import Path
@@ -155,17 +154,16 @@ HOST = 'https://api.repustate.com'
 APIKEY = 'APIKEY'
 
 # This has the side affect of shadowing variables and overriding them.
-
-if (os.environ.get('DOCKER', False)):
-    SQL_HOST = 'postgres_data'
+from .settings_local import *
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": DB_NAME,
-        "USER": USER_NAME,
-        "PASSWORD": PASSWORD,
-        "HOST": SQL_HOST,
-        "PORT": "5432",
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),
+        "NAME": os.environ.get("SQL_DATABASE", 'dashboard'),
+        "USER": os.environ.get("SQL_USER", "postgres"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
+

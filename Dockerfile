@@ -1,15 +1,31 @@
-FROM python:3.6
+FROM python:3.8.3-alpine
 
-ENV FLASK_APP run.py
+# create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir -p $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
 
-COPY manage.py gunicorn-cfg.py requirements.txt .env ./
-COPY data data
-COPY authentication authentication
-COPY dashboard dashboard
+WORKDIR $APP_HOME
 
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
+# copy entrypoint.sh
+COPY ./entrypoint.sh .
 
-EXPOSE 5005
-CMD ["gunicorn", "--config", "gunicorn-cfg.py", "dashboard.wsgi"]
-ENV DOCKER YES
+# copy project
+COPY . .
+
+# run entrypoint.sh
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]

@@ -1,46 +1,23 @@
-version: "3"
+version: '3.7'
+
 services:
-  repustate-app:
-    restart: always
-    env_file: .env
+  web:
     build: .
-    ports:
-      - "5005:5005"
-    networks:
-      - db_network
-      - web_network
-    depends_on:
-      - postgres_data
-  nginx:
-    restart: always
-    image: "nginx:latest"
-    ports:
-      - "85:85"
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./nginx:/etc/nginx/conf.d
-    networks:
-      - web_network
-    depends_on:
-      - repustate-app
-
-  postgres_data: # <-- IMPORTANT: same name as in DATABASES setting, otherwise Django won't find the database!
-    image: postgres:latest
-
+      - .:/app
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - ./postgres_data/:/var/lib/postgresql/data/
     environment:
-      - "POSTGRES_HOST_AUTH_METHOD=trust"
-      - POSTGRES_USER=demo_admin
-      - POSTGRES_PASSWORD=$pAGr]dE8fCsb4qT
-      - POSTGRES_DATABASE=repustate_demo
-    networks: # <-- connect to the bridge
-      - db_network
-    volumes:
-      - db_volume:/var/lib/postgresql/data
-
-networks:
-  db_network:
-    driver: bridge
-  web_network:
-    driver: bridge
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
 
 volumes:
-  db_volume:
+  postgres_data:

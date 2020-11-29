@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    command: gunicorn dashboard.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+    volumes:
+      - static_volume:/app/staticfiles
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    volumes:
+      - static_volume:/app/staticfiles
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
