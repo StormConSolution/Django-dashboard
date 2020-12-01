@@ -1,4 +1,3 @@
-from .settings_local import *
 import os
 from decouple import config
 from unipath import Path
@@ -158,6 +157,11 @@ APIKEY = 'APIKEY'
 
 if (os.environ.get('DOCKER', False)):
     SQL_HOST = 'postgres_data'
+
+try:
+    from .settings_local import *
+except:
+    pass
 
 DATABASES = {
     "default": {
