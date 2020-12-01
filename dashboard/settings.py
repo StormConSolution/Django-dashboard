@@ -147,14 +147,18 @@ STATICFILES_DIRS = (
 #############################################################
 #############################################################
 
-# Variables expected from settings_local
-
 # Used by the add_data view. Set proper values in settings_local
 HOST = 'https://api.repustate.com'
 APIKEY = 'APIKEY'
 
-# This has the side affect of shadowing variables and overriding them.
-from .settings_local import *
+# Variables expected from settings_local. Docker overrides these with the
+# values from .env.prod but when testing locally outside a container, these
+# values can be overriden.
+SQL_DATABASE = 'dashboard'
+SQL_HOST = 'localhost'
+SQL_PASSWORD = ''
+SQL_PORT = 5432
+SQL_USER = 'postgres'
 
 try:
     from .settings_local import *
@@ -164,11 +168,10 @@ except:
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),
-        "NAME": os.environ.get("SQL_DATABASE", 'dashboard'),
-        "USER": os.environ.get("SQL_USER", "postgres"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "NAME": os.environ.get("SQL_DATABASE", SQL_DATABASE),
+        "USER": os.environ.get("SQL_USER", SQL_USER),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", SQL_PASSWORD),
+        "HOST": os.environ.get("SQL_HOST", SQL_HOST),
+        "PORT": os.environ.get("SQL_PORT", SQL_PORT),
     }
 }
-

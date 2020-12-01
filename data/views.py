@@ -135,7 +135,7 @@ def projects(request, project_id):
     colors = ['pink', 'red', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green',
               'light-green', 'lime', 'yellow', 'amber']
 
-    for aspect in chart_data['aspect_t_labels']:
+    for aspect in chart_data.get('aspect_t_labels', []):
         aspect_data = dict()
         aspect_data['name'] = aspect
         aspect_data['total_data'] = sum(
@@ -146,7 +146,8 @@ def projects(request, project_id):
         total_sum += aspect_data['total_data']
         color_index += 1
         context['aspects_total_data'].append(aspect_data)
-    for i in range(len(chart_data['aspect_t_labels'])):
+
+    for i in range(len(chart_data.get('aspect_t_labels', []))):
         positive_data = chart_data['aspect_s_data'][0]['data'][i]
         negative_data = chart_data['aspect_s_data'][1]['data'][i]
         context['aspects_total_data'][i]['net_data'] = positive_data - negative_data
@@ -155,9 +156,11 @@ def projects(request, project_id):
         context['aspects_total_data'][i]['width'] = (
             context['aspects_total_data'][i][
                 'total_data'] / total_sum) * 100
-    context['total_data'] = sum(chart_data['sentiment_f_data'])
-    context['total_positive'] = chart_data['sentiment_f_data'][0]
-    context['total_negative'] = chart_data['sentiment_f_data'][1]
+    
+    if chart_data.get('sentiment_f_data', []):
+        context['total_data'] = sum(chart_data['sentiment_f_data'])
+        context['total_positive'] = chart_data['sentiment_f_data'][0]
+        context['total_negative'] = chart_data['sentiment_f_data'][1]
 
     return render(request, "project_new.html", context)
 
