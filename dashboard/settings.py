@@ -156,6 +156,11 @@ APIKEY = 'APIKEY'
 # This has the side affect of shadowing variables and overriding them.
 from .settings_local import *
 
+try:
+    from .settings_local import *
+except:
+    pass
+
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),

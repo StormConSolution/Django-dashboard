@@ -351,19 +351,23 @@ def add_data(request, project_id):
     aspect_model: which aspect model, if any, to use
     date: date this item was created, defaults today
     """
-
+    import time
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
-
+    
     try:
-        sentiment = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
-            HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()['score']
+        resp = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
+            HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
+        if 'score' in resp:
+            sentiment = resp['score']
+        else:
+            return JsonResponse(**resp)
     except:
         return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {}".format(text, lang)})
 
     source, _ = data_models.Source.objects.get_or_create(
         label=request.POST['source'])
-
+    
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
         project=data_models.Project.objects.get(pk=project_id),
