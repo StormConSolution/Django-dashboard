@@ -203,7 +203,9 @@
           <li class="nav-item d-flex align-items-center pl-2">
             <select id="languages" class="d-none"name="languages" multiple="multiple">
             {% for key, lang in languages%}
+              {% if key in lang_list %}
             <option value="{{key}}">{{lang}}</option>
+            {% endif %}
             {% endfor %}
             </select>
           </li>

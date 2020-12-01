@@ -114,10 +114,17 @@ def projects(request, project_id):
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
-        'languages': data_models.LANGUAGES,
-        'sources': data_models.Source.objects.all(),
+        'sources': data_models.Source.objects.filter(data__project=this_project).distinct()
     }
 
+    # list of languages in a given project
+    lan_data = list(data_models.Data.objects.filter(
+        project=this_project).values('language').distinct())
+    lang_list = []
+    for lan in lan_data:
+        lang_list.append(lan['language'])
+    context['lang_list'] = lang_list
+    context['languages'] = data_models.LANGUAGES
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
