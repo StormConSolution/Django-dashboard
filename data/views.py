@@ -59,7 +59,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
         "colors": charts.COLORS["contrasts"],
     }
 
-    for chart in this_project.charts.exclude(label='emotional_entities'):
+    for chart in data_models.ChartType.objects.exclude(label='emotional_entities'):
         if chart.load_async:
             continue
         instance = charts.CHART_LOOKUP[chart.label](

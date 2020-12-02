@@ -343,7 +343,6 @@ $(window).on("load", function () {
         });
       }
     }
-    console.log("data:", entry_data);
   }
   entry();
   var treemapoptions = {
@@ -418,7 +417,6 @@ $(window).on("load", function () {
         });
       }
     }
-    console.log("country data:", country_data);
   }
   country();
   var treemapGeooptions = {
@@ -552,7 +550,6 @@ $(window).on("load", function () {
     } else {
       $net_color = $positive;
     }
-    console.log($net_color);
     var donutChartOption = {
       chart: {
         width: 200,
@@ -806,4 +803,3 @@ $(window).on("load", function () {
 
   // profitPrimaryChart.render();
 });
-console.log(project_data); //test
