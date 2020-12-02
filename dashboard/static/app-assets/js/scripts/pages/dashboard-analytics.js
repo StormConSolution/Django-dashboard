@@ -18,6 +18,7 @@ $(window).on("load", function () {
   var $primary_light = "#E2ECFF";
   var $danger_light = "#ffeed9";
   var $gray_light = "#828D99";
+  var $white = "#fff";
   var $sub_label_color = "#596778";
   var $radial_bg = "#e7edf3";
   var $positive = "#537fd6";
@@ -243,7 +244,7 @@ $(window).on("load", function () {
       },
       labels: {
         style: {
-          colors: $gray_light,
+          colors: $white,
         },
       },
     },
@@ -253,7 +254,7 @@ $(window).on("load", function () {
       tickAmount: 10,
       labels: {
         style: {
-          color: $gray_light,
+          color: $white,
         },
       },
     },
