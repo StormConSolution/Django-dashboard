@@ -161,7 +161,7 @@ try:
 except:
     pass
 
-DEBUG = os.environ('DJANGO_DEBUG', DEBUG)
+DEBUG = os.environ.get('DJANGO_DEBUG', DEBUG)
 
 # Used by the add_data view. Set proper values in settings_local
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)

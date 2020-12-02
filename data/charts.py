@@ -7,7 +7,7 @@ from functools import reduce
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from data.models import Entity, Data, Aspect, Source, EmotionalEntity, Keyword, Country
+from data.models import Entity, Data, Aspect, Source, Keyword, Country
 
 from operator import itemgetter
 
@@ -539,14 +539,14 @@ class SentimentSourceTable(BaseChart):
                     'backgroundColor': COLORS['negative']}
 
         for label in Source.objects.values_list('label', flat=True):
-            data_set = data_models.Data.objects.filter(
+            pos_total = data_models.Data.objects.filter(
                 project=self.project,
                 date_created__range=(self.start, self.end), source__label=label, sentiment__gt=0).count()
 
             neg_total = data_models.Data.objects.filter(
                 project=self.project,
                 date_created__range=(self.start, self.end), source__label=label, sentiment__lt=0).count()
-
+            
             if pos_total or neg_total:
                 result['source_labels'].append(label)
                 positive['data'].append(pos_total)
@@ -557,51 +557,12 @@ class SentimentSourceTable(BaseChart):
         return result
 
 
-class EmotionalEntitiesTable(BaseChart):
-
-    def render_data(self):
-
-        data_set = Data.objects.filter(
-            project=self.project,
-            date_created__range=(self.start, self.end)
-        )
-
-        if self.entity_filter:
-            data_set = data_set.filter(entities__label=self.entity_filter)
-
-        result = {}
-        # Get 10 most frequent entities
-        top_ten_entities = Entity.objects.filter(data__in=data_set).annotate(
-            data_count=Count('data')).order_by('-data_count')[: 10]
-        result['entities_for_emotions'] = [e.label for e in top_ten_entities]
-
-        # Query 10 most frequent emotions for the entities
-        top_ten_emotions = data_models.EmotionalEntity.objects.filter(
-            entity__in=top_ten_entities).values('emotion__label').annotate(
-            emotion_count=models.Count('emotion')).order_by('-emotion_count')[: 10]
-        result['emotions'] = [e['emotion__label'] for e in top_ten_emotions]
-        result['emotional_entity_data'] = []
-
-        for index_n, entity in enumerate(result['entities_for_emotions']):
-            x = list(data_models.EmotionalEntity.objects.filter(
-                entity__label=entity,
-                emotion__label__in=result['emotions']).values(
-                    "emotion__label").annotate(
-                        Count("emotion")).order_by("-emotion__count"))
-
-            for index_m, emotion in enumerate(list(x)):
-                result['emotional_entity_data'].append(
-                    [index_m, index_n, emotion['emotion__count']])
-
-        return result
-
 
 CHART_LOOKUP = {
     'aspect_f': AspectFrequencyTable,
     'aspect_s': AspectSentimentTable,
     'aspect_t': AspectTimeTable,
     'aspect_table': AspectTopicTable,
-    'emotional_entities': EmotionalEntitiesTable,
     'top_entity_table': TopEntityTable,
     'entity_table': EntityTable,
     'data_entrytable': Data_EntryTable,
