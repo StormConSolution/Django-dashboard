@@ -7,7 +7,7 @@ from functools import reduce
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from data.models import Entity, Data, Aspect, Source, Keyword, CountryNew
+from data.models import Entity, Data, Aspect, Source, Keyword, Country
 
 from operator import itemgetter
 
@@ -195,7 +195,7 @@ class CountriesTable(BaseChart):
         negative = {'label': 'negative', 'data': [],
                     'backgroundColor': COLORS['negative']}
 
-        for country in CountryNew.objects.values_list('label', flat=True):
+        for country in Country.objects.values_list('label', flat=True):
             pos_total = data_models.Data.objects.filter(
                 project=self.project,
                 date_created__range=(self.start, self.end), country__label=country, sentiment__gt=0).count()

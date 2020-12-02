@@ -107,7 +107,7 @@ class Keyword(models.Model):
         return self.label
 
 
-class CountryNew(models.Model):
+class Country(models.Model):
     label = models.CharField(
         max_length=300, unique=True, blank=True, null=True)
 
@@ -122,7 +122,7 @@ class Data(models.Model):
     date_created = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     adjectives = models.ManyToManyField(Keyword)
-    country = models.ForeignKey(CountryNew, on_delete=models.CASCADE, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0, db_index=True)
