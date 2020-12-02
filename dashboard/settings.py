@@ -147,10 +147,6 @@ STATICFILES_DIRS = (
 #############################################################
 #############################################################
 
-# Used by the add_data view. Set proper values in settings_local
-HOST = 'https://api.repustate.com'
-APIKEY = 'APIKEY'
-
 # Variables expected from settings_local. Docker overrides these with the
 # values from .env.prod but when testing locally outside a container, these
 # values can be overriden.
@@ -164,6 +160,12 @@ try:
     from .settings_local import *
 except:
     pass
+
+DEBUG = os.environ('DJANGO_DEBUG', DEBUG)
+
+# Used by the add_data view. Set proper values in settings_local
+API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
+APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 
 DATABASES = {
     "default": {

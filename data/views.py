@@ -360,7 +360,7 @@ def add_data(request, project_id):
     
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
-            HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
+            HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
         if 'score' in resp:
             sentiment = resp['score']
         else:
@@ -385,7 +385,7 @@ def add_data(request, project_id):
     entities = {}
     if request.POST.get('with_entities'):
         entities = requests.post('{HOST}/v4/{APIKEY}/entities.json'.format(
-            HOST=settings.HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
+            HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
 
     for ent in entities.get('entities', []):
         entity_instance, created = data_models.Entity.objects.get_or_create(
@@ -420,7 +420,7 @@ def add_data(request, project_id):
     aspects = {}
     if request.POST.get('aspect_model'):
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
-            HOST=settings.HOST, APIKEY=settings.APIKEY),
+            HOST=settings.API_HOST, APIKEY=settings.APIKEY),
             {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
     for key, value in aspects.items():
