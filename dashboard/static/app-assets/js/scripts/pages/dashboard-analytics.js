@@ -406,7 +406,7 @@ $(window).on("load", function () {
   function country() {
     var i, j;
     var y = 0;
-    for (i = 0; i < project_data?.country_labels?.length; i++) {
+    for (i = 0; i < project_data.country_labels.length; i++) {
       for (j = 0; j < 2; j++) {
         country_data.push({
           x: project_data.country_labels[i],
