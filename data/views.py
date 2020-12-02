@@ -271,10 +271,17 @@ def data_entries(request, project_id):
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
 
-    table = charts.Data_EntryTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+    table = charts.DataEntryTable(
+        this_project,
+        start,
+        end,
+        request.GET.get('entity'),
+        request.GET.get('aspecttopic'),
+        request.GET.get('aspectname'),
+        request.GET.getlist('filter_language'),
+        request.GET.getlist('filter_source'),
     )
+    
     return JsonResponse(table.render_data())
 
 

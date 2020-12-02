@@ -70,7 +70,6 @@ class BaseChart:
 class TopEntityTable(BaseChart):
 
     def render_data(self):
-        # prior 7 days
         today = datetime.datetime.today()
         datetime_start = today - datetime.timedelta(days=7)
         entity_set = Entity.objects.filter(
@@ -111,7 +110,6 @@ class TopEntityTable(BaseChart):
 class EntityTable(BaseChart):
 
     def render_data(self):
-        # prior 7 days
         entity_set = Entity.objects.filter(
             data__date_created__range=(self.start, self.end),
             data__project=self.project
@@ -149,7 +147,6 @@ class EntityTable(BaseChart):
 class AdjectivesTable(BaseChart):
 
     def render_data(self):
-        # prior 7 days
         keyword_set = Keyword.objects.filter(
             data__date_created__range=(self.start, self.end),
             data__project=self.project
@@ -217,14 +214,12 @@ class CountriesTable(BaseChart):
         return result
 
 
-class Data_EntryTable(BaseChart):
+class DataEntryTable(BaseChart):
 
     def render_data(self):
 
-        # prior 7 days
-
         entry_data_set = Data.objects.filter(
-            project=self.project, date_created__range=(self.start, self.end)).all()
+            project=self.project, date_created__range=(self.start, self.end))
 
         if self.entity_filter:
             entry_data_set = entry_data_set.filter(
@@ -233,33 +228,28 @@ class Data_EntryTable(BaseChart):
         if self.aspect_topic:
             entry_data_set = entry_data_set.filter(
                 aspect__topic=self.aspect_topic)
+        
         if self.aspect_name:
             entry_data_set = entry_data_set.filter(
                 aspect__label=self.aspect_name)
+        
         if self.lang_filter and self.lang_filter[0]:
             entry_data_set = entry_data_set.filter(
                 language__in=self.lang_filter)
+        
         if self.source_filter and self.source_filter[0]:
             entry_data_set = entry_data_set.filter(
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
 
-        data_count = entry_data_set.order_by('-sentiment')
-
-        def getCountry(id):
-            try:
-                country = str(Country.objects.get(id=id))
-            except ObjectDoesNotExist:
-                country = None
-
-            return country
-
         entry_data = {"data": []}
-        for entry in data_count.values('date_created', 'text', 'source', 'weighted_score', 'country'):
+        
+        for entry in entry_data_set.values('date_created', 'text', 'source__label', 'sentiment', 'country__label')[:1000]:
             entry_data["data"].append([
                 entry['date_created'],
                 entry['text'],
-                str(Source.objects.get(id=entry['source'])),
-                entry['weighted_score'], getCountry(entry['country']),
+                entry['source__label'],
+                entry['sentiment'], #TODO replace with weighted score
+                entry['country__label'],
             ])
 
         return entry_data
@@ -565,7 +555,7 @@ CHART_LOOKUP = {
     'aspect_table': AspectTopicTable,
     'top_entity_table': TopEntityTable,
     'entity_table': EntityTable,
-    'data_entrytable': Data_EntryTable,
+    'data_entrytable': DataEntryTable,
     'adjectives_table': AdjectivesTable,
     'sentiment_f': SentimenFrequencyTable,
     'sentiment_source': SentimentSourceTable,
