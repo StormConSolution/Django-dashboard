@@ -18,7 +18,7 @@ $(window).on("load", function () {
   var $primary_light = "#E2ECFF";
   var $danger_light = "#ffeed9";
   var $gray_light = "#828D99";
-  var $white = "#fff";
+  var $white = "#ffffff";
   var $sub_label_color = "#596778";
   var $radial_bg = "#e7edf3";
   var $positive = "#537fd6";
@@ -232,7 +232,7 @@ $(window).on("load", function () {
       bar: {
         horizontal: false,
         columnWidth: "20%",
-        endingShape: "rounded",
+        endingShape: "flat"
       },
     },
     legend: {
@@ -241,11 +241,11 @@ $(window).on("load", function () {
       markers: {
         radius: 50,
         height: 8,
-        width: 8,
-      },
+        width: 8
+      }
     },
     dataLabels: {
-      enabled: false,
+      enabled: false
     },
     colors: [$positive, $negative],
     fill: {
@@ -256,22 +256,22 @@ $(window).on("load", function () {
         inverseColors: true,
         opacityFrom: 1,
         opacityTo: 1,
-        stops: [0, 70, 100],
-      },
+        stops: [0, 70, 100]
+      }
     },
     series: project_data.sentiment_t_data,
     xaxis: {
       categories: project_data.sentiment_t_labels,
       axisBorder: {
-        show: false,
+        show: false
       },
       axisTicks: {
-        show: false,
+        show: false
       },
       labels: {
         style: {
-          colors: $white,
-        },
+          colors: $white
+        }
       },
     },
     yaxis: {
@@ -283,19 +283,25 @@ $(window).on("load", function () {
       labels: {
         style: {
           color: $white,
-        },
+        }
       },
+	  axisBorder: {
+		  color:$white
+	  },
+		axisTicks: {
+			color:$white
+		}
     },
     legend: {
-      show: false,
+      show: false
     },
     tooltip: {
       y: {
         formatter: function (val) {
           return val;
-        },
-      },
-    },
+        }
+      }
+    }
   };
 
   var analyticsBarChart = new ApexCharts(

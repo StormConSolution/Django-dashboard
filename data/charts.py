@@ -171,14 +171,12 @@ class AdjectivesTable(BaseChart):
             data_count=models.Count('data')).order_by('-data_count')[:10]
 
         result = {'adjectives': []}
-        print("adjectives:>", result)
         for ad in adjective_count:
             result["adjectives"].append([
                 ad.label,
                 ad.data_count,
             ])
 
-        print("adjectives:>", result)
         return result
 
 

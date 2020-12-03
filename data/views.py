@@ -1,5 +1,7 @@
 import datetime
 import json
+from urllib.parse import urlsplit, parse_qs
+
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -10,11 +12,16 @@ from django.template import loader
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import requests
+
 from data import models as data_models
 from data import charts
-from urllib.parse import urlsplit, parse_qs
+
 LOGIN_URL = '/login/'
 
+ASPECT_COLORS = [
+    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral', 'LightBlue',
+    'LightSkyBlue', 'Teal', 'MintCream', 'PowderBlue', 'SandyBrown', 'Tomato', 'SeaGreen',
+]
 
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
@@ -132,16 +139,14 @@ def projects(request, project_id):
     chart_data = json.loads(context['chart_data'])
     total_sum = 0
     color_index = 0
-    colors = ['pink', 'red', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green',
-              'light-green', 'lime', 'yellow', 'amber']
 
     for aspect in chart_data.get('aspect_t_labels', []):
         aspect_data = dict()
         aspect_data['name'] = aspect
         aspect_data['total_data'] = sum(
             item['label__count'] for item in chart_data['aspects'][aspect])
-        aspect_data['color'] = colors[color_index]
-        if color_index == len(colors) - 1:
+        aspect_data['color'] = ASPECT_COLORS[color_index]
+        if color_index == len(ASPECT_COLORS) - 1:
             color_index = 0
         total_sum += aspect_data['total_data']
         color_index += 1
