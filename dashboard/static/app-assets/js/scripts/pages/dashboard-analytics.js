@@ -192,9 +192,35 @@ $(window).on("load", function () {
 
   // radialDangerChart.render();
 
-  // Bar Chart
-  // ---------
-  var analyticsBarChartOptions = {
+	// Bar Chart
+	// ---------
+	const postive_label = project_data.sentiment_t_data[0].data;
+	const list = postive_label.concat(project_data.sentiment_t_data[1].data);
+
+	function max_label(arr) {
+		var len = arr.length, max = -Infinity;
+		while (len--) {
+			if (arr[len] > max) {
+				max = arr[len];
+			}
+		}
+		return max;
+	}
+
+	function min_label(arr) {
+		var len = arr.length, min = Infinity;
+		while (len--) {
+			if (arr[len] < min) {
+				min = arr[len];
+			}
+		}
+		return min;
+	}
+
+	const max = max_label(list);
+	const min = min_label(list);
+
+	var analyticsBarChartOptions = {
     chart: {
       height: 260,
       type: "bar",
@@ -249,9 +275,11 @@ $(window).on("load", function () {
       },
     },
     yaxis: {
-      min: 0,
-      max: 300,
+      min: min,
+      max: max,
       tickAmount: 10,
+	  range:10,
+      forceNiceScale:true,
       labels: {
         style: {
           color: $white,
