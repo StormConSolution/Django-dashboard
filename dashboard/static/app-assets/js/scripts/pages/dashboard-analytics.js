@@ -18,7 +18,7 @@ $(window).on("load", function () {
   var $primary_light = "#E2ECFF";
   var $danger_light = "#ffeed9";
   var $gray_light = "#828D99";
-  var $white = "#ffffff";
+  var $label_trend = "#f5eff7";
   var $sub_label_color = "#596778";
   var $radial_bg = "#e7edf3";
   var $positive = "#537fd6";
@@ -192,35 +192,35 @@ $(window).on("load", function () {
 
   // radialDangerChart.render();
 
-	// Bar Chart
-	// ---------
-	const postive_label = project_data.sentiment_t_data[0].data;
-	const list = postive_label.concat(project_data.sentiment_t_data[1].data);
+  // Bar Chart
+  // ---------
+  const postive_label = project_data.sentiment_t_data[0].data;
+  const list = postive_label.concat(project_data.sentiment_t_data[1].data);
 
-	function max_label(arr) {
-		var len = arr.length, max = -Infinity;
-		while (len--) {
-			if (arr[len] > max) {
-				max = arr[len];
-			}
-		}
-		return max;
-	}
+  function max_label(arr) {
+    var len = arr.length,
+      max = -Infinity;
+    while (len--) {
+      if (arr[len] > max) {
+        max = arr[len];
+      }
+    }
+    return max;
+  }
+  function min_label(arr) {
+    var len = arr.length,
+      min = Infinity;
+    while (len--) {
+      if (arr[len] < min) {
+        min = arr[len];
+      }
+    }
+    return min;
+  }
+  const max = max_label(list);
+  const min = min_label(list);
 
-	function min_label(arr) {
-		var len = arr.length, min = Infinity;
-		while (len--) {
-			if (arr[len] < min) {
-				min = arr[len];
-			}
-		}
-		return min;
-	}
-
-	const max = max_label(list);
-	const min = min_label(list);
-
-	var analyticsBarChartOptions = {
+  var analyticsBarChartOptions = {
     chart: {
       height: 260,
       type: "bar",
@@ -232,7 +232,7 @@ $(window).on("load", function () {
       bar: {
         horizontal: false,
         columnWidth: "20%",
-        endingShape: "flat"
+        endingShape: "flat",
       },
     },
     legend: {
@@ -241,11 +241,11 @@ $(window).on("load", function () {
       markers: {
         radius: 50,
         height: 8,
-        width: 8
-      }
+        width: 8,
+      },
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
     colors: [$positive, $negative],
     fill: {
@@ -256,52 +256,46 @@ $(window).on("load", function () {
         inverseColors: true,
         opacityFrom: 1,
         opacityTo: 1,
-        stops: [0, 70, 100]
-      }
+        stops: [0, 70, 100],
+      },
     },
     series: project_data.sentiment_t_data,
     xaxis: {
       categories: project_data.sentiment_t_labels,
       axisBorder: {
-        show: false
+        show: false,
       },
       axisTicks: {
-        show: false
+        show: false,
       },
       labels: {
         style: {
-          colors: $white
-        }
+          colors: $label_trend,
+        },
       },
     },
     yaxis: {
       min: min,
       max: max,
+      forceNiceScale: true,
+      range: 10,
       tickAmount: 10,
-	  range:10,
-      forceNiceScale:true,
       labels: {
         style: {
-          color: $white,
-        }
+          colors: $label_trend,
+        },
       },
-	  axisBorder: {
-		  color:$white
-	  },
-		axisTicks: {
-			color:$white
-		}
     },
     legend: {
-      show: false
+      show: false,
     },
     tooltip: {
       y: {
         formatter: function (val) {
           return val;
-        }
-      }
-    }
+        },
+      },
+    },
   };
 
   var analyticsBarChart = new ApexCharts(
@@ -377,6 +371,7 @@ $(window).on("load", function () {
         });
       }
     }
+    console.log("data:", entry_data);
   }
   entry();
   var treemapoptions = {
@@ -440,7 +435,7 @@ $(window).on("load", function () {
   function country() {
     var i, j;
     var y = 0;
-    for (i = 0; i < project_data.country_labels.length; i++) {
+    for (i = 0; i < project_data?.country_labels?.length; i++) {
       for (j = 0; j < 2; j++) {
         country_data.push({
           x: project_data.country_labels[i],
@@ -451,6 +446,7 @@ $(window).on("load", function () {
         });
       }
     }
+    console.log("country data:", country_data);
   }
   country();
   var treemapGeooptions = {
@@ -584,6 +580,7 @@ $(window).on("load", function () {
     } else {
       $net_color = $positive;
     }
+    console.log($net_color);
     var donutChartOption = {
       chart: {
         width: 200,
@@ -837,3 +834,4 @@ $(window).on("load", function () {
 
   // profitPrimaryChart.render();
 });
+console.log(project_data); //test
