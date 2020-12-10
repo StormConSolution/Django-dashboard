@@ -101,7 +101,7 @@ class Source(models.Model):
 
 class Keyword(models.Model):
     label = models.CharField(
-        max_length=300, unique=True, blank=True, null=True)
+        max_length=300, unique=True, blank=False, null=False)
 
     def __str__(self):
         return self.label
@@ -121,7 +121,7 @@ class Country(models.Model):
 class Data(models.Model):
     date_created = models.DateField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    adjectives = models.ManyToManyField(Keyword)
+    keywords = models.ManyToManyField(Keyword)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
@@ -136,7 +136,6 @@ class Data(models.Model):
     def __str__(self):
         return self.text
 
-
 class Aspect(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
     label = models.CharField(max_length=80, blank=True, db_index=True)
@@ -147,13 +146,6 @@ class Aspect(models.Model):
 
     def __str__(self):
         return self.label
-
-
-class EmotionalEntity(models.Model):
-    entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
-    emotion = models.ForeignKey(Emotion, on_delete=models.CASCADE)
-    data = models.ForeignKey(Data, on_delete=models.CASCADE)
-
 
 class TwitterSearch(models.Model):
     NOT_RUNNING = 0

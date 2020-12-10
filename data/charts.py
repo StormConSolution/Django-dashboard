@@ -144,7 +144,7 @@ class EntityTable(BaseChart):
         return entities
 
 
-class AdjectivesTable(BaseChart):
+class KeywordsTable(BaseChart):
 
     def render_data(self):
         keyword_set = Keyword.objects.filter(
@@ -167,12 +167,12 @@ class AdjectivesTable(BaseChart):
             keyword_set = keyword_set.filter(
                 data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
-        adjective_count = keyword_set.annotate(
+        keyword_count = keyword_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')[:10]
 
-        result = {'adjectives': []}
-        for ad in adjective_count:
-            result["adjectives"].append([
+        result = {'keywords': []}
+        for ad in keyword_count:
+            result["keywords"].append([
                 ad.label,
                 ad.data_count,
             ])
@@ -554,7 +554,7 @@ CHART_LOOKUP = {
     'top_entity_table': TopEntityTable,
     'entity_table': EntityTable,
     'data_entrytable': DataEntryTable,
-    'adjectives_table': AdjectivesTable,
+    'keywords_table': KeywordsTable,
     'sentiment_f': SentimenFrequencyTable,
     'sentiment_source': SentimentSourceTable,
     'sentiment_t': SentimentTimeTable,

@@ -211,15 +211,18 @@ def entities(request, project_id):
     end = request.GET.get('end', default_end)
 
     table = charts.EntityTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+        this_project, start, end, request.GET.get('entity'), 
+        request.GET.get('aspecttopic'),
+        request.GET.get('aspectname'),
+        request.GET.getlist('filter_language'),
+        request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
 
-def adjectives(request, project_id):
+def keywords(request, project_id):
     """
-    Show the frequency of occurence for the adjectives for this data set.
+    Show the frequency of occurence for the keywords for this data set.
     """
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
@@ -232,9 +235,12 @@ def adjectives(request, project_id):
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
 
-    table = charts.AdjectivesTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+    table = charts.KeywordsTable(
+        this_project, start, end, request.GET.get('entity'),
+        request.GET.get('aspecttopic'), 
+        request.GET.get('aspectname'), 
+        request.GET.getlist('filter_language'),
+        request.GET.getlist('filter_source'),
     )
     return JsonResponse(table.render_data())
 
@@ -254,12 +260,15 @@ def countries(request, project_id):
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
 
-    table = charts.AdjectivesTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+    table = charts.CountriesTable(
+        this_project, start, end, request.GET.get('entity'), 
+        request.GET.get('aspecttopic'), 
+        request.GET.get('aspectname'), 
+        request.GET.getlist('filter_language'), 
+        request.GET.getlist('filter_source'),
     )
+    
     return JsonResponse(table.render_data())
-
 
 def data_entries(request, project_id):
     """
@@ -305,8 +314,11 @@ def aspect_topics(request, project_id):
     start = request.GET.get('start', default_start)
     end = request.GET.get('end', default_end)
     table = charts.AspectTopicTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+        this_project, start, end, request.GET.get('entity'),
+        request.GET.get('aspecttopic'), 
+        request.GET.get('aspectname'), 
+        request.GET.getlist('filter_language'), 
+        request.GET.getlist('filter_source'),
     )
 
     return JsonResponse(table.render_data())
@@ -328,8 +340,11 @@ def aspect_name(request, project_id):
     end = request.GET.get('end', default_end)
 
     table = charts.AspectNameTable(
-        this_project, start, end, request.GET.get(
-            'entity'), request.GET.get('aspecttopic'), request.GET.get('aspectname'), request.GET.getlist('filter_language'), request.GET.getlist('filter_source'),
+        this_project, start, end, request.GET.get('entity'),
+        request.GET.get('aspecttopic'),
+        request.GET.get('aspectname'),
+        request.GET.getlist('filter_language'),
+        request.GET.getlist('filter_source'),
     )
 
     return JsonResponse(table.render_data())
@@ -391,7 +406,6 @@ def add_data(request, project_id):
         sentiment=sentiment,
         language=lang,
     )
-    emotions = []
     found_entities = []
 
     entities = {}
@@ -404,48 +418,44 @@ def add_data(request, project_id):
             label=ent['title']
         )
 
-        is_emotion = False
-
         for clas in ent['classifications']:
             c_instance, created = data_models.Classification.objects.get_or_create(
                 label=clas
             )
             entity_instance.classifications.add(c_instance)
 
-            if clas == 'Person.emotion':
-                is_emotion = True
-                emotion_instance, created = data_models.Emotion.objects.get_or_create(
-                    label=ent['title']
-                )
-                emotions.append(emotion_instance)
-
         if not is_emotion:
             found_entities.append(entity_instance)
 
         data.entities.add(entity_instance)
 
-    for entity in found_entities:
-        for emotion in emotions:
-            data_models.EmotionalEntity.objects.create(
-                emotion=emotion, entity=entity, data=data)
-
-    aspects = {}
     if request.POST.get('aspect_model'):
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY),
             {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
-    for key, value in aspects.items():
-        if key != "status":
-            for v in value:
-                data_models.Aspect.objects.create(
-                    data=data,
-                    label=key,
-                    chunk=v['chunk'],
-                    sentiment=v['score'],
-                    topic=v['sentiment_topic'],
-                    sentiment_text=v['sentiment_text']
-                )
+        aspect_type, _ = data_models.AspectType.objects.get_or_create(label=request.POST['aspect_model'])
+
+        for key, value in aspects.items():
+            if key != "status":
+                for v in value:
+                    data_models.Aspect.objects.create(
+                        data=data,
+                        aspect_type=aspect_type,
+                        label=key,
+                        chunk=v['chunk'],
+                        sentiment=v['score'],
+                        topic=v['sentiment_topic'],
+                        sentiment_text=v['sentiment_text']
+                    )
+    
+    # Add keywords.
+    resp = requests.post('{HOST}/v4/{APIKEY}/keywords.json'.format(
+        HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text}).json()
+    for keyword, count in resp.get('keywords', {}).items():
+        kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
+        for i in range(count):
+            data.keywords.add(kw)
 
     return JsonResponse({"status": "OK"})
 
