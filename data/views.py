@@ -357,12 +357,19 @@ def create_project(request):
 
     `project_name`: the name of the Project. If it doesn't exist, create it.
     `username`: the user name to add to this project. User is assumed to exist.
+    `aspect_model`: the aspect model this project will use.
     """
     if 'name' not in request.POST or 'username' not in request.POST:
         return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
 
     proj, _ = data_models.Project.objects.get_or_create(
         name=request.POST['name'])
+
+    if 'aspect_model' in request.POST:
+        m, _ = data_models.AspectModel.objects.get_or_create(label=request.POST['aspect_model'])
+        proj.aspect_model = m
+        proj.save()
+
     user, _ = User.objects.get_or_create(username=request.POST['username'])
     proj.users.add(user)
 
@@ -434,14 +441,11 @@ def add_data(request, project_id):
             HOST=settings.API_HOST, APIKEY=settings.APIKEY),
             {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
-        aspect_model, _ = data_models.AspectModel.objects.get_or_create(label=request.POST['aspect_model'])
-
         for key, value in aspects.items():
-            if key != "status":
+            if key != "status" and aspects['status'] == 'OK':
                 for v in value:
                     data_models.Aspect.objects.create(
                         data=data,
-                        aspect_model=aspect_model,
                         label=key,
                         chunk=v['chunk'],
                         sentiment=v['score'],

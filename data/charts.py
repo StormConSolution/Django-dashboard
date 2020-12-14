@@ -276,14 +276,14 @@ class AspectTopicTable(BaseChart):
             aspect_set = aspect_set.filter(
                 data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
-        aspect_count = aspect_set.values_list('topic').annotate(
+        aspect_count = aspect_set.values_list('topic', 'label').annotate(
             topic_count=Count('topic')).order_by('-topic_count')
-
+        
         aspects = {"data": []}
-        for topic, count in aspect_count:
+        for topic, label, count in aspect_count:
             aspects["data"].append([
                 topic,
-                Aspect.objects.filter(topic=topic)[0].label,
+                label,
                 count
             ])
 
@@ -543,8 +543,6 @@ class SentimentSourceTable(BaseChart):
         result['source_datasets'] = [positive, negative]
 
         return result
-
-
 
 CHART_LOOKUP = {
     'aspect_f': AspectFrequencyTable,

@@ -52,7 +52,7 @@ admin.site.add_action(export_selected_objects)
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('date_created', 'name')
+    list_display = ('date_created', 'name', 'aspect_model',)
     search_fields = ('name',)
 
 
