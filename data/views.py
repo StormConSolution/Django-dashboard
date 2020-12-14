@@ -80,8 +80,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
-    # TODO-  aspects_total_data - test data, write function to compute element
-    # TODO - date filter
+    
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
@@ -105,7 +104,7 @@ def projects(request, project_id):
         source_filter = src
 
     if this_project.data_set.count() > 0:
-        end = this_project.data_set.order_by('-date_created')[0].date_created
+        end = this_project.data_set.latest().date_created
     else:
         end = datetime.date.today()
     start = end - datetime.timedelta(days=30)
@@ -179,11 +178,8 @@ def top_entities(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.TopEntityTable(
         this_project, start, end, request.GET.get(
@@ -204,11 +200,8 @@ def entities(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.EntityTable(
         this_project, start, end, request.GET.get('entity'), 
@@ -229,11 +222,8 @@ def keywords(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.KeywordsTable(
         this_project, start, end, request.GET.get('entity'),
@@ -254,11 +244,8 @@ def countries(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.CountriesTable(
         this_project, start, end, request.GET.get('entity'), 
@@ -279,11 +266,8 @@ def data_entries(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.DataEntryTable(
         this_project,
@@ -308,11 +292,9 @@ def aspect_topics(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
     table = charts.AspectTopicTable(
         this_project, start, end, request.GET.get('entity'),
         request.GET.get('aspecttopic'), 
@@ -333,11 +315,8 @@ def aspect_name(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    default_start = datetime.date.today() - datetime.timedelta(days=30)
-    default_end = datetime.date.today()
-
-    start = request.GET.get('start', default_start)
-    end = request.GET.get('end', default_end)
+    start = request.GET.get('start')
+    end = request.GET.get('end')
 
     table = charts.AspectNameTable(
         this_project, start, end, request.GET.get('entity'),

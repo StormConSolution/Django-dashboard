@@ -66,7 +66,12 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return reverse('projects', kwargs={'project_id': self.id})
-
+    
+    def most_recent_date(self):
+        # Get the date of my most recent data item.
+        if self.data_set.count():
+            return self.data_set.latest().date_created
+        return None
 
 class Classification(models.Model):
     label = models.CharField(max_length=80, db_index=True)
@@ -133,6 +138,7 @@ class Data(models.Model):
 
     class Meta:
         verbose_name_plural = 'Data'
+        get_latest_by = 'date_created'
 
     def __str__(self):
         return self.text

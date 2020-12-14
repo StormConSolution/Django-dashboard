@@ -35,8 +35,15 @@ class BaseChart:
 
     def __init__(self, project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter):
         self.project = project
-        self.start = start
+        
+        if not end:
+            end = project.most_recent_date()
         self.end = end
+    
+        if not start:
+            start = self.end - datetime.timedelta(days=30)
+        self.start = start
+
         self.entity_filter = entity_filter
         self.aspect_topic = aspect_topic
         self.aspect_name = aspect_name
@@ -260,6 +267,7 @@ class AspectTopicTable(BaseChart):
             data__date_created__range=(self.start, self.end),
             data__project=self.project
         )
+        
         if self.entity_filter:
             aspect_set = aspect_set.filter(
                 data__in=Data.objects.filter(entities__label=self.entity_filter))
