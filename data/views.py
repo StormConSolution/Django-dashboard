@@ -434,14 +434,14 @@ def add_data(request, project_id):
             HOST=settings.API_HOST, APIKEY=settings.APIKEY),
             {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
 
-        aspect_type, _ = data_models.AspectType.objects.get_or_create(label=request.POST['aspect_model'])
+        aspect_model, _ = data_models.AspectModel.objects.get_or_create(label=request.POST['aspect_model'])
 
         for key, value in aspects.items():
             if key != "status":
                 for v in value:
                     data_models.Aspect.objects.create(
                         data=data,
-                        aspect_type=aspect_type,
+                        aspect_model=aspect_model,
                         label=key,
                         chunk=v['chunk'],
                         sentiment=v['score'],
@@ -452,6 +452,7 @@ def add_data(request, project_id):
     # Add keywords.
     resp = requests.post('{HOST}/v4/{APIKEY}/keywords.json'.format(
         HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text}).json()
+    
     for keyword, count in resp.get('keywords', {}).items():
         kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
         for i in range(count):

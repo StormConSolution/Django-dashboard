@@ -38,7 +38,7 @@ class ChartType(models.Model):
         return self.label
 
 
-class AspectType(models.Model):
+class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
 
     def __str__(self):
@@ -50,6 +50,7 @@ class Project(models.Model):
     name = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User)
     charts = models.ManyToManyField(ChartType)
+    aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -163,16 +164,17 @@ class TwitterSearch(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     query = models.CharField(max_length=80,
-                             help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
+         help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
     project_name = models.CharField(max_length=80)
 
     entities = models.BooleanField(
         default=False, help_text='Do you want to detect entities?')
-    aspect = models.ForeignKey(AspectType,
-                               default=None,
-                               null=True,  # test
-                               blank=True,
-                               help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
+    
+    aspect = models.ForeignKey(AspectModel,
+       default=None,
+       null=True,  # test
+       blank=True,
+       help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
 
     status = models.IntegerField(choices=STATUSES, default=NOT_RUNNING)
 
