@@ -26,10 +26,8 @@ def notify(ts):
             print(e)
 
 def run():
-    # This environment variable stores the path to a file with twitter
-    # credentials.
-    premium_search_args = load_credentials(os.environ.get("TWITTER_KEYS"),
-            yaml_key="search_tweets_api", env_overwrite=False)
+    # We rely on the environment variables to store our credentials.
+    premium_search_args = load_credentials(None, yaml_key="search_tweets_api", env_overwrite=True)
     
     while True:
         for ts in TwitterSearch.objects.filter(status=TwitterSearch.NOT_RUNNING):
