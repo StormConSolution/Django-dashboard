@@ -19,8 +19,8 @@ from data import charts
 LOGIN_URL = '/login/'
 
 ASPECT_COLORS = [
-    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral', 'LightBlue',
-    'LightSkyBlue', 'Teal', 'MintCream', 'PowderBlue', 'SandyBrown', 'Tomato', 'SeaGreen',
+    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral', 'DarkOliveGreen',
+    'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown', 'Tomato', 'SeaGreen',
 ]
 
 def default_encoder(o):
