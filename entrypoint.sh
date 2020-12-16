@@ -12,3 +12,5 @@ then
 fi
 
 exec "$@"
+
+python manage.py runscript twitter_search_v1

@@ -26,9 +26,10 @@ def notify(ts):
             print(e)
 
 def run():
-    premium_search_args = load_credentials(".twitter_keys.yaml",
-                                           yaml_key="search_tweets_api",
-                                           env_overwrite=False)
+    # This environment variable stores the path to a file with twitter
+    # credentials.
+    premium_search_args = load_credentials(os.environ.get("TWITTER_KEYS"),
+            yaml_key="search_tweets_api", env_overwrite=False)
     
     while True:
         for ts in TwitterSearch.objects.filter(status=TwitterSearch.NOT_RUNNING):
@@ -37,12 +38,10 @@ def run():
             ts.save()
             notify(ts)
             
-            # Automatically omit retweets.
-            rule = gen_rule_payload(ts.query + ' -is:retweet', results_per_call=100)
+            rule = gen_rule_payload(ts.query, results_per_call=100)
 
-            tweets = collect_results(rule, max_results=MAX_RESULTS, result_stream_args=premium_search_args)
-            
             try:
+                tweets = collect_results(rule, max_results=MAX_RESULTS, result_stream_args=premium_search_args)
                 resp = requests.post('https://dashboard.repustate.com/create-project/', 
                         {'name':ts.project_name, 'username':ts.created_by.username})
                 project_id = resp.json()['project_id']
