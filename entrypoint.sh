@@ -9,8 +9,7 @@ then
     done
 
     echo "PostgreSQL started"
+
+	python manage.py migrate
+	python manage.py runscript twitter_search_v1
 fi
-
-exec "$@"
-
-python manage.py runscript twitter_search_v1
