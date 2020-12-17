@@ -156,12 +156,12 @@ SQL_PASSWORD = ''
 SQL_PORT = 5432
 SQL_USER = 'postgres'
 
+DEBUG = False
+
 try:
     from .settings_local import *
 except:
     pass
-
-DEBUG = os.environ.get('DJANGO_DEBUG', DEBUG)
 
 # Used by the add_data view. Set proper values in settings_local
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
@@ -177,3 +177,12 @@ DATABASES = {
         "PORT": os.environ.get("SQL_PORT", SQL_PORT),
     }
 }
+
+# Email settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = "repustate"
+EMAIL_PORT = 587
+EMAIL_SUBJECT_PREFIX = '[Repustate] '
+SERVER_EMAIL = "Repustate <info@repustate.com>"
