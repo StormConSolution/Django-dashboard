@@ -434,8 +434,6 @@ def add_data(request, project_id):
     resp = requests.post('{HOST}/v4/{APIKEY}/keywords.json'.format(
         HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text, 'lang':lang}).json()
 
-    print(resp)
-    
     for keyword, count in resp.get('keywords', {}).items():
         kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
         for i in range(count):

@@ -30,7 +30,6 @@ am4core.ready(function () {
       count: project_data.keywords[i][1],
     });
   }
-  console.log("amdata", data);
   series.data = data;
 
   series.dataFields.word = "tag";
@@ -44,6 +43,7 @@ am4core.ready(function () {
     dataField: "value",
   });
 
+
   // series.labels.template.url = "#{word}";
   // series.labels.template.urlTarget = "_blank";
   series.labels.template.tooltipText = "{word}: {value}";
@@ -51,14 +51,4 @@ am4core.ready(function () {
   var hoverState = series.labels.template.states.create("hover");
   hoverState.properties.fill = am4core.color("#FF0000");
 
-  // var subtitle = chart.titles.create();
-  // subtitle.text = "(click to open)";
-
-  // var title = chart.titles.create();
-  // title.text = "Most Popular Tags @ StackOverflow";
-  // title.fontSize = 20;
-  // title.fontWeight = "800";
 }); // end am4core.ready()
-
-//<!-- HTML -->
-//<div id="chartdiv"></div>

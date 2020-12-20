@@ -175,7 +175,7 @@ class KeywordsTable(BaseChart):
                 data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         keyword_count = keyword_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')[:10]
+            data_count=models.Count('data')).order_by('-data_count')[:200]
         
         print(keyword_count)
 

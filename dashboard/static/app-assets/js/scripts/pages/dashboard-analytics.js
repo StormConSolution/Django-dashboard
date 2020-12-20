@@ -223,7 +223,7 @@ $(window).on("load", function () {
   var analyticsBarChartOptions = {
     chart: {
       height: 260,
-      type: "bar",
+      type: "line",
       toolbar: {
         show: false,
       },
