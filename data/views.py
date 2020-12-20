@@ -354,7 +354,6 @@ def create_project(request):
 
     return JsonResponse({"status": "OK", "project_id": proj.id})
 
-
 @csrf_exempt
 def add_data(request, project_id):
     """
@@ -373,20 +372,22 @@ def add_data(request, project_id):
     
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
+            HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang}).json()
         if 'score' in resp:
             sentiment = resp['score']
         else:
-            return JsonResponse(**resp)
-    except:
-        return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {}".format(text, lang)})
+            return JsonResponse(resp)
+    except Exception as e:
+        return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
 
     source, _ = data_models.Source.objects.get_or_create(
         label=request.POST['source'])
     
+    project = data_models.Project.objects.get(pk=project_id)
+
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
-        project=data_models.Project.objects.get(pk=project_id),
+        project=project,
         source=source,
         text=text,
         sentiment=sentiment,
@@ -410,15 +411,12 @@ def add_data(request, project_id):
             )
             entity_instance.classifications.add(c_instance)
 
-        if not is_emotion:
-            found_entities.append(entity_instance)
-
         data.entities.add(entity_instance)
 
-    if request.POST.get('aspect_model'):
+    if project.aspect_model:
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY),
-            {'text': text, 'neutral': 1, 'lang': lang, 'model': request.POST['aspect_model']}).json()
+            {'text': text, 'neutral': 1, 'lang': lang, 'model': project.aspect_model.label}).json()
 
         for key, value in aspects.items():
             if key != "status" and aspects['status'] == 'OK':
@@ -434,7 +432,9 @@ def add_data(request, project_id):
     
     # Add keywords.
     resp = requests.post('{HOST}/v4/{APIKEY}/keywords.json'.format(
-        HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text}).json()
+        HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text, 'lang':lang}).json()
+
+    print(resp)
     
     for keyword, count in resp.get('keywords', {}).items():
         kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)

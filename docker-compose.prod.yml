@@ -12,6 +12,15 @@ services:
       - db
     volumes:
       - static_volume:/app/staticfiles
+  twitter:
+    image: repustate/dashboard:latest
+    command: python manage.py runscript twitter_search_v1
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+    volumes:
+      - static_volume:/app/staticfiles
   db:
     image: postgres:12.0-alpine
     volumes:

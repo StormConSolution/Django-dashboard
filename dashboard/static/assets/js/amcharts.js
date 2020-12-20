@@ -24,10 +24,10 @@ am4core.ready(function () {
   series.randomness = 0.1;
   series.rotationThreshold = 0.5;
   var data = [];
-  for (var i = 0; i < project_data?.adjectives?.length; i++) {
+  for (var i = 0; i < project_data?.keywords?.length; i++) {
     data.push({
-      tag: project_data.adjectives[i][0],
-      count: project_data.adjectives[i][1],
+      tag: project_data.keywords[i][0],
+      count: project_data.keywords[i][1],
     });
   }
   console.log("amdata", data);
