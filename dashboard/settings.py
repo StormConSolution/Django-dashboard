@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
+    'drf_yasg',
     'data',
     'authentication',  # Enable the inner app
 ]
@@ -192,3 +193,7 @@ EMAIL_HOST_USER = "apikey"
 EMAIL_PORT = 587
 EMAIL_SUBJECT_PREFIX = '[Repustate] '
 SERVER_EMAIL = "Repustate <info@repustate.com>"
+
+SWAGGER_SETTINGS = {
+     'DEFAULT_INFO': 'dashboard.urls.api_info',
+}

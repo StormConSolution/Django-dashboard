@@ -446,10 +446,22 @@ def export_card(request):
     pass
 
 from rest_framework import viewsets
-from rest_framework import permissions
+from rest_framework.generics import ListAPIView
+from .permissions import IsAllowedAccessToData
 
 class DataViewSet(viewsets.ModelViewSet):
     queryset = data_models.Data.objects.all()
     serializer_class = DataSerializer
     #permission_classes = [permissions.IsAuthenticated]
     permission_classes = []
+
+
+class ProjectDataListView(ListAPIView):
+    serializer_class = DataSerializer
+    permission_classes = [IsAllowedAccessToData]
+
+    def get_queryset(self):
+        project_id = self.request.parser_context.get('kwargs', {}).get('project_id')
+        return data_models.Data.objects.filter(project_id=project_id)
+
+

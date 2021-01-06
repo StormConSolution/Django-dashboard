@@ -1,0 +1,169 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Dashboard API",
+        "version": "v1"
+    },
+    "basePath": "/api/data",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "securityDefinitions": {
+        "Basic": {
+            "type": "basic"
+        }
+    },
+    "security": [
+        {
+            "Basic": []
+        }
+    ],
+    "paths": {
+        "/project/{project_id}/": {
+            "get": {
+                "operationId": "project_read",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "required": false,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "required": [
+                                "count",
+                                "results"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "next": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "previous": {
+                                    "type": "string",
+                                    "format": "uri",
+                                    "x-nullable": true
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/Data"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "project"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "project_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ]
+        }
+    },
+    "definitions": {
+        "Data": {
+            "required": [
+                "date_created",
+                "text",
+                "keywords",
+                "entities"
+            ],
+            "type": "object",
+            "properties": {
+                "date_created": {
+                    "title": "Date created",
+                    "type": "string",
+                    "format": "date"
+                },
+                "country": {
+                    "title": "Country",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "source": {
+                    "title": "Source",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "text": {
+                    "title": "Text",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                },
+                "sentiment": {
+                    "title": "Sentiment",
+                    "type": "number"
+                },
+                "weighted_score": {
+                    "title": "Weighted score",
+                    "type": "number"
+                },
+                "language": {
+                    "title": "Language",
+                    "type": "string",
+                    "enum": [
+                        "ar",
+                        "zh",
+                        "da",
+                        "nl",
+                        "en",
+                        "fi",
+                        "fr",
+                        "de",
+                        "he",
+                        "it",
+                        "id",
+                        "ja",
+                        "ko",
+                        "no",
+                        "pl",
+                        "pt",
+                        "ru",
+                        "es",
+                        "sv",
+                        "tr",
+                        "th",
+                        "vi",
+                        "ur"
+                    ]
+                },
+                "entities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                }
+            }
+        }
+    }
+}

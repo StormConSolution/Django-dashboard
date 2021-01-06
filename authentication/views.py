@@ -22,13 +22,18 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                if user.is_staff:
-                    return redirect('/admin/')
+            user = User.objects.get(email=username)
+            if user:
+                user = authenticate(username=user.username, password=password)
+
+                if user is not None:
+                    login(request, user)
+                    if user.is_staff:
+                        return redirect('/admin/')
+                    else:
+                        return redirect('/')
                 else:
-                    return redirect('/')
+                    msg = 'Invalid credentials'
             else:
                 msg = 'Invalid credentials'
         else:
