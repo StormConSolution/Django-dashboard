@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'rest_framework',
     'data',
     'authentication',  # Enable the inner app
 ]
@@ -176,6 +177,11 @@ DATABASES = {
         "HOST": os.environ.get("SQL_HOST", SQL_HOST),
         "PORT": os.environ.get("SQL_PORT", SQL_PORT),
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100
 }
 
 # Email settings

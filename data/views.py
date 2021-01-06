@@ -15,6 +15,7 @@ import requests
 
 from data import models as data_models
 from data import charts
+from data.serializers import DataSerializer
 
 LOGIN_URL = '/login/'
 
@@ -441,6 +442,14 @@ def add_data(request, project_id):
 
     return JsonResponse({"status": "OK"})
 
-
 def export_card(request):
     pass
+
+from rest_framework import viewsets
+from rest_framework import permissions
+
+class DataViewSet(viewsets.ModelViewSet):
+    queryset = data_models.Data.objects.all()
+    serializer_class = DataSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
