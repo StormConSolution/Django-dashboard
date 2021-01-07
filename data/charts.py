@@ -177,8 +177,6 @@ class KeywordsTable(BaseChart):
         keyword_count = keyword_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')[:200]
         
-        print(keyword_count)
-
         result = {'keywords': []}
         for ad in keyword_count:
             result["keywords"].append([
