@@ -1,6 +1,5 @@
 import datetime
 import json
-from urllib.parse import urlsplit, parse_qs
 
 from django import template
 from django.conf import settings
@@ -15,7 +14,7 @@ import requests
 
 from data import models as data_models
 from data import charts
-from data.serializers import DataSerializer
+from data import serializers
 
 LOGIN_URL = '/login/'
 
@@ -447,17 +446,18 @@ def export_card(request):
 
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAllowedAccessToData
 
 class DataViewSet(viewsets.ModelViewSet):
     queryset = data_models.Data.objects.all()
-    serializer_class = DataSerializer
+    serializer_class = serializers.DataSerializer
     #permission_classes = [permissions.IsAuthenticated]
     permission_classes = []
 
 
 class ProjectDataListView(ListAPIView):
-    serializer_class = DataSerializer
+    serializer_class = serializers.DataSerializer
     permission_classes = [IsAllowedAccessToData]
 
     def get_queryset(self):
@@ -479,6 +479,23 @@ class ProjectDataListView(ListAPIView):
             if end_date:
                 filters['date_created__lt'] = end_date
 
+        if self.request.query_params.get('language'):
+            filters['language'] = self.request.query_params.get('language')
+
         return data_models.Data.objects.filter(**filters)
 
 
+class SourceViewSet(viewsets.ModelViewSet):
+    queryset = data_models.Source.objects.all()
+    serializer_class = serializers.SourceSerializer
+
+class CountryViewSet(viewsets.ModelViewSet):
+    queryset = data_models.Country.objects.all()
+    serializer_class = serializers.CountrySerializer
+
+class ProjectListView(ListAPIView):
+    serializer_class = serializers.ProjectSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return data_models.Project.objects.filter(users=self.request.user)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from data.models import Data
+from data import models
 
 class DataSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -10,6 +10,24 @@ class DataSerializer(serializers.HyperlinkedModelSerializer):
     entities = serializers.StringRelatedField(many=True)
     
     class Meta:
-        model = Data
+        model = models.Data
         fields = ['date_created', 'country', 'source', 'text', 'keywords',
                 'sentiment', 'weighted_score', 'language', 'entities']
+
+class SourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Source
+        fields = '__all__'
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Country
+        fields = '__all__'
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Project
+        fields = ['id', 'name']
+

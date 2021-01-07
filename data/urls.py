@@ -23,8 +23,6 @@ urlpatterns = [
     path('projects/<int:project_id>/',
          views.aspect_name, name="aspect-names"),
 
-    path('api/data/project/<int:project_id>/', views.ProjectDataListView.as_view(), name='project-data-list'),
-
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 
