@@ -461,7 +461,24 @@ class ProjectDataListView(ListAPIView):
     permission_classes = [IsAllowedAccessToData]
 
     def get_queryset(self):
-        project_id = self.request.parser_context.get('kwargs', {}).get('project_id')
-        return data_models.Data.objects.filter(project_id=project_id)
+        filters = {
+            'project_id': self.request.parser_context.get('kwargs', {}).get('project_id')
+        }
+
+        if self.request.query_params.get('country'):
+            filters['country__label'] = self.request.query_params.get('country');
+
+        if self.request.query_params.get('source'):
+            filters['source__label'] = self.request.query_params.get('source')
+
+        if self.request.query_params.get('date_created'):
+            start_date, end_date = self.request.query_params.get('date_created').split(',')
+
+            if start_date:
+                filters['date_created__gt'] = start_date
+            if end_date:
+                filters['date_created__lt'] = end_date
+
+        return data_models.Data.objects.filter(**filters)
 
 

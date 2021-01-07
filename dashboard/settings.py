@@ -195,5 +195,5 @@ EMAIL_SUBJECT_PREFIX = '[Repustate] '
 SERVER_EMAIL = "Repustate <info@repustate.com>"
 
 SWAGGER_SETTINGS = {
-     'DEFAULT_INFO': 'dashboard.urls.api_info',
+    'DEFAULT_INFO': 'dashboard.urls.api_info',
 }

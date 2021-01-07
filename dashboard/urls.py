@@ -6,6 +6,14 @@ from rest_framework import routers
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from drf_yasg.generators import OpenAPISchemaGenerator
+
+
+class SchemaGenerator(OpenAPISchemaGenerator):
+
+    def determine_path_prefix(self, paths):
+        return ''
+
 
 api_info = openapi.Info(
     title="Dashboard API",
@@ -15,7 +23,7 @@ api_info = openapi.Info(
 schema_view = get_schema_view(
     api_info,
     public=True,
-    permission_classes=[permissions.AllowAny],
+    generator_class=SchemaGenerator,
 )
 
 from data import views
@@ -28,11 +36,11 @@ router = routers.DefaultRouter()
 router.register('data', views.DataViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),          # Django admin route
+    path('admin/', admin.site.urls),  # Django admin route
     # path('api/', include(router.urls)),
     path("", include("authentication.urls")),  # Auth routes - login / register
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path("", include("data.urls"))             # UI Kits Html files
+    path("", include("data.urls"))  # UI Kits Html files
 
 ]
