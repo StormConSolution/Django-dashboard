@@ -448,12 +448,28 @@ from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAllowedAccessToData
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
 
 class DataViewSet(viewsets.ModelViewSet):
     queryset = data_models.Data.objects.all()
     serializer_class = serializers.DataSerializer
     #permission_classes = [permissions.IsAuthenticated]
     permission_classes = []
+
+
+country_param = openapi.Parameter('country', in_=openapi.IN_QUERY, description='Filter By Country',
+                                   type=openapi.TYPE_STRING)
+source_param = openapi.Parameter('source', in_=openapi.IN_QUERY, description='Filter By Source',
+                                   type=openapi.TYPE_STRING)
+language_param = openapi.Parameter('language', in_=openapi.IN_QUERY, description='Filter By Language',
+                                   type=openapi.TYPE_STRING)
+date_created_param = openapi.Parameter('date_created',
+                                       in_=openapi.IN_QUERY,
+                                       description='Filter By Created Period. Example: :start_date,:end_date. Here '
+                                                   'start_date and end_date can be empty'
+                                       , type=openapi.TYPE_STRING)
 
 
 class ProjectDataListView(ListAPIView):
@@ -484,12 +500,16 @@ class ProjectDataListView(ListAPIView):
 
         return data_models.Data.objects.filter(**filters)
 
+    @swagger_auto_schema(manual_parameters=[country_param, source_param, language_param, date_created_param])
+    def get(self, request, *args, **kwargs):
+        return super(ProjectDataListView, self).get(request, *args, **kwargs)
 
-class SourceViewSet(viewsets.ModelViewSet):
+
+class SourceListAPI(ListAPIView):
     queryset = data_models.Source.objects.all()
     serializer_class = serializers.SourceSerializer
 
-class CountryViewSet(viewsets.ModelViewSet):
+class CountryListAPI(ListAPIView):
     queryset = data_models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
 
