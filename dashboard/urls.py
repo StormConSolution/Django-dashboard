@@ -39,8 +39,8 @@ urlpatterns = [
     # path('api/', include(router.urls)),
     path("", include("authentication.urls")),  # Auth routes - login / register
 
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-ui'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui'),
+    #path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc-ui'),
+    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui'),
     path("api/", include("data.api")),  # API Urls
     path("", include("data.urls"))  # UI Kits Html files
 
