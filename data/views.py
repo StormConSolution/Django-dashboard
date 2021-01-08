@@ -371,7 +371,7 @@ def add_data(request, project_id):
     lang = request.POST.get('lang', 'en')
     
     try:
-        resp = requests.post('{HOST}/v4/{APIKEY}/score.json'.format(
+        resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang}).json()
         if 'score' in resp:
             sentiment = resp['score']
@@ -393,25 +393,26 @@ def add_data(request, project_id):
         sentiment=sentiment,
         language=lang,
     )
-    found_entities = []
+    
+    # Add keywords.
+    for keyword, count in resp['keywords'].items():
+        kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
+        for i in range(count):
+            data.keywords.add(kw)
 
-    entities = {}
     if request.POST.get('with_entities'):
-        entities = requests.post('{HOST}/v4/{APIKEY}/entities.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text': text, 'lang': lang}).json()
-
-    for ent in entities.get('entities', []):
-        entity_instance, created = data_models.Entity.objects.get_or_create(
-            label=ent['title']
-        )
-
-        for clas in ent['classifications']:
-            c_instance, created = data_models.Classification.objects.get_or_create(
-                label=clas
+        for ent in resp['entities'}:
+            entity_instance, created = data_models.Entity.objects.get_or_create(
+                label=ent['title']
             )
-            entity_instance.classifications.add(c_instance)
 
-        data.entities.add(entity_instance)
+            for clas in ent['classifications']:
+                c_instance, created = data_models.Classification.objects.get_or_create(
+                    label=clas
+                )
+                entity_instance.classifications.add(c_instance)
+
+            data.entities.add(entity_instance)
 
     if project.aspect_model:
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
@@ -430,14 +431,6 @@ def add_data(request, project_id):
                         sentiment_text=v['sentiment_text']
                     )
     
-    # Add keywords.
-    resp = requests.post('{HOST}/v4/{APIKEY}/keywords.json'.format(
-        HOST=settings.API_HOST, APIKEY=settings.APIKEY), {'text':text, 'lang':lang}).json()
-
-    for keyword, count in resp.get('keywords', {}).items():
-        kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
-        for i in range(count):
-            data.keywords.add(kw)
 
     return JsonResponse({"status": "OK"})
 
