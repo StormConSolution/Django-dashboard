@@ -401,7 +401,7 @@ def add_data(request, project_id):
             data.keywords.add(kw)
 
     if request.POST.get('with_entities'):
-        for ent in resp['entities'}:
+        for ent in resp['entities']:
             entity_instance, created = data_models.Entity.objects.get_or_create(
                 label=ent['title']
             )
