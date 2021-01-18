@@ -141,10 +141,12 @@ def projects(request, project_id):
 
     for aspect in chart_data.get('aspect_t_labels', []):
         aspect_data = dict()
+        
         aspect_data['name'] = aspect
         aspect_data['total_data'] = sum(
             item['label__count'] for item in chart_data['aspects'][aspect])
         aspect_data['color'] = ASPECT_COLORS[color_index]
+
         if color_index == len(ASPECT_COLORS) - 1:
             color_index = 0
         total_sum += aspect_data['total_data']
@@ -155,7 +157,8 @@ def projects(request, project_id):
         positive_data = chart_data['aspect_s_data'][0]['data'][i]
         negative_data = chart_data['aspect_s_data'][1]['data'][i]
         context['aspects_total_data'][i]['net_data'] = positive_data - negative_data
-
+    
+    # Compute the relative width for each aspect bar.
     for i in range(len(context['aspects_total_data'])):
         context['aspects_total_data'][i]['width'] = (
             context['aspects_total_data'][i][
