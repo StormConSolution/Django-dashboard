@@ -476,7 +476,7 @@ def run():
             if row:
                 text, sentiment = row
                 
-                keywords = requests.post('http://localhost:9000/v4/repustatedemopage/keywords.json', 
+                keywords = requests.post('https://api.repustate.com/v4/repustatedemopage/keywords.json', 
                         {'text':text, 'lang':lang}).json()
                 
                 d = Data.objects.create(
