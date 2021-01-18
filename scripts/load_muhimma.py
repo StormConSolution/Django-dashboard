@@ -1,5 +1,6 @@
 import csv
 import datetime
+import random
 from io import StringIO
 
 import requests
@@ -479,7 +480,7 @@ def run():
                         {'text':text, 'lang':lang}).json()
                 
                 d = Data.objects.create(
-                    date_created=datetime.datetime.now(),
+                    date_created=datetime.date(2021, 1, 8) + datetime.timedelta(random.randint(0, 10)),
                     project=proj, 
                     country=country,
                     source=source,
