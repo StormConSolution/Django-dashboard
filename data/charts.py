@@ -56,48 +56,35 @@ class BaseChart:
         """
         raise NotImplementedError
     
-    def data_set(self):
-        data_set = Data.objects.filter(
-            date_created__range=(self.start, self.end),
-            project=self.project
-        )
-
-        if self.entity_filter:
-            data_set = data_set.filter(
-                entities__label=self.entity_filter
-            )
-        
-        if self.aspect_topic:
-            data_set = data_set.filter(
-                aspect__topic=self.aspect_topic
-            )
-        
-        return data_set
-
 
 class EntityTable(BaseChart):
 
     def render_data(self):
-        entity_set = Entity.objects.filter(
-            data__date_created__range=(self.start, self.end),
-            data__project=self.project
-        )
-        if self.entity_filter:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(entities__label=self.entity_filter))
-        if self.aspect_topic:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_name:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(aspect__label=self.aspect_name))
-        if self.lang_filter and self.lang_filter[0]:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
-        if self.source_filter and self.source_filter[0]:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
+        
+        entity_data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end))
 
+        if self.entity_filter:
+            entity_data_set = entity_data_set.filter(
+                entities__label=self.entity_filter)
+
+        if self.aspect_topic:
+            entity_data_set = entity_data_set.filter(
+                aspect__topic=self.aspect_topic)
+        
+        if self.aspect_name:
+            entity_data_set = entity_data_set.filter(
+                aspect__label=self.aspect_name)
+        
+        if self.lang_filter and self.lang_filter[0]:
+            entity_data_set = entity_data_set.filter(
+                language__in=self.lang_filter)
+        
+        if self.source_filter and self.source_filter[0]:
+            entity_data_set = entity_data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
+        
+        entity_set = Entity.objects.filter(data__in=entity_data_set)
         entity_count = entity_set.annotate(
             data_count=models.Count('data')).order_by('-data_count')
         entities = {"data": []}
