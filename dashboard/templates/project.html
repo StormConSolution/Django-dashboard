@@ -205,7 +205,8 @@
                 <!-- Dashboard Analytics Start -->
                 <div class="container mb-3">
                     <div class="row">
-                        <h1>{{ project.name }}</h1>
+						<div class="col-10"><h1>{{ project.name }}</h1></div>
+						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
                     </div>
                 </div>
                 <div class="row ml-3">
