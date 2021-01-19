@@ -74,45 +74,6 @@ class BaseChart:
         
         return data_set
 
-class TopEntityTable(BaseChart):
-
-    def render_data(self):
-        today = datetime.datetime.today()
-        datetime_start = today - datetime.timedelta(days=7)
-        entity_set = Entity.objects.filter(
-            data__date_created__range=(datetime_start, today),
-            data__project=self.project
-        )
-
-        if self.entity_filter:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(entities__label=self.entity_filter))
-        if self.aspect_topic:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_name:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(aspect__label=self.aspect_name))
-        if self.lang_filter and self.lang_filter[0]:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
-        if self.source_filter and self.source_filter[0]:
-            entity_set = entity_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
-
-        entity_count = entity_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')
-        entities = {"data": []}
-
-        for ec in entity_count:
-            entities["data"].append([
-                ec.label,
-                ', '.join(ec.classifications.values_list('label', flat=True)),
-                ec.data_count
-            ])
-        entities['data'] = entities['data'][:5]
-        return entities
-
 
 class EntityTable(BaseChart):
 
@@ -591,7 +552,6 @@ CHART_LOOKUP = {
     'aspect_s': AspectSentimentTable,
     'aspect_t': AspectTimeTable,
     'aspect_table': AspectTopicTable,
-    'top_entity_table': TopEntityTable,
     'entity_table': EntityTable,
     'data_entrytable': DataEntryTable,
     'keywords_table': KeywordsTable,
