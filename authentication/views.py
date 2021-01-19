@@ -22,7 +22,8 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-            user = User.objects.get(email=username)
+
+            user = User.objects.get(username__iexact=username)
             if user:
                 user = authenticate(username=user.username, password=password)
 
