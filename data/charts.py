@@ -199,15 +199,29 @@ class CountriesTable(BaseChart):
                     'backgroundColor': COLORS['positive']}
         negative = {'label': 'negative', 'data': [],
                     'backgroundColor': COLORS['negative']}
+        
+        data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end))
 
+        if self.entity_filter:
+            data_set = data_set.filter(
+                entities__label=self.entity_filter)
+
+        if self.aspect_topic:
+            data_set = data_set.filter(
+                aspect__topic=self.aspect_topic)
+        
+        if self.aspect_name:
+            data_set = data_set.filter(
+                aspect__label=self.aspect_name)
+        
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                language__in=self.lang_filter)
+        
         for country in Country.objects.values_list('label', flat=True):
-            pos_total = data_models.Data.objects.filter(
-                project=self.project,
-                date_created__range=(self.start, self.end), country__label=country, sentiment__gt=0).count()
-
-            neg_total = data_models.Data.objects.filter(
-                project=self.project,
-                date_created__range=(self.start, self.end), country__label=country, sentiment__lt=0).count()
+            pos_total = data_set.filter(country__label=country, sentiment__gt=0).count()
+            neg_total = data_set.filter(country__label=country, sentiment__lt=0).count()
 
             if pos_total or neg_total:
                 result['country_labels'].append(country)
@@ -533,16 +547,36 @@ class SentimentSourceTable(BaseChart):
                     'backgroundColor': COLORS['positive']}
         negative = {'label': 'negative', 'data': [],
                     'backgroundColor': COLORS['negative']}
+        
+        data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end))
 
-        for label in Source.objects.values_list('label', flat=True):
-            pos_total = data_models.Data.objects.filter(
-                project=self.project,
-                date_created__range=(self.start, self.end), source__label=label, sentiment__gt=0).count()
+        if self.entity_filter:
+            data_set = data_set.filter(
+                entities__label=self.entity_filter)
 
-            neg_total = data_models.Data.objects.filter(
-                project=self.project,
-                date_created__range=(self.start, self.end), source__label=label, sentiment__lt=0).count()
-            
+        if self.aspect_topic:
+            data_set = data_set.filter(
+                aspect__topic=self.aspect_topic)
+        
+        if self.aspect_name:
+            data_set = data_set.filter(
+                aspect__label=self.aspect_name)
+        
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                language__in=self.lang_filter)
+        
+        sources = Source.objects.all()
+        if self.source_filter and self.source_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
+            sources = sources.filter(label__in=self.source_filter)
+
+        for label in sources.values_list('label', flat=True):
+            pos_total = data_set.filter(source__label=label, sentiment__gt=0).count()
+            neg_total = data_set.filter(source__label=label, sentiment__lt=0).count()
+
             if pos_total or neg_total:
                 result['source_labels'].append(label)
                 positive['data'].append(pos_total)

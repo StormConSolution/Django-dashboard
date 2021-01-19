@@ -1,4 +1,5 @@
 import datetime
+import time
 import json
 
 from django import template
@@ -114,9 +115,20 @@ def projects(request, project_id):
             request.GET.get('start'), "%Y-%m-%d")
         end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
 
+    chart_data = get_chart_data(
+        this_project,
+        start,
+        end,
+        entity_filter,
+        aspect_topic,
+        aspect_name,
+        lang_filter,
+        source_filter,
+    )
+
     context = {
         'project': this_project,
-        'chart_data': get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter),
+        'chart_data': chart_data,
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
@@ -169,7 +181,7 @@ def projects(request, project_id):
         context['total_positive'] = chart_data['sentiment_f_data'][0]
         context['total_negative'] = chart_data['sentiment_f_data'][1]
 
-    return render(request, "project_new.html", context)
+    return render(request, "project.html", context)
 
 
 def top_entities(request, project_id):
@@ -337,7 +349,7 @@ def create_project(request):
     """
     API endpoint for creating a project. May need some work as we go.
 
-    `project_name`: the name of the Project. If it doesn't exist, create it.
+    `name`: the name of the Project. If it doesn't exist, create it.
     `username`: the user name to add to this project. User is assumed to exist.
     `aspect_model`: the aspect model this project will use.
     """
@@ -360,19 +372,28 @@ def create_project(request):
 @csrf_exempt
 def add_data(request, project_id):
     """
-    Temporary API endpoint for loading data. May need some work as we go.
+    API endpoint for loading data. May need some work as we go.
+    
     Required: 
-    source: where did the text come from, create if doesn't exist
-    text: the text itself
-    lang: language of the text
-    with_entities=0/1: should we extract entities
-    aspect_model: which aspect model, if any, to use
-    date: date this item was created, defaults today
+        text: the text itself
+        source: where did the text come from, create if doesn't exist
+
+    Optional:
+        country: the country this data came from
+        with_entities=0/1: should we extract entities
+        lang: language of the text
+        date: date this item was created, defaults today
     """
-    import time
+    for key in ('text', 'source'):
+        if key not in request.POST:
+            return JsonResponse({
+                "status": "Fail", 
+                "message": "Missing required field `{}`".format(key)
+            })
+    
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
-    
+
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang}).json()
@@ -381,13 +402,13 @@ def add_data(request, project_id):
         else:
             return JsonResponse(resp)
     except Exception as e:
-        return JsonResponse({"status": "FAIL", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
+        return JsonResponse({"status": "Fail", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
+    
+    project = data_models.Project.objects.get(pk=project_id)
 
     source, _ = data_models.Source.objects.get_or_create(
         label=request.POST['source'])
     
-    project = data_models.Project.objects.get(pk=project_id)
-
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
         project=project,
@@ -397,6 +418,12 @@ def add_data(request, project_id):
         language=lang,
     )
     
+    if request.POST.get('country'):
+        country, _ = data_models.Country.objects.get_or_create(
+            label=request.POST['country'])
+        data.country = country
+        data.save()
+
     # Add keywords.
     for keyword, count in resp['keywords'].items():
         kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
