@@ -450,6 +450,8 @@
 														<th>Topic</th>
 														<th>Aspect</th>
 														<th>Frequency</th>
+														<th>Positives</th>
+														<th>Negatives</th>
 													</tr>
 												</thead>
 											</table>
@@ -458,6 +460,32 @@
 								</div>
 							</div>
 						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="aspectModal" class="modal" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+					<h5 id="modal-title" class="modal-title">Aspect topic detailed view</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table class="table" id="modal-table">
+							<thead>
+								<tr>
+									<th>Sentiment Text</th>
+									<th>Chunk</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 					</div>
 				</div>
 			</div>
@@ -558,11 +586,24 @@
             $('#aspect-topics').DataTable( {
              "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
              "order": [[2, "desc"]],
-             "columnDefs": [ {
+             "columnDefs": [ 
+				 {
 				  "render": function ( data, type, row ) {
 					return "<a href='?aspecttopic="+escape(data)+"'>"+data+"</a>";
 				  },
 				  "targets": 0
+				},
+				 {
+				  "render": function ( data, type, row ) {
+					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1)'>View</a>";
+				  },
+				  "targets": 3
+				},
+				 {
+				  "render": function ( data, type, row ) {
+					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1)'>View</a>";
+				  },
+				  "targets": 4
 				}
 			 ]
             });
@@ -602,6 +643,16 @@
              });
                 });
 
+			//  Render a modal showing positive and negative for a particular topic.
+			function aspect_modal(topic, sentiment) {
+				$('#modal-table').DataTable( {
+					 "ajax": "{% url 'aspect-topic-detail' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
+					 "destroy": true
+				})
+
+				$("#modal-title").html("Aspect topic detailed view - "+topic)
+				$('#aspectModal').modal();
+			}
         </script>
     </body>
     <!-- END: Body-->

@@ -215,7 +215,8 @@ class DataEntryTable(BaseChart):
 
         entry_data = {"data": []}
         
-        for entry in entry_data_set.values('date_created', 'text', 'source__label', 'sentiment', 'country__label')[:2000]:
+        for entry in entry_data_set.values('date_created', 'text', 
+                'source__label', 'sentiment', 'country__label')[:4000]:
             entry_data["data"].append([
                 entry['date_created'],
                 entry['text'],

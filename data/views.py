@@ -287,6 +287,29 @@ def aspect_name(request, project_id):
 
     return JsonResponse(table.render_data())
 
+def aspect_topic_detail(request, project_id):
+    """
+    Renders sentiment text for topic specified.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+
+    aspects = data_models.Aspect.objects.filter(
+        data__project=this_project,
+        topic=request.GET.get('topic')
+    )
+
+    if int(request.GET.get('sentiment')) > 0:
+        aspects = aspects.filter(sentiment__gt=0)
+    else:
+        aspects = aspects.filter(sentiment__lt=0)
+
+    data = []
+    for a in aspects.values('sentiment_text', 'chunk'):
+        data.append([
+            a['sentiment_text'], a['chunk']
+        ])
+    
+    return JsonResponse({"data":data})
 
 @csrf_exempt
 def create_project(request):

@@ -18802,3 +18802,8 @@ a.text-dark:focus {
   margin-left: 700px;
 }
 /*# sourceMappingURL=style.css.map */
+
+#languages_ms, #sources_ms {
+	background-color:#1a233a;
+	border-color:#464d5c;
+}
