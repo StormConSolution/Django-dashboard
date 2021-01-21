@@ -102,28 +102,33 @@ class EntityTable(BaseChart):
 class KeywordsTable(BaseChart):
 
     def render_data(self):
-        keyword_set = Keyword.objects.filter(
-            data__date_created__range=(self.start, self.end),
-            data__project=self.project
-        )
-        if self.entity_filter:
-            keyword_set = keyword_set.filter(
-                data__in=Data.objects.filter(entities__label=self.entity_filter))
-        if self.aspect_topic:
-            keyword_set = keyword_set.filter(
-                data__in=Data.objects.filter(aspect__topic=self.aspect_topic))
-        if self.aspect_name:
-            keyword_set = keyword_set.filter(
-                data__in=Data.objects.filter(aspect__label=self.aspect_name))
-        if self.lang_filter and self.lang_filter[0]:
-            keyword_set = keyword_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(language=c)for c in self.lang_filter])))
-        if self.source_filter and self.source_filter[0]:
-            keyword_set = keyword_set.filter(
-                data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
+        
+        data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end))
 
+        if self.entity_filter:
+            data_set = data_set.filter(
+                entities__label=self.entity_filter)
+
+        if self.aspect_topic:
+            data_set = data_set.filter(
+                aspect__topic=self.aspect_topic)
+        
+        if self.aspect_name:
+            data_set = data_set.filter(
+                aspect__label=self.aspect_name)
+        
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                language__in=self.lang_filter)
+        
+        if self.source_filter and self.source_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
+        
+        keyword_set = Keyword.objects.filter(data__in=data_set)
         keyword_count = keyword_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')[:200]
+            data_count=models.Count('data')).order_by('-data_count')[:100]
         
         result = {'keywords': []}
         for ad in keyword_count:
@@ -184,7 +189,7 @@ class CountriesTable(BaseChart):
 class DataEntryTable(BaseChart):
 
     def render_data(self):
-
+        
         entry_data_set = Data.objects.filter(
             project=self.project, date_created__range=(self.start, self.end))
 
@@ -210,7 +215,7 @@ class DataEntryTable(BaseChart):
 
         entry_data = {"data": []}
         
-        for entry in entry_data_set.values('date_created', 'text', 'source__label', 'sentiment', 'country__label')[:1000]:
+        for entry in entry_data_set.values('date_created', 'text', 'source__label', 'sentiment', 'country__label')[:2000]:
             entry_data["data"].append([
                 entry['date_created'],
                 entry['text'],

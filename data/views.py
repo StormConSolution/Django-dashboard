@@ -24,6 +24,46 @@ ASPECT_COLORS = [
     'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown', 'Tomato', 'SeaGreen',
 ]
 
+def collect_args(this_project, request):
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+
+    # getting list of query params
+    lang = request.GET.getlist('filter_language')
+    src = request.GET.getlist('filter_source')
+    # cleaning up the query params
+    if lang:
+        lang_filter = lang[0].split(",")
+    else:
+        lang_filter = lang
+    if src:
+        source_filter = src[0].split(",")
+    else:
+        source_filter = src
+
+    if this_project.data_set.count() > 0:
+        end = this_project.data_set.latest().date_created
+    else:
+        end = datetime.date.today()
+    start = end - datetime.timedelta(days=30)
+
+    if 'start' in request.GET and 'end' in request.GET:
+        start = datetime.datetime.strptime(
+            request.GET.get('start'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
+    
+    return dict(
+        project=this_project,
+        entity_filter=entity_filter,
+        aspect_topic=aspect_topic,
+        aspect_name=aspect_name,
+        lang_filter=lang_filter,
+        source_filter=source_filter,
+        start=start,
+        end=end
+    )
+
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
@@ -193,62 +233,12 @@ def entities(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    start = request.GET.get('start')
-    end = request.GET.get('end')
+    args = collect_args(this_project, request)
 
-    table = charts.EntityTable(
-        this_project, start, end, request.GET.get('entity'), 
-        request.GET.get('aspecttopic'),
-        request.GET.get('aspectname'),
-        request.GET.getlist('filter_language'),
-        request.GET.getlist('filter_source'),
-    )
-    return JsonResponse(table.render_data())
-
-
-def keywords(request, project_id):
-    """
-    Show the frequency of occurence for the keywords for this data set.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-
-    table = charts.KeywordsTable(
-        this_project, start, end, request.GET.get('entity'),
-        request.GET.get('aspecttopic'), 
-        request.GET.get('aspectname'), 
-        request.GET.getlist('filter_language'),
-        request.GET.getlist('filter_source'),
-    )
-    return JsonResponse(table.render_data())
-
-
-def countries(request, project_id):
-    """
-    Show the total postive and negative sentiment for the countries for this data set.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-
-    table = charts.CountriesTable(
-        this_project, start, end, request.GET.get('entity'), 
-        request.GET.get('aspecttopic'), 
-        request.GET.get('aspectname'), 
-        request.GET.getlist('filter_language'), 
-        request.GET.getlist('filter_source'),
-    )
+    table = charts.EntityTable(**args)
     
     return JsonResponse(table.render_data())
+
 
 def data_entries(request, project_id):
     """
@@ -258,20 +248,10 @@ def data_entries(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
-
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-
-    table = charts.DataEntryTable(
-        this_project,
-        start,
-        end,
-        request.GET.get('entity'),
-        request.GET.get('aspecttopic'),
-        request.GET.get('aspectname'),
-        request.GET.getlist('filter_language'),
-        request.GET.getlist('filter_source'),
-    )
+    
+    args = collect_args(this_project, request)
+    
+    table = charts.DataEntryTable(**args)
     
     return JsonResponse(table.render_data())
 
@@ -285,16 +265,9 @@ def aspect_topics(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-
-    table = charts.AspectTopicTable(
-        this_project, start, end, request.GET.get('entity'),
-        request.GET.get('aspecttopic'), 
-        request.GET.get('aspectname'), 
-        request.GET.getlist('filter_language'), 
-        request.GET.getlist('filter_source'),
-    )
+    args = collect_args(this_project, request)
+    
+    table = charts.AspectTopicTable(**args)
 
     return JsonResponse(table.render_data())
 
@@ -308,16 +281,9 @@ def aspect_name(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    start = request.GET.get('start')
-    end = request.GET.get('end')
+    args = collect_args(this_project, request)
 
-    table = charts.AspectNameTable(
-        this_project, start, end, request.GET.get('entity'),
-        request.GET.get('aspecttopic'),
-        request.GET.get('aspectname'),
-        request.GET.getlist('filter_language'),
-        request.GET.getlist('filter_source'),
-    )
+    table = charts.AspectNameTable(**args)
 
     return JsonResponse(table.render_data())
 
