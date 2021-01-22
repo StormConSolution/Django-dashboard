@@ -17,6 +17,8 @@ urlpatterns = [
          views.aspect_topics, name='aspect-topics'),
     path('aspect-topic-detail/<int:project_id>/',
          views.aspect_topic_detail, name='aspect-topic-detail'),
+    path('aspect-topic-summary/<int:project_id>/',
+         views.aspect_topic_summary, name='aspect-topic-summary'),
 
     path('entities/<int:project_id>/', views.entities, name='entities'),
 

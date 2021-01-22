@@ -438,7 +438,7 @@
 						<section class="basic-datatable">
 							<div class="card border-0">
 								<div class="card-header">
-									<h4 class="card-title">Aspects</h4>
+									<h4 class="card-title">Aspect Topic Breakdown</h4>
 								</div>
 								<div class="card-content">
 									<div class="card-body card-dashboard">
@@ -479,7 +479,7 @@
 							<thead>
 								<tr>
 									<th>Sentiment Text</th>
-									<th>Chunk</th>
+									<th>Value</th>
 								</tr>
 							</thead>
 						</table>
@@ -595,13 +595,13 @@
 				},
 				 {
 				  "render": function ( data, type, row ) {
-					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1)'>View</a>";
+					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1,0)'>Details</a> | " + "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1,1)'>Summary</a>";
 				  },
 				  "targets": 3
 				},
 				 {
 				  "render": function ( data, type, row ) {
-					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1)'>View</a>";
+					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1,0)'>Details</a> | " + "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1,1)'>Summary</a>";
 				  },
 				  "targets": 4
 				}
@@ -644,13 +644,23 @@
                 });
 
 			//  Render a modal showing positive and negative for a particular topic.
-			function aspect_modal(topic, sentiment) {
-				$('#modal-table').DataTable( {
-					 "ajax": "{% url 'aspect-topic-detail' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
-					 "destroy": true
-				})
+			function aspect_modal(topic, sentiment, mode) {
+				if (mode == 0) {
+					$('#modal-table').DataTable( {
+						 "ajax": "{% url 'aspect-topic-detail' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
+						 "destroy": true
+					})
 
-				$("#modal-title").html("Aspect topic detailed view - "+topic)
+					$("#modal-title").html("Aspect topic detailed view - "+topic)
+				} else {
+					$('#modal-table').DataTable( {
+						 "ajax": "{% url 'aspect-topic-summary' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
+						 "order": [[1, "desc"]],
+						 "destroy": true
+					})
+
+					$("#modal-title").html("Aspect topic summary view - "+topic)
+				}
 				$('#aspectModal').modal();
 			}
         </script>

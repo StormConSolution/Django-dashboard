@@ -1,11 +1,13 @@
+import collections
 import datetime
-import time
 import json
+import time
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count, Q, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -18,6 +20,8 @@ from data import charts
 from data import serializers
 
 LOGIN_URL = '/login/'
+
+MAX_TEXT_LENGTH = 30
 
 ASPECT_COLORS = [
     'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral', 'DarkOliveGreen',
@@ -293,9 +297,11 @@ def aspect_topic_detail(request, project_id):
     """
     this_project = get_object_or_404(data_models.Project, pk=project_id)
 
+    topic = request.GET.get('topic')
+
     aspects = data_models.Aspect.objects.filter(
         data__project=this_project,
-        topic=request.GET.get('topic')
+        topic=topic
     )
 
     if int(request.GET.get('sentiment')) > 0:
@@ -305,11 +311,39 @@ def aspect_topic_detail(request, project_id):
 
     data = []
     for a in aspects.values('sentiment_text', 'chunk'):
-        data.append([
-            a['sentiment_text'], a['chunk']
-        ])
+        for t in a['sentiment_text']:
+            if t != topic:
+                data.append([
+                    t, a['chunk']
+                ])
     
     return JsonResponse({"data":data})
+
+def aspect_topic_summary(request, project_id):
+    """
+    Renders sentiment text stats for topic specified.
+    """
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+
+    topic = request.GET.get('topic')
+
+    aspects = data_models.Aspect.objects.filter(
+        data__project=this_project,
+        topic=topic
+    )
+
+    if int(request.GET.get('sentiment')) > 0:
+        aspects = aspects.filter(sentiment__gt=0)
+    else:
+        aspects = aspects.filter(sentiment__lt=0)
+    
+    data = collections.defaultdict(int)
+    for a in aspects.values('sentiment_text'):
+        for t in a['sentiment_text']:
+            if t != topic:
+                data[t] += 1
+    
+    return JsonResponse({"data":list(data.items())})
 
 @csrf_exempt
 def create_project(request):
