@@ -465,7 +465,8 @@
 														<th>Date</th>
 														<th>Text</th>
 														<th>Source</th>
-														<th>weighted Score</th>
+														<th>Weighted</th>
+														<th>Raw</th>
 														<th>Location</th>
 													</tr>
 												</thead>
@@ -572,17 +573,21 @@
             
             $('#data-entries').DataTable( {
 				 "ajax": "{% url 'data-entries' project.id %}?{{ query_string }}",
-				 "order": [[2, "desc"]],
-				 "columnDefs": [
-					{
+				 "order": [[0, "desc"]],
+				 "columnDefs": [{
 					  // The `data` parameter refers to the data for the cell (defined by the
 					  // `data` option, which defaults to the column being worked with, in
 					  // this case `data: 0`.
 					  "render": function ( data, type, row ) {
-						return "<a href='?entry="+data+"'>"+data+"</a>";
+						   let obj = JSON.parse(data);
+						   if (obj.url) {
+							   return `<a target="_blank" href="${obj.url}">${obj.text}</a>`;
+						   } else {
+							   return obj.text
+						   }
 					  },
-				  "targets": 0
-				 }
+					  "targets": 1
+					}
 				 ]
             });
             

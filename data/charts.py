@@ -1,15 +1,15 @@
-import datetime
-from django.db import models
-from data import models as data_models
-from django.db.models import Count, Q, F
-from operator import or_
 from functools import reduce
-from django.core.exceptions import ObjectDoesNotExist
-
-
-from data.models import Entity, Data, Aspect, Source, Keyword, Country
-
+from operator import or_
 from operator import itemgetter
+import datetime
+import json
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.db.models import Count, Q, F
+
+from data import models as data_models
+from data.models import Entity, Data, Aspect, Source, Keyword, Country
 
 DEFAULT_COLORS = [
     "rgba(13, 19, 33, 1)",
@@ -216,12 +216,17 @@ class DataEntryTable(BaseChart):
         entry_data = {"data": []}
         
         for entry in entry_data_set.values('date_created', 'text', 
-                'source__label', 'sentiment', 'country__label')[:4000]:
+                'source__label', 'weighted_score', 'url', 'sentiment', 'country__label')[:4000]:
+            
+            # We encode the URL and text in json string and decode it client side.
+            text = {"text": entry["text"], "url": entry["url"]}
+
             entry_data["data"].append([
                 entry['date_created'],
-                entry['text'],
+                json.dumps(text),
                 entry['source__label'],
-                entry['sentiment'], #TODO replace with weighted score
+                round(entry['weighted_score'], 4),
+                round(entry['sentiment'], 4), 
                 entry['country__label'],
             ])
 
