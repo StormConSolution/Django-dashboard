@@ -1,11 +1,6 @@
 # -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from django.urls import path  # add this
-from data import views
-
+from data import api_views as views
 
 urlpatterns = [
     path('source/', views.SourceListAPI.as_view()),

@@ -4,14 +4,14 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from django.urls import path, re_path
-from data import views
+from data import api_views, views
 
 urlpatterns = [
 
     # The home page
     path('', views.index, name='home'),
-    path('create-project/', views.create_project, name='create-project'),
-    path('add-data/<int:project_id>/', views.add_data, name='add-data'),
+    path('create-project/', api_views.create_project, name='create-project'),
+    path('add-data/<int:project_id>/', api_views.add_data, name='add-data'),
     
     path('aspect-topics/<int:project_id>/',
          views.aspect_topics, name='aspect-topics'),

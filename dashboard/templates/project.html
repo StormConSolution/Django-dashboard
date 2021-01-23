@@ -209,6 +209,21 @@
 						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
                     </div>
                 </div>
+				<div class="container">
+					<div class="row">
+						{% for summary in summaries %}
+						<div class="col-3">
+							<div class="card">
+								<div class="card-body">
+									<h5 class="card-title">{{ summary.title }}</h5>
+									<p class="card-text">{{ summary.description }}</p>
+									<a href="#" class="text-white card-link">View Details</a>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
                 <div class="row ml-3">
                     <!-- Website Analytics Starts-->
                     <div class="col-md-6 col-sm-12">

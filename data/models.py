@@ -48,9 +48,9 @@ class AspectModel(models.Model):
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=80, blank=False)
-    users = models.ManyToManyField(User)
-    charts = models.ManyToManyField(ChartType)
-    aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True)
+    users = models.ManyToManyField(User, blank=True)
+    charts = models.ManyToManyField(ChartType, blank=True)
+    aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
