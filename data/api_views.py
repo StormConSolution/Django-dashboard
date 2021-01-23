@@ -115,6 +115,7 @@ def add_data(request, project_id):
         country: the country this data came from
         with_entities=0/1: should we extract entities
         lang: language of the text
+        url: URL of the original data source
         date: date this item was created, defaults today
     """
     for key in ('text', 'source'):
@@ -149,6 +150,7 @@ def add_data(request, project_id):
         text=text,
         sentiment=sentiment,
         language=lang,
+        url=requests.POST.get('url', ''),
     )
     
     if request.POST.get('country'):
