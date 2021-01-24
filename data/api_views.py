@@ -1,3 +1,6 @@
+import datetime
+import json
+
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -161,7 +164,7 @@ def add_data(request, project_id):
         sentiment=sentiment,
         weighted_score=weighted_score,
         language=lang,
-        url=requests.POST.get('url', ''),
+        url=request.POST.get('url', ''),
     )
     
     if request.POST.get('country'):
