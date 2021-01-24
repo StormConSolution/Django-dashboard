@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.http import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
@@ -10,6 +11,7 @@ import requests
 from .permissions import IsAllowedAccessToData
 import data.models as data_models
 from data import serializers
+from data import weighted
 
 class DataViewSet(viewsets.ModelViewSet):
     queryset = data_models.Data.objects.all()
@@ -117,6 +119,9 @@ def add_data(request, project_id):
         lang: language of the text
         url: URL of the original data source
         date: date this item was created, defaults today
+        weight_type: the weighting formula to use
+        weight_args: the arguments to supply to the weighting formula, varies
+            based on weight_type. Supplied as a JSON string.
     """
     for key in ('text', 'source'):
         if key not in request.POST:
@@ -142,6 +147,12 @@ def add_data(request, project_id):
 
     source, _ = data_models.Source.objects.get_or_create(
         label=request.POST['source'])
+
+    weight_type = request.POST.get('weight_type', '')
+    weight_args = json.loads(request.POST.get('weight_args', '{}'))
+    weight_args['raw_score'] = sentiment
+
+    weighted_score = weighted.calculate(**weighted_score)
     
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
@@ -149,6 +160,7 @@ def add_data(request, project_id):
         source=source,
         text=text,
         sentiment=sentiment,
+        weighted_score=weighted_score,
         language=lang,
         url=requests.POST.get('url', ''),
     )
