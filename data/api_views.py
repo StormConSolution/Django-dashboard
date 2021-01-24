@@ -148,11 +148,9 @@ def add_data(request, project_id):
     source, _ = data_models.Source.objects.get_or_create(
         label=request.POST['source'])
 
-    weight_type = request.POST.get('weight_type', '')
     weight_args = json.loads(request.POST.get('weight_args', '{}'))
     weight_args['raw_score'] = sentiment
-
-    weighted_score = weighted.calculate(**weighted_score)
+    weighted_score = weighted.calculate(**weight_args)
     
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),

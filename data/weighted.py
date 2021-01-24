@@ -5,19 +5,19 @@ AVG_WEIGHT = 50.0
 
 MAX_SCORE = 100.0
 
-def media(raw_score, alexa):
-    if alexa < 100:
+def media(source, raw_score, alexa_rank):
+    if alexa_rank < 100:
         return MAX_SCORE * raw_score
-    elif alexa < 1000:
+    elif alexa_rank < 1000:
         return 0.6 * MAX_SCORE * raw_score
-    elif alexa < 10000:
+    elif alexa_rank < 10000:
         return 0.4 * MAX_SCORE * raw_score
-    elif alexa < 1000000:
+    elif alexa_rank < 1000000:
         return 0.2 * MAX_SCORE * raw_score
     else:
         return 0.1 * MAX_SCORE * raw_score
 
-def youtube(raw_score, comments, subscribers, views):
+def youtube(source, raw_score, comments, subscribers, views):
     if comments < 10:
         comments_score = 0
     elif comments < 1000:
@@ -81,23 +81,24 @@ def reviews(raw_score, comments, stars):
 
     return ((stars * 5) + comments_score) * raw_score
 
-def default(raw_score):
-    return 0.3 * MAX_SCORE * AVG_WEIGHT
+def default():
+    return 0.5 * AVG_WEIGHT
 
-def calculate(source, raw_score, *args):
+def calculate(**kwargs):
+    source = kwargs.get('source')
     if source == 'media':
-        return media(raw_score, *args)
+        return media(**kwargs)
     elif source == 'youtube':
-        return youtube(raw_score, *args)
+        return youtube(**kwargs)
     elif source == 'youku':
-        return youku(raw_score, *args)
+        return youku(**kwargs)
     elif source == 'rolexforums':
-        return rolexforums(raw_score, *args)
+        return rolexforums(**kwargs)
     elif source == 'xbiao':
-        return xbiao(raw_score, *args)
+        return xbiao(**kwargs)
     elif source == 'reviews':
-        return reviews(raw_score, *args)
+        return reviews(**kwargs)
     elif source == 'twitter':
-        return twitter(raw_score, *args)
+        return twitter(**kwargs)
     else:
-        return default(raw_score)
+        return default()
