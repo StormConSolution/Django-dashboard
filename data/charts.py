@@ -318,7 +318,6 @@ class SentimenFrequencyTable(BaseChart):
 
         if self.entity_filter:
             data_set = data_set.filter(entities__label=self.entity_filter)
-
         if self.aspect_topic:
             data_set = data_set.filter(aspect__topic=self.aspect_topic)
         if self.aspect_name:
