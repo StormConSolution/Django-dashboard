@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
