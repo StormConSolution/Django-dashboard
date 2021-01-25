@@ -49,29 +49,29 @@ def youtube(source, raw_score, comments, subscribers, views):
 
     return (comments_score + subscribers_score + views_score) * raw_score
 
-def youku(raw_score, comments):
+def youku(source, raw_score, comments):
     if comments > 5:
         return 0.7 * MAX_SCORE * raw_score
     else:
         return 0.3 * MAX_SCORE * raw_score
 
-def rolexforums(raw_score, comments):
+def rolexforums(source, raw_score, comments):
     if comments < 10:
         return 10 * raw_score
     else:
         return 30 * raw_score
 
-def xbiao(raw_score, comments):
+def xbiao(source, raw_score, comments):
     if comments < 10:
         return 10 * raw_score
     else:
         return 30 * raw_score
 
-def twitter(raw_score, retweets, followers):
+def twitter(source, raw_score, retweets, followers):
     # NOTE for now until we add Twitter
     return default(raw_score)
 
-def reviews(raw_score, comments, stars):
+def reviews(source, raw_score, comments, stars):
     if comments < 10:
         comments_score = comments
     elif comments < 50:
