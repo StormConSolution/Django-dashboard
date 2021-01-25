@@ -58,9 +58,10 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
-    list_filter = ('project', 'source',)
+    list_filter = ('project', 'source', 'language')
+    raw_id_fields = ('project',)
     search_fields = ('text',)
-    readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source',)
+    readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source', 'country', 'keywords',)
     date_hierarchy = 'date_created'
 
 
