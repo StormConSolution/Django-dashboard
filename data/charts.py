@@ -558,6 +558,8 @@ class SentimentSourceTable(BaseChart):
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
             sources = sources.filter(label__in=self.source_filter)
 
+        sources = sources.annotate(data_count=Count('data')).order_by('-data_count')[:10]
+
         for label in sources.values_list('label', flat=True):
             pos_total = data_set.filter(source__label=label, sentiment__gt=0).count()
             neg_total = data_set.filter(source__label=label, sentiment__lt=0).count()
