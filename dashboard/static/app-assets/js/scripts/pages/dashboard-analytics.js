@@ -636,6 +636,7 @@ $(window).on("load", function () {
 			  }
 		  }
         },
+	    colors: ['#546E7A', '#E91E63'],
         fill: {
           opacity: 1
         },
