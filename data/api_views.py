@@ -123,7 +123,6 @@ def add_data(request, project_id):
         lang: language of the text
         url: URL of the original data source
         date: date this item was created, defaults today
-        weight_type: the weighting formula to use
         weight_args: the arguments to supply to the weighting formula, varies
             based on weight_type. Supplied as a JSON string.
     """

@@ -115,7 +115,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
         data = instance.render_data()
         for key, value in data.items():
             result[key] = value
-
+    
     return json.dumps(result, sort_keys=True, default=default_encoder)
 
 

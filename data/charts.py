@@ -458,6 +458,25 @@ class AspectFrequencyTable(BaseChart):
         return {'aspect_f_data': aspect_f_data}
 
 
+class DataBySourceTable(BaseChart):
+    
+    def render_data(self):
+        
+        source_set = Source.objects.filter(
+            data__project=self.project, data__date_created__range=(self.start, self.end))
+        
+        source_set = source_set.annotate(data__count=Count('data')).order_by('-data__count')
+        
+        source_by_count = {
+            'series':[],
+            'labels':[]
+        }
+        for s in source_set.values('label', 'data__count')[:10]:
+            source_by_count['series'].append(s['data__count'])
+            source_by_count['labels'].append(s['label'])
+
+        return {'source_by_count': source_by_count}
+
 class AspectTimeTable(BaseChart):
 
     def render_data(self):
@@ -556,4 +575,5 @@ CHART_LOOKUP = {
     'sentiment_source': SentimentSourceTable,
     'sentiment_t': SentimentTimeTable,
     'countries_t': CountriesTable,
+    'data_source_table': DataBySourceTable,
 }

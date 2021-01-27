@@ -305,55 +305,6 @@ $(window).on("load", function () {
 
   analyticsBarChart.render();
 
-  // Success Line Chart
-  // -----------------------------
-  var successLineChartOption = {
-    chart: {
-      height: 100,
-      type: "line",
-      toolbar: {
-        show: false,
-      },
-    },
-    grid: {
-      show: false,
-      padding: {
-        bottom: -20,
-      },
-    },
-    colors: [$success],
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 3,
-      curve: "smooth",
-    },
-    series: [
-      {
-        data: [50, 0, 50, 40, 90, 0, 40, 25, 80, 40, 45],
-      },
-    ],
-    xaxis: {
-      show: false,
-      labels: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-    },
-    yaxis: {
-      show: false,
-    },
-  };
-
-  var successLineChart = new ApexCharts(
-    document.querySelector("#success-line-chart"),
-    successLineChartOption
-  );
-  // successLineChart.render();
-
   //treemap chart for source data
   //------------------------
   var entry_data = [];
@@ -647,187 +598,64 @@ $(window).on("load", function () {
 
     donut_chart.render();
   });
-
-  // Primary Line Chart
-  // -----------------------------
-  var primaryLineChartOption = {
-    chart: {
-      height: 40,
-      // width: 180,
-      type: "line",
-      toolbar: {
-        show: false,
-      },
-      sparkline: {
-        enabled: true,
-      },
-    },
-    grid: {
-      show: false,
-      padding: {
-        bottom: 5,
-        top: 5,
-        left: 10,
-        right: 0,
-      },
-    },
-    colors: [$primary],
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 3,
-      curve: "smooth",
-    },
-    series: [
-      {
-        data: [50, 100, 0, 60, 20, 30],
-      },
-    ],
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "dark",
-        type: "horizontal",
-        gradientToColors: [$primary],
-        opacityFrom: 0,
-        opacityTo: 0.9,
-        stops: [0, 30, 70, 100],
-      },
-    },
-    xaxis: {
-      show: false,
-      labels: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-    },
-    yaxis: {
-      show: false,
-    },
-  };
-
-  var primaryLineChart = new ApexCharts(
-    document.querySelector("#primary-line-chart"),
-    primaryLineChartOption
-  );
-  // primaryLineChart.render();
-
-  // Warning Line Chart
-  // -----------------------------
-  var warningLineChartOption = {
-    chart: {
-      height: 40,
-      // width: 90,
-      type: "line",
-      toolbar: {
-        show: false,
-      },
-      sparkline: {
-        enabled: true,
-      },
-    },
-    grid: {
-      show: false,
-      padding: {
-        bottom: 5,
-        top: 5,
-        left: 10,
-        right: 0,
-      },
-    },
-    colors: [$warning],
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 3,
-      curve: "smooth",
-    },
-    series: [
-      {
-        data: [30, 60, 30, 80, 20, 70],
-      },
-    ],
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "dark",
-        type: "horizontal",
-        gradientToColors: [$warning],
-        opacityFrom: 0,
-        opacityTo: 0.9,
-        stops: [0, 30, 70, 100],
-      },
-    },
-    xaxis: {
-      show: false,
-      labels: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-    },
-    yaxis: {
-      show: false,
-    },
-  };
-
-  var warningLineChart = new ApexCharts(
-    document.querySelector("#warning-line-chart"),
-    warningLineChartOption
-  );
-  // warningLineChart.render();
-
-  // Profit Primary Chart
-  // --------------------------------
-  var profitPrimaryOptions = {
-    chart: {
-      height: 40,
-      width: 40,
-      type: "radialBar",
-      sparkline: {
-        show: true,
-      },
-    },
-    grid: {
-      show: false,
-      padding: {
-        left: -30,
-        right: -30,
-        top: 0,
-        bottom: -70,
-      },
-    },
-    series: [50],
-    colors: [$primary],
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          size: "30%",
+	
+	  var sourceOptions = {
+          series: [{
+			  name: 'Data',
+			  data: project_data.source_by_count.series
+			}
+		  ],
+          chart: {
+          type: 'bar',
+          height: 480
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%'
+          },
         },
         dataLabels: {
-          showOn: "always",
-          name: {
-            show: false,
-          },
-          value: {
-            show: false,
-          },
+          enabled: true
         },
-      },
-    },
-    stroke: {
-      lineCap: "round",
-    },
-  };
-  var profitPrimaryChart = new ApexCharts(
-    document.querySelector("#profit-primary-chart"),
-    profitPrimaryOptions
-  );
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+        },
+        xaxis: {
+          categories: project_data.source_by_count.labels,
+		  labels: {
+			  style: {
+				  colors: new Array(project_data.source_by_count.labels.length).fill('#ffffff')
+			  }
+		  }
+        },
+        fill: {
+          opacity: 1
+        },
+		yaxis: {
+		  floating: true,
+		  axisTicks: {
+			show: false
+		  },
+		  axisBorder: {
+			show: false
+		  },
+		  labels: {
+			show: false
+		  },
+		}, 
+		tooltip: {
+			enabled:false
+		}
+	};
 
-  // profitPrimaryChart.render();
+	// Render a chart for source volume.
+	var sourceByVolumeChart = new ApexCharts(
+		document.querySelector('#source-volume'),
+		sourceOptions
+	);
+	sourceByVolumeChart.render();
+
 });
