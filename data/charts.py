@@ -469,12 +469,20 @@ class DataBySourceTable(BaseChart):
         
         source_by_count = {
             'series':[],
-            'labels':[]
+            'labels':[],
         }
+        
+        total = 0
+        
+        for s in source_set.values('data__count'):
+            total += s['data__count']
+        
+        source_by_count['total'] = total
+
         for s in source_set.values('label', 'data__count')[:10]:
             source_by_count['series'].append(s['data__count'])
             source_by_count['labels'].append(s['label'])
-
+        
         return {'source_by_count': source_by_count}
 
 class AspectTimeTable(BaseChart):

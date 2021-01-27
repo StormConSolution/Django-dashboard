@@ -616,7 +616,12 @@ $(window).on("load", function () {
           },
         },
         dataLabels: {
-          enabled: true
+          enabled: true,
+			formatter: function(val, opts) {
+				// Calculate the percent.
+				let percent = ((val / project_data.source_by_count.total) * 100).toFixed(2);
+				return `${val} (${percent}%)`;
+			}
         },
         stroke: {
           show: true,
