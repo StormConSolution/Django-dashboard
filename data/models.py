@@ -57,6 +57,7 @@ class Project(models.Model):
 
     class Meta:
         get_latest_by = 'date_created'
+        ordering = ('name',)
 
     def show_entities(self):
         return self.charts.filter(label='entity_table').count() > 0
@@ -125,7 +126,7 @@ class Country(models.Model):
 
 
 class Data(models.Model):
-    date_created = models.DateField()
+    date_created = models.DateField(db_index=True)
     url = models.URLField(blank=True, null=True, db_index=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     keywords = models.ManyToManyField(Keyword)

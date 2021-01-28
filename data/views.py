@@ -107,13 +107,30 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
         "colors": charts.COLORS["contrasts"],
     }
 
-    for chart in data_models.ChartType.objects.all():
-        if chart.load_async:
-            continue
-        instance = charts.CHART_LOOKUP[chart.label](
-            this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter)
-        data = instance.render_data()
-        for key, value in data.items():
+    for chart_class in (
+        charts.AspectFrequencyTable,
+        charts.AspectSentimentTable,
+        charts.AspectTimeTable,
+        charts.AspectTopicTable,
+        charts.EntityTable,
+        charts.DataEntryTable,
+        charts.SentimenFrequencyTable,
+        charts.SentimentTimeTable,
+        charts.DataBySourceTable,):
+
+        instance = chart_class(
+            this_project,
+            start,
+            end,
+            entity_filter,
+            aspect_topic,
+            aspect_name,
+            lang_filter,
+            source_filter
+        )
+        
+        chart_data = instance.render_data()
+        for key, value in chart_data.items():
             result[key] = value
     
     return json.dumps(result, sort_keys=True, default=default_encoder)

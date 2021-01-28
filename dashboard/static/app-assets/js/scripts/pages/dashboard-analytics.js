@@ -305,152 +305,6 @@ $(window).on("load", function () {
 
   analyticsBarChart.render();
 
-  //treemap chart for source data
-  //------------------------
-  var entry_data = [];
-  function entry() {
-    var i, j;
-    var y = 0;
-    for (i = 0; i < project_data.source_labels.length; i++) {
-      for (j = 0; j < 2; j++) {
-        entry_data.push({
-          x: project_data.source_labels[i],
-          y:
-            project_data.source_datasets[j]["label"] == "negative"
-              ? 0 - parseInt(project_data.source_datasets[j]["data"][i])
-              : project_data.source_datasets[j]["data"][i],
-        });
-      }
-    }
-  }
-  entry();
-  var treemapoptions = {
-    series: [
-      {
-        data: entry_data,
-      },
-    ],
-    legend: {
-      show: false,
-    },
-    chart: {
-      height: 350,
-      type: "treemap",
-    },
-
-    dataLabels: {
-      enabled: true,
-      style: {
-        fontSize: "26px",
-      },
-      formatter: function (text, op) {
-        return [text, op.value];
-      },
-      offsetY: -4,
-    },
-    plotOptions: {
-      treemap: {
-        enableShades: false,
-        shadeIntensity: 0.5,
-        reverseNegativeShade: true,
-        colorScale: {
-          ranges: [
-            {
-              from: -1000000,
-              to: 0,
-              color: $negative,
-            },
-            {
-              from: 0,
-              to: 1000000,
-              color: $positive,
-            },
-          ],
-        },
-      },
-    },
-  };
-
-  var Treechart = new ApexCharts(
-    document.querySelector("#treemap-chart"),
-    treemapoptions
-  );
-  Treechart.render();
-
-  //-----------
-
-  //treemap chart for country based data
-  //-------------------------
-  var country_data = [];
-  function country() {
-    var i, j;
-    var y = 0;
-    for (i = 0; i < project_data?.country_labels?.length; i++) {
-      for (j = 0; j < 2; j++) {
-        country_data.push({
-          x: project_data.country_labels[i],
-          y:
-            project_data.country_datasets[j]["label"] == "negative"
-              ? 0 - parseInt(project_data.country_datasets[j]["data"][i])
-              : project_data.country_datasets[j]["data"][i],
-        });
-      }
-    }
-  }
-  country();
-  var treemapGeooptions = {
-    series: [
-      {
-        data: country_data,
-      },
-    ],
-    legend: {
-      show: false,
-    },
-    chart: {
-      height: 350,
-      type: "treemap",
-    },
-
-    dataLabels: {
-      enabled: true,
-      style: {
-        fontSize: "26px",
-      },
-      formatter: function (text, op) {
-        return [text, op.value];
-      },
-      offsetY: -4,
-    },
-    plotOptions: {
-      treemap: {
-        enableShades: false,
-        shadeIntensity: 0.5,
-        reverseNegativeShade: true,
-        colorScale: {
-          ranges: [
-            {
-              from: -1000000,
-              to: 0,
-              color: $negative,
-            },
-            {
-              from: 0,
-              to: 1000000,
-              color: $positive,
-            },
-          ],
-        },
-      },
-    },
-  };
-
-  var GeoTreechart = new ApexCharts(
-    document.querySelector("#treemapGeo-chart"),
-    treemapGeooptions
-  );
-  GeoTreechart.render();
-
   //-----------
 
   // Donut Chart
@@ -652,6 +506,9 @@ $(window).on("load", function () {
 			show: false
 		  },
 		}, 
+		grid: {
+			show:false
+		},
 		tooltip: {
 			enabled:false
 		}

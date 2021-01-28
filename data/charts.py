@@ -86,13 +86,13 @@ class EntityTable(BaseChart):
         
         entity_set = Entity.objects.filter(data__in=entity_data_set)
         entity_count = entity_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')
+            data_count=models.Count('data')).prefetch_related('classifications').order_by('-data_count')[:500]
         entities = {"data": []}
 
         for ec in entity_count:
             entities["data"].append([
                 ec.label,
-                ', '.join(ec.classifications.values_list('label', flat=True)),
+                ', '.join([str(c) for c in ec.classifications.all()]),
                 ec.data_count
             ])
 
@@ -102,9 +102,6 @@ class EntityTable(BaseChart):
 class KeywordsTable(BaseChart):
 
     def render_data(self):
-        
-        # TODO
-        return {}
 
         data_set = Data.objects.filter(
             project=self.project, date_created__range=(self.start, self.end))
@@ -219,10 +216,10 @@ class DataEntryTable(BaseChart):
         entry_data = {"data": []}
         
         for entry in entry_data_set.values('date_created', 'text', 
-                'source__label', 'weighted_score', 'url', 'sentiment', 'country__label')[:4000]:
+                'source__label', 'weighted_score', 'url', 'sentiment', 'country__label')[:1000]:
             
             # We encode the URL and text in json string and decode it client side.
-            text = {"text": entry["text"], "url": entry["url"]}
+            text = {"text": entry["text"][:300], "url": entry["url"]}
 
             entry_data["data"].append([
                 entry['date_created'],
@@ -383,9 +380,6 @@ class SentimentTimeTable(BaseChart):
 class AspectSentimentTable(BaseChart):
 
     def render_data(self):
-        
-        # TODO
-        return {}
 
         aspect_data_set = Aspect.objects.filter(
             data__project=self.project,
@@ -430,9 +424,6 @@ class AspectFrequencyTable(BaseChart):
 
     def render_data(self):
         
-        # TODO
-        return {}
-
         aspect_data_set = data_models.Aspect.objects.filter(
             data__project=self.project,
             data__date_created__range=(self.start, self.end)
@@ -497,8 +488,6 @@ class DataBySourceTable(BaseChart):
 class AspectTimeTable(BaseChart):
 
     def render_data(self):
-
-        return {}
 
         aspect_data_set = data_models.Aspect.objects.filter(
             data__project=self.project,
