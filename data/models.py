@@ -126,7 +126,7 @@ class Country(models.Model):
 
 class Data(models.Model):
     date_created = models.DateField()
-    url = models.URLField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True, db_index=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     keywords = models.ManyToManyField(Keyword)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
