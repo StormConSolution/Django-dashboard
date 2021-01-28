@@ -208,7 +208,7 @@
                     <div class="row">
 						<div class="col-10">
 							<h1>{{ project.name }} 
-								<small style="font-size:18px;" class="text-muted">(<a title="View all" class="text-white" href="{{ view_all_link }}">{{ total|intcomma }} data points in total)</a></small>
+								<small style="font-size:18px;" class="text-muted">({{ total|intcomma }} data points in total)</small>
 							</h1>
 						</div>
 						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
@@ -493,9 +493,6 @@
             crossorigin="anonymous"></script> 
         <!-- BEGIN: Vendor JS-->
         <script src="/static/app-assets/vendors/js/vendors.min.js"></script>
-        <script src="/static/app-assets/fonts/LivIconsEvo/js/LivIconsEvo.tools.js"></script>
-        <script src="/static/app-assets/fonts/LivIconsEvo/js/LivIconsEvo.defaults.js"></script>
-        <script src="/static/app-assets/fonts/LivIconsEvo/js/LivIconsEvo.min.js"></script>
         <!-- BEGIN Vendor JS-->
         <!-- BEGIN: Page Vendor JS-->
         <script src="/static/app-assets/vendors/js/ui/jquery.sticky.js"></script>
@@ -624,14 +621,17 @@
             <!-- date-range widget function-->
             $('input[name="daterange"]').daterangepicker({
              opens: 'left',
+			 maxSpan: {
+				 "days":120
+			 },
              startDate:'{{ start_date |date:"m-d-Y" }}',
              endDate:'{{ end_date |date:"m-d-Y" }}',
              }, function(start, end, label) {
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('start', start.format('YYYY-MM-DD'));
-            urlParams.set('end', end.format('YYYY-MM-DD'));
-            window.location.href = window.location.origin + window.location.pathname + '?' + urlParams.toString();
-             });
+				const urlParams = new URLSearchParams(window.location.search);
+				urlParams.set('start', start.format('YYYY-MM-DD'));
+				urlParams.set('end', end.format('YYYY-MM-DD'));
+				window.location.href = window.location.origin + window.location.pathname + '?' + urlParams.toString();
+				 });
                 });
 
 			//  Render a modal showing positive and negative for a particular topic.

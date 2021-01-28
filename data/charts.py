@@ -516,7 +516,7 @@ class AspectTimeTable(BaseChart):
 
         for aspect in result["aspect_t_labels"]:
             result["aspects"][aspect] = list(aspect_data_set.filter(label=aspect).values("label").annotate(
-                Count('label')).annotate(data__date_created=F("data__date_created")).order_by("data__date_created"))
+                Count('label')))
 
         return result
 

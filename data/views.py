@@ -180,22 +180,11 @@ def projects(request, project_id):
         source_filter,
     )
     
-    # Give them a link to see all results.
-    latest = this_project.data_set.latest()
-    earliest = this_project.data_set.earliest()
-
-    view_all_link = '{}?start={}&end={}'.format(
-        reverse('projects', kwargs={'project_id':project_id}),
-        earliest.date_created.strftime('%Y-%m-%d'),
-        latest.date_created.strftime('%Y-%m-%d')
-    )
-
     context = {
         'project': this_project,
         'total':this_project.data_set.count(),
         'chart_data': chart_data,
         'query_string': request.GET.urlencode(),
-        'view_all_link':view_all_link,
         'start_date': start,
         'end_date': end,
         'sources': data_models.Source.objects.filter(data__project=this_project).distinct()
