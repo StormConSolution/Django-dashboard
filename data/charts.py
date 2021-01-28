@@ -103,6 +103,9 @@ class KeywordsTable(BaseChart):
 
     def render_data(self):
         
+        # TODO
+        return {}
+
         data_set = Data.objects.filter(
             project=self.project, date_created__range=(self.start, self.end))
 
@@ -380,6 +383,9 @@ class SentimentTimeTable(BaseChart):
 class AspectSentimentTable(BaseChart):
 
     def render_data(self):
+        
+        # TODO
+        return {}
 
         aspect_data_set = Aspect.objects.filter(
             data__project=self.project,
@@ -423,6 +429,9 @@ class AspectSentimentTable(BaseChart):
 class AspectFrequencyTable(BaseChart):
 
     def render_data(self):
+        
+        # TODO
+        return {}
 
         aspect_data_set = data_models.Aspect.objects.filter(
             data__project=self.project,
@@ -465,7 +474,7 @@ class DataBySourceTable(BaseChart):
         source_set = Source.objects.filter(
             data__project=self.project, data__date_created__range=(self.start, self.end))
         
-        source_set = source_set.annotate(data__count=Count('data')).order_by('-data__count')
+        source_set = source_set.annotate(data__count=Count('data'))
         
         source_by_count = {
             'series':[],
@@ -488,6 +497,9 @@ class DataBySourceTable(BaseChart):
 class AspectTimeTable(BaseChart):
 
     def render_data(self):
+
+        return {}
+
         aspect_data_set = data_models.Aspect.objects.filter(
             data__project=self.project,
             data__date_created__range=(self.start, self.end)
@@ -558,7 +570,7 @@ class SentimentSourceTable(BaseChart):
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
             sources = sources.filter(label__in=self.source_filter)
 
-        sources = sources.annotate(data_count=Count('data')).order_by('-data_count')[:10]
+        sources = sources.annotate(data_count=Count('data'))
 
         for label in sources.values_list('label', flat=True):
             pos_total = data_set.filter(source__label=label, sentiment__gt=0).count()

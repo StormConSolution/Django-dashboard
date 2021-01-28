@@ -2,11 +2,13 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+import debug_toolbar
 
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from data import api_views, views
 
 urlpatterns = [
+    path('__debug__/', include(debug_toolbar.urls)),
 
     # The home page
     path('', views.index, name='home'),

@@ -144,10 +144,7 @@ def projects(request, project_id):
     else:
         source_filter = src
 
-    if this_project.data_set.count() > 0:
-        end = this_project.data_set.latest().date_created
-    else:
-        end = datetime.date.today()
+    end = this_project.data_set.latest().date_created
     start = end - datetime.timedelta(days=30)
 
     if 'start' in request.GET and 'end' in request.GET:
