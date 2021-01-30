@@ -105,6 +105,8 @@ class Source(models.Model):
     def __str__(self):
         return self.label
 
+    class Meta:
+        ordering = ('label',)
 
 class Keyword(models.Model):
     label = models.CharField(
@@ -120,6 +122,7 @@ class Country(models.Model):
 
     class Meta:
         verbose_name_plural = 'Countries'
+        ordering = ('label',)
 
     def __str__(self):
         return self.label
