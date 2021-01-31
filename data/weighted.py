@@ -17,24 +17,13 @@ def media(source, raw_score, alexa_rank):
     else:
         return 0.1 * MAX_SCORE * raw_score
 
-def youtube(source, raw_score, comments, subscribers, views):
+def youtube(source, raw_score, comments, views):
     if comments < 10:
-        comments_score = 0
-    elif comments < 1000:
         comments_score = 10
+    elif comments < 1000:
+        comments_score = 30
     else:
-        comments_score = 20
-    
-    if subscribers < 1000:
-        subscribers_score = 0
-    elif subscribers < 10000:
-        subscribers_score = 5
-    elif subscribers < 100000:
-        subscribers_score = 15
-    elif subscribers < 1000000:
-        subscribers_score = 20
-    else:
-        subscribers_score = 30
+        comments_score = 40
     
     if views < 1000:
         views_score = 0
@@ -47,7 +36,7 @@ def youtube(source, raw_score, comments, subscribers, views):
     else:
         views_score = 50
 
-    return (comments_score + subscribers_score + views_score) * raw_score
+    return (comments_score + views_score) * raw_score
 
 def youku(source, raw_score, comments):
     if comments > 5:
