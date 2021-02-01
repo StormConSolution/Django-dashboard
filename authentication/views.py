@@ -17,28 +17,20 @@ def login_view(request):
 
     msg = None
 
-    if request.method == "POST":
-
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-
+    if request.method == "POST" and form.is_valid():
+        username = form.cleaned_data.get("username")
+        password = form.cleaned_data.get("password")
+            
+        try:
             user = User.objects.get(username__iexact=username)
-            if user:
-                user = authenticate(username=user.username, password=password)
-
-                if user is not None:
-                    login(request, user)
-                    if user.is_staff:
-                        return redirect('/admin/')
-                    else:
-                        return redirect('/')
-                else:
-                    msg = 'Invalid credentials'
+            user = authenticate(username=user.username, password=password)
+            login(request, user)
+            if user.is_staff:
+                return redirect('/admin/')
             else:
-                msg = 'Invalid credentials'
-        else:
-            msg = 'Error validating the form'
+                return redirect('/')
+        except User.DoesNotExist as e:
+            msg = 'Invalid credentials'
 
     return render(request, "accounts/login.html", {"form": form, "msg": msg})
 
