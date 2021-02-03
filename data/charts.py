@@ -6,6 +6,7 @@ import json
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db import connection
 from django.db.models import Count, Q, F
 
 from data import models as data_models
@@ -229,7 +230,6 @@ class AspectTopicTable(BaseChart):
 
         return aspects
 
-
 class AspectNameTable(BaseChart):
 
     def render_data(self):
@@ -341,53 +341,12 @@ class SentimentTimeTable(BaseChart):
 
         return result
 
-
-class AspectFrequencyTable(BaseChart):
-
-    def render_data(self):
-        
-        aspect_data_set = data_models.Aspect.objects.filter(
-            data__project=self.project,
-            data__date_created__range=(self.start, self.end)
-        )
-
-        if self.entity_filter:
-            aspect_data_set = aspect_data_set.filter(
-                data__entities__label=self.entity_filter)
-        if self.aspect_topic:
-            aspect_data_set = aspect_data_set.filter(
-                topic=self.aspect_topic)
-        if self.aspect_name:
-            aspect_data_set = aspect_data_set.filter(label=self.aspect_name)
-        if self.lang_filter and self.lang_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
-        if self.source_filter and self.source_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
-
-        aspect_f = aspect_data_set.values('label').annotate(
-            Count('label')).order_by('label')
-        aspect_f_data = []
-
-        for i, aspect in enumerate(list(aspect_f)):
-            color = COLORS['contrasts'][i % (len(COLORS['contrasts'])-1)]
-            aspect_f_data.append({'label': aspect['label'], 'data': [
-                                 aspect['label__count']], "backgroundColor": color, "borderColor": color})
-        aspect_f_data = sorted(
-            aspect_f_data, key=itemgetter('data'), reverse=True)
-
-        return {'aspect_f_data': aspect_f_data}
-
-
 class DataBySourceTable(BaseChart):
+    """
+    Compute our volume by source stats.
+    """
     
     def render_data(self):
-        
-        source_set = Source.objects.filter(
-            data__project=self.project, data__date_created__range=(self.start, self.end))
-        
-        source_set = source_set.annotate(data__count=Count('data'))
         
         source_by_count = {
             'series':[],
@@ -396,112 +355,61 @@ class DataBySourceTable(BaseChart):
         
         total = 0
         
-        for s in source_set.values('data__count'):
-            total += s['data__count']
+        SOURCE_QUERY = """
+        SELECT 
+            REPLACE(data_source.label, 'www.', ''),
+            COUNT(data_data.source_id)
+        FROM 
+            data_source, data_data
+        WHERE 
+            %s
+        GROUP BY label
+        ORDER BY COUNT(data_data.source_id) DESC
+        LIMIT 15
+        """
+
+        where_clause = [
+            'data_source.id = data_data.source_id',
+            'data_data.project_id = %s',
+            'date_created between %s AND %s',
+        ]
+        query_args = [self.project.id, self.start, self.end]
+
+        if self.lang_filter:
+            lang_string = len(self.lang_filter) * '%s,'
+            where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
+            query_args.extend(self.lang_filter)
+        
+        if self.source_filter:
+            source_string = len(self.source_filter) * '%s,'
+            where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+            query_args.extend(self.source_filter)
+        
+        if self.aspect_topic:
+            where_clause.append('data_aspect.topic = %s')
+            query_args.append(self.aspect_topic)
+        
+        if self.aspect_name:
+            where_clause.append('data_aspect.label = %s')
+            query_args.append(self.aspect_name)
+
+        total = 0
+        with connection.cursor() as cursor:
+            cursor.execute(SOURCE_QUERY % ' AND '.join(where_clause), query_args)
+            for idx, row in enumerate(cursor.fetchall()):
+                total += row[1]
+                source_by_count['labels'].append(row[0])
+                source_by_count['series'].append(row[1])
         
         source_by_count['total'] = total
-
-        for s in source_set.values('label', 'data__count')[:10]:
-            source_by_count['series'].append(s['data__count'])
-            source_by_count['labels'].append(s['label'])
         
         return {'source_by_count': source_by_count}
-
-class AspectTimeTable(BaseChart):
-
-    def render_data(self):
-
-        aspect_data_set = data_models.Aspect.objects.filter(
-            data__project=self.project,
-            data__date_created__range=(self.start, self.end)
-        )
-
-        if self.entity_filter:
-            aspect_data_set = aspect_data_set.filter(
-                data__entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            aspect_data_set = aspect_data_set.filter(
-                topic=self.aspect_topic)
-        if self.aspect_name:
-            aspect_data_set = aspect_data_set.filter(label=self.aspect_name)
-        if self.lang_filter and self.lang_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
-        if self.source_filter and self.source_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
-
-        result = {"aspects": {}}
-        result["aspect_t_labels"] = list(
-            aspect_data_set.values_list('label', flat=True).distinct())
-
-        for aspect in result["aspect_t_labels"]:
-            result["aspects"][aspect] = list(aspect_data_set.filter(label=aspect).values("label").annotate(
-                Count('label')))
-
-        return result
-
-
-class SentimentSourceTable(BaseChart):
-
-    def render_data(self):
-        # Show sentiment by source.
-        result = {}
-
-        result['source_labels'] = []
-
-        positive = {'label': 'positive', 'data': [],
-                    'backgroundColor': COLORS['positive']}
-        negative = {'label': 'negative', 'data': [],
-                    'backgroundColor': COLORS['negative']}
-        
-        data_set = Data.objects.filter(
-            project=self.project, date_created__range=(self.start, self.end))
-
-        if self.entity_filter:
-            data_set = data_set.filter(
-                entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            data_set = data_set.filter(
-                aspect__topic=self.aspect_topic)
-        
-        if self.aspect_name:
-            data_set = data_set.filter(
-                aspect__label=self.aspect_name)
-        
-        if self.lang_filter and self.lang_filter[0]:
-            data_set = data_set.filter(
-                language__in=self.lang_filter)
-        
-        sources = Source.objects.all()
-        if self.source_filter and self.source_filter[0]:
-            data_set = data_set.filter(
-                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
-            sources = sources.filter(label__in=self.source_filter)
-
-        sources = sources.annotate(data_count=Count('data'))
-
-        for label in sources.values_list('label', flat=True):
-            pos_total = data_set.filter(source__label=label, sentiment__gt=0).count()
-            neg_total = data_set.filter(source__label=label, sentiment__lt=0).count()
-
-            if pos_total or neg_total:
-                result['source_labels'].append(label)
-                positive['data'].append(pos_total)
-                negative['data'].append(neg_total)
-
-        result['source_datasets'] = [positive, negative]
-
-        return result
 
 CHART_LOOKUP = {
     'aspect_table': AspectTopicTable,
     'entity_table': EntityTable,
     'data_entrytable': DataEntryTable,
     'sentiment_f': SentimenFrequencyTable,
-    'sentiment_source': SentimentSourceTable,
     'sentiment_t': SentimentTimeTable,
     'countries_t': CountriesTable,
     'data_source_table': DataBySourceTable,

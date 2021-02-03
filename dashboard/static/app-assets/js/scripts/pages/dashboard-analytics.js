@@ -301,7 +301,7 @@ $(window).on("load", function () {
         },
         plotOptions: {
           bar: {
-            horizontal: false,
+            horizontal: true,
             columnWidth: '55%'
           },
         },
@@ -311,7 +311,8 @@ $(window).on("load", function () {
 				// Calculate the percent.
 				let percent = ((val / project_data.source_by_count.total) * 100).toFixed(2);
 				return `${val} (${percent}%)`;
-			}
+			},
+			offsetX:50
         },
         stroke: {
           show: true,
@@ -339,11 +340,14 @@ $(window).on("load", function () {
 			show: false
 		  },
 		  labels: {
-			show: false
+			show: true,
+			style: {
+				colors: new Array(project_data.source_by_count.labels.length).fill('#ffffff')
+			}
 		  },
 		}, 
 		grid: {
-			show:false
+			show:true
 		},
 		tooltip: {
 			enabled:false
