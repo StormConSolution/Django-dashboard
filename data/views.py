@@ -138,23 +138,6 @@ def projects(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseRedirect(LOGIN_URL)
 
-    entity_filter = request.GET.get('entity')
-    aspect_topic = request.GET.get('aspecttopic')
-    aspect_name = request.GET.get('aspectname')
-
-    # getting list of query params
-    lang = request.GET.getlist('filter_language')
-    src = request.GET.getlist('filter_source')
-    # cleaning up the query params
-    if lang:
-        lang_filter = lang[0].split(",")
-    else:
-        lang_filter = lang
-    if src:
-        source_filter = src[0].split(",")
-    else:
-        source_filter = src
-
     end = this_project.data_set.latest().date_created
     start = end - datetime.timedelta(days=30)
 
@@ -185,6 +168,24 @@ def projects(request, project_id):
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
     
+    # getting list of query params
+    lang = request.GET.getlist('filter_language')
+    src = request.GET.getlist('filter_source')
+    
+    # cleaning up the query params
+    if lang:
+        lang_filter = lang[0].split(",")
+    else:
+        lang_filter = lang
+    if src:
+        source_filter = src[0].split(",")
+    else:
+        source_filter = src
+    
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+
     # Compute our aspect stats.
     ASPECT_QUERY = """
     SELECT 
@@ -194,15 +195,39 @@ def projects(request, project_id):
     FROM 
         data_aspect, data_data
     WHERE 
-        data_aspect.data_id = data_data.id AND 
-        data_data.project_id = %s AND 
-        date_created between %s AND %s
+        %s
     GROUP BY label
     """
     context['aspect_data'] = []
+
+    where_clause = [
+        'data_aspect.data_id = data_data.id',
+        'data_data.project_id = %s',
+        'date_created between %s AND %s',
+    ]
+    query_args = [project_id, start, end]
+
+    if lang_filter:
+        lang_string = len(lang_filter) * '%s,'
+        where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
+        query_args.extend(lang_filter)
+    
+    if source_filter:
+        source_string = len(source_filter) * '%s,'
+        where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+        query_args.extend(source_filter)
+    
+    if aspect_topic:
+        where_clause.append('data_aspect.topic = %s')
+        query_args.append(aspect_topic)
+    
+    if aspect_name:
+        where_clause.append('data_aspect.label = %s')
+        query_args.append(aspect_name)
+
     total = 0
     with connection.cursor() as cursor:
-        cursor.execute(ASPECT_QUERY, [project_id, start, end])
+        cursor.execute(ASPECT_QUERY % ' AND '.join(where_clause), query_args)
         for idx, row in enumerate(cursor.fetchall()):
             total += row[1]
             context['aspect_data'].append({
