@@ -24,174 +24,6 @@ $(window).on("load", function () {
   var $positive = "#537fd6";
   var $negative = "#dd9942";
 
-  // Radial-Success-chart
-  // --------------------------------
-  var radialSuccessoptions = {
-    chart: {
-      height: 40,
-      width: 40,
-      type: "radialBar",
-    },
-    grid: {
-      show: false,
-      padding: {
-        left: -30,
-        right: -30,
-        top: 0,
-      },
-    },
-    series: [30],
-    colors: [$success],
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          size: "30%",
-        },
-        dataLabels: {
-          showOn: "always",
-          name: {
-            show: false,
-          },
-          value: {
-            show: false,
-          },
-        },
-      },
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "light",
-        type: "horizontal",
-        gradientToColors: [$success],
-        opacityFrom: 1,
-        opacityTo: 0.8,
-        stops: [0, 70, 100],
-      },
-    },
-    stroke: {
-      lineCap: "round",
-    },
-  };
-  var radialSuccessChart = new ApexCharts(
-    document.querySelector("#radial-success-chart"),
-    radialSuccessoptions
-  );
-
-  // radialSuccessChart.render();
-
-  // Radial-Warning-chart
-  // --------------------------------
-  var radialWarningoptions = {
-    chart: {
-      height: 40,
-      width: 40,
-      type: "radialBar",
-    },
-    grid: {
-      show: false,
-      padding: {
-        left: -30,
-        right: -30,
-        top: 0,
-      },
-    },
-    series: [80],
-    colors: [$warning],
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          size: "30%",
-        },
-        dataLabels: {
-          showOn: "always",
-          name: {
-            show: false,
-          },
-          value: {
-            show: false,
-          },
-        },
-      },
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "light",
-        type: "horizontal",
-        gradientToColors: [$warning],
-        opacityFrom: 1,
-        opacityTo: 0.8,
-        stops: [0, 70, 100],
-      },
-    },
-    stroke: {
-      lineCap: "round",
-    },
-  };
-  var radialWarningChart = new ApexCharts(
-    document.querySelector("#radial-warning-chart"),
-    radialWarningoptions
-  );
-
-  // radialWarningChart.render();
-
-  // Radial-Danger-chart
-  // --------------------------------
-  var radialDangeroptions = {
-    chart: {
-      height: 40,
-      width: 40,
-      type: "radialBar",
-    },
-    grid: {
-      show: false,
-      padding: {
-        left: -30,
-        right: -30,
-        top: 0,
-      },
-    },
-    series: [50],
-    colors: [$danger],
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          size: "30%",
-        },
-        dataLabels: {
-          showOn: "always",
-          name: {
-            show: false,
-          },
-          value: {
-            show: false,
-          },
-        },
-      },
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        shade: "light",
-        type: "horizontal",
-        gradientToColors: [$danger],
-        opacityFrom: 1,
-        opacityTo: 0.8,
-        stops: [0, 70, 100],
-      },
-    },
-    stroke: {
-      lineCap: "round",
-    },
-  };
-  var radialDangerChart = new ApexCharts(
-    document.querySelector("#radial-danger-chart"),
-    radialDangeroptions
-  );
-
-  // radialDangerChart.render();
-
   // Bar Chart
   // ---------
   const postive_label = project_data.sentiment_t_data[0].data;
@@ -290,6 +122,7 @@ $(window).on("load", function () {
       show: false,
     },
     tooltip: {
+	  theme:'dark',
       y: {
         formatter: function (val) {
           return val;
@@ -373,85 +206,88 @@ $(window).on("load", function () {
 
   donutChart.render();
 
-  // Stacked Bar Negative Chart
-  // ----------------------------------
+	let positiveAspectSeries = [];
+	let negativeAspectSeries = [];
+	let aspectLabels = [];
 
-  project_data.aspect_s_data[0]["data"].map(function (positive_data, i) {
-    let $net_color;
-    if (positive_data - project_data.aspect_s_data[1]["data"][i] < 0) {
-      $net_color = $negative;
-    } else {
-      $net_color = $positive;
-    }
-    var donutChartOption = {
-      chart: {
-        width: 200,
-        type: "donut",
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      series: [positive_data, project_data.aspect_s_data[1]["data"][i]],
-      labels: ["Positive", "Negative"],
-      stroke: {
-        width: 0,
-        lineCap: "round",
-      },
-      colors: [$positive, $negative],
-      plotOptions: {
-        pie: {
-          donut: {
-            size: "90%",
-            labels: {
-              show: true,
-              name: {
-                show: false,
-                fontSize: "15px",
-                color: $net_color,
-                offsetY: 20,
-                fontFamily: "IBM Plex Sans",
-              },
-              value: {
-                show: true,
-                fontSize: "48px",
-                fontFamily: "Rubik",
-                color: $net_color,
-
-                offsetY: 9,
-                formatter: function (val) {
-                  return val;
-                },
-              },
-
-              total: {
-                show: true,
-                label: "Net score",
-                color: $net_color,
-                formatter: function (w) {
-                  return w.globals.seriesTotals.reduce(function () {
-                    return (
-                      positive_data - project_data.aspect_s_data[1]["data"][i]
-                    );
-                  }, 0);
-                },
-              },
-            },
+	for (i=0; i<project_data.aspect_data.length; i++) {
+		aspect = project_data.aspect_data[i];
+		positiveAspectSeries.push(aspect.pos);
+		negativeAspectSeries.push(-1*aspect.neg);
+		aspectLabels.push(aspect.label);
+	}
+	
+	// Aspect by sentiment graph.
+	  var options = {
+          series: [{
+          name: 'Positive',
+          data: positiveAspectSeries
+        },
+        {
+          name: 'Negative',
+          data: negativeAspectSeries
+        }
+        ],
+          chart: {
+          type: 'bar',
+          height: 640,
+          stacked: true
+        },
+        colors: [$positive, $negative],
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            barHeight: '80%',
+            borderRadius: 7,
+            radiusOnLastStackedBar: false
           },
         },
-      },
-      legend: {
-        show: false,
-      },
-    };
-    var donut_chart = new ApexCharts(
-      document.querySelector(
-        `#${project_data.aspect_s_labels[i]}-bar-negative-chart`
-      ),
-      donutChartOption
-    );
+        dataLabels: {
+          enabled: false
+        },
+        grid: {
+          xaxis: {
+            lines: {
+              show: false
+            }
+          }
+        },
+        tooltip: {
+		  theme: 'dark',
+          shared: false,
+          x: {
+            formatter: function (val) {
+              return val
+            }
+          },
+          y: {
+            formatter: function (val) {
+              return Math.abs(val)
+            }
+          }
+        },
+        xaxis: {
+          categories: aspectLabels,
+          title: {
+            text: 'Aspect'
+          },
+		  labels: {
+			  style: {
+				  colors: new Array(aspectLabels.length).fill('#ffffff')
+			  }
+		  }
+        },
+        yaxis: {
+		  labels: {
+			  style: {
+				  colors: new Array(aspectLabels.length).fill('#ffffff')
+			  }
+		  }
+        }
+	};
 
-    donut_chart.render();
-  });
+	var chart = new ApexCharts(document.querySelector("#aspect-by-sentiment"), options);
+	chart.render();
 	
 	  var sourceOptions = {
           series: [{

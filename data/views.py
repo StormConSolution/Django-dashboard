@@ -4,6 +4,7 @@ import json
 import time
 
 from django import template
+from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, F
@@ -108,12 +109,6 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
     }
 
     for chart_class in (
-        charts.AspectFrequencyTable,
-        charts.AspectSentimentTable,
-        charts.AspectTimeTable,
-        charts.AspectTopicTable,
-        charts.EntityTable,
-        charts.DataEntryTable,
         charts.SentimenFrequencyTable,
         charts.SentimentTimeTable,
         charts.DataBySourceTable,):
@@ -133,8 +128,7 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
         for key, value in chart_data.items():
             result[key] = value
     
-    return json.dumps(result, sort_keys=True, default=default_encoder)
-
+    return result
 
 @login_required(login_url=LOGIN_URL)
 def projects(request, project_id):
@@ -169,21 +163,9 @@ def projects(request, project_id):
             request.GET.get('start'), "%Y-%m-%d")
         end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
 
-    chart_data = get_chart_data(
-        this_project,
-        start,
-        end,
-        entity_filter,
-        aspect_topic,
-        aspect_name,
-        lang_filter,
-        source_filter,
-    )
-    
     context = {
         'project': this_project,
         'total':this_project.data_set.count(),
-        'chart_data': chart_data,
         'query_string': request.GET.urlencode(),
         'start_date': start,
         'end_date': end,
@@ -198,43 +180,59 @@ def projects(request, project_id):
         lang_list.append(lan['language'])
     context['lang_list'] = lang_list
     context['languages'] = data_models.LANGUAGES
+    
     # List of projects for the sidebar
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
-    context['aspects_total_data'] = []
-    chart_data = json.loads(context['chart_data'])
-    total_sum = 0
-    color_index = 0
-
-    for aspect in chart_data.get('aspect_t_labels', []):
-        aspect_data = dict()
-        
-        aspect_data['name'] = aspect
-        aspect_data['total_data'] = sum(
-            item['label__count'] for item in chart_data['aspects'][aspect])
-        aspect_data['color'] = ASPECT_COLORS[color_index]
-
-        if color_index == len(ASPECT_COLORS) - 1:
-            color_index = 0
-        total_sum += aspect_data['total_data']
-        color_index += 1
-        context['aspects_total_data'].append(aspect_data)
-
-    for i in range(len(chart_data.get('aspect_t_labels', []))):
-        positive_data = chart_data['aspect_s_data'][0]['data'][i]
-        negative_data = chart_data['aspect_s_data'][1]['data'][i]
-        context['aspects_total_data'][i]['net_data'] = positive_data - negative_data
     
-    # Compute the relative width for each aspect bar.
-    for i in range(len(context['aspects_total_data'])):
-        context['aspects_total_data'][i]['width'] = (
-            context['aspects_total_data'][i][
-                'total_data'] / total_sum) * 100
+    # Compute our aspect stats.
+    ASPECT_QUERY = """
+    SELECT 
+        label, count(data_id),
+        sum(case when data_aspect.sentiment > 0 then 1 else 0 end) as PosCount,
+        sum(case when data_aspect.sentiment < 0 then 1 else 0 end) as NegCount
+    FROM 
+        data_aspect, data_data
+    WHERE 
+        data_aspect.data_id = data_data.id AND 
+        data_data.project_id = %s AND 
+        date_created between %s AND %s
+    GROUP BY label
+    """
+    context['aspect_data'] = []
+    total = 0
+    with connection.cursor() as cursor:
+        cursor.execute(ASPECT_QUERY, [project_id, start, end])
+        for idx, row in enumerate(cursor.fetchall()):
+            total += row[1]
+            context['aspect_data'].append({
+                'label':row[0],
+                'count':row[1],
+                'pos': row[2],
+                'neg': row[3],
+                'color':ASPECT_COLORS[idx],
+            })
     
-    if chart_data.get('sentiment_f_data', []):
-        context['total_data'] = sum(chart_data['sentiment_f_data'])
-        context['total_positive'] = chart_data['sentiment_f_data'][0]
-        context['total_negative'] = chart_data['sentiment_f_data'][1]
+    # Now calculate percent for each aspect.
+    for a in context['aspect_data']:
+        a['percent'] = round(100.0 * (float(a['count']) / float(total)), 2)
+    
+    chart_data = get_chart_data(
+        this_project,
+        start,
+        end,
+        entity_filter,
+        aspect_topic,
+        aspect_name,
+        lang_filter,
+        source_filter,
+    )
+
+    # Shove the aspect data into the chart data so it can render nicely in javascript.
+    chart_data['aspect_data'] = context['aspect_data']
+    
+    json_chart_data = json.dumps(chart_data, sort_keys=True, default=default_encoder)
+    context['chart_data'] = json_chart_data
 
     return render(request, "project.html", context)
 

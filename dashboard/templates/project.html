@@ -11,7 +11,7 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0, user-scalable=0"
             />
-        <meta name="author" content="PIXINVENT" />
+        <meta name="author" content="Repustate Inc." />
         <title>Repustate - Dashboard analytics</title>
         <link
             rel="apple-touch-icon"
@@ -299,20 +299,18 @@
                                 </div>
                                 <div class="card-content">
                                     <div class="card-body pt-1">
-                                        {% for aspect in aspects_total_data|dictsortreversed:"total_data" %}
-                                        <a href="{% url 'aspect-names' project.id %}?aspectname={{aspect.name}} ">
-                                            <!-- /project/
-                                                id/?aspect_filter=$name_of_aspect -->
+										{% for aspect in aspect_data|dictsortreversed:"percent" %}
+                                        <a href="{% url 'aspect-names' project.id %}?aspectname={{ aspect.label }} ">
                                             <div class="d-flex activity-content">
                                                 <div class="activity-progress flex-grow-1">
-													<span class="text-muted d-inline-block mb-50">{{aspect.name}} ({{ aspect.width|floatformat:-2 }}%)</span>
-                                                    <span class="float-right">{{ aspect.total_data }}</span>
+													<span class="text-muted d-inline-block mb-50">{{ aspect.label }} ({{ aspect.percent }}%)</span>
+                                                    <span class="float-right">{{ aspect.count|intcomma }}</span>
                                                     <div class="progress progress-bar-{{ aspect.color }} progress-sm">
                                                         <div
                                                             class="progress-bar"
                                                             role="progressbar"
-                                                            aria-valuenow="{{ aspect.width }}"
-                                                            style="width:{{ aspect.width }}%; background-color:{{ aspect.color }} !important;"
+                                                            aria-valuenow="{{ aspect.percent }}"
+                                                            style="width:{{ aspect.percent }}%; background-color:{{ aspect.color }} !important;"
                                                             ></div>
                                                     </div>
                                                 </div>
@@ -325,30 +323,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="container mb-3">
-                    <div class="row">
-						<h4 class="card-title">Aspect Net Sentiment</h4>
-                    </div>
-                </div>
-                <div class="container-fluid">
-                    <div class="row pl-3 pr-4">
-                        {% for aspect in aspects_total_data|dictsortreversed:'net_data' %}
-                        <div class="col-md-3">
-                            <!-- Conversion Chart Starts-->
-                            <div class="card border-0">
-                                <div class="card-header">
-                                    <h4 class="card-title">{{ aspect.name }}</h4>
-                                </div>
-                                <div class="card-content align-self-center" >
-                                    <div class="card-body text-center">
-                                        <div id="{{ aspect.name }}-bar-negative-chart" class="donut-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+				<div class="container-fluid">
+					<div class="col-md-12">
+						<div class="card border-0 mr-4">
+							<div class="card-header">
+								<h4 class="card-title">Aspect by Sentiment</h4>
+							</div>
+							<div class="card-content" >
+								<div class="card-body">
+									<div class="d-flex flex-row flex-wrap" >
+										<div style="width: 100%; height: 500px;" id="aspect-by-sentiment"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="container-fluid">
 					<div class="col-md-12">
 						<div class="card border-0 mr-4">

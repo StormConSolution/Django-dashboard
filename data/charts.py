@@ -9,7 +9,7 @@ from django.db import models
 from django.db.models import Count, Q, F
 
 from data import models as data_models
-from data.models import Entity, Data, Aspect, Source, Keyword, Country
+from data.models import Entity, Data, Aspect, Source, Country
 
 DEFAULT_COLORS = [
     "rgba(13, 19, 33, 1)",
@@ -97,47 +97,6 @@ class EntityTable(BaseChart):
             ])
 
         return entities
-
-
-class KeywordsTable(BaseChart):
-
-    def render_data(self):
-
-        data_set = Data.objects.filter(
-            project=self.project, date_created__range=(self.start, self.end))
-
-        if self.entity_filter:
-            data_set = data_set.filter(
-                entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            data_set = data_set.filter(
-                aspect__topic=self.aspect_topic)
-        
-        if self.aspect_name:
-            data_set = data_set.filter(
-                aspect__label=self.aspect_name)
-        
-        if self.lang_filter and self.lang_filter[0]:
-            data_set = data_set.filter(
-                language__in=self.lang_filter)
-        
-        if self.source_filter and self.source_filter[0]:
-            data_set = data_set.filter(
-                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
-        
-        keyword_set = Keyword.objects.filter(data__in=data_set)
-        keyword_count = keyword_set.annotate(
-            data_count=models.Count('data')).order_by('-data_count')[:100]
-        
-        result = {'keywords': []}
-        for ad in keyword_count:
-            result["keywords"].append([
-                ad.label,
-                ad.data_count,
-            ])
-
-        return result
 
 
 class CountriesTable(BaseChart):
@@ -335,8 +294,14 @@ class SentimenFrequencyTable(BaseChart):
             neutral=Count('sentiment', filter=Q(sentiment=0))
         )
 
-        return {"sentiment_f_data": list(sentiment_f.values())}
+        sentiment_f_data = list(sentiment_f.values())
+        
+        resp = {"sentiment_f_data": sentiment_f_data}
+        resp['total_data'] = sum(sentiment_f_data)
+        resp['total_positive'] = sentiment_f_data[0]
+        resp['total_negative'] = sentiment_f_data[1]
 
+        return resp
 
 class SentimentTimeTable(BaseChart):
 
@@ -373,49 +338,6 @@ class SentimentTimeTable(BaseChart):
         negative = {'name': 'Negative', 'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(sentiment_t))),
                     'backgroundColor': COLORS['negative'], 'borderColor': COLORS['negative'], "fill": False}
         result['sentiment_t_data'] = [positive, negative]
-
-        return result
-
-
-class AspectSentimentTable(BaseChart):
-
-    def render_data(self):
-
-        aspect_data_set = Aspect.objects.filter(
-            data__project=self.project,
-            data__date_created__range=(self.start, self.end)
-        )
-
-        if self.entity_filter:
-            aspect_data_set = aspect_data_set.filter(
-                data__entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            aspect_data_set = aspect_data_set.filter(
-                topic=self.aspect_topic)
-        if self.aspect_name:
-            aspect_data_set = aspect_data_set.filter(
-                label=self.aspect_name)
-        if self.lang_filter and self.lang_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__language=c)for c in self.lang_filter]))
-        if self.source_filter and self.source_filter[0]:
-            aspect_data_set = aspect_data_set.filter(
-                reduce(or_, [Q(data__source__label=c)for c in self.source_filter]))
-
-        aspect_s = aspect_data_set.values('label').annotate(
-            positive=Count('sentiment', filter=Q(sentiment__gt=0)),
-            negative=Count('sentiment', filter=Q(sentiment__lt=0)),
-        )
-        result = {'aspect_s_labels': []}
-        for aspect in list(aspect_s):
-            result['aspect_s_labels'].append(aspect['label'])
-
-        positive = {'label': 'Positive', 'data': list(map(lambda d: d['positive'], list(aspect_s))),
-                    'backgroundColor': COLORS['positive']}
-        negative = {'label': 'Negative', 'data': list(map(lambda d: d['negative'], list(aspect_s))),
-                    'backgroundColor': COLORS['negative']}
-        result['aspect_s_data'] = [positive, negative]
 
         return result
 
@@ -575,13 +497,9 @@ class SentimentSourceTable(BaseChart):
         return result
 
 CHART_LOOKUP = {
-    'aspect_f': AspectFrequencyTable,
-    'aspect_s': AspectSentimentTable,
-    'aspect_t': AspectTimeTable,
     'aspect_table': AspectTopicTable,
     'entity_table': EntityTable,
     'data_entrytable': DataEntryTable,
-    'keywords_table': KeywordsTable,
     'sentiment_f': SentimenFrequencyTable,
     'sentiment_source': SentimentSourceTable,
     'sentiment_t': SentimentTimeTable,

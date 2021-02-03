@@ -21,15 +21,14 @@ def login_view(request):
         username = form.cleaned_data.get("username")
         password = form.cleaned_data.get("password")
             
-        try:
-            user = User.objects.get(username__iexact=username)
-            user = authenticate(username=user.username, password=password)
+        user = authenticate(username=username, password=password)
+        if user:
             login(request, user)
             if user.is_staff:
                 return redirect('/admin/')
             else:
                 return redirect('/')
-        except User.DoesNotExist as e:
+        else:
             msg = 'Invalid credentials'
 
     return render(request, "accounts/login.html", {"form": form, "msg": msg})
