@@ -21,8 +21,11 @@ LOGIN_URL = '/login/'
 MAX_TEXT_LENGTH = 30
 
 ASPECT_COLORS = [
-    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral', 'DarkOliveGreen',
-    'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown', 'Tomato', 'SeaGreen',
+    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
+    'DarkOliveGreen', 'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown',
+    'Tomato', 'SeaGreen', 'DarkKhaki', 'DarkOrange', 'DarkSlateGray',
+    'DeepSkyBlue', 'DimGrey', 'DarkRed', 'Gold', 'IndianRed', 'Lavender',
+    'LightGrat', 'LightSlateGray',
 ]
 
 def collect_args(this_project, request):

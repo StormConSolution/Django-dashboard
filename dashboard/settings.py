@@ -10,9 +10,6 @@ PROJECT_DIR = Path(__file__).parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 # load production server from .env
 ALLOWED_HOSTS = ['*']
 
