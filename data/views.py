@@ -262,6 +262,16 @@ def projects(request, project_id):
     json_chart_data = json.dumps(chart_data, sort_keys=True, default=default_encoder)
     context['chart_data'] = json_chart_data
 
+    # Find the earliest and latest date. This helps populate the view all link.
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT to_char(max(data_data.date_created), 'YYYY-MM-DD'), to_char(min(data_data.date_created), 'YYYY-MM-DD')
+            FROM data_data
+            WHERE data_data.project_id = %s""", [this_project.id])
+        row = cursor.fetchone()
+        context['latest'] = row[0]
+        context['earliest'] = row[1]
+
     return render(request, "project.html", context)
 
 

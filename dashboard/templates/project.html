@@ -208,7 +208,8 @@
                     <div class="row">
 						<div class="col-10">
 							<h1>{{ project.name }} 
-								<small style="font-size:18px;" class="text-muted">({{ total|intcomma }} data points in total)</small>
+								<a class="text-white" href="{% url 'projects' project_id=project.id %}?start={{ earliest }}&end={{ latest }}">
+									<small style="font-size:18px;" class="text-muted">{{ total|intcomma }} data points in total. </small></a>
 							</h1>
 						</div>
 						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
@@ -611,9 +612,6 @@
             <!-- date-range widget function-->
             $('input[name="daterange"]').daterangepicker({
              opens: 'left',
-			 maxSpan: {
-				 "days":120
-			 },
              startDate:'{{ start_date |date:"m-d-Y" }}',
              endDate:'{{ end_date |date:"m-d-Y" }}',
              }, function(start, end, label) {
