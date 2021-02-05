@@ -1,3 +1,4 @@
 scrapers/data/
 .git
-settings_local.py
+
+dashboard/settings_local.py

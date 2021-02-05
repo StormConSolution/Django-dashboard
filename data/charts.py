@@ -360,18 +360,23 @@ class DataBySourceTable(BaseChart):
             REPLACE(data_source.label, 'www.', ''),
             COUNT(data_data.source_id)
         FROM 
-            data_source, data_data
+            %s
         WHERE 
             %s
-        GROUP BY label
+        GROUP BY data_source.label
         ORDER BY COUNT(data_data.source_id) DESC
         LIMIT 15
         """
 
+        tables = [
+            'data_data',
+            'data_source',
+        ]
+
         where_clause = [
             'data_source.id = data_data.source_id',
             'data_data.project_id = %s',
-            'date_created between %s AND %s',
+            'data_data.date_created between %s AND %s',
         ]
         query_args = [self.project.id, self.start, self.end]
 
@@ -385,17 +390,21 @@ class DataBySourceTable(BaseChart):
             where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
             query_args.extend(self.source_filter)
         
-        if self.aspect_topic:
-            where_clause.append('data_aspect.topic = %s')
-            query_args.append(self.aspect_topic)
+        if self.aspect_topic or self.aspect_name:
+            tables.append('data_aspect')
+            where_clause.append('data_data.id=data_aspect.data_id')
+
+            if self.aspect_topic:
+                where_clause.append('data_aspect.topic = %s')
+                query_args.append(self.aspect_topic)
         
-        if self.aspect_name:
-            where_clause.append('data_aspect.label = %s')
-            query_args.append(self.aspect_name)
+            if self.aspect_name:
+                where_clause.append('data_aspect.label = %s')
+                query_args.append(self.aspect_name)
 
         total = 0
         with connection.cursor() as cursor:
-            cursor.execute(SOURCE_QUERY % ' AND '.join(where_clause), query_args)
+            cursor.execute(SOURCE_QUERY % (','.join(tables), ' AND '.join(where_clause)), query_args)
             for idx, row in enumerate(cursor.fetchall()):
                 total += row[1]
                 source_by_count['labels'].append(row[0])

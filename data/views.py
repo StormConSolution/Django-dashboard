@@ -206,7 +206,7 @@ def projects(request, project_id):
     where_clause = [
         'data_aspect.data_id = data_data.id',
         'data_data.project_id = %s',
-        'date_created between %s AND %s',
+        'data_data.date_created between %s AND %s',
     ]
     query_args = [project_id, start, end]
 
