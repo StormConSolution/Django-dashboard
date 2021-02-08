@@ -171,19 +171,19 @@ def projects(request, project_id):
     context['project_list'] = list(
         data_models.Project.objects.filter(users=request.user).values())
     
-    # getting list of query params
     lang = request.GET.getlist('filter_language')
-    src = request.GET.getlist('filter_source')
-    
-    # cleaning up the query params
-    if lang:
+    if lang and lang[0]:
         lang_filter = lang[0].split(",")
+        context['selected_langs'] = lang_filter
     else:
-        lang_filter = lang
-    if src:
+        lang_filter = None
+
+    src = request.GET.getlist('filter_source')
+    if src and src[0]:
         source_filter = src[0].split(",")
+        context['selected_sources'] = source_filter
     else:
-        source_filter = src
+        source_filter = None
     
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
@@ -218,7 +218,10 @@ def projects(request, project_id):
     if source_filter:
         source_string = len(source_filter) * '%s,'
         where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
-        query_args.extend(source_filter)
+        # Get the raw IDs for our sources.
+        source_ids = data_models.Source.objects.filter(
+                label__in=source_filter).values_list('id', flat=True)
+        query_args.extend(source_ids)
     
     if aspect_topic:
         where_clause.append('data_aspect.topic = %s')

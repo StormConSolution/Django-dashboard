@@ -388,7 +388,10 @@ class DataBySourceTable(BaseChart):
         if self.source_filter:
             source_string = len(self.source_filter) * '%s,'
             where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
-            query_args.extend(self.source_filter)
+            # Get the raw IDs for our sources.
+            source_ids = data_models.Source.objects.filter(
+                    label__in=self.source_filter).values_list('id', flat=True)
+            query_args.extend(source_ids)
         
         if self.aspect_topic or self.aspect_name:
             tables.append('data_aspect')

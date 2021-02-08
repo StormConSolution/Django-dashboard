@@ -18807,3 +18807,24 @@ a.text-dark:focus {
 	background-color:#1a233a;
 	border-color:#464d5c;
 }
+
+.ui-multiselect-checkboxes {
+  display: block;
+  box-sizing: border-box;
+  position: relative;
+  overflow: auto;
+  width: auto;
+  border: 0;
+  padding: 10px;
+}
+
+.ui-multiselect-checkboxes label {
+  border: 1px solid transparent;
+  cursor: default;
+  display: block;
+  padding: 3px 1px 3px 21px;
+}
+
+.ui-multiselect-checkboxes input {
+	margin-right:15px;
+}

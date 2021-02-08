@@ -40,11 +40,6 @@
         <link
             rel="stylesheet"
             type="text/css"
-            href="/static/app-assets/vendors/css/extensions/dragula.min.css"
-            />
-        <link
-            rel="stylesheet"
-            type="text/css"
             href="/static/app-assets/vendors/css/tables/datatable/datatables.min.css"
             />
         <link
@@ -132,7 +127,6 @@
             role="navigation"
             data-menu="menu-wrapper"
             >
-            <div class="shadow-bottom"></div>
             <!-- Horizontal menu content-->
             <div
                 class="navbar-container"
@@ -165,17 +159,17 @@
                     </form>
                     <li class="nav-item d-flex align-items-center pl-2">
                         <select id="languages" class="d-none"name="languages" multiple="multiple">
-                            {% for key, lang in languages%}
-                            {% if key in lang_list %}
-                            <option value="{{key}}"> {{lang}}</option>
-                            {% endif %}
+                            {% for key, lang in languages %}
+								{% if key in lang_list %}
+									<option value="{{ key }}" {% if key in selected_langs %}selected{% endif %}>{{ lang }}</option>
+								{% endif %}
                             {% endfor %}
                         </select>
                     </li>
                     <li class="nav-item d-flex align-items-center pl-3">
                         <select id="sources" class="d-none"name="sources" multiple="multiple">
-                            {% for source in sources%}
-                            <option value="{{source}}"> {{source}}</option>
+                            {% for source in sources %}
+							<option value="{{ source.label }}" {% if source.label in selected_sources %}selected{% endif %}>{{ source.label }}</option>
                             {% endfor %}
                         </select>
                     </li>
@@ -595,16 +589,11 @@
                var languages = $("#languages").multiselect().val();
                var sources = $("#sources").multiselect().val();
               
-               console.log("languages ", languages)
-               console.log("sources ", sources)
-               
               	const urlParams = new URLSearchParams(window.location.search);
               
                urlParams.set('filter_language', languages);
                urlParams.set('filter_source', sources);
                window.location.href = window.location.origin + window.location.pathname + '?' + urlParams.toString();
-               console.log("languages ", languages)
-               console.log("sources ", sources[0])
             });
                 
             <!--function end here--> 
