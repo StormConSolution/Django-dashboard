@@ -13,6 +13,14 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 # load production server from .env
 ALLOWED_HOSTS = ['*']
 
+ADMINS = (
+    ('Martin Ostrovsky', 'martin@repustate.com'),
+)
+
+ADMIN_EMAIL = 'Repustate <admin@repustate.com>'
+
+MANAGERS = ADMINS
+
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
@@ -164,6 +172,13 @@ SQL_USER = 'postgres'
 
 DEBUG = False
 
+API_HOST = 'http://localhost:9000'
+APIKEY = ''
+SQL_HOST = 'localhost'
+SQL_DATABASE = "dashboard"
+SQL_USER = ""
+SQL_PASSWORD = ""
+
 try:
     from .settings_local import *
 except:
@@ -180,7 +195,7 @@ DATABASES = {
         "USER": os.environ.get("SQL_USER", SQL_USER),
         "PASSWORD": os.environ.get("SQL_PASSWORD", SQL_PASSWORD),
         "HOST": os.environ.get("SQL_HOST", SQL_HOST),
-        "PORT": os.environ.get("SQL_PORT", SQL_PORT),
+        "PORT": os.environ.get("SQL_PORT", 5432),
     }
 }
 
@@ -203,3 +218,38 @@ SWAGGER_SETTINGS = {
 }
 
 LOGGING_CONFIG = None
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': '/var/log/repustate/django.log',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+    'formatters': {
+        'file': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+}
