@@ -526,6 +526,7 @@
             
             $('#data-entries').DataTable( {
 				 "ajax": "{% url 'data-entries' project.id %}?{{ query_string }}",
+			     "serverSide": true,
 				 "order": [[0, "desc"]],
 				 "columnDefs": [{
 					  // The `data` parameter refers to the data for the cell (defined by the

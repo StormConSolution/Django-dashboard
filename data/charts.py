@@ -148,10 +148,13 @@ class CountriesTable(BaseChart):
 
 class DataEntryTable(BaseChart):
 
-    def render_data(self):
+    def render_data(self, offset, page_size, draw, search):
         
         entry_data_set = Data.objects.filter(
             project=self.project, date_created__range=(self.start, self.end))
+
+        if search:
+            entry_data_set = entry_data_set.filter(Q(text__icontains=search)|Q(url__icontains=search))
 
         if self.entity_filter:
             entry_data_set = entry_data_set.filter(
@@ -173,15 +176,21 @@ class DataEntryTable(BaseChart):
             entry_data_set = entry_data_set.filter(
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
 
-        entry_data = {"data": []}
+        entry_data = {
+            "aaData": [],
+            "iTotalRecords": entry_data_set.count(),
+            "iTotalDisplayRecords": entry_data_set.count(),
+            "draw":draw,
+        } 
         
         for entry in entry_data_set.values('date_created', 'text', 
-                'source__label', 'weighted_score', 'url', 'sentiment', 'country__label')[:1000]:
+                'source__label', 'weighted_score', 'url', 
+                'sentiment', 'country__label').order_by('-date_created')[offset:offset+page_size]:
             
             # We encode the URL and text in json string and decode it client side.
             text = {"text": entry["text"][:300], "url": entry["url"]}
 
-            entry_data["data"].append([
+            entry_data["aaData"].append([
                 entry['date_created'],
                 json.dumps(text),
                 entry['source__label'],
@@ -189,7 +198,7 @@ class DataEntryTable(BaseChart):
                 round(entry['sentiment'], 4), 
                 entry['country__label'],
             ])
-
+    
         return entry_data
 
 

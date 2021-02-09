@@ -302,13 +302,16 @@ def data_entries(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
-    
+
+    page_size = int(request.GET.get('length'))
+    offset = int(request.GET.get('start'))
+    draw= int(request.GET.get('draw'))
+    search = request.GET.get('search[value]')
+
     args = collect_args(this_project, request)
-    
     table = charts.DataEntryTable(**args)
     
-    return JsonResponse(table.render_data())
-
+    return JsonResponse(table.render_data(offset, page_size, draw, search))
 
 def aspect_topics(request, project_id):
     """
