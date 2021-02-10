@@ -60,21 +60,16 @@ class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
     list_filter = ('project', 'source', 'language')
     raw_id_fields = ('project',)
-    search_fields = ('text',)
-    readonly_fields = ('entities', 'language', 'sentiment', 'text', 'source', 'country', 'keywords',)
+    search_fields = ('text', 'url')
+    readonly_fields = ('entities', 'language', 'text', 'source', 'country',)
     date_hierarchy = 'date_created'
 
 
 class AspectAdmin(admin.ModelAdmin):
-    list_display = ('label', '_text', 'sentiment', 'topic')
+    list_display = ('label', 'chunk', 'sentiment', 'topic')
     list_filter = ('label', 'data__project')
-    readonly_fields = ('data', 'chunk', 'topic',
-                       'sentiment_text', 'label', 'sentiment')
+    readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label')
     search_fields = ('topic', 'chunk',)
-
-    def _text(self, obj):
-        return obj.data.text
-    _text.short_description = 'Text'
 
 
 class ProjectAdmin(admin.ModelAdmin):

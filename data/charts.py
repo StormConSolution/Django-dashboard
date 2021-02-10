@@ -31,25 +31,25 @@ COLORS = {
     'contrasts': DEFAULT_COLORS
 }
 
-
 class BaseChart:
 
-    def __init__(self, project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter):
-        self.project = project
-        
-        if not end:
-            end = project.most_recent_date()
-        self.end = end
-    
-        if not start:
-            start = self.end - datetime.timedelta(days=30)
-        self.start = start
+    def __init__(self, project, start, end, entity_filter, 
+            aspect_topic, aspect_name, lang_filter, source_filter, request):
 
-        self.entity_filter = entity_filter
-        self.aspect_topic = aspect_topic
         self.aspect_name = aspect_name
+        self.aspect_topic = aspect_topic
+        self.end = end
+        self.entity_filter = entity_filter
         self.lang_filter = lang_filter
+        self.project = project
         self.source_filter = source_filter
+        self.start = start
+        
+        # These get used by the server side data tables.
+        self.page_size = int(request.GET.get('length', 0))
+        self.offset = int(request.GET.get('start', 0))
+        self.draw = int(request.GET.get('draw', 0))
+        self.search = request.GET.get('search[value]', '')
 
     def render_data(self):
         """
@@ -86,12 +86,23 @@ class EntityTable(BaseChart):
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
         
         entity_set = Entity.objects.filter(data__in=entity_data_set)
+
+        if self.search:
+            entity_set = entity_set.filter(Q(label__icontains=self.search)|Q(classifications__label__icontains=self.search))
+
         entity_count = entity_set.annotate(
-            data_count=models.Count('data')).prefetch_related('classifications').order_by('-data_count')[:500]
-        entities = {"data": []}
+                data_count=models.Count('data')
+            ).prefetch_related('classifications').order_by('-data_count')[self.offset:self.offset+self.page_size]
+
+        entities = {
+            "aaData": [],
+            "iTotalRecords": entity_set.count(),
+            "iTotalDisplayRecords": entity_set.count(),
+            "draw":self.draw,
+        }
 
         for ec in entity_count:
-            entities["data"].append([
+            entities["aaData"].append([
                 ec.label,
                 ', '.join([str(c) for c in ec.classifications.all()]),
                 ec.data_count
@@ -100,61 +111,15 @@ class EntityTable(BaseChart):
         return entities
 
 
-class CountriesTable(BaseChart):
-
-    def render_data(self):
-        # Show sentiment by county.
-        result = {}
-
-        result['country_labels'] = []
-
-        positive = {'label': 'positive', 'data': [],
-                    'backgroundColor': COLORS['positive']}
-        negative = {'label': 'negative', 'data': [],
-                    'backgroundColor': COLORS['negative']}
-        
-        data_set = Data.objects.filter(
-            project=self.project, date_created__range=(self.start, self.end))
-
-        if self.entity_filter:
-            data_set = data_set.filter(
-                entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            data_set = data_set.filter(
-                aspect__topic=self.aspect_topic)
-        
-        if self.aspect_name:
-            data_set = data_set.filter(
-                aspect__label=self.aspect_name)
-        
-        if self.lang_filter and self.lang_filter[0]:
-            data_set = data_set.filter(
-                language__in=self.lang_filter)
-        
-        for country in Country.objects.values_list('label', flat=True):
-            pos_total = data_set.filter(country__label=country, sentiment__gt=0).count()
-            neg_total = data_set.filter(country__label=country, sentiment__lt=0).count()
-
-            if pos_total or neg_total:
-                result['country_labels'].append(country)
-                positive['data'].append(pos_total)
-                negative['data'].append(neg_total)
-
-        result['country_datasets'] = [positive, negative]
-
-        return result
-
-
 class DataEntryTable(BaseChart):
 
-    def render_data(self, offset, page_size, draw, search):
-        
+    def render_data(self):
+
         entry_data_set = Data.objects.filter(
             project=self.project, date_created__range=(self.start, self.end))
 
-        if search:
-            entry_data_set = entry_data_set.filter(Q(text__icontains=search)|Q(url__icontains=search))
+        if self.search:
+            entry_data_set = entry_data_set.filter(Q(text__icontains=self.search)|Q(url__icontains=self.search))
 
         if self.entity_filter:
             entry_data_set = entry_data_set.filter(
@@ -180,12 +145,12 @@ class DataEntryTable(BaseChart):
             "aaData": [],
             "iTotalRecords": entry_data_set.count(),
             "iTotalDisplayRecords": entry_data_set.count(),
-            "draw":draw,
+            "draw":self.draw,
         } 
         
         for entry in entry_data_set.values('date_created', 'text', 
-                'source__label', 'weighted_score', 'url', 
-                'sentiment', 'country__label').order_by('-date_created')[offset:offset+page_size]:
+                'source__label', 'weighted_score', 'url', 'language',
+                'sentiment',).order_by('-date_created')[self.offset:self.offset+self.page_size]:
             
             # We encode the URL and text in json string and decode it client side.
             text = {"text": entry["text"][:300], "url": entry["url"]}
@@ -196,7 +161,7 @@ class DataEntryTable(BaseChart):
                 entry['source__label'],
                 round(entry['weighted_score'], 4),
                 round(entry['sentiment'], 4), 
-                entry['country__label'],
+                entry['language'],
             ])
     
         return entry_data
@@ -227,11 +192,17 @@ class AspectTopicTable(BaseChart):
                 data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
 
         aspect_count = aspect_set.values_list('topic', 'label').annotate(
-            topic_count=Count('topic')).order_by('-topic_count')
+                topic_count=Count('topic')).order_by('-topic_count')[self.offset:self.offset+self.page_size]
         
-        aspects = {"data": []}
+        aspects = {
+            "aaData": [],
+            "iTotalRecords": aspect_set.count(),
+            "iTotalDisplayRecords": aspect_set.count(),
+            "draw":self.draw,
+        } 
+
         for topic, label, count in aspect_count:
-            aspects["data"].append([
+            aspects["aaData"].append([
                 topic,
                 label,
                 count
@@ -276,7 +247,7 @@ class AspectNameTable(BaseChart):
         return aspects
 
 
-class SentimenFrequencyTable(BaseChart):
+class SentimentFrequencyChart(BaseChart):
 
     def render_data(self):
         data_set = Data.objects.filter(
@@ -312,7 +283,7 @@ class SentimenFrequencyTable(BaseChart):
 
         return resp
 
-class SentimentTimeTable(BaseChart):
+class SentimentTimeChart(BaseChart):
 
     def render_data(self):
         data_set = Data.objects.filter(
@@ -350,7 +321,7 @@ class SentimentTimeTable(BaseChart):
 
         return result
 
-class DataBySourceTable(BaseChart):
+class VolumeBySourceChart(BaseChart):
     """
     Compute our volume by source stats.
     """
@@ -430,8 +401,7 @@ CHART_LOOKUP = {
     'aspect_table': AspectTopicTable,
     'entity_table': EntityTable,
     'data_entrytable': DataEntryTable,
-    'sentiment_f': SentimenFrequencyTable,
-    'sentiment_t': SentimentTimeTable,
-    'countries_t': CountriesTable,
-    'data_source_table': DataBySourceTable,
+    'sentiment_f': SentimentFrequencyChart,
+    'sentiment_t': SentimentTimeChart,
+    'data_source_table': VolumeBySourceChart,
 }

@@ -52,10 +52,9 @@ def collect_args(this_project, request):
         end = datetime.date.today()
     start = end - datetime.timedelta(days=30)
 
-    if 'start' in request.GET and 'end' in request.GET:
-        start = datetime.datetime.strptime(
-            request.GET.get('start'), "%Y-%m-%d")
-        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
+    if 'from' in request.GET and 'to' in request.GET:
+        start = datetime.datetime.strptime(request.GET.get('from'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
     
     return dict(
         project=this_project,
@@ -65,7 +64,8 @@ def collect_args(this_project, request):
         lang_filter=lang_filter,
         source_filter=source_filter,
         start=start,
-        end=end
+        end=end,
+        request=request
     )
 
 def default_encoder(o):
@@ -105,16 +105,18 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect_name, lang_filter, source_filter):
+def get_chart_data(this_project, start, end, entity_filter, 
+        aspect_topic, aspect_name, lang_filter, source_filter, request):
+
     result = {
         "status": "OK",
         "colors": charts.COLORS["contrasts"],
     }
 
     for chart_class in (
-        charts.SentimenFrequencyTable,
-        charts.SentimentTimeTable,
-        charts.DataBySourceTable,):
+        charts.SentimentFrequencyChart,
+        charts.SentimentTimeChart,
+        charts.VolumeBySourceChart,):
 
         instance = chart_class(
             this_project,
@@ -124,7 +126,8 @@ def get_chart_data(this_project, start, end, entity_filter, aspect_topic, aspect
             aspect_topic,
             aspect_name,
             lang_filter,
-            source_filter
+            source_filter,
+            request
         )
         
         chart_data = instance.render_data()
@@ -257,6 +260,7 @@ def projects(request, project_id):
         aspect_name,
         lang_filter,
         source_filter,
+        request,
     )
 
     # Shove the aspect data into the chart data so it can render nicely in javascript.
@@ -288,7 +292,6 @@ def entities(request, project_id):
         return HttpResponseForbidden()
 
     args = collect_args(this_project, request)
-
     table = charts.EntityTable(**args)
     
     return JsonResponse(table.render_data())
@@ -303,15 +306,10 @@ def data_entries(request, project_id):
         # This user does not have permission to view this project.
         return HttpResponseForbidden()
 
-    page_size = int(request.GET.get('length'))
-    offset = int(request.GET.get('start'))
-    draw= int(request.GET.get('draw'))
-    search = request.GET.get('search[value]')
-
     args = collect_args(this_project, request)
     table = charts.DataEntryTable(**args)
     
-    return JsonResponse(table.render_data(offset, page_size, draw, search))
+    return JsonResponse(table.render_data())
 
 def aspect_topics(request, project_id):
     """
