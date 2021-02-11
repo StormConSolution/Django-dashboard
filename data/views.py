@@ -361,12 +361,10 @@ def aspect_topic_detail(request, project_id):
         aspects = aspects.filter(sentiment__lt=0)
 
     data = []
-    for a in aspects.values('sentiment_text', 'chunk'):
+    for a in aspects.values('sentiment_text', 'chunk', 'data__text'):
         for t in a['sentiment_text']:
-            if t != topic:
-                data.append([
-                    t, a['chunk']
-                ])
+            if t and t != topic:
+                data.append([t, a['data__text']])
     
     return JsonResponse({"data":data})
 

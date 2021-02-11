@@ -197,7 +197,7 @@ class AspectTopicTable(BaseChart):
                     Q(chunk__icontains=self.search)|
                     Q(sentiment_text__icontains=self.search)|
                     Q(topic__icontains=self.search))
-
+    
         aspect_count = aspect_set.values_list('topic', 'label').annotate(
                 topic_count=Count('topic')).order_by('-topic_count')[self.offset:self.offset+self.page_size]
         
