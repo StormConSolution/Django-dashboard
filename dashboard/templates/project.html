@@ -366,7 +366,6 @@
 													<tr>
 														<th>Topic</th>
 														<th>Aspect</th>
-														<th>Frequency</th>
 														<th>Positives</th>
 														<th>Negatives</th>
 													</tr>
@@ -561,7 +560,7 @@
             $('#aspect-topics').DataTable( {
              "ajax": "{% url 'aspect-topics' project.id %}?{{ query_string }}",
 			 "serverSide": true,
-             "order": [[2, "desc"]],
+             "order": [[0, "desc"]],
              "columnDefs": [ 
 				 {
 				  "render": function ( data, type, row ) {
@@ -573,13 +572,13 @@
 				  "render": function ( data, type, row ) {
 					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1,0)'>Details</a>"
 				  },
-				  "targets": 3
+				  "targets": 2
 				},
 				 {
 				  "render": function ( data, type, row ) {
 					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1,0)'>Details</a>"
 				  },
-				  "targets": 4
+				  "targets": 3
 				}
 			 ]
             });
