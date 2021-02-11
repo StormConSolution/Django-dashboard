@@ -190,6 +190,13 @@ class AspectTopicTable(BaseChart):
         if self.source_filter and self.source_filter[0]:
             aspect_set = aspect_set.filter(
                 data__in=Data.objects.filter(reduce(or_, [Q(source__label=c)for c in self.source_filter])))
+        
+        if self.search:
+            aspect_set = aspect_set.filter(
+                    Q(label__icontains=self.search)|
+                    Q(chunk__icontains=self.search)|
+                    Q(sentiment_text__icontains=self.search)|
+                    Q(topic__icontains=self.search))
 
         aspect_count = aspect_set.values_list('topic', 'label').annotate(
                 topic_count=Count('topic')).order_by('-topic_count')[self.offset:self.offset+self.page_size]

@@ -172,12 +172,6 @@ def add_data(request, project_id):
         data.country = country
         data.save()
 
-    # Add keywords.
-    for keyword, count in resp['keywords'].items():
-        kw, _ = data_models.Keyword.objects.get_or_create(label=keyword)
-        for i in range(count):
-            data.keywords.add(kw)
-
     if request.POST.get('with_entities'):
         for ent in resp['entities']:
             entity_instance, created = data_models.Entity.objects.get_or_create(
