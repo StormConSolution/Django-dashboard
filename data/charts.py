@@ -194,7 +194,6 @@ class AspectTopicTable(BaseChart):
         if self.search:
             aspect_set = aspect_set.filter(
                     Q(label__icontains=self.search)|
-                    Q(chunk__icontains=self.search)|
                     Q(sentiment_text__icontains=self.search)|
                     Q(topic__icontains=self.search)).distinct('topic')
     
@@ -402,11 +401,69 @@ class VolumeBySourceChart(BaseChart):
         
         return {'source_by_count': source_by_count}
 
-CHART_LOOKUP = {
-    'aspect_table': AspectTopicTable,
-    'entity_table': EntityTable,
-    'data_entrytable': DataEntryTable,
-    'sentiment_f': SentimentFrequencyChart,
-    'sentiment_t': SentimentTimeChart,
-    'data_source_table': VolumeBySourceChart,
-}
+
+class AspectCooccurrence(BaseChart):
+    
+    def render_data(self):
+        
+        data_set = Data.objects.filter(
+            project=self.project, date_created__range=(self.start, self.end))
+
+        if self.search:
+            data_set = data_set.filter(Q(text__icontains=self.search)|Q(url__icontains=self.search))
+
+        if self.entity_filter:
+            data_set = data_set.filter(
+                entities__label=self.entity_filter)
+
+        if self.aspect_topic:
+            data_set = data_set.filter(
+                aspect__topic=self.aspect_topic)
+        
+        if self.aspect_name:
+            data_set = data_set.filter(
+                aspect__label=self.aspect_name)
+        
+        if self.lang_filter and self.lang_filter[0]:
+            data_set = data_set.filter(
+                language__in=self.lang_filter)
+        
+        if self.source_filter and self.source_filter[0]:
+            data_set = data_set.filter(
+                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
+
+        # Build up a nxn array to show correlation between aspects.
+        # Get a list of unique aspects for this model.
+        unique_aspect_labels = Aspect.objects.filter(
+                data__project=self.project).distinct('label').values_list('label', flat=True)
+        
+        series = {}
+        for a in unique_aspect_labels:
+            series[a] = {}
+            for other in unique_aspect_labels:
+                series[a][other] = 0
+
+        for d in data_set.annotate(aspect_count=Count('aspect__label', distinct=True)
+                ).filter(aspect_count__gt=1):
+            labels = d.aspect_set.distinct('label').values_list('label', flat=True)
+            for x in labels:
+                for y in labels:
+                    if x == y:
+                        continue
+                    series[x][y] += 1
+                    series[y][x] += 1
+        
+        # Convert series into a format that apexcharts wants.
+        response = []
+        for label in series:
+            d = {
+                'name':label,
+                'data':[]
+            }
+
+            s = series[label]
+            for x,y in s.items():
+                d['data'].append({'x':x, 'y':y})
+            response.append(d)
+        
+        return {'aspect_cooccurrence_data':response}

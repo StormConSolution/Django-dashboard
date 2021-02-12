@@ -361,4 +361,35 @@ $(window).on("load", function () {
 	);
 	sourceByVolumeChart.render();
 
+	// Render the aspect co-occurence.
+	series_data = project_data.aspect_cooccurrence_data;
+	if (series_data.length > 0) {
+		options = {
+			chart: {
+				height: 600,
+				type: 'heatmap'
+			},
+			series: series_data,
+			tooltip: {
+			  theme:'dark'
+			},
+			xaxis: {
+			  labels: {
+				  style: {
+					  colors: new Array(aspectLabels.length).fill('#ffffff')
+				  }
+			  }
+			},
+			yaxis: {
+			  labels: {
+				  style: {
+					  colors: new Array(aspectLabels.length).fill('#ffffff')
+				  }
+			  }
+			}
+		}
+		var aspectCoChart= new ApexCharts(document.querySelector('#aspect-co'), options)
+		aspectCoChart.render();
+	}
+
 });

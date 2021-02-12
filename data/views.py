@@ -116,6 +116,7 @@ def get_chart_data(this_project, start, end, entity_filter,
     for chart_class in (
         charts.SentimentFrequencyChart,
         charts.SentimentTimeChart,
+        charts.AspectCooccurrence,
         charts.VolumeBySourceChart,):
 
         instance = chart_class(
@@ -131,8 +132,7 @@ def get_chart_data(this_project, start, end, entity_filter,
         )
         
         chart_data = instance.render_data()
-        for key, value in chart_data.items():
-            result[key] = value
+        result.update(chart_data)
     
     return result
 
