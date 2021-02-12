@@ -403,67 +403,81 @@ class VolumeBySourceChart(BaseChart):
 
 
 class AspectCooccurrence(BaseChart):
-    
+    """
+    Generate the data needed for a co-occurrence heat map.
+    """
+
     def render_data(self):
         
-        data_set = Data.objects.filter(
-            project=self.project, date_created__range=(self.start, self.end))
-
-        if self.search:
-            data_set = data_set.filter(Q(text__icontains=self.search)|Q(url__icontains=self.search))
-
-        if self.entity_filter:
-            data_set = data_set.filter(
-                entities__label=self.entity_filter)
-
-        if self.aspect_topic:
-            data_set = data_set.filter(
-                aspect__topic=self.aspect_topic)
+        unique_aspect_labels = []
         
-        if self.aspect_name:
-            data_set = data_set.filter(
-                aspect__label=self.aspect_name)
-        
-        if self.lang_filter and self.lang_filter[0]:
-            data_set = data_set.filter(
-                language__in=self.lang_filter)
-        
-        if self.source_filter and self.source_filter[0]:
-            data_set = data_set.filter(
-                reduce(or_, [Q(source__label=c)for c in self.source_filter]))
+        ASPECT_LABEL_QUERY = """
+        SELECT distinct label 
+        FROM data_aspect, data_data
+        WHERE data_aspect.data_id = data_data.id AND data_data.project_id = %s
+        AND label != 'General'
+        ORDER BY label
+        """
 
-        # Build up a nxn array to show correlation between aspects.
-        # Get a list of unique aspects for this model.
-        unique_aspect_labels = Aspect.objects.filter(
-                data__project=self.project).distinct('label').values_list('label', flat=True)
-        
-        series = {}
-        for a in unique_aspect_labels:
-            series[a] = {}
-            for other in unique_aspect_labels:
-                series[a][other] = 0
+        with connection.cursor() as cursor:
+            cursor.execute(ASPECT_LABEL_QUERY, (self.project.id,))
+            for row in cursor.fetchall():
+                unique_aspect_labels.append("'{}'".format(row[0]))
 
-        for d in data_set.annotate(aspect_count=Count('aspect__label', distinct=True)
-                ).filter(aspect_count__gt=1):
-            labels = d.aspect_set.distinct('label').values_list('label', flat=True)
-            for x in labels:
-                for y in labels:
-                    if x == y:
-                        continue
-                    series[x][y] += 1
-                    series[y][x] += 1
-        
-        # Convert series into a format that apexcharts wants.
-        response = []
-        for label in series:
-            d = {
-                'name':label,
-                'data':[]
-            }
+        label_string = ','.join(unique_aspect_labels)
 
-            s = series[label]
-            for x,y in s.items():
-                d['data'].append({'x':x, 'y':y})
-            response.append(d)
+        series_data = []
+        totals = []
         
-        return {'aspect_cooccurrence_data':response}
+        COOCCURENCE_QUERY = """
+        SELECT a1.label, a2.label, count(*) 
+        FROM data_aspect as a1 inner join data_aspect as a2 on a1.data_id = a2.data_id 
+        inner join data_data as d on a2.data_id = d.id
+        WHERE d.project_id = %s and d.date_created between %s and %s AND
+        a1.label in ({})
+        GROUP BY a1.label, a2.label
+        ORDER BY a1.label
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(COOCCURENCE_QUERY.format(label_string),  (self.project.id, self.start, self.end,))
+            last = ''
+            this_series = {}
+            for row in cursor.fetchall():
+                l1, l2, count = row
+                if l1 != last:
+                    if this_series:
+                        series_data.append(this_series)
+                    this_series = {'name':l1, 'data':[]}
+                if l1 == l2:
+                    this_series['data'].append({'x':l2, 'y': 0})
+                else:
+                    this_series['data'].append({'x':l2, 'y': count})
+                    totals.append(count)
+
+                last = l1
+            
+            if this_series:
+                series_data.append(this_series)
+        
+        # We'll create deciles to colour code our values.
+        ranges = []
+        totals.sort()
+        min_value = totals[0]
+        max_value = totals[-1]
+        difference = max_value - min_value
+        step = difference / 10
+        
+        start = min_value
+        end = max_value
+        while start < end:
+            ranges.append({
+                'from':start,
+                'to':start+step,
+                'color':'#537fd6',
+            })
+            start += step + 1
+
+        return {
+            'aspect_cooccurrence_data':series_data,
+            'aspect_cooccurrence_data_ranges':ranges,
+        }

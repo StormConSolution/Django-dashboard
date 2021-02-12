@@ -369,6 +369,9 @@ $(window).on("load", function () {
 				height: 600,
 				type: 'heatmap'
 			},
+			legend: {
+			  show: false,
+			},
 			series: series_data,
 			tooltip: {
 			  theme:'dark'
@@ -386,6 +389,13 @@ $(window).on("load", function () {
 					  colors: new Array(aspectLabels.length).fill('#ffffff')
 				  }
 			  }
+			},
+			plotOptions: {
+				heatmap: {
+					colorScale: {
+						ranges:project_data.aspect_cooccurrence_data_ranges
+					}
+				}
 			}
 		}
 		var aspectCoChart= new ApexCharts(document.querySelector('#aspect-co'), options)
