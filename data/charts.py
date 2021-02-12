@@ -1,4 +1,5 @@
 from functools import reduce
+import collections
 from operator import or_
 from operator import itemgetter
 import datetime
@@ -30,6 +31,20 @@ COLORS = {
     'neutral': 'rgba(67, 99, 216,0.5)',
     'contrasts': DEFAULT_COLORS
 }
+
+HEATMAP_RANGE_COLOURS = [
+    '#6a9dcb',
+    '#5f91bb',
+    '#5485ab',
+    '#49799b',
+    '#3f6d8c',
+    '#36617d',
+    '#2d566e',
+    '#244a60',
+    '#1c3f52',
+    '#143444',
+    '#0d2a37',
+]
 
 class BaseChart:
 
@@ -409,7 +424,8 @@ class AspectCooccurrence(BaseChart):
 
     def render_data(self):
         
-        unique_aspect_labels = []
+        unique_quoted_labels = []
+        unique_labels = []
         
         ASPECT_LABEL_QUERY = """
         SELECT distinct label 
@@ -422,12 +438,15 @@ class AspectCooccurrence(BaseChart):
         with connection.cursor() as cursor:
             cursor.execute(ASPECT_LABEL_QUERY, (self.project.id,))
             for row in cursor.fetchall():
-                unique_aspect_labels.append("'{}'".format(row[0]))
+                unique_quoted_labels.append("'{}'".format(row[0]))
+                unique_labels.append(row[0])
 
-        label_string = ','.join(unique_aspect_labels)
+        label_string = ','.join(unique_quoted_labels)
 
         series_data = []
         totals = []
+
+        lookup = collections.defaultdict(int)
         
         COOCCURENCE_QUERY = """
         SELECT a1.label, a2.label, count(*) 
@@ -440,25 +459,19 @@ class AspectCooccurrence(BaseChart):
         """
         with connection.cursor() as cursor:
             cursor.execute(COOCCURENCE_QUERY.format(label_string),  (self.project.id, self.start, self.end,))
-            last = ''
-            this_series = {}
             for row in cursor.fetchall():
                 l1, l2, count = row
-                if l1 != last:
-                    if this_series:
-                        series_data.append(this_series)
-                    this_series = {'name':l1, 'data':[]}
                 if l1 == l2:
-                    this_series['data'].append({'x':l2, 'y': 0})
-                else:
-                    this_series['data'].append({'x':l2, 'y': count})
-                    totals.append(count)
-
-                last = l1
-            
-            if this_series:
-                series_data.append(this_series)
+                    continue
+                lookup['{}-{}'.format(l1, l2)] = count
+                totals.append(count)
         
+        for label in unique_labels:
+            s = {'name':label, 'data':[]}
+            for other in unique_labels:
+                s['data'].append({'x':other, 'y':lookup['{}-{}'.format(label, other)]})
+            series_data.append(s)
+
         # We'll create deciles to colour code our values.
         ranges = []
         totals.sort()
@@ -467,15 +480,18 @@ class AspectCooccurrence(BaseChart):
         difference = max_value - min_value
         step = difference / 10
         
+        i = 0
+        
         start = min_value
         end = max_value
         while start < end:
             ranges.append({
                 'from':start,
                 'to':start+step,
-                'color':'#537fd6',
+                'color':HEATMAP_RANGE_COLOURS[i],
             })
             start += step + 1
+            i += 1
 
         return {
             'aspect_cooccurrence_data':series_data,
