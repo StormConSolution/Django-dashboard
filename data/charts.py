@@ -424,73 +424,63 @@ class AspectCooccurrence(BaseChart):
 
     def render_data(self):
         
-        unique_quoted_labels = []
-        unique_labels = []
-        
-        ASPECT_LABEL_QUERY = """
-        SELECT distinct label 
-        FROM data_aspect, data_data
-        WHERE data_aspect.data_id = data_data.id AND data_data.project_id = %s
-        AND label != 'General'
-        ORDER BY label
+        query = """ 
+        WITH data_labels AS (
+            SELECT DISTINCT da.data_id, da.label, ARRAY_AGG(da.label) OVER (PARTITION BY da.data_id) labels
+            FROM data_data
+            JOIN data_aspect da ON data_data.id = da.data_id
+            WHERE project_id = %s
+            AND date_created BETWEEN %s and %s
+        ), labels AS (
+            SELECT label, COUNT(DISTINCT data_id)::NUMERIC total_label_count
+            FROM data_labels
+            WHERE label != 'General'
+            GROUP BY label
+        ), overlapping_data_label_counts AS (
+            SELECT l1.label label1, l1.total_label_count, l2.label label2, COUNT(*)::NUMERIC overlap_ct
+            FROM data_labels dl
+            JOIN labels l1 ON dl.label = l1.label
+            JOIN labels l2 ON l2.label = ANY(dl.labels)
+            GROUP BY l1.label, l1.total_label_count, l2.label
+        )
+
+        SELECT label1, label2, ROUND(LEAST(overlap_ct / total_label_count * 100, 100), 2) perc, total_label_count, overlap_ct
+        FROM overlapping_data_label_counts
+        ORDER BY label1, label2
         """
-
-        with connection.cursor() as cursor:
-            cursor.execute(ASPECT_LABEL_QUERY, (self.project.id,))
-            for row in cursor.fetchall():
-                unique_quoted_labels.append("'{}'".format(row[0]))
-                unique_labels.append(row[0])
-
-        label_string = ','.join(unique_quoted_labels)
-
         series_data = []
-        totals = []
+        s = {}
+        handled = {}
 
-        lookup = collections.defaultdict(int)
-        
-        COOCCURENCE_QUERY = """
-        SELECT a1.label, a2.label, count(*) 
-        FROM data_aspect as a1 inner join data_aspect as a2 on a1.data_id = a2.data_id 
-        inner join data_data as d on a2.data_id = d.id
-        WHERE d.project_id = %s and d.date_created between %s and %s AND
-        a1.label in ({})
-        GROUP BY a1.label, a2.label
-        ORDER BY a1.label
-        """
         with connection.cursor() as cursor:
-            cursor.execute(COOCCURENCE_QUERY.format(label_string),  (self.project.id, self.start, self.end,))
+            cursor.execute(query, (self.project.id, self.start, self.end,))
             for row in cursor.fetchall():
-                l1, l2, count = row
-                if l1 == l2:
-                    continue
-                lookup['{}-{}'.format(l1, l2)] = count
-                totals.append(count)
+                l1, l2, percent, _, _ = row
+                if not handled.get(l1):
+                    if s:
+                        series_data.append(s)
+                    s = {'name':l1, 'data':[]}
+                    handled[l1] = True
+                s['data'].append({'x':l2, 'y':float(percent)})
         
-        for label in unique_labels:
-            s = {'name':label, 'data':[]}
-            for other in unique_labels:
-                s['data'].append({'x':other, 'y':lookup['{}-{}'.format(label, other)]})
-            series_data.append(s)
+        # Append the last one in our loop.
+        series_data.append(s)
 
         # We'll create deciles to colour code our values.
         ranges = []
-        totals.sort()
-        min_value = totals[0]
-        max_value = totals[-1]
-        difference = max_value - min_value
-        step = difference / 10
-        
+
+        start = 0
+        end = 100
+        step = 10
         i = 0
-        
-        start = min_value
-        end = max_value
+
         while start < end:
             ranges.append({
-                'from':start,
+                'from':start+1,
                 'to':start+step,
                 'color':HEATMAP_RANGE_COLOURS[i],
             })
-            start += step + 1
+            start += step 
             i += 1
 
         return {
