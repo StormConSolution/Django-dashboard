@@ -380,7 +380,9 @@ $(window).on("load", function () {
 			  labels: {
 				  style: {
 					  colors: new Array(aspectLabels.length).fill('#ffffff')
-				  }
+				  },
+				  rotateAlways:true,
+				  rotate:-45
 			  }
 			},
 			yaxis: {
@@ -392,8 +394,20 @@ $(window).on("load", function () {
 			},
 			plotOptions: {
 				heatmap: {
-					colorScale: {
-						ranges:project_data.aspect_cooccurrence_data_ranges
+					shadeIntensity: 0.75,
+					enableShaded: true,
+					radius: 0,
+					useFillColorAsStroke: true,
+					min:0,
+					max:100,
+					colorScale:{
+						ranges:[
+							{
+								from:0,
+								to:100,
+								color:'#6a9dcb'
+							}
+						]
 					}
 				}
 			}

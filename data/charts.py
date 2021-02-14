@@ -466,24 +466,6 @@ class AspectCooccurrence(BaseChart):
         # Append the last one in our loop.
         series_data.append(s)
 
-        # We'll create deciles to colour code our values.
-        ranges = []
-
-        start = 0
-        end = 100
-        step = 10
-        i = 0
-
-        while start < end:
-            ranges.append({
-                'from':start+1,
-                'to':start+step,
-                'color':HEATMAP_RANGE_COLOURS[i],
-            })
-            start += step 
-            i += 1
-
         return {
             'aspect_cooccurrence_data':series_data,
-            'aspect_cooccurrence_data_ranges':ranges,
         }
