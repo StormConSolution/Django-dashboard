@@ -327,7 +327,7 @@ $(window).on("load", function () {
 			  }
 		  }
         },
-	    colors: ['#546E7A', '#E91E63'],
+	    colors: ['#6a9dcb'],
         fill: {
           opacity: 1
         },
