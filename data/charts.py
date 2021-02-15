@@ -32,19 +32,7 @@ COLORS = {
     'contrasts': DEFAULT_COLORS
 }
 
-HEATMAP_RANGE_COLOURS = [
-    '#6a9dcb',
-    '#5f91bb',
-    '#5485ab',
-    '#49799b',
-    '#3f6d8c',
-    '#36617d',
-    '#2d566e',
-    '#244a60',
-    '#1c3f52',
-    '#143444',
-    '#0d2a37',
-]
+OMITTED_LABELS = ('general', 'General',)
 
 class BaseChart:
 
@@ -423,39 +411,53 @@ class AspectCooccurrence(BaseChart):
     """
 
     def render_data(self):
-        
-        query = """ 
-        WITH data_labels AS (
-            SELECT DISTINCT da.data_id, da.label, ARRAY_AGG(da.label) OVER (PARTITION BY da.data_id) labels
-            FROM data_data
-            JOIN data_aspect da ON data_data.id = da.data_id
-            WHERE project_id = %s
-            AND date_created BETWEEN %s and %s
-        ), labels AS (
-            SELECT label, COUNT(DISTINCT data_id)::NUMERIC total_label_count
-            FROM data_labels
-            WHERE label != 'General'
-            GROUP BY label
-        ), overlapping_data_label_counts AS (
-            SELECT l1.label label1, l1.total_label_count, l2.label label2, COUNT(*)::NUMERIC overlap_ct
-            FROM data_labels dl
-            JOIN labels l1 ON dl.label = l1.label
-            JOIN labels l2 ON l2.label = ANY(dl.labels)
-            GROUP BY l1.label, l1.total_label_count, l2.label
-        )
 
-        SELECT label1, label2, ROUND(LEAST(overlap_ct / total_label_count * 100, 100), 2) perc, total_label_count, overlap_ct
-        FROM overlapping_data_label_counts
-        ORDER BY label1, label2
+        # Get a list of all possible labels for this project.
+        unique_labels = list(Data.objects.filter(
+                project=self.project, date_created__range=(self.start, self.end)
+        ).exclude(aspect__label__isnull=True
+        ).values_list('aspect__label', flat=True
+        ).distinct('aspect__label').order_by('aspect__label'))
+
+        # Remove omitted labels.
+        for l in OMITTED_LABELS:
+            if l in unique_labels:
+                unique_labels.remove(l)
+        
+        ASPECT_QUERY = """ 
+            SELECT * 
+            FROM get_aspect_label_percentages(%s, $SQL$ {} $SQL$) 
+            ORDER BY label1, label2;
         """
+
+        where_clause = [
+            'date_created between %s AND %s',
+        ]
+        query_args = [self.project.id, self.start, self.end]
+
+        if self.lang_filter:
+            lang_string = len(self.lang_filter) * '%s,'
+            where_clause.append('language IN ({})'.format(lang_string[:-1]))
+            query_args.extend(self.lang_filter)
+        
+        if self.source_filter:
+            source_string = len(self.source_filter) * '%s,'
+            where_clause.append('source_id IN ({})'.format(source_string[:-1]))
+            # Get the raw IDs for our sources.
+            source_ids = data_models.Source.objects.filter(
+                    label__in=self.source_filter).values_list('id', flat=True)
+            query_args.extend(source_ids)
+
         series_data = []
         s = {}
         handled = {}
 
         with connection.cursor() as cursor:
-            cursor.execute(query, (self.project.id, self.start, self.end,))
+            cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
             for row in cursor.fetchall():
-                l1, l2, percent, _, _ = row
+                l1, l2, percent, = row
+                if l1 in OMITTED_LABELS or l2 in OMITTED_LABELS:
+                    continue
                 if not handled.get(l1):
                     if s:
                         series_data.append(s)
@@ -465,6 +467,14 @@ class AspectCooccurrence(BaseChart):
         
         # Append the last one in our loop.
         series_data.append(s)
+
+        # Go through each series and fill out a zero for missing data.
+        for series in series_data:
+            for idx, label in enumerate(unique_labels):
+                clean_data = []
+                if series['data'][idx]['x'] != label:
+                    series['data'].insert(idx, {'x':label, 'y':0})
+
 
         return {
             'aspect_cooccurrence_data':series_data,
