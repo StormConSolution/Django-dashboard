@@ -471,8 +471,10 @@ class AspectCooccurrence(BaseChart):
         # Go through each series and fill out a zero for missing data.
         for series in series_data:
             for idx, label in enumerate(unique_labels):
-                clean_data = []
-                if series['data'][idx]['x'] != label:
+                try:
+                    if series['data'][idx]['x'] != label:
+                        series['data'].insert(idx, {'x':label, 'y':0})
+                except IndexError:
                     series['data'].insert(idx, {'x':label, 'y':0})
 
 
