@@ -1,3 +1,8 @@
+/*
+
+SELECT refresh_cached_label_data()
+
+*/
 
 CREATE OR REPLACE FUNCTION refresh_cached_label_data() RETURNS VOID
 LANGUAGE plpgsql
@@ -60,9 +65,13 @@ BEGIN
 END
 $$;
 
+/*
 
-SELECT refresh_cached_label_data();
+SELECT * FROM get_aspect_label_percentages(3155) ORDER BY label1, label2;
+SELECT * FROM get_aspect_label_percentages(3155, $SQL$date_created > '2020-01-01'$SQL$) ORDER BY label1, label2;
+SELECT * FROM get_aspect_label_percentages(3171, $SQL$date_created > '2019-01-01' AND source_id = 1$SQL$) ORDER BY label1, label2;
 
+*/
 DROP FUNCTION IF EXISTS get_aspect_label_percentages;
 CREATE OR REPLACE FUNCTION get_aspect_label_percentages(project_id INT, filter VARCHAR = NULL) RETURNS TABLE(label1 VARCHAR, label2 VARCHAR, percentage NUMERIC)
 LANGUAGE plpgsql
@@ -71,7 +80,7 @@ AS $$
 DECLARE
     label_columns_select TEXT;
 BEGIN
-    label_columns_select = STRING_AGG(FORMAT('%1$s::TEXT, SUM(label_%1$s::INT)::NUMERIC / COUNT(*)::NUMERIC * 100', id), ', ' ORDER BY id) FROM data_aspectlabel l WHERE l.project_id = get_aspect_label_percentages.project_id;
+    label_columns_select = STRING_AGG(FORMAT('%1$s::TEXT, COALESCE(SUM(label_%1$s::INT)::NUMERIC / COUNT(*)::NUMERIC * 100, 0)', id), ', ' ORDER BY id) FROM data_aspectlabel l WHERE l.project_id = get_aspect_label_percentages.project_id;
 
     RETURN QUERY EXECUTE '
         WITH percentages AS (
@@ -90,7 +99,6 @@ BEGIN
         FROM percentages p
             CROSS JOIN LATERAL JSONB_EACH(p.label_percs) lp(id, perc)
             JOIN data_aspectlabel l ON l.project_id = ' || get_aspect_label_percentages.project_id::TEXT || ' AND l.id = lp.id::INT
-        WHERE lp.perc != ''null''::JSONB
     ';
 END
 $$;

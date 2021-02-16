@@ -412,18 +412,6 @@ class AspectCooccurrence(BaseChart):
 
     def render_data(self):
 
-        # Get a list of all possible labels for this project.
-        unique_labels = list(Data.objects.filter(
-                project=self.project, date_created__range=(self.start, self.end)
-        ).exclude(aspect__label__isnull=True
-        ).values_list('aspect__label', flat=True
-        ).distinct('aspect__label').order_by('aspect__label'))
-
-        # Remove omitted labels.
-        for l in OMITTED_LABELS:
-            if l in unique_labels:
-                unique_labels.remove(l)
-        
         ASPECT_QUERY = """ 
             SELECT * 
             FROM get_aspect_label_percentages(%s, $SQL$ {} $SQL$) 
@@ -467,16 +455,6 @@ class AspectCooccurrence(BaseChart):
         
         # Append the last one in our loop.
         series_data.append(s)
-
-        # Go through each series and fill out a zero for missing data.
-        for series in series_data:
-            for idx, label in enumerate(unique_labels):
-                try:
-                    if series['data'][idx]['x'] != label:
-                        series['data'].insert(idx, {'x':label, 'y':0})
-                except IndexError:
-                    series['data'].insert(idx, {'x':label, 'y':0})
-
 
         return {
             'aspect_cooccurrence_data':series_data,
