@@ -254,7 +254,7 @@ class AspectNameTable(BaseChart):
         return aspects
 
 
-class SentimentFrequencyChart(BaseChart):
+class SentimentDonutChart(BaseChart):
 
     def render_data(self):
         data_set = Data.objects.filter(

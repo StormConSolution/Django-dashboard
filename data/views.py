@@ -114,7 +114,7 @@ def get_chart_data(this_project, start, end, entity_filter,
     }
 
     for chart_class in (
-        charts.SentimentFrequencyChart,
+        charts.SentimentDonutChart,
         charts.SentimentTimeChart,
         charts.AspectCooccurrence,
         charts.VolumeBySourceChart,):
@@ -265,6 +265,10 @@ def projects(request, project_id):
 
     # Shove the aspect data into the chart data so it can render nicely in javascript.
     chart_data['aspect_data'] = context['aspect_data']
+
+    context['total_data'] = chart_data['total_data']
+    context['total_positive'] = chart_data['total_positive']
+    context['total_negative'] = chart_data['total_negative']
     
     json_chart_data = json.dumps(chart_data, sort_keys=True, default=default_encoder)
     context['chart_data'] = json_chart_data

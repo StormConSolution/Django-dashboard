@@ -201,9 +201,9 @@
                 <div class="container-fluid mb-3">
                     <div class="row">
 						<div class="col-10">
-							<h1>{{ project.name }} 
+							<h1>{{ project.name }}
 								<a class="text-white" href="{% url 'projects' project_id=project.id %}?from={{ earliest }}&to={{ latest }}">
-									<small style="font-size:18px;" class="text-muted">{{ total|intcomma }} data items in total. </small></a>
+									<small style="font-size:18px;" class="text-muted">See all {{ total|intcomma }} data items &rarr;</small></a>
 							</h1>
 						</div>
 						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
