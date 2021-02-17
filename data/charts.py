@@ -156,7 +156,7 @@ class DataEntryTable(BaseChart):
                 'sentiment',).order_by('-date_created')[self.offset:self.offset+self.page_size]:
             
             # We encode the URL and text in json string and decode it client side.
-            text = {"text": entry["text"][:300], "url": entry["url"]}
+            text = {"text": entry["text"][:300]+" ...", "url": entry["url"]}
 
             entry_data["aaData"].append([
                 entry['date_created'],

@@ -147,11 +147,11 @@ def projects(request, project_id):
     end = this_project.data_set.latest().date_created
     start = end - datetime.timedelta(days=30)
 
-    if 'start' in request.GET and 'end' in request.GET:
+    if 'from' in request.GET and 'to' in request.GET:
         start = datetime.datetime.strptime(
-            request.GET.get('start'), "%Y-%m-%d")
-        end = datetime.datetime.strptime(request.GET.get('end'), "%Y-%m-%d")
-
+            request.GET.get('from'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
+    
     context = {
         'project': this_project,
         'total':this_project.data_set.count(),
