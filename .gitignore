@@ -25,3 +25,5 @@ staticfiles/*
 .twitter_keys.yaml
 
 settings_local.py
+
+scrapers/data/
