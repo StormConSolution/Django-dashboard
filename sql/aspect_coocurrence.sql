@@ -65,6 +65,8 @@ BEGIN
 END
 $$;
 
+SELECT refresh_cached_label_data();
+
 /*
 
 SELECT * FROM get_aspect_label_percentages(3155) ORDER BY label1, label2;

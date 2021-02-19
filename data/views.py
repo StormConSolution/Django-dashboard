@@ -113,12 +113,16 @@ def get_chart_data(this_project, start, end, entity_filter,
         "colors": charts.COLORS["contrasts"],
     }
 
-    for chart_class in (
+    chart_classes = [
         charts.SentimentDonutChart,
         charts.SentimentTimeChart,
-        charts.AspectCooccurrence,
-        charts.VolumeBySourceChart,):
+        charts.VolumeBySourceChart,
+    ]
 
+    if this_project.aspect_model:
+        chart_classes.append(charts.AspectCooccurrence)
+
+    for chart_class in chart_classes:
         instance = chart_class(
             this_project,
             start,

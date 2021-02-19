@@ -443,6 +443,7 @@ class AspectCooccurrence(BaseChart):
         with connection.cursor() as cursor:
             cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
             for row in cursor.fetchall():
+                print(row)
                 l1, l2, percent, = row
                 if l1 in OMITTED_LABELS or l2 in OMITTED_LABELS:
                     continue
