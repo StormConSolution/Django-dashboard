@@ -412,6 +412,21 @@ class AspectCooccurrence(BaseChart):
 
     def render_data(self):
 
+        UNIQUE_ASPECTS_QUERY = """
+            SELECT distinct data_aspect.label
+            FROM data_aspect, data_data
+            WHERE data_aspect.data_id = data_data.id AND
+            data_data.project_id = %s AND
+            data_aspect.label != 'General' AND
+            data_aspect.label != 'beneral' AND
+            data_data.date_created between %s AND %s
+        """
+        aspect_labels = []
+        with connection.cursor() as cursor:
+            cursor.execute(UNIQUE_ASPECTS_QUERY, (self.project.id, self.start, self.end,))
+            for row in cursor.fetchall():
+                aspect_labels.append(row[0])
+
         ASPECT_QUERY = """ 
             SELECT * 
             FROM get_aspect_label_percentages(%s, $SQL$ {} $SQL$) 
@@ -443,7 +458,6 @@ class AspectCooccurrence(BaseChart):
         with connection.cursor() as cursor:
             cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
             for row in cursor.fetchall():
-                print(row)
                 l1, l2, percent, = row
                 if l1 in OMITTED_LABELS or l2 in OMITTED_LABELS:
                     continue
@@ -453,9 +467,22 @@ class AspectCooccurrence(BaseChart):
                     s = {'name':l1, 'data':[]}
                     handled[l1] = True
                 s['data'].append({'x':l2, 'y':float(percent)})
-        
+            
         # Append the last one in our loop.
         series_data.append(s)
+
+        # Not all aspects might be present so go through the series and make
+        # sure all data is padded out.
+        if len(series_data) != len(aspect_labels):
+            empty_row = [{'x':l, 'y':0} for l in aspect_labels]
+
+            for idx, label in enumerate(aspect_labels):
+                if len(series_data) < idx:
+                    series_data.insert(idx, {'name':label, 'data':empty_row})
+                elif series_data[idx]['name'] != label:
+                    series_data.insert(idx, {'name':label, 'data':empty_row})
+        
+        print(series_data)
 
         return {
             'aspect_cooccurrence_data':series_data,

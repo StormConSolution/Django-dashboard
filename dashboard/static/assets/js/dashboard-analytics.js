@@ -362,8 +362,8 @@ $(window).on("load", function () {
 	sourceByVolumeChart.render();
 
 	// Render the aspect co-occurence.
-	series_data = project_data.aspect_cooccurrence_data;
-	if (series_data.length > 0) {
+	seriesData = project_data.aspect_cooccurrence_data;
+	if (seriesData.length > 0) {
 		options = {
 			chart: {
 				height: 600,
@@ -372,14 +372,14 @@ $(window).on("load", function () {
 			legend: {
 			  show: false,
 			},
-			series: series_data,
+			series: seriesData,
 			tooltip: {
 			  theme:'dark'
 			},
 			xaxis: {
 			  labels: {
 				  style: {
-					  colors: new Array(aspectLabels.length).fill('#ffffff')
+					  colors: new Array(seriesData.length).fill('#ffffff')
 				  },
 				  rotateAlways:true,
 				  rotate:-45
@@ -388,7 +388,7 @@ $(window).on("load", function () {
 			yaxis: {
 			  labels: {
 				  style: {
-					  colors: new Array(aspectLabels.length).fill('#ffffff')
+					  colors: new Array(seriesData.length).fill('#ffffff')
 				  }
 			  }
 			},
