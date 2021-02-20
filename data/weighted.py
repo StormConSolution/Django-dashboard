@@ -56,10 +56,6 @@ def xbiao(source, raw_score, comments):
     else:
         return 30 * raw_score
 
-def twitter(source, raw_score, retweets, followers):
-    # NOTE for now until we add Twitter
-    return default(raw_score)
-
 def reviews(source, raw_score, comments, stars):
     if comments < 10:
         comments_score = comments
@@ -70,8 +66,8 @@ def reviews(source, raw_score, comments, stars):
 
     return ((stars * 5) + comments_score) * raw_score
 
-def default():
-    return 0.5 * AVG_WEIGHT
+def default(raw_score):
+    return 0.5 * AVG_WEIGHT * raw_score
 
 def calculate(**kwargs):
     source = kwargs.get('source')
@@ -87,7 +83,5 @@ def calculate(**kwargs):
         return xbiao(**kwargs)
     elif source == 'reviews':
         return reviews(**kwargs)
-    elif source == 'twitter':
-        return twitter(**kwargs)
     else:
-        return default()
+        return default(kwargs.get('raw_score'))
