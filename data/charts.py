@@ -482,8 +482,6 @@ class AspectCooccurrence(BaseChart):
                 elif series_data[idx]['name'] != label:
                     series_data.insert(idx, {'name':label, 'data':empty_row})
         
-        print(series_data)
-
         return {
             'aspect_cooccurrence_data':series_data,
         }
