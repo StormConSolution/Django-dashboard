@@ -576,7 +576,7 @@
 				 "order": [[2, "desc"]],
 				 "columnDefs": [{
 				  "render": function ( data, type, row ) {
-					return "<a href='?entity="+escape(data)+"'>"+data+"</a>";
+					return "<a href='?entity="+encodeURI(data)+"'>"+data+"</a>";
 				  },
 				  "targets": 0
 				}
@@ -590,19 +590,21 @@
              "columnDefs": [ 
 				 {
 				  "render": function ( data, type, row ) {
-					return "<a href='?aspecttopic="+escape(data)+"'>"+data+"</a>";
+					return "<a href='?aspecttopic="+encodeURI(data)+"'>"+data+"</a>";
 				  },
 				  "targets": 0
 				},
 				 {
 				  "render": function ( data, type, row ) {
-					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",1,0)'>Details</a>"
+					  let t = row[0];
+					  return `<a href='javascript:aspect_modal("${t}",1,0)'>Details</a>`
 				  },
 				  "targets": 2
 				},
 				 {
 				  "render": function ( data, type, row ) {
-					  return "<a href='javascript:aspect_modal("+'"'+row[0]+'"'+",-1,0)'>Details</a>"
+					  let t = row[0];
+					  return `<a href='javascript:aspect_modal("${t}",-1,0)'>Details</a>`
 				  },
 				  "targets": 3
 				}
@@ -643,14 +645,14 @@
 			function aspect_modal(topic, sentiment, mode) {
 				if (mode == 0) {
 					$('#modal-table').DataTable( {
-						 "ajax": "{% url 'aspect-topic-detail' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
+						 "ajax": "{% url 'aspect-topic-detail' project.id %}?topic="+encodeURI(topic)+"&sentiment="+sentiment,
 						 "destroy": true
 					})
 
 					$("#modal-title").html("Aspect topic detailed view - "+topic)
 				} else {
 					$('#modal-table').DataTable( {
-						 "ajax": "{% url 'aspect-topic-summary' project.id %}?topic="+escape(topic)+"&sentiment="+sentiment,
+						 "ajax": "{% url 'aspect-topic-summary' project.id %}?topic="+encodeURI(topic)+"&sentiment="+sentiment,
 						 "order": [[1, "desc"]],
 						 "destroy": true
 					})

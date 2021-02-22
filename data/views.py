@@ -367,7 +367,7 @@ def aspect_topic_detail(request, project_id):
         aspects = aspects.filter(sentiment__gt=0)
     else:
         aspects = aspects.filter(sentiment__lt=0)
-
+    
     data = []
     for a in aspects.values('sentiment_text', 'chunk', 'data__text'):
         for t in a['sentiment_text']:
