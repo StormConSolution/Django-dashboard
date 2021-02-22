@@ -182,7 +182,7 @@ class AspectTopicTable(BaseChart):
         aspect_set = Aspect.objects.filter(
             data__date_created__range=(self.start, self.end),
             data__project=self.project
-        )
+        ).exclude(topic='').exclude(topic__isnull=True)
         
         if self.entity_filter:
             aspect_set = aspect_set.filter(
