@@ -75,6 +75,7 @@ class AspectAdmin(admin.ModelAdmin):
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', '_data_count', '_view')
     filter_horizontal = ('users', 'charts')
+    search_fields = ('name', 'users__email')
 
     def _view(self, obj):
         return mark_safe('<a href="{0}">{1}</a>'.format(
@@ -99,6 +100,14 @@ class TwitterSearchAdmin(admin.ModelAdmin):
     list_display = ('query', 'project_name', 'status',)
 
 
+class SummaryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'description', 'project', )
+    raw_id_fields = ('project',)
+
+class AlertAdmin(admin.ModelAdmin):
+    list_display = ('title', 'description', 'project', )
+    raw_id_fields = ('project',)
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(Project, ProjectAdmin)
@@ -109,3 +118,5 @@ admin.site.register(AspectModel)
 admin.site.register(Keyword)
 admin.site.register(Country)
 admin.site.register(Source)
+admin.site.register(Summary, SummaryAdmin)
+admin.site.register(Alert, AlertAdmin)

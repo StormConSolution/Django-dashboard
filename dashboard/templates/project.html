@@ -209,15 +209,22 @@
 						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
                     </div>
                 </div>
+				{% for alert in project.alert_set.all %}
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<strong>{{ alert.title }}</strong> {{ alert.description }}
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				{% endfor %}
 				<div class="container">
 					<div class="row">
-						{% for summary in summaries %}
+						{% for summary in project.summary_set.all %}
 						<div class="col-3">
 							<div class="card">
 								<div class="card-body">
 									<h5 class="card-title">{{ summary.title }}</h5>
 									<p class="card-text">{{ summary.description }}</p>
-									<a href="#" class="text-white card-link">View Details</a>
 								</div>
 							</div>
 						</div>

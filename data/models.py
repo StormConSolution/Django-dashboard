@@ -127,6 +127,24 @@ class Country(models.Model):
     def __str__(self):
         return self.label
 
+class Summary(models.Model):
+    date_created = models.DateField(auto_now=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    title = models.CharField(max_length=80, default="")
+    description = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+class Alert(models.Model):
+    date_created = models.DateField(auto_now=True)
+    handled = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    title = models.CharField(max_length=80, default="")
+    description = models.TextField()
+    
+    def __str__(self):
+        return self.title
 
 class Data(models.Model):
     date_created = models.DateField(db_index=True)

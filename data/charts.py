@@ -34,6 +34,8 @@ COLORS = {
 
 OMITTED_LABELS = ('general', 'General',)
 
+MAX_COMMENT_LENGTH = 200
+
 class BaseChart:
 
     def __init__(self, project, start, end, entity_filter, 
@@ -156,7 +158,11 @@ class DataEntryTable(BaseChart):
                 'sentiment',).order_by('-date_created')[self.offset:self.offset+self.page_size]:
             
             # We encode the URL and text in json string and decode it client side.
-            text = {"text": entry["text"][:300]+" ...", "url": entry["url"]}
+            t = entry['text']
+            if len(t) > MAX_COMMENT_LENGTH:
+                t = t[:MAX_COMMENT_LENGTH] + "..."
+
+            text = {"text": t, "url": entry["url"]}
 
             entry_data["aaData"].append([
                 entry['date_created'],
