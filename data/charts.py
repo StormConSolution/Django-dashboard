@@ -204,9 +204,9 @@ class AspectTopicTable(BaseChart):
             aspect_set = aspect_set.filter(
                     Q(label__icontains=self.search)|
                     Q(sentiment_text__icontains=self.search)|
-                    Q(topic__icontains=self.search)).distinct('topic')
+                    Q(topic__icontains=self.search))
     
-        aspect_count = aspect_set.values_list('topic', 'label')
+        aspect_count = aspect_set.distinct('topic').values_list('topic', 'label')
         
         aspects = {
             "aaData": [],
