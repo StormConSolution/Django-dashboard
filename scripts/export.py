@@ -15,7 +15,7 @@ def run():
                 w3 = csv.writer(entity_out)
                 w3.writerow(['data_id', 'entity', 'classifications'])
 
-                for d in Data.objects.filter(project__id=3155)[:1000]:
+                for d in Data.objects.filter(project__id=3155):
                     w.writerow([d.id, d.text, d.url, d.language, d.source.label, d.sentiment, d.weighted_score])
                     
                     for a in d.aspect_set.all():

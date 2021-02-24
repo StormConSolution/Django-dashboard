@@ -93,6 +93,7 @@ class ProjectAdmin(admin.ModelAdmin):
 class EntityAdmin(admin.ModelAdmin):
     list_display = ('label',)
     search_fields = ('label', 'classifications__label')
+    list_filter = ('data__project',)
     filter_horizontal = ('classifications',)
 
 
