@@ -61,7 +61,7 @@ class DataAdmin(admin.ModelAdmin):
     list_filter = ('project', 'source', 'language')
     raw_id_fields = ('project',)
     search_fields = ('text', 'url')
-    readonly_fields = ('entities', 'language', 'text', 'source', 'country',)
+    readonly_fields = ('entities', 'language', 'text', 'source', 'country', 'keywords',)
     date_hierarchy = 'date_created'
 
 

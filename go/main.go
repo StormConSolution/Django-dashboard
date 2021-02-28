@@ -77,7 +77,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	rows, err := db.Query("select id, text, language from data_data where project_id = 3155")
+	rows, err := db.Query("select id, text, language from data_data where project_id = 3155 and language in ('en', 'fr', 'ru', 'tr', 'ko', 'zh')")
 	if err != nil {
 		log.Fatal(err)
 	}

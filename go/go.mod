@@ -2,9 +2,9 @@ module dashboard
 
 go 1.15
 
-replace github.com/3xian/darkseg v0.0.0-20140606144946-7e1f5876a7ad => ../repustate-api/src/github.com/3xian/darkseg
+replace github.com/3xian/darkseg v0.0.0-20140606144946-7e1f5876a7ad => ../../repustate-api/src/github.com/3xian/darkseg
 
-replace bitbucket.org/repustatecom/repustate-api/server/categories => ../repustate-api/server/categories
+replace bitbucket.org/repustatecom/repustate-api/server/categories => ../../repustate-api/server/categories
 
 require (
 	bitbucket.org/repustatecom/repustate-api/server/arabictagger v0.0.0-20210217193116-d6507cb4b920 // indirect
