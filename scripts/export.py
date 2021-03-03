@@ -47,7 +47,7 @@ def xrun():
 def run():
     with open('data_export.csv', 'w') as data_out:
         w = csv.writer(data_out)
-        w.writerow(['id', 'text', 'url', 'language', 'source', 'raw sentiment', 'weighted_sentiment'])
+        w.writerow(['id', 'date_created', 'text', 'url', 'language', 'source', 'raw sentiment', 'weighted_sentiment'])
         
         with open('aspect_export.csv', 'w') as aspect_out:
             w2 = csv.writer(aspect_out)
@@ -58,7 +58,7 @@ def run():
                 w3.writerow(['data_id', 'entity', 'english', 'classifications'])
 
                 for d in Data.objects.filter(project__id=3155):
-                    w.writerow([d.id, d.text, d.url, d.language, d.source.label, d.sentiment, d.weighted_score])
+                    w.writerow([d.id, d.date_created, d.text, d.url, d.language, d.source.label, d.sentiment, d.weighted_score])
                     
                     for a in d.aspect_set.all():
                         if a.sentiment_text:
