@@ -156,6 +156,7 @@ class Data(models.Model):
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0, db_index=True)
     weighted_score = models.FloatField(default=0, db_index=True)
+    relevance = models.FloatField(default=0, db_index=True)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     entities = models.ManyToManyField(Entity)
 
