@@ -91,6 +91,7 @@ class EntityTable(BaseChart):
                 reduce(or_, [Q(source__label=c)for c in self.source_filter]))
         
         entity_set = Entity.objects.filter(data__in=entity_data_set)
+        total = len(set(entity_set.values_list('label')))
 
         if self.search:
             entity_set = entity_set.filter(Q(label__icontains=self.search)|Q(classifications__label__icontains=self.search))
@@ -101,8 +102,8 @@ class EntityTable(BaseChart):
 
         entities = {
             "aaData": [],
-            "iTotalRecords": entity_set.count(),
-            "iTotalDisplayRecords": entity_set.count(),
+            "iTotalRecords": total,
+            "iTotalDisplayRecords": total,
             "draw":self.draw,
         }
 
