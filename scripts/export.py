@@ -1,12 +1,29 @@
 import csv
 import os
 import psycopg2
+from urllib.parse import urlparse
 
 from data.models import *
 
 dsn = open(os.environ['PIPELINE_CONFIG']).read()
 conn = psycopg2.connect(dsn)
 cache = {}
+
+traffic_stats = {}
+
+def load_traffic_stats():
+    with open('scripts/traffic_stats.csv') as fd:
+        r = csv.reader(fd)
+        for row in r:
+            url, t = row[2], row[3]
+            if t == 'N/A':
+                continue
+            domain = urlparse(url).netloc
+            traffic_stats[domain] = t
+
+def web_traffic(url):
+    domain = urlparse(url).netloc
+    return traffic_stats.get(domain, 0)
 
 def to_english(label, lang):
     # First make sure all of our english titles are in the interlanguage links table.
@@ -45,9 +62,13 @@ def xrun():
 
 
 def run():
+    
+    load_traffic_stats()
+
     with open('data_export.csv', 'w') as data_out:
         w = csv.writer(data_out)
-        w.writerow(['id', 'date_created', 'text', 'url', 'language', 'location', 'source', 'raw sentiment', 'weighted_sentiment', 'relevance'])
+        w.writerow(['id', 'date_created', 'text', 'url', 'language', 
+            'country', 'source', 'raw sentiment', 'weighted_sentiment', 'relevance', 'web traffic'])
         
         with open('aspect_export.csv', 'w') as aspect_out:
             w2 = csv.writer(aspect_out)
@@ -64,11 +85,12 @@ def run():
                         d.text,
                         d.url,
                         d.language,
-                        d.location, 
+                        d.country and d.country.label or '', 
                         d.source.label, 
                         d.sentiment, 
                         d.weighted_score,
-                        d.relevance])
+                        d.relevance,
+                        web_traffic(d.url)])
                     
                     for a in d.aspect_set.all():
                         if a.sentiment_text:
