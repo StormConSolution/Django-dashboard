@@ -11,7 +11,7 @@ class DataSerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model = models.Data
-        fields = ['date_created', 'country', 'source', 'text', 'keywords',
+        fields = ['date_created', 'country', 'source', 'text', 'url',
                 'sentiment', 'weighted_score', 'language', 'entities']
 
 class SourceSerializer(serializers.ModelSerializer):
