@@ -7,6 +7,7 @@ from django import template
 from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q, F
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
@@ -145,8 +146,7 @@ def projects(request, project_id):
     
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseRedirect(LOGIN_URL)
+        raise PermissionDenied
 
     end = this_project.data_set.latest().date_created
     start = end - datetime.timedelta(days=30)
