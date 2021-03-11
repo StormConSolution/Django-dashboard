@@ -92,6 +92,8 @@ def run():
                         d.relevance,
                         web_traffic(d.url)])
                     
+                    continue
+
                     for a in d.aspect_set.all():
                         if a.sentiment_text:
                             st = a.sentiment_text[0]

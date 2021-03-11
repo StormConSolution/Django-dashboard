@@ -166,6 +166,11 @@ def add_data(request, project_id):
         url=request.POST.get('url', ''),
     )
     
+    metadata = request.POST.get('metadata')
+    if metadata:
+        data.metadata = json.loads(metadata)
+        data.save()
+    
     if request.POST.get('country'):
         country, _ = data_models.Country.objects.get_or_create(
             label=request.POST['country'])

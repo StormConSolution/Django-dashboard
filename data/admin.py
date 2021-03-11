@@ -61,7 +61,7 @@ class DataAdmin(admin.ModelAdmin):
     list_filter = ('project', 'source', 'language')
     raw_id_fields = ('project',)
     search_fields = ('text', 'url')
-    readonly_fields = ('entities', 'language', 'text', 'source', 'country', 'keywords',)
+    readonly_fields = ('entities', 'language', 'text', 'source', 'country', 'metadata')
     date_hierarchy = 'date_created'
 
 
@@ -109,6 +109,9 @@ class AlertAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'project', )
     raw_id_fields = ('project',)
 
+class SourceAdmin(admin.ModelAdmin):
+    search_fields = ('label',)
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(Project, ProjectAdmin)
@@ -118,6 +121,6 @@ admin.site.register(TwitterSearch, TwitterSearchAdmin)
 admin.site.register(AspectModel)
 admin.site.register(Keyword)
 admin.site.register(Country)
-admin.site.register(Source)
+admin.site.register(Source, SourceAdmin)
 admin.site.register(Summary, SummaryAdmin)
 admin.site.register(Alert, AlertAdmin)

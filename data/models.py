@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.urls import reverse
 
@@ -150,7 +150,6 @@ class Data(models.Model):
     date_created = models.DateField(db_index=True)
     url = models.URLField(blank=True, null=True, db_index=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    keywords = models.ManyToManyField(Keyword)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
@@ -159,6 +158,7 @@ class Data(models.Model):
     relevance = models.FloatField(default=0, db_index=True)
     language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     entities = models.ManyToManyField(Entity)
+    metadata = JSONField(blank=True, default=dict)
 
     class Meta:
         verbose_name_plural = 'Data'
