@@ -6,13 +6,12 @@ class DataSerializer(serializers.HyperlinkedModelSerializer):
 
     country = serializers.StringRelatedField(many=False)
     source = serializers.StringRelatedField(many=False)
-    keywords = serializers.StringRelatedField(many=True)
     entities = serializers.StringRelatedField(many=True)
     
     class Meta:
         model = models.Data
         fields = ['date_created', 'country', 'source', 'text', 'url',
-                'sentiment', 'weighted_score', 'language', 'entities']
+                'sentiment', 'weighted_score', 'language', 'entities', 'metadata']
 
 class SourceSerializer(serializers.ModelSerializer):
     class Meta:
