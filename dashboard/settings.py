@@ -215,6 +215,7 @@ SERVER_EMAIL = "Repustate <info@repustate.com>"
 
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'dashboard.urls.api_info',
+    'DEFAULT_API_URL': 'https://dashboard.repustate.com',
 }
 
 LOGGING_CONFIG = None
@@ -253,3 +254,4 @@ LOGGING = {
         },
     },
 }
+
