@@ -405,5 +405,84 @@ $(window).on("load", function() {
         sourceOptions
     );
     sourceByVolumeChart.render();
+    (function(){
+        var options = {
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true,
+                stackType: '100%'
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                },
+            },
+            stroke: {
+                width: 1,
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                    return val;
+                    }
+                },
+                theme:'dark'
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                offsetX: 40,
+                labels: {
+                    colors: ['white'],
+                }
+            },
+            colors : [$positive, $info, $negative],
 
+        };
+        var aspect_data = project_data.aspect_data;
+        let positives = [];
+        let negatives = [];
+        let neutrals = [];
+        let categories = [];
+        for(data of aspect_data){
+            categories.push(data.label);
+            positives.push(data.pos);
+            negatives.push(data.neg);
+            neutrals.push(data.count - data.pos - data.neg);
+        }
+        options.series = [{
+            name: 'Positive',
+            data: positives
+        },
+        {
+            name: 'Neutral',
+            data: neutrals
+        },
+        {
+            name: 'Negative',
+            data: negatives
+        }];
+        options.xaxis = {
+            categories: categories,
+            labels: {
+                style: {
+                  colors: $label_trend,
+                },
+            }
+        };
+        options.yaxis = {
+            labels: {
+                style: {
+                    colors: 'white'
+                }
+            }
+        }
+
+        var chart = new ApexCharts(document.querySelector("#sentiment-for-each-aspect"), options);
+        chart.render();
+    }());
 });
