@@ -78,7 +78,7 @@ def run():
                 w3 = csv.writer(entity_out)
                 w3.writerow(['data_id', 'entity', 'english', 'classifications'])
 
-                for d in Data.objects.filter(project__id=3155):
+                for d in Data.objects.filter(project__id=3155).prefetch_related('entities'):
                     w.writerow([
                         d.id, 
                         d.date_created, 
@@ -94,14 +94,14 @@ def run():
                     
                     continue
 
-                    for a in d.aspect_set.all():
-                        if a.sentiment_text:
-                            st = a.sentiment_text[0]
+                    for a in d.aspect_set.values():
+                        if a['sentiment_text']:
+                            st = a['sentiment_text'][0]
                         else:
                             st = ''
-                        w2.writerow([d.id, a.label, a.sentiment, a.chunk, a.topic, st])
+                        w2.writerow([d.id, a['label'], a['sentiment'], a['chunk'], a['topic'], st])
                     
-                    for e in d.entities.prefetch_related('classifications'):
+                    for e in d.entities.all():
                         w3.writerow([
                             d.id, 
                             e.label, 
