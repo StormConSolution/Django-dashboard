@@ -7,9 +7,9 @@ def run():
     factor = 1.1149 / 6.0
 
     with transaction.atomic():
-        for d in Data.objects.filter(text__icontains=0, relevance=0):
+        for d in Data.objects.filter(text__icontains='rolex', project=3155):
             count = d.text.lower().count('rolex')
-            relevance = max(count * factor, 1.114945959)
-            d.relevance = count
+            relevance = min(count * factor, 1.114945959)
+            d.relevance = relevance
             d.save()
 

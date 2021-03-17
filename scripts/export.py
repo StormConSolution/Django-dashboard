@@ -15,12 +15,12 @@ def load_traffic_stats():
     with open('scripts/traffic_stats.csv') as fd:
         r = csv.reader(fd)
         for row in r:
-            url, t = row[2], row[3]
+            url, t = row[1], row[2]
             if t == 'N/A':
                 continue
             domain = urlparse(url).netloc
             traffic_stats[domain] = t
-
+    
 def web_traffic(url):
     domain = urlparse(url).netloc
     return traffic_stats.get(domain, 0)
@@ -79,6 +79,7 @@ def run():
                 w3.writerow(['data_id', 'entity', 'english', 'classifications'])
 
                 for d in Data.objects.filter(project__id=3155).prefetch_related('entities'):
+                    
                     w.writerow([
                         d.id, 
                         d.date_created, 
@@ -92,8 +93,6 @@ def run():
                         d.relevance,
                         web_traffic(d.url)])
                     
-                    continue
-
                     for a in d.aspect_set.values():
                         if a['sentiment_text']:
                             st = a['sentiment_text'][0]
