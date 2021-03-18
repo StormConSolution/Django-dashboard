@@ -13,7 +13,8 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpR
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
-
+from django.core import serializers
+from django.forms.models import model_to_dict
 from data import models as data_models
 from data import charts
 
@@ -401,3 +402,33 @@ def aspect_topic_summary(request, project_id):
                 data[t] += 1
     
     return JsonResponse({"data":list(data.items())})
+
+@login_required(login_url=LOGIN_URL)
+def data_per_aspect(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+    # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    aspect_label = request.GET.get('aspect', '')
+    sentiment = request.GET.get('sentiment', '')
+
+    query = data_models.Aspect.objects.filter(label = aspect_label).filter(data_id__project_id = project_id)
+
+    if sentiment == 'positive':
+        query = query.filter(data_id__sentiment__gte = 0.5)
+
+    if sentiment == 'negative':
+        query = query.filter(data_id__sentiment__lt = 0)
+
+    if sentiment == 'neutral':
+        query = query.filter(data_id__sentiment__gte = 0)
+        query = query.filter(data_id__sentiment__lte = 0.5)
+    
+
+    print(query.query)
+    #print(data_models.Aspect.objects.filter(label = aspect_label).filter(data_id__project_id = project_id ).all().select_related('data').query)
+    data = query.all().select_related('data').annotate(text=F('data_id__text'), sentiment_value=F('data_id__sentiment')).values("chunk", "sentiment_value")
+    #struct = serializers.serialize('json', data)
+    return JsonResponse({"data": list(data)})

@@ -482,6 +482,7 @@ $(window).on("load", function() {
             }
         }
 
+        options.chart.height = options.xaxis.categories.length * 40;
         var chart = new ApexCharts(document.querySelector("#sentiment-for-each-aspect"), options);
         chart.render();
     }());
