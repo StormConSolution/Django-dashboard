@@ -417,14 +417,14 @@ def data_per_aspect(request, project_id):
     query = data_models.Aspect.objects.filter(label = aspect_label).filter(data_id__project_id = project_id)
 
     if sentiment == 'positive':
-        query = query.filter(data_id__sentiment__gte = 0.5)
+        query = query.filter(data_id__sentiment__gt = 0)
 
     if sentiment == 'negative':
         query = query.filter(data_id__sentiment__lt = 0)
 
     if sentiment == 'neutral':
-        query = query.filter(data_id__sentiment__gte = 0)
-        query = query.filter(data_id__sentiment__lte = 0.5)
+        query = query.filter(data_id__sentiment = 0)
+
     
 
     print(query.query)
