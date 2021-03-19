@@ -34,7 +34,6 @@ date_created_param = openapi.Parameter('date_created',
                                                    'start_date and end_date can be empty'
                                        , type=openapi.TYPE_STRING)
 
-
 class ProjectDataListView(ListAPIView):
     serializer_class = serializers.DataSerializer
     permission_classes = [IsAllowedAccessToData]
@@ -61,12 +60,28 @@ class ProjectDataListView(ListAPIView):
         if self.request.query_params.get('language'):
             filters['language'] = self.request.query_params.get('language')
 
+        if self.request.query_params.get('sentiment'):
+            sentiment = self.request.query_params.get('sentiment')
+            if sentiment == 'positive':
+                filters['sentiment__gt'] = 0
+            
+            if sentiment == 'negative':
+                filters['sentiment__lt'] = 0
+
+            if sentiment == 'neutral':
+                filters['sentiment__eq'] = 0
+        
+        if self.request.query_params.get('aspect'):
+            project_id = self.kwargs["project_id"]
+            aspect = self.request.query_params.get('aspect')
+            data_ids = data_models.Aspect.objects.filter(label = aspect, data_id__project_id = project_id).values_list("data_id", flat=True)
+            filters['id__in'] = data_ids
+
         return data_models.Data.objects.filter(**filters)
 
     @swagger_auto_schema(manual_parameters=[country_param, source_param, language_param, date_created_param])
     def get(self, request, *args, **kwargs):
         return super(ProjectDataListView, self).get(request, *args, **kwargs)
-
 
 class SourceListAPI(ListAPIView):
     queryset = data_models.Source.objects.all()
