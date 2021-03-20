@@ -23,11 +23,10 @@ urlpatterns = [
 
     path('data-entries/<int:project_id>/',
          views.data_entries, name='data-entries'),
-    path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
+    #path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
     path('projects/<int:project_id>/',
          views.aspect_name, name="aspect-names"),
-
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
 

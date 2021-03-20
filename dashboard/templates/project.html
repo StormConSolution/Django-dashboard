@@ -119,6 +119,7 @@
         {% if chart_data %}
         <script>
             var project_data = {{ chart_data|safe }};
+            var project_id = {{project_id}};
         </script>
         {% endif %}
         <!-- BEGIN: Main Menu-->

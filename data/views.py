@@ -158,6 +158,7 @@ def projects(request, project_id):
         end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
     
     context = {
+        'project_id': project_id,
         'project': this_project,
         'total':this_project.data_set.count(),
         'query_string': request.GET.urlencode(),
@@ -413,22 +414,17 @@ def data_per_aspect(request, project_id):
 
     aspect_label = request.GET.get('aspect', '')
     sentiment = request.GET.get('sentiment', '')
-
-    query = data_models.Aspect.objects.filter(label = aspect_label).filter(data_id__project_id = project_id)
-
-    if sentiment == 'positive':
-        query = query.filter(data_id__sentiment__gt = 0)
-
-    if sentiment == 'negative':
-        query = query.filter(data_id__sentiment__lt = 0)
-
-    if sentiment == 'neutral':
-        query = query.filter(data_id__sentiment = 0)
-
-    
-
-    print(query.query)
-    #print(data_models.Aspect.objects.filter(label = aspect_label).filter(data_id__project_id = project_id ).all().select_related('data').query)
-    data = query.all().select_related('data').annotate(text=F('data_id__text'), sentiment_value=F('data_id__sentiment')).values("chunk", "sentiment_value")
-    #struct = serializers.serialize('json', data)
-    return JsonResponse({"data": list(data)})
+    print(sentiment, aspect_label)
+    with connection.cursor() as cursor:
+        if sentiment == 'neutral':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment = 0 and da."label" = %s""", [this_project.id, aspect_label])
+        elif sentiment == 'negative':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment < 0 and da."label" = %s""", [this_project.id, aspect_label])
+        elif sentiment == 'positive':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment > 0 and da."label" = %s""", [this_project.id, aspect_label])
+        rows = cursor.fetchall()
+        print(rows)
+    return JsonResponse(rows, safe=False)

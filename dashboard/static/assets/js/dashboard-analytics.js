@@ -342,7 +342,7 @@ $(window).on("load", function() {
         }],
         chart: {
             type: 'bar',
-            height: 480
+            height: 480  
         },
         plotOptions: {
             bar: {
@@ -411,7 +411,19 @@ $(window).on("load", function() {
                 type: 'bar',
                 height: 350,
                 stacked: true,
-                stackType: '100%'
+                stackType: '100%',
+/*                 events: {
+                    click: function(event, chartContext, config){
+                        //console.log(event, chartContext, config);
+                        let sentiment = config.config.series[config.seriesIndex].name.toLowerCase();
+                        let aspect = config.config.xaxis.categories[config.dataPointIndex];
+                        fetch('/api/data/project/' + project_id + '/?sentiment=' + sentiment + '&aspect=' + aspect + '&fields=text',{
+
+                        })
+                        .then(response => response.json())
+                        .then(data => console.log(data))
+                    }
+                }   */
             },
             plotOptions: {
                 bar: {
@@ -448,6 +460,7 @@ $(window).on("load", function() {
         let negatives = [];
         let neutrals = [];
         let categories = [];
+        console.log(aspect_data)
         for(data of aspect_data){
             categories.push(data.label);
             positives.push(data.pos);
@@ -481,8 +494,13 @@ $(window).on("load", function() {
                 }
             }
         }
-
-        options.chart.height = options.xaxis.categories.length * 40;
+        let graphHeight = 0;
+        if(options.xaxis.categories.length < 5){
+            graphHeight = 300;
+        } else {
+            graphHeight = options.xaxis.categories.length * 40;
+        }
+        options.chart.height = graphHeight;
         var chart = new ApexCharts(document.querySelector("#sentiment-for-each-aspect"), options);
         chart.render();
     }());
