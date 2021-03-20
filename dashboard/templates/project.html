@@ -119,6 +119,7 @@
         {% if chart_data %}
         <script>
             var project_data = {{ chart_data|safe }};
+            var project_id = {{project_id}};
         </script>
         {% endif %}
         <!-- BEGIN: Main Menu-->
@@ -369,6 +370,22 @@
 								<div class="card-body">
 									<div class="d-flex flex-row flex-wrap" >
 										<div style="width: 100%; height: 500px;" id="aspect-by-sentiment"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+                <div class="container-fluid">
+					<div class="col-md-12">
+						<div class="card border-0 mr-4">
+							<div class="card-header">
+								<h4 class="card-title">Sentiment for each Aspect</h4>
+							</div>
+							<div class="card-content" >
+								<div class="card-body">
+									<div class="d-flex flex-row flex-wrap" >
+										<div style="width: 100%;" id="sentiment-for-each-aspect"></div>
 									</div>
 								</div>
 							</div>

@@ -27,3 +27,4 @@ staticfiles/*
 settings_local.py
 
 scrapers/data/
+tmp/

@@ -13,7 +13,8 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpR
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
-
+from django.core import serializers
+from django.forms.models import model_to_dict
 from data import models as data_models
 from data import charts
 
@@ -157,6 +158,7 @@ def projects(request, project_id):
         end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
     
     context = {
+        'project_id': project_id,
         'project': this_project,
         'total':this_project.data_set.count(),
         'query_string': request.GET.urlencode(),
@@ -401,3 +403,28 @@ def aspect_topic_summary(request, project_id):
                 data[t] += 1
     
     return JsonResponse({"data":list(data.items())})
+
+@login_required(login_url=LOGIN_URL)
+def data_per_aspect(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+    # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+
+    aspect_label = request.GET.get('aspect', '')
+    sentiment = request.GET.get('sentiment', '')
+    print(sentiment, aspect_label)
+    with connection.cursor() as cursor:
+        if sentiment == 'neutral':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment = 0 and da."label" = %s""", [this_project.id, aspect_label])
+        elif sentiment == 'negative':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment < 0 and da."label" = %s""", [this_project.id, aspect_label])
+        elif sentiment == 'positive':
+            cursor.execute("""
+                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment > 0 and da."label" = %s""", [this_project.id, aspect_label])
+        rows = cursor.fetchall()
+        print(rows)
+    return JsonResponse(rows, safe=False)

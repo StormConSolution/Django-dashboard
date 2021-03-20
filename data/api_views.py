@@ -34,7 +34,6 @@ date_created_param = openapi.Parameter('date_created',
                                                    'start_date and end_date can be empty'
                                        , type=openapi.TYPE_STRING)
 
-
 class ProjectDataListView(ListAPIView):
     serializer_class = serializers.DataSerializer
     permission_classes = [IsAllowedAccessToData]
@@ -66,7 +65,6 @@ class ProjectDataListView(ListAPIView):
     @swagger_auto_schema(manual_parameters=[country_param, source_param, language_param, date_created_param])
     def get(self, request, *args, **kwargs):
         return super(ProjectDataListView, self).get(request, *args, **kwargs)
-
 
 class SourceListAPI(ListAPIView):
     queryset = data_models.Source.objects.all()

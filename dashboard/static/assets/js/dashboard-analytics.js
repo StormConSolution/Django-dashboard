@@ -342,7 +342,7 @@ $(window).on("load", function() {
         }],
         chart: {
             type: 'bar',
-            height: 480
+            height: 480  
         },
         plotOptions: {
             bar: {
@@ -405,5 +405,103 @@ $(window).on("load", function() {
         sourceOptions
     );
     sourceByVolumeChart.render();
+    (function(){
+        var options = {
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true,
+                stackType: '100%',
+/*                 events: {
+                    click: function(event, chartContext, config){
+                        //console.log(event, chartContext, config);
+                        let sentiment = config.config.series[config.seriesIndex].name.toLowerCase();
+                        let aspect = config.config.xaxis.categories[config.dataPointIndex];
+                        fetch('/api/data/project/' + project_id + '/?sentiment=' + sentiment + '&aspect=' + aspect + '&fields=text',{
 
+                        })
+                        .then(response => response.json())
+                        .then(data => console.log(data))
+                    }
+                }   */
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                },
+            },
+            stroke: {
+                width: 1,
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                    return val;
+                    }
+                },
+                theme:'dark'
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                offsetX: 40,
+                labels: {
+                    colors: ['white'],
+                }
+            },
+            colors : [$positive, $info, $negative],
+
+        };
+        var aspect_data = project_data.aspect_data;
+        let positives = [];
+        let negatives = [];
+        let neutrals = [];
+        let categories = [];
+        console.log(aspect_data)
+        for(data of aspect_data){
+            categories.push(data.label);
+            positives.push(data.pos);
+            negatives.push(data.neg);
+            neutrals.push(data.count - data.pos - data.neg);
+        }
+        options.series = [{
+            name: 'Positive',
+            data: positives
+        },
+        {
+            name: 'Neutral',
+            data: neutrals
+        },
+        {
+            name: 'Negative',
+            data: negatives
+        }];
+        options.xaxis = {
+            categories: categories,
+            labels: {
+                style: {
+                  colors: $label_trend,
+                },
+            }
+        };
+        options.yaxis = {
+            labels: {
+                style: {
+                    colors: 'white'
+                }
+            }
+        }
+        let graphHeight = 0;
+        if(options.xaxis.categories.length < 5){
+            graphHeight = 300;
+        } else {
+            graphHeight = options.xaxis.categories.length * 40;
+        }
+        options.chart.height = graphHeight;
+        var chart = new ApexCharts(document.querySelector("#sentiment-for-each-aspect"), options);
+        chart.render();
+    }());
 });
