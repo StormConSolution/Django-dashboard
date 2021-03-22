@@ -170,7 +170,7 @@ SQL_PASSWORD = ''
 SQL_PORT = 5432
 SQL_USER = 'postgres'
 
-DEBUG = False
+DEBUG = True
 
 API_HOST = 'http://localhost:9000'
 APIKEY = ''

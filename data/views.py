@@ -428,3 +428,26 @@ def data_per_aspect(request, project_id):
         rows = cursor.fetchall()
         print(rows)
     return JsonResponse(rows, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def topics_per_aspect(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+    # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+    response_data = {'aspects':{}}
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select da."label" ,da.topic, count(*) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label") order by  da."label" ,count(*) desc;""", [project_id])
+        rows = cursor.fetchall()
+        #print(rows)
+    for row in rows:
+        if row[0] not in response_data['aspects']:
+            response_data['aspects'][row[0]] = {}
+            response_data['aspects'][row[0]]['topics'] = list()
+        else:
+            aux = {'topic': row[1], 'count': row[2]}
+            response_data['aspects'][row[0]]['topics'].append(aux)
+    return JsonResponse(response_data, safe=False)

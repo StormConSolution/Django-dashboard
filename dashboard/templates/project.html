@@ -106,6 +106,12 @@
         <!-- END: Custom CSS-->
         <!-- BEGIN: Custom Js-->
         <!--  END: Custom Js-->
+        <style>
+            .donut-container div {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
     </head>
     <!-- END: Head-->
     <!-- BEGIN: Body-->
@@ -386,6 +392,25 @@
 								<div class="card-body">
 									<div class="d-flex flex-row flex-wrap" >
 										<div style="width: 100%;" id="sentiment-for-each-aspect"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+                <div class="container-fluid">
+					<div class="col-md-12">
+						<div class="card border-0 mr-4">
+							<div class="card-header">
+								<h4 class="card-title">Top topics per aspect</h4>
+							</div>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6 d-flex flex-row"><label class="m-1">Show up to</label><select id="select-max-topics-per-aspect" name="max-topics" aria-controls="aspect-topics" class="m-1 custom-select custom-select-sm form-control form-control-sm" style="max-width: 4rem;"><option value="6">6</option><option value="8">8</option><option value="10">10</option></select><label class="m-1"> topics per aspect</label></div>
+                            </div>
+							<div class="card-content" >
+								<div class="card-body">
+									<div class="d-flex flex-row flex-wrap" >
+										<div style="width: 100%;" id="top-topics-per-aspect"></div>
 									</div>
 								</div>
 							</div>
