@@ -504,105 +504,138 @@ $(window).on("load", function() {
         chart.render();
     }());
     (function(){
-        let data;
-        fetch('/sentiment-per-entity/' + project_id + '/')
-        .then(response => response.json())
-        .then(data => {
-            var options = {
-                chart: {
-                    type: 'bar',
-                    height: 350,
-                    stacked: true,
-                    stackType: '100%',
-    /*                 events: {
-                        click: function(event, chartContext, config){
-                            //console.log(event, chartContext, config);
-                            let sentiment = config.config.series[config.seriesIndex].name.toLowerCase();
-                            let aspect = config.config.xaxis.categories[config.dataPointIndex];
-                            fetch('/api/data/project/' + project_id + '/?sentiment=' + sentiment + '&aspect=' + aspect + '&fields=text',{
-
-                            })
-                            .then(response => response.json())
-                            .then(data => console.log(data))
+        let chart;
+        function createSentimentPerEntityGraph(max_entities){
+            fetch('/sentiment-per-entity/' + project_id + '/?max-entities=' + max_entities)
+            .then(response => response.json())
+            .then(data => {
+                var options = {
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        stacked: true,
+                        stackType: '100%',
+                        events: {
+                            click: function(event, chartContext, config){
+                                console.log(config)
+                                let seriesIndex = config.seriesIndex;
+                                let dataPointIndex = config.dataPointIndex
+                                console.log(data[dataPointIndex])
+                                let modal_data;
+                                if(seriesIndex == 0){
+                                    modal_data = data[dataPointIndex].data.filter(element => element.sentiment > 0)
+                                } else if(seriesIndex == 1){
+                                    modal_data = data[dataPointIndex].data.filter(element => element.sentiment == 0)
+                                } else if(seriesIndex == 2){
+                                    modal_data = data[dataPointIndex].data.filter(element => element.sentiment < 0)
+                                }
+/*                                 console.log(modal_data)
+                                let modalElement = document.getElementById("aspectModal")
+                                modalElement.style.display = "block"
+                                modalElement.classList.add("show")
+                                modalElement.setAttribute("aria-modal", "true")
+                                modalElement.setAttribute("aria-hidden", "false") */
+                            }
                         }
-                    }   */
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: true,
+        /*                 events: {
+                            click: function(event, chartContext, config){
+                                //console.log(event, chartContext, config);
+                                let sentiment = config.config.series[config.seriesIndex].name.toLowerCase();
+                                let aspect = config.config.xaxis.categories[config.dataPointIndex];
+                                fetch('/api/data/project/' + project_id + '/?sentiment=' + sentiment + '&aspect=' + aspect + '&fields=text',{
+    
+                                })
+                                .then(response => response.json())
+                                .then(data => console.log(data))
+                            }
+                        }   */
                     },
-                },
-                stroke: {
-                    width: 1,
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                        return val;
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                        },
+                    },
+                    stroke: {
+                        width: 1,
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                            return val;
+                            }
+                        },
+                        theme:'dark'
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'left',
+                        offsetX: 40,
+                        labels: {
+                            colors: ['white'],
                         }
                     },
-                    theme:'dark'
+                    colors : [$positive, $info, $negative],
+    
+                };
+                let positives = [];
+                let negatives = [];
+                let neutrals = [];
+                let categories = [];
+                for(element of data){
+                    categories.push(element.entity_label);
+                    positives.push(element.positive_count);
+                    negatives.push(element.negative_count);
+                    neutrals.push(element.neutral_count);
+                }
+                options.series = [{
+                    name: 'Positive',
+                    data: positives
                 },
-                fill: {
-                    opacity: 1
+                {
+                    name: 'Neutral',
+                    data: neutrals
                 },
-                legend: {
-                    position: 'top',
-                    horizontalAlign: 'left',
-                    offsetX: 40,
+                {
+                    name: 'Negative',
+                    data: negatives
+                }];
+                options.xaxis = {
+                    categories: categories,
                     labels: {
-                        colors: ['white'],
+                        style: {
+                        colors: $label_trend,
+                        },
                     }
-                },
-                colors : [$positive, $info, $negative],
-
-            };
-            let positives = [];
-            let negatives = [];
-            let neutrals = [];
-            let categories = [];
-            for(element of data){
-                categories.push(element.entity_label);
-                positives.push(element.positive_count);
-                negatives.push(element.negative_count);
-                neutrals.push(element.neutral_count);
-            }
-            options.series = [{
-                name: 'Positive',
-                data: positives
-            },
-            {
-                name: 'Neutral',
-                data: neutrals
-            },
-            {
-                name: 'Negative',
-                data: negatives
-            }];
-            options.xaxis = {
-                categories: categories,
-                labels: {
-                    style: {
-                    colors: $label_trend,
-                    },
-                }
-            };
-            options.yaxis = {
-                labels: {
-                    style: {
-                        colors: 'white'
+                };
+                options.yaxis = {
+                    labels: {
+                        style: {
+                            colors: 'white'
+                        }
                     }
                 }
-            }
-            let graphHeight = 0;
-            if(options.xaxis.categories.length < 5){
-                graphHeight = 300;
-            } else {
-                graphHeight = options.xaxis.categories.length * 40;
-            }
-            options.chart.height = graphHeight;
-            var chart = new ApexCharts(document.querySelector("#sentiment-for-each-entity"), options);
-            chart.render();
-        })
+                let graphHeight = 0;
+                if(options.xaxis.categories.length < 5){
+                    graphHeight = 300;
+                } else {
+                    graphHeight = options.xaxis.categories.length * 40;
+                }
+                options.chart.height = graphHeight;
+                if(chart){
+                    chart.destroy()
+                }
+                chart = new ApexCharts(document.querySelector("#sentiment-for-each-entity"), options);
+                chart.render();
+                document.getElementById("select-max-top-sentiment-per-entity").addEventListener("change", (e)=>{
+                    let maxEntities = e.target.value;
+                    document.getElementById("sentiment-for-each-entity").innerHTML ="";
+                    createSentimentPerEntityGraph(maxEntities);
+                })
+            })
+        }
+        createSentimentPerEntityGraph(8);
     }());
 });
