@@ -126,6 +126,8 @@
         <script>
             var project_data = {{ chart_data|safe }};
             var project_id = {{project_id}};
+            window.project_id = {{project_id}};
+            window.project_data = {{ chart_data|safe }};
         </script>
         {% endif %}
         <!-- BEGIN: Main Menu-->
@@ -603,6 +605,7 @@
         <script src="https://cdn.amcharts.com/lib/4/themes/dataviz.js"></script>
         <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
         <script src="/static/assets/js/jquery.multiselect.js"></script>
+        <script src="/static/assets/js/bundle.js"></script>
         <!-- END: Page JS-->
         
 		<script type="text/javascript">

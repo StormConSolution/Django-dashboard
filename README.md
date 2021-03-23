@@ -87,3 +87,17 @@ Visit `http://localhost:8001` in your browser. The app should be up & running.
 </br>
 
 [Django Dashboard CoreUI](https://appseed.us/admin-dashboards/django-dashboard-coreui) - Provided by **AppSeed** [Web App Generator](https://appseed.us/app-generator).
+
+### Assets build
+
+Javascript graphs code is built using webpack, the source files are in `assets/js` and it produces one file `dashboard/static/assets/js/bundle.js`. Makefile has two commands for this:
+
+```
+# for development, it reloads on changes
+webpack-dev:
+	webpack -w
+
+# build for production, it does things like minify the file
+webpack-production:
+	webpack --mode="production"
+```

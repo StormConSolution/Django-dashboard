@@ -28,3 +28,5 @@ settings_local.py
 
 scrapers/data/
 tmp/
+
+node_modules/
