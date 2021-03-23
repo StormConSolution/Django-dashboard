@@ -430,6 +430,29 @@ def data_per_aspect(request, project_id):
     return JsonResponse(rows, safe=False)
 
 @login_required(login_url=LOGIN_URL)
+def sentiment_per_entity(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+    # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+    entities_limit = request.GET.get("max-entities", 8)
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select dde.entity_id, de."label" , count(dde.entity_id) from data_data_entities dde inner join data_data dd on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id where dd.project_id = %s group by (dde.entity_id, de."label") order by count(dde.entity_id) desc limit %s;
+        """, [this_project.id, entities_limit])
+        rows = cursor.fetchall()
+    response = []
+    for row in rows:
+        data = data_models.Data.objects.filter(entities__pk = row[0], project_id=project_id)
+        negative_count = data.filter(sentiment__lt = 0).count()
+        positive_count = data.filter(sentiment__gt = 0).count()
+        neutral_count = data.filter(sentiment= 0).count()
+        data_response = data.values("sentiment", "text")
+        response.append({"positive_count": positive_count, "neutral_count":neutral_count, "negative_count": negative_count, "entity_label": row[1], "data":list(data_response)})
+
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
 def topics_per_aspect(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
 
