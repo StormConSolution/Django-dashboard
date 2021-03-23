@@ -522,19 +522,31 @@ $(window).on("load", function() {
                                 let dataPointIndex = config.dataPointIndex
                                 console.log(data[dataPointIndex])
                                 let modal_data;
+                                let sentiment = '';
                                 if(seriesIndex == 0){
+                                    sentiment = "Positive"
                                     modal_data = data[dataPointIndex].data.filter(element => element.sentiment > 0)
                                 } else if(seriesIndex == 1){
+                                    sentiment = "Neutral"
                                     modal_data = data[dataPointIndex].data.filter(element => element.sentiment == 0)
                                 } else if(seriesIndex == 2){
+                                    sentiment = "Negative"
                                     modal_data = data[dataPointIndex].data.filter(element => element.sentiment < 0)
                                 }
-/*                                 console.log(modal_data)
+                                console.log(modal_data)
                                 let modalElement = document.getElementById("aspectModal")
                                 modalElement.style.display = "block"
                                 modalElement.classList.add("show")
                                 modalElement.setAttribute("aria-modal", "true")
-                                modalElement.setAttribute("aria-hidden", "false") */
+                                modalElement.setAttribute("aria-hidden", "false")
+                                $('#aspectModal').modal();
+                                $("#modal-title").html(sentiment + " data for entity: " + data[dataPointIndex].entity_label)
+                                $("#modal-table").html("")
+                                $("#modal-table").append("<thead><tr><th>Text</th><th>Sentiment</th></tr></thead>")
+                                $("#modal-table").append("<tbody></tbody>")
+                                for(element of modal_data){
+                                    $("#modal-table > tbody").append(`<tr><td>${element.text}</td><td>${element.sentiment}</td></tr>`) 
+                                }
                             }
                         }
         /*                 events: {
