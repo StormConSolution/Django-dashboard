@@ -24,6 +24,7 @@ urlpatterns = [
     path('data-entries/<int:project_id>/',
          views.data_entries, name='data-entries'),
     #path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
+    path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
 
