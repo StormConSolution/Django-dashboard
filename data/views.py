@@ -8,7 +8,7 @@ from django.db import connection
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -17,7 +17,7 @@ from django.core import serializers
 from django.forms.models import model_to_dict
 from data import models as data_models
 from data import charts
-
+from django.db.models.functions import Coalesce
 LOGIN_URL = '/login/'
 
 MAX_TEXT_LENGTH = 30
@@ -291,6 +291,22 @@ def projects(request, project_id):
 
     return render(request, "project.html", context)
 
+@login_required(login_url=LOGIN_URL)
+def new_projects(request):
+    user = request.user
+    projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+    for project in projects:
+        data = data_models.Data.objects.filter(project=project["id"]).aggregate(
+        positive_count=Coalesce(Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0), 
+        negative_count=Coalesce(Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()),0),
+        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
+        #print(data)
+        project.update(data)
+        #print(project)
+    context={}
+    context["projects_data"] = projects
+    context["projects_count"] = len(projects)
+    return render(request, "projects.html", context)
 
 def entities(request, project_id):
     """
