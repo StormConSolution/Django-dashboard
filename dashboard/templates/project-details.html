@@ -1,0 +1,1858 @@
+  {% extends 'layouts/new-base.html' %}
+  {% block content %}
+  <script>
+      window.project_id = {{project_id | safe}}
+  </script>
+  <script>
+    function generateData(count, yrange) {
+      var i = 0;
+      var series = [];
+      while (i < count) {
+        var x = 'w' + (i).toString();
+        var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+    
+        series.push({
+          x: x,
+          y: y
+        });
+        i++;
+      }
+      return series;
+    }
+    </script>
+  <div class="main-content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12 mobile-page-title ">
+         
+            AARP - Atkins_Diet
+          
+        </div>
+        <div class="col-12">
+          <div class="porject-title align-items-center d-flex flex-wrap">
+            <a href="#" class="all-data">See all 447 data items</a>
+            <div class="ml-0 ml-md-auto">
+              <form>
+                <div class="form-row align-items-center">
+                  <div id="sandbox-container" class="col-auto">
+
+                    <input type="text" class="form-control " placeholder="CHoose Date">
+                  </div>
+                  <div class="col-auto">
+                    <div class="dropdown choose-languages">
+                      <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Choose Languages
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="choose-languages">
+                        <div class="choose-lang">
+                          <div class="d-flex checkuncheck">
+                            <span>Check All</span>
+                            <span>UnCheck All</span>
+                          </div>
+                          <div class="choose">
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="c1">
+                              <label class="custom-control-label" for="c1">English</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="c2">
+                              <label class="custom-control-label" for="c2">Hindi</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="c3">
+                              <label class="custom-control-label" for="c3">Spanish</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="c4">
+                              <label class="custom-control-label" for="c4">Portuguese</label>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="dropdown choose-sources">
+                      <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        Choose Sources
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="choose-sources">
+                        <div class="choose-lang">
+                          <div class="d-flex checkuncheck">
+                            <span>Check All</span>
+                            <span>UnCheck All</span>
+                          </div>
+                          <div class="choose">
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="f1">
+                              <label class="custom-control-label" for="f1">Twitter</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="f2">
+                              <label class="custom-control-label" for="f2">Youtube</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="f3">
+                              <label class="custom-control-label" for="f3">Facebook</label>
+                            </div>
+                            <div class="custom-control checkbox-list custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="f4">
+                              <label class="custom-control-label" for="f4">Linkedin</label>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <a href="#" class="reset-filter">Reset Filter <i class="fe fe-refresh-cw"></i> </a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="project-menu">
+            <ul class="d-flex flex-wrap">
+              <li>
+                <a href="#">Overview</a>
+              </li>
+              <li>
+                <a href="#">Sources</a>
+              </li>
+              <li>
+                <a href="#">Aspects</a>
+              </li>
+              <li>
+                <a href="#">Sentiment</a>
+              </li>
+              <li>
+                <a href="#">Entities</a>
+              </li>
+              <li class="ml-auto">
+                <div class="dropdown ">
+                  <a class="dropdown-toggle" href="#" id="projectdropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false"><i class="fe fe-settings"></i> Settings</a>
+                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="projectdropdown">
+                    <a class="dropdown-item" href="#"><i class="fe fe-edit-2"></i> Edit Project</a>
+                    <a class="dropdown-item" href="#"><i class="fe fe-share-2"></i> Share Project</a>
+                    <a class="dropdown-item" href="#"><i class="fe fe-trash-2"></i> Delete</a>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 col-lg-8 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title  align-items-center d-flex flex-wrap">
+              <h4 class="col p-0 sentiment-trend ">Sentiment
+                Trend <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+              <div class="col-auto ml-auto p-0">
+                <div class="row">
+                  <div class="col chart-total-data">
+                    <h2>6189</h2>
+                    <span>Total data items</span>
+                  </div>
+                  <div class="col chart-positive-data">
+                    <h2>4189</h2>
+                    <span>Total positive</span>
+                  </div>
+                  <div class="col chart-negative-data">
+                    <h2>2089</h2>
+                    <span>Total negative</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="chart-wrap">
+              <div id="chart-12" >
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4 project-card">
+          <div class="row">
+            <div class="col-12 pb-3 ">
+              <div class="project-card-inner">
+                <div class="chart-title pb-0 mb-3 border-0 ">
+                  <h4>Overall Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                      <i class="fe fe-help-circle"></i>
+                    </a> </h4>
+
+
+                </div>
+
+                <div id="overall-sentiment-chart"></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="project-card-inner">
+                <div class="simple-data">
+                  <i class="fe fe-hash"></i>
+                  <h2>34</h2>
+                  <span>Different Aspect </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="project-card-inner">
+                <div class="simple-data">
+                  <i class="fe fe-command"></i>
+                  <h2>10</h2>
+                  <span>Different Source </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title  align-items-center d-flex flex-wrap">
+              <h4>Volume By Source <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+
+
+            </div>
+
+            <div class="chart-wrap">
+              <div id="volume-by-source" >
+
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title  align-items-center d-flex flex-wrap">
+              <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+
+
+            </div>
+
+            <div class="aspects-list">
+              <ul class="flex-wrap" id="aspect-count-graphs">
+              </ul>
+            </div>
+
+          </div>
+
+
+        </div>
+
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title  align-items-center d-flex flex-wrap">
+              <h4>Aspect Co-Occurrence <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+
+
+            </div>
+
+            <div class="chart-wrap">
+              <div id="co-occurrence-graph" >
+
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title  align-items-center d-flex flex-wrap">
+              <h4>Aspect By Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+
+
+            </div>
+
+            <div class="chart-wrap">
+              <div id="chart-15" >
+
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title align-items-center d-flex flex-wrap">
+              <h4 class="col p-0">Aspect Topic Breakdown <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+              <div class="col-auto p-0 d-flex flex-wrap ">
+              <div class="per-page align-items-center d-flex">
+                Show <select class="custom-select" id="inputGroupSelect01">
+                  <option selected>10</option>
+                  <option value="1">20</option>
+                  <option value="2">30</option>
+                  <option value="3">40</option>
+                </select> Entries
+              </div>
+              <div class="data-search">
+                <input type="text" class="form-control " placeholder="Search">
+              </div>
+              </div>
+
+            </div>
+
+            <div class="data-table table-responsive">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      TOPIC <span class="data-short">
+                        <a href="#" class="active">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col">
+                      ASPECT <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="width-150 text-center">
+                      POSITIVES 
+                    </th>
+                    <th scope="col" class="width-150 text-center">
+                      NEGATIVES 
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">3 months</a>
+                    </td>
+                    <td>Timeline</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">3 months</a>
+                    </td>
+                    <td>Timeline</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">6 months</a>
+                    </td>
+                    <td>Timeline</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Abdominal obesity</a>
+                    </td>
+                    <td>HealthCondition</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Alcohol intoxication</a>
+                    </td>
+                    <td>Emotion</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Allergy</a>
+                    </td>
+                    <td>Emotion</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button green">Details</a>
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button red">Details</a>
+                    </td>
+                  </tr>
+       
+      
+              
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-bottom">
+              <div class="row no-gutters">
+                <div class="col-12 col-md">
+                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <ul class="pagination">
+                    <li>
+                      <a href="#">
+                        <i class="fe fe-chevron-left"></i>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="#">01</a>
+                    </li>
+                    <li>
+                      <a href="#">02</a>
+                    </li>
+                    <li>
+                      <a href="#">03</a>
+                    </li>
+                    <li>
+                      <a href="#">04</a>
+                    </li>
+                    <li>
+                      <a href="#">..</a>
+                    </li>
+                    <li>
+                      <a href="#">25</a>
+                    </li>
+                    <li>
+                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
+                    </li>
+                   
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title align-items-center d-flex flex-wrap">
+              <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+              <div class="col-auto p-0 d-flex flex-wrap ">
+              <div class="per-page align-items-center d-flex">
+                Show <select class="custom-select" id="inputGroupSelect01">
+                  <option selected>10</option>
+                  <option value="1">20</option>
+                  <option value="2">30</option>
+                  <option value="3">40</option>
+                </select> Entries
+              </div>
+              <div class="data-search">
+                <input type="text" class="form-control " placeholder="Search">
+              </div>
+              </div>
+
+            </div>
+
+            <div class="data-table table-responsive">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      ENTITY <span class="data-short">
+                        <a href="#" class="active">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col">
+                      CLASSIFICATIONS <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="text-center" >
+                      FREQUENCY <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                   
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Atkins diet</a>
+                    </td>
+                    <td>Health.diet</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">402</a>
+                    </td>
+                    
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Ketogenic diet</a>
+                    </td>
+                    <td>Health.condition</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">20</a>
+                    </td>
+                    
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Love</a>
+                    </td>
+                    <td>Person.relationship</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">5</a>
+                    </td>
+                    
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Atkins diet</a>
+                    </td>
+                    <td>Health.diet</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">402</a>
+                    </td>
+                    
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Ketogenic diet</a>
+                    </td>
+                    <td>Health.condition</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">20</a>
+                    </td>
+                    
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="#" class="data-link">Love</a>
+                    </td>
+                    <td>Person.relationship</td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">5</a>
+                    </td>
+                    
+                  </tr>
+       
+     
+   
+       
+      
+              
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-bottom">
+              <div class="row no-gutters">
+                <div class="col-12 col-md">
+                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <ul class="pagination">
+                    <li>
+                      <a href="#">
+                        <i class="fe fe-chevron-left"></i>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="#">01</a>
+                    </li>
+                    <li>
+                      <a href="#">02</a>
+                    </li>
+                    <li>
+                      <a href="#">03</a>
+                    </li>
+                    <li>
+                      <a href="#">04</a>
+                    </li>
+                    <li>
+                      <a href="#">..</a>
+                    </li>
+                    <li>
+                      <a href="#">25</a>
+                    </li>
+                    <li>
+                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
+                    </li>
+                   
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+
+        <div class="col-12 project-card">
+          <div class="project-card-inner">
+            <div class="chart-title align-items-center d-flex flex-wrap">
+              <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                  <i class="fe fe-help-circle"></i>
+                </a> </h4>
+              <div class="col-auto p-0 d-flex flex-wrap ">
+              <div class="per-page align-items-center d-flex">
+                Show <select class="custom-select" id="inputGroupSelect01">
+                  <option selected>10</option>
+                  <option value="1">20</option>
+                  <option value="2">30</option>
+                  <option value="3">40</option>
+                </select> Entries
+              </div>
+              <div class="data-search">
+                <input type="text" class="form-control " placeholder="Search">
+              </div>
+              </div>
+
+            </div>
+
+            <div class="data-table table-responsive">
+              <table class="table table-striped table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      ENTITY <span class="data-short">
+                        <a href="#" class="active">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="twitter-col">
+                      TEXT <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col"  >
+                      SOURCE <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="text-center">
+                      WEIGHTED <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="text-center" >
+                      RAW <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                    <th scope="col" class="text-center" >
+                      LANGUAGE <span class="data-short">
+                        <a href="#">
+                          <i class="fe fe-chevron-up"></i>
+                        </a>
+                        <a href="#">
+                          <i class="fe fe-chevron-down"></i>
+                        </a>
+                      </span>
+                    </th>
+                   
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                     <small>2021-02-08</small>
+                    </td>
+                    <td>
+                      @MeganK7x Bit like the old Atkins diet x
+                    </td>
+                    <td >
+                     <b>Facebook</b>
+                    </td>
+                    <td class="text-center">
+                     -0.0502
+                    </td>
+                    <td class="text-center">
+                      0.8307
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">En</a>
+                    </td>
+                    
+                  </tr>
+
+                  <tr>
+                    <td>
+                     <small>2021-02-08</small>
+                    </td>
+                    <td>
+                      @TruthsRebirth So like for myself I just started the Atkins diet and I limit myself to a certain amount of calories a day along with my workout plan
+                    </td>
+                    <td >
+                     <b>Youtube</b>
+                    </td>
+                    <td class="text-center">
+                     -0.0502
+                    </td>
+                    <td class="text-center">
+                      0.8307
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">En</a>
+                    </td>
+                    
+                  </tr>
+
+                  <tr>
+                    <td>
+                     <small>2021-02-08</small>
+                    </td>
+                    <td>
+                      @MeganK7x Is it like the Atkins diet ?
+                    </td>
+                    <td >
+                     <b>Twitter</b>
+                    </td>
+                    <td class="text-center">
+                     -0.0502
+                    </td>
+                    <td class="text-center">
+                      0.8307
+                    </td>
+                    <td class="text-center">
+                      <a href="#" class="info-button">En</a>
+                    </td>
+                    
+                  </tr>
+       
+     
+         
+  
+       
+     
+   
+       
+      
+              
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-bottom">
+              <div class="row no-gutters">
+                <div class="col-12 col-md">
+                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <ul class="pagination">
+                    <li>
+                      <a href="#">
+                        <i class="fe fe-chevron-left"></i>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="#">01</a>
+                    </li>
+                    <li>
+                      <a href="#">02</a>
+                    </li>
+                    <li>
+                      <a href="#">03</a>
+                    </li>
+                    <li>
+                      <a href="#">04</a>
+                    </li>
+                    <li>
+                      <a href="#">..</a>
+                    </li>
+                    <li>
+                      <a href="#">25</a>
+                    </li>
+                    <li>
+                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
+                    </li>
+                   
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+
+       
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- modal start -->
+
+    <!-- create-project modal start -->
+    <div class="modal fade" id="createproject" tabindex="-1" aria-labelledby="createprojectLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createprojectLabel">Create New Project</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <i class="fe fe-x-circle"></i>
+            </button>
+          </div>
+        
+          <div class="modal-body">
+          
+            <div class="modal-data">
+                <form>
+                  <div class="form-group">
+                    <label for="projectname" class="form-label">Name of new project</label>
+                    
+                      <input type="text" class="form-control" id="projectname" placeholder="Enter Name">
+                   
+                  </div>
+                  <div class="form-group">
+                    <label for="selectaspect" class="form-label">Select Aspect</label>
+                    <select class="custom-select" id="selectaspect" aria-placeholder="Choose From Existing Aspects">
+                      <option >Choose From Existing Aspects</option>
+                      <option value="1">Royal Enfiled</option>
+                      <option value="2">Google</option>
+                     
+                    </select>
+                    <small id="emailHelp" class="form-text extra-text text-right">
+                      Don't have aspect? <a href="#">Create Aspect</a>
+                    </small>
+
+                  </div>
+                 
+                  <div class="form-group">
+                    <label class="form-label">Upload data or Link spreadsheet</label>
+                    <div class="drganddrop mb-2">
+                      Drag and drop, or <b>browse</b>  your files
+                    </div>
+                    <small  class="form-text extra-text mb-2">
+                      OR url link to existing spreadsheet somewhere
+                    </small>
+                    <input type="text" class="form-control" id="fileurl" placeholder="Enter Spreadsheet URL">
+                   
+                  </div>
+               
+                  <div class="d-flex flex-wrap align-items-center mt-4">
+                    <button type="submit" class="btn btn-primary">Add New Project <i class="fe fe-plus"></i> </button>
+                    <span class="extra-text ml-auto">
+                      Need help? <a href="#">Click here</a>
+                    </span>
+
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- create-project modal End -->
+
+     <!-- Test-Aspect modal start -->
+     <div class="modal fade" id="testaspect" tabindex="-1" aria-labelledby="testaspectLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="testaspectLabel">Test Aspect</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <i class="fe fe-x-circle"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+            <div class="aspect-row">
+              <small>Aspect name:</small>
+              <b>Technology</b>
+            </div>
+            <hr class="m-0">
+            <div class="aspect-row">
+              <small>Rule 1 Name:</small>
+              <b>HealthCondition</b>
+            </div>
+            <div class="aspect-row pt-0">
+              <small>Rule 1 Definition:</small>
+              <span class="key-tag">
+                Keyword 1 <a href="#">
+                  <i class="fe fe-x-circle"></i>
+                </a>
+              </span>
+              <span class="key-tag">
+                Keyword 3 <a href="#">
+                  <i class="fe fe-x-circle"></i>
+                </a>
+              </span>
+              <span class="key-tag">
+                Keyword 3 <a href="#">
+                  <i class="fe fe-x-circle"></i>
+                </a>
+              </span>
+            </div>
+          <hr class="m-0">
+          <div class="aspect-row">
+            <small>Rule 1 Name:</small>
+            <b>HealthCondition</b>
+          </div>
+          <div class="aspect-row pt-0">
+            <small>Rule 1 Definition:</small>
+            <span class="key-tag">
+              Keyword 1 <a href="#">
+                <i class="fe fe-x-circle"></i>
+              </a>
+            </span>
+            <span class="key-tag">
+              Keyword 3 <a href="#">
+                <i class="fe fe-x-circle"></i>
+              </a>
+            </span>
+            <span class="key-tag">
+              Keyword 3 <a href="#">
+                <i class="fe fe-x-circle"></i>
+              </a>
+            </span>
+          </div>
+       
+        <div class="testdata">
+          <div class="modal-data">
+            <form>
+              <div class="form-group">
+                <label for="aspect-name" class="form-label">Test your Data</label>
+                <textarea type="text" class="form-control" id="aspect-name" placeholder="Enter Your Data Here">
+                  </textarea>
+              </div>
+              <button type="submit" class="btn btn-primary mt-2">Test Data</button>
+              </form>
+            </div>
+        </div>
+  
+          </div>
+         
+        </div>
+      </div>
+    </div>
+    <!-- Test-Aspect modal End -->
+
+     <!-- create-Aspect modal start -->
+     <div class="modal fade" id="createaspect" tabindex="-1" aria-labelledby="createaspectLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createaspectLabel">Create Aspect</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <i class="fe fe-x-circle"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+            <div class="modal-data">
+                <form>
+                  <div class="form-group">
+                    <label for="aspect-name" class="form-label">Aspect name</label>
+                    <input type="text" class="form-control" id="aspect-name" placeholder="Enter Aspect Name">
+                  </div>
+
+                  <div class="aspect-group">
+                    <div class="form-group">
+                      <label for="Rule-name" class="form-label">Rule 1 Name</label>
+                      <input type="text" class="form-control" id="Rule-name" value="Healthcondition">
+                    </div>
+                    <div class="form-group">
+                      <label for="Rule-name" class="form-label">Rule 1 Definition</label>
+                     <input name='basic' value='Keyword 1, Keyword 2, Keyword 3' autofocus>
+                    </div>
+                  </div>
+
+                  <div class="aspect-group">
+                    <div class="form-group">
+                      <label for="Rule-name" class="form-label">Rule 2 Name</label>
+                      <input type="text" class="form-control" id="Rule-name" placeholder="Enter Rule Name">
+                    </div>
+                    <div class="form-group">
+                      <label for="Rule-name" class="form-label">Rule 2 Definition</label>
+                     <input name='basic1' placeholder="Enter Rule Definition"  autofocus>
+                    </div>
+                  </div>
+             
+                  
+  
+                  <button type="submit" class="btn btn-outline-primary mr-2 mt-2">Add New Rule</button>
+                
+                  <button type="submit" class="btn btn-primary mt-2">Save And Close </button>
+                
+  
+  
+  
+  
+  
+                </form>
+            </div>
+          </div>
+         
+        </div>
+      </div>
+    </div>
+    <!-- create-Aspect modal End -->
+
+  <!-- Export data modal start -->
+  <div class="modal fade" id="exportdata" tabindex="-1" aria-labelledby="exportdataLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportdataLabel">Export Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="fe fe-x-circle"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="modal-data">
+              <form>
+                <div class="form-group">
+                  <label for="project" class="form-label">Project</label>
+                  <select class="custom-select" id="project">
+                    <option selected="">Rolex</option>
+                    <option value="1">Royal Enfiled</option>
+                    <option value="2">Google</option>
+                   
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="chosedate" class="form-label">CHoose Date</label>
+                  <div id="sandbox-container" >  
+                    <input type="text" class="form-control" id="chosedate" placeholder="CHoose Date">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Languages</label>
+                  <div class="dropdown choose-languages">
+                    <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      Choose Languages
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="choose-languages">
+                      <div class="choose-lang">
+                        <div class="d-flex checkuncheck">
+                          <span>Check All</span>
+                          <span>UnCheck All</span>
+                        </div>
+                        <div class="choose">
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="c1">
+                            <label class="custom-control-label" for="c1">English</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="c2">
+                            <label class="custom-control-label" for="c2">Hindi</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="c3">
+                            <label class="custom-control-label" for="c3">Spanish</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="c4">
+                            <label class="custom-control-label" for="c4">Portuguese</label>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Sources</label>
+                  
+                  <div class="dropdown choose-sources">
+                    <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      Choose Sources
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="choose-sources">
+                      <div class="choose-lang">
+                        <div class="d-flex checkuncheck">
+                          <span>Check All</span>
+                          <span>UnCheck All</span>
+                        </div>
+                        <div class="choose">
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="f1">
+                            <label class="custom-control-label" for="f1">Twitter</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="f2">
+                            <label class="custom-control-label" for="f2">Youtube</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="f3">
+                            <label class="custom-control-label" for="f3">Facebook</label>
+                          </div>
+                          <div class="custom-control checkbox-list custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="f4">
+                            <label class="custom-control-label" for="f4">Linkedin</label>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="email" class="form-label">Email to send results to</label>
+                  <input type="email" class="form-control email-icon" id="email" aria-describedby="emailHelp">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Send Raw Data <i class="fe fe-send"></i> </button>
+              
+
+
+
+
+
+              </form>
+          </div>
+        </div>
+       
+      </div>
+    </div>
+  </div>
+  <!-- Export data modal End -->
+  
+  <!-- modal End -->
+
+
+  <!-- js -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="/static/assets/js/bootstrap-datepicker.min.js"></script>
+  <script src="/static/assets/js/jQuery.tagify.min.js"></script>
+  
+  <script>
+    // if IE, add IE tagify's polyfills
+    !function( d ) {
+        if( !d.currentScript ){
+            var s = d.createElement( 'script' );
+            s.src = 'js/tagify.polyfills.min.js';
+            d.head.appendChild( s );
+        }
+    }(document)
+</script>
+
+<script data-name="basic">
+  (function(){
+  // The DOM element you wish to replace with Tagify
+  var input = document.querySelector('input[name=basic]');
+  
+  // initialize Tagify on the above input node reference
+  new Tagify(input)
+  })()
+  </script>
+
+<script data-name="basic1">
+  (function(){
+  // The DOM element you wish to replace with Tagify
+  var input = document.querySelector('input[name=basic1]');
+  
+  // initialize Tagify on the above input node reference
+  new Tagify(input)
+  })()
+  </script>
+  
+  
+
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+
+  </script>
+  <script>
+    $('#sandbox-container input').datepicker({
+      todayHighlight: true
+    });
+  </script>
+
+
+  
+    <script>
+      $("#sidemenu").click(function () {
+        $("body").toggleClass("menu-close");
+      });
+    </script>
+  <script>
+    $("#lightdark").click(function () {
+      $("body").toggleClass("dark-theme");
+    });
+  </script>
+   <script>
+    $("#lightdark1").click(function () {
+      $("body").toggleClass("dark-theme");
+    });
+  </script>
+<script>
+      
+  var options1a = {
+      series: [45],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#00CFE8'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart9 = new ApexCharts(document.querySelector("#chart-9"), options1a);
+    chart9.render();
+  
+    var options1 = {
+      series: [60],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#28C76F'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart1 = new ApexCharts(document.querySelector("#chart-1"), options1);
+    chart1.render();
+  
+    var options2 = {
+      series: [25],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#EA5455'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart2 = new ApexCharts(document.querySelector("#chart-2"), options2);
+    chart2.render();
+  
+    var options3 = {
+      series: [33],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#00CFE8'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart3 = new ApexCharts(document.querySelector("#chart-3"), options3);
+    chart3.render();
+  
+    var options4 = {
+      series: [85],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#7367F0'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart4 = new ApexCharts(document.querySelector("#chart-4"), options4);
+    chart4.render();
+  
+    var options5 = {
+      series: [45],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#FF9F43'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart5 = new ApexCharts(document.querySelector("#chart-5"), options5);
+    chart5.render();
+  
+    var options6 = {
+      series: [45],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    colors: ['#FF9F43'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '40%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart6 = new ApexCharts(document.querySelector("#chart-6"), options6);
+    chart6.render();
+  
+    var options7 = {
+      series: [45],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    
+    colors: ['#FF9F43'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '50%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart7 = new ApexCharts(document.querySelector("#chart-7"), options7);
+    chart7.render();
+  
+    var options8 = { series: [65],
+      chart: {
+      type: 'radialBar',
+      width: 30,
+      height: 30,
+      sparkline: {
+        enabled: true
+      }
+    },
+    colors: ['#FF9F43'],
+    dataLabels: {
+      enabled: false
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 0,
+          size: '45%'
+        },
+        track: {
+          margin: 0
+        },
+        dataLabels: {
+          show: false
+        }
+      }
+    }
+    };
+
+    var chart8 = new ApexCharts(document.querySelector("#chart-8"), options8);
+    chart8.render();
+
+    var options11 = {
+      series: [{
+            name: 'Program',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Nutrition',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'food',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Results',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Timeline',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Wow',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Meal',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Emotions',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Money',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          },
+          {
+            name: 'Bill',
+            data: generateData(10, {
+              min: 0,
+              max: 100
+            })
+          }
+        ],
+        
+        chart: {
+          height: 480,
+          type: 'heatmap',
+        },
+
+  
+        plotOptions: {
+          heatmap: {
+            shadeIntensity: 0.5,
+            radius: 0,
+            
+            colorScale: {
+              ranges: [{
+                  from: 0,
+                  to: 20,
+                  name: '0-20',
+                  color: '#E2E0FB'
+                },
+                {
+                  from: 21,
+                  to: 40,
+                  name: '21-40',
+                  color: '#D4D0FA'
+                },
+                {
+                  from: 41,
+                  to: 60,
+                  name: '41-60 ',
+                  color: '#C6C1F8'
+                },
+                {
+                  from: 61,
+                  to: 80,
+                  name: '61-80',
+                  color: '#968DF3'
+                },
+                {
+                  from: 81,
+                  to: 99,
+                  name: '81-99',
+                  color: '#8075F1'
+                },
+                {
+                  from: 100,
+                  to: 100,
+                  name: '100',
+                  color: '#7367F0'
+                }
+              ]
+            }
+          }
+        },
+        dataLabels: {
+          enabled: false,
+          style: {
+      fontSize: '14px',
+      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontWeight: 'bold',
+      
+  },
+        },
+        legend: { 
+          position: 'bottom',
+         
+          markers: {
+            width: 30,
+          },
+        },
+
+        stroke: {
+          width: 1
+        },
+        xaxis: {
+          type: 'category',
+          categories: ['Program', 'Nutrition', 'food', 'Results', 'Timeline', 'Wow', 'Meal', 'Emotions', 'Money', 'Bill']
+        },
+       
+        };
+
+    var chart11 = new ApexCharts(document.querySelector("#chart-11"), options11);
+    chart11.render();
+
+    var options12 = { 
+      
+      
+      series: [{
+          name: 'Positive',
+          data: [31, 40, 28, 51, 42, 109, 100]
+        }, {
+          name: 'Negative',
+          data: [11, 32, 45, 32, 34, 52, 41]
+        }],
+        colors: ["#28C76F", "#EA5455"],
+          chart: {
+          height: 320,
+          type: 'line',
+          toolbar: {
+        show: false, },
+        },
+        
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 3
+        },
+        legend: { 
+          show: false,
+        },
+        xaxis: {
+         
+          categories: ["01-08-2020", "01-09-2020", "01-10-2020", "01-11-2020", "01-12-2020", "01-01-2021", "01-02-2021"]
+        },
+        tooltip: {
+          x: {
+            format: 'dd/MM/yyyy'
+          },
+        },
+        };
+
+    var chart12 = new ApexCharts(document.querySelector("#chart-12"), options12);
+    chart12.render();
+      
+    var options15 = { 
+      series: [{
+          name: 'Positive',
+          data: [4, 65, 7, 8, 15, 21, 29, 38, 39, 42, 40, 43, 10, 42, 45,
+            40, 35, 30
+          ]
+        },
+        {
+          name: 'Negative',
+          data: [-8, -15, -16, -18, -14, -22, -25, -37, -36, -42, -43, -44,
+            -41, -40, -41, -34, -31, -28
+          ]
+        }
+        ],
+          chart: {
+          type: 'bar',
+          height: 440,
+          stacked: true
+        },
+        legend: {show: false,},
+        colors: ['#28C76F', '#EA5455'],
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            borderRadius: 6,
+            barHeight: '50',
+          },
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          width: 1,
+          colors: ["#fff"]
+        },
+        
+        grid: {
+          xaxis: {
+            lines: {
+              show: false
+            }
+          }
+        },
+        yaxis: {
+          min: -85,
+          max: 85,
+          title: {
+            // text: 'Age',
+          },
+        },
+        tooltip: {
+          shared: false,
+          x: {
+            formatter: function (val) {
+              return val
+            }
+          },
+          y: {
+            formatter: function (val) {
+              return Math.abs(val) 
+            }
+          }
+        },
+       
+        xaxis: {
+          categories: ['Food', 'Program', 'Meal', 'Money', 'Wow', 'Love', 'Challenges', 'Recipe'
+          ],
+         
+          labels: {
+            formatter: function (val) {
+              return Math.abs(Math.round(val))
+            }
+          }
+        },
+        };
+
+    var chart15 = new ApexCharts(document.querySelector("#chart-15"), options15);
+    chart15.render();
+  
+  
+  
+</script>
+<script src="/static/assets/js/bundle.js"></script>
+{% endblock %}

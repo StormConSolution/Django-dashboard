@@ -308,6 +308,19 @@ def new_projects(request):
     context["projects_count"] = len(projects)
     return render(request, "projects.html", context)
 
+@login_required(login_url=LOGIN_URL)
+def new_project_details(request, project_id):
+    user = request.user
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    context={}
+    context["projects_data"] = projects
+    context["project_id"] = project_id
+    return render(request, "project-details.html", context)
+
 def entities(request, project_id):
     """
     Show the frequency of occurence for the entities for this data set.

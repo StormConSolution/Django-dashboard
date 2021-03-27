@@ -27,6 +27,7 @@ urlpatterns = [
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
     path('new-projects/', views.new_projects, name='new-projects'),
+    path('new-projects/<int:project_id>/', views.new_project_details, name='new-project-details'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
 
     path('projects/<int:project_id>/',

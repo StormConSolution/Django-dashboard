@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './assets/js/index.js',
+    entry: './assets/js/project-graphs.js',
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dashboard/static/assets/js'),
