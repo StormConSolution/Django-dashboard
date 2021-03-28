@@ -59,7 +59,7 @@
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img src="/static/assets/images/Avatar.svg" alt="">
                     <span>
-                      Terry Williams
+                      {{user.username}}
                       <small>Manager</small>
                     </span>
                   </a>
@@ -141,18 +141,7 @@
         </ul>
     </div>
 
-    <div class="main-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="dashboard-title d-flex flex-wrap">
-                        Active projects <span>{{projects_count}}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row" id="project-cards"></div>
-        </div>
-    </div>
+
 
     <!-- js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

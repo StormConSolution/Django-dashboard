@@ -328,7 +328,7 @@ def aspect_count(request, project_id):
         raise PermissionDenied
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s group by da."label" ;""", [project.id])
+            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s group by da."label" order by count(da."label") desc ;""", [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -385,3 +385,78 @@ def co_occurence(request, project_id):
         request,
     )
     return JsonResponse(chart_data["aspect_cooccurrence_data"], safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def sentiment_per_aspect(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    ASPECT_QUERY = """
+    SELECT 
+        label, count(data_id),
+        sum(case when data_aspect.sentiment > 0 then 1 else 0 end) as PosCount,
+        sum(case when data_aspect.sentiment < 0 then 1 else 0 end) as NegCount
+    FROM 
+        data_aspect, data_data
+    WHERE 
+        %s
+    GROUP BY label
+    """
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+    src = request.GET.getlist('filter_source')
+    if src and src[0]:
+        source_filter = src[0].split(",")
+        context['selected_sources'] = source_filter
+    else:
+        source_filter = None
+    end = this_project.data_set.latest().date_created
+    start = end - datetime.timedelta(days=30)
+    where_clause = [
+        'data_aspect.data_id = data_data.id',
+        'data_data.project_id = %s',
+        'data_data.date_created between %s AND %s',
+    ]
+    query_args = [project_id, start, end]
+    lang = request.GET.getlist('filter_language')
+    if lang and lang[0]:
+        lang_filter = lang[0].split(",")
+        context['selected_langs'] = lang_filter
+    else:
+        lang_filter = None
+
+    if lang_filter:
+        lang_string = len(lang_filter) * '%s,'
+        where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
+        query_args.extend(lang_filter)
+    
+    if source_filter:
+        source_string = len(source_filter) * '%s,'
+        where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+        # Get the raw IDs for our sources.
+        source_ids = data_models.Source.objects.filter(
+                label__in=source_filter).values_list('id', flat=True)
+        query_args.extend(source_ids)
+    
+    if aspect_topic:
+        where_clause.append('data_aspect.topic = %s')
+        query_args.append(aspect_topic)
+    
+    if aspect_name:
+        where_clause.append('data_aspect.label = %s')
+        query_args.append(aspect_name)
+
+    total = 0
+    response = []
+    with connection.cursor() as cursor:
+        cursor.execute(ASPECT_QUERY % ' AND '.join(where_clause), query_args)
+        for idx, row in enumerate(cursor.fetchall()):
+            total += row[1]
+            response.append({
+                'aspectLabel':row[0],
+                'count':row[1],
+                'positiveCount': row[2],
+                'negativeCount': row[3],
+            })
+    return JsonResponse(response, safe=False)

@@ -1,5 +1,17 @@
 {% extends 'layouts/new-base.html' %}
 {% block content %}
+<div class="main-content">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-title d-flex flex-wrap">
+                Active projects <span>{{projects_count}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="project-cards"></div>
+</div>
+</div>
     <script>
         var projects_data = {{ projects_data | safe }};
     </script>

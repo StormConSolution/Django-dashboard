@@ -5,3 +5,4 @@ import "./graphs/overall-sentiment";
 import "./graphs/volume-by-source";
 import "./graphs/aspect-count";
 import "./graphs/co-occurrence";
+import "./graphs/aspect-by-sentiment";

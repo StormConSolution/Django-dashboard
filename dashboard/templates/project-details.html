@@ -20,6 +20,18 @@
       return series;
     }
     </script>
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-title d-flex flex-wrap">
+                    {{project_name}} 
+                </div>
+            </div>
+        </div>
+        <div class="row" id="project-cards"></div>
+    </div>
+    </div>
   <div class="main-content">
     <div class="container-fluid">
       <div class="row">
@@ -288,7 +300,7 @@
             </div>
 
             <div class="chart-wrap">
-              <div id="chart-15" >
+              <div id="aspect-by-sentiment" >
 
               </div>
             </div>
@@ -1771,88 +1783,6 @@
 
     var chart12 = new ApexCharts(document.querySelector("#chart-12"), options12);
     chart12.render();
-      
-    var options15 = { 
-      series: [{
-          name: 'Positive',
-          data: [4, 65, 7, 8, 15, 21, 29, 38, 39, 42, 40, 43, 10, 42, 45,
-            40, 35, 30
-          ]
-        },
-        {
-          name: 'Negative',
-          data: [-8, -15, -16, -18, -14, -22, -25, -37, -36, -42, -43, -44,
-            -41, -40, -41, -34, -31, -28
-          ]
-        }
-        ],
-          chart: {
-          type: 'bar',
-          height: 440,
-          stacked: true
-        },
-        legend: {show: false,},
-        colors: ['#28C76F', '#EA5455'],
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            borderRadius: 6,
-            barHeight: '50',
-          },
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          width: 1,
-          colors: ["#fff"]
-        },
-        
-        grid: {
-          xaxis: {
-            lines: {
-              show: false
-            }
-          }
-        },
-        yaxis: {
-          min: -85,
-          max: 85,
-          title: {
-            // text: 'Age',
-          },
-        },
-        tooltip: {
-          shared: false,
-          x: {
-            formatter: function (val) {
-              return val
-            }
-          },
-          y: {
-            formatter: function (val) {
-              return Math.abs(val) 
-            }
-          }
-        },
-       
-        xaxis: {
-          categories: ['Food', 'Program', 'Meal', 'Money', 'Wow', 'Love', 'Challenges', 'Recipe'
-          ],
-         
-          labels: {
-            formatter: function (val) {
-              return Math.abs(Math.round(val))
-            }
-          }
-        },
-        };
-
-    var chart15 = new ApexCharts(document.querySelector("#chart-15"), options15);
-    chart15.render();
-  
-  
-  
 </script>
 <script src="/static/assets/js/bundle.js"></script>
 {% endblock %}

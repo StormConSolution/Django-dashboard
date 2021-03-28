@@ -306,6 +306,7 @@ def new_projects(request):
     context={}
     context["projects_data"] = projects
     context["projects_count"] = len(projects)
+    context["user"] = user
     return render(request, "projects.html", context)
 
 @login_required(login_url=LOGIN_URL)
@@ -319,6 +320,8 @@ def new_project_details(request, project_id):
     context={}
     context["projects_data"] = projects
     context["project_id"] = project_id
+    context["project_name"] = this_project.name
+    context["user"] = user
     return render(request, "project-details.html", context)
 
 def entities(request, project_id):
