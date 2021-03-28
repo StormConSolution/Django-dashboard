@@ -6,7 +6,6 @@ function createTable(page){
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
-    console.log(pageSize)
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)
     .then((response) => response.json())
     .then((data) => {

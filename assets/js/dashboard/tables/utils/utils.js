@@ -16,30 +16,55 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     paginationNumbers.append(ulPagination)
     paginationDiv.append(paginationNumbers)
     
-    let page = 5
-    if(totalPages < 5){
-        page = totalPages
-    }
-    for(let i = 1; i < page; i++){
-        let li = createPageNumber(currentPage, i, callBack)
-        
-        ulPagination.append(li)
-    }
+    if(totalPages < 7){
+        for(let i = 0; i < totalPages; i++){
+            let li = createPageNumber(currentPage, i, callBack)
+            ulPagination.append(li) 
+        }
+    } else {
+        let li = createPageNumber(currentPage, 1, callBack)
+        ulPagination.append(li) 
 
+        if(currentPage < 4){
+            for(let i = 2; i < 5; i++){
+                let li = createPageNumber(currentPage, i, callBack)
+                ulPagination.append(li) 
+            }
+            let li = document.createElement("li")
+            let a = document.createElement("a")
+            a.innerHTML = ".."
+            li.append(a);
+            ulPagination.append(li)
+            li = createPageNumber(currentPage, totalPages, callBack)
+            ulPagination.append(li) 
+        }
 
-    if(totalPages == 5){
-        let li = createPageNumber(currentPage, 5, callBack)
-        ulPagination.append(li)
-    }
-
-    if(totalPages > 6){
-        let li = document.createElement("li")
-        let a = document.createElement("a")
-        a.innerHTML = ".."
-        li.append(a);
-        ulPagination.append(li)
-        li = createPageNumber(currentPage, totalPages, callBack)
-        ulPagination.append(li)
+        if(currentPage >= 4){
+            li = document.createElement("li")
+            let a = document.createElement("a")
+            a.innerHTML = ".."
+            li.append(a);
+            ulPagination.append(li)
+            if(currentPage < totalPages - 3){
+                for(let i = currentPage - 1; i < currentPage +2; i++){
+                    let li = createPageNumber(currentPage, i, callBack)
+                    ulPagination.append(li) 
+                }
+                li = document.createElement("li")
+                a = document.createElement("a")
+                a.innerHTML = ".."
+                li.append(a);
+                ulPagination.append(li)
+                li = createPageNumber(currentPage, totalPages, callBack)
+                ulPagination.append(li)
+            } else {
+                for(let i = currentPage - 1; i <= totalPages; i++){
+                    let li = createPageNumber(currentPage, i, callBack)
+                    ulPagination.append(li)  
+                }
+            }
+ 
+        }
     }
 
     paginationContainer.append(paginationDiv);
