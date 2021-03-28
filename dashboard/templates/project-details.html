@@ -3,7 +3,53 @@
   <script>
       window.project_id = {{project_id | safe}}
   </script>
+      <script data-name="basic">
+        (function () {
+            // The DOM element you wish to replace with Tagify
+            var input = document.querySelector("input[name=basic]");
+
+            // initialize Tagify on the above input node reference
+            new Tagify(input);
+        })();
+    </script>
+
+    <script data-name="basic1">
+        (function () {
+            // The DOM element you wish to replace with Tagify
+            var input = document.querySelector("input[name=basic1]");
+
+            // initialize Tagify on the above input node reference
+            new Tagify(input);
+        })();
+    </script>
+
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script>
+        $("#sandbox-container input").datepicker({
+            todayHighlight: true,
+        });
+    </script>
+    <script>
+        $("#lightdark").click(function () {
+            $("body").toggleClass("dark-theme");
+        });
+    </script>
+    <script>
+        $("#lightdark1").click(function () {
+            $("body").toggleClass("dark-theme");
+        });
+    </script>
+    <script>
+        $("#sidemenu").click(function () {
+            $("body").toggleClass("menu-close");
+        });
+    </script>
   <script>
+      
     function generateData(count, yrange) {
       var i = 0;
       var series = [];
@@ -317,11 +363,11 @@
                 </a> </h4>
               <div class="col-auto p-0 d-flex flex-wrap ">
               <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="inputGroupSelect01">
-                  <option selected>10</option>
-                  <option value="1">20</option>
-                  <option value="2">30</option>
-                  <option value="3">40</option>
+                Show <select class="custom-select" id="aspect-topic-table-page-size">
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="40">40</option>
                 </select> Entries
               </div>
               <div class="data-search">
@@ -363,123 +409,12 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">3 months</a>
-                    </td>
-                    <td>Timeline</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">3 months</a>
-                    </td>
-                    <td>Timeline</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">6 months</a>
-                    </td>
-                    <td>Timeline</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Abdominal obesity</a>
-                    </td>
-                    <td>HealthCondition</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Alcohol intoxication</a>
-                    </td>
-                    <td>Emotion</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Allergy</a>
-                    </td>
-                    <td>Emotion</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button green">Details</a>
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button red">Details</a>
-                    </td>
-                  </tr>
-       
-      
-              
+                <tbody id="aspect-topic-table-content">
                 </tbody>
               </table>
             </div>
 
-            <div class="table-bottom">
-              <div class="row no-gutters">
-                <div class="col-12 col-md">
-                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
-                </div>
-                <div class="col-12 col-md-auto">
-                  <ul class="pagination">
-                    <li>
-                      <a href="#">
-                        <i class="fe fe-chevron-left"></i>
-                      </a>
-                    </li>
-                    <li class="active">
-                      <a href="#">01</a>
-                    </li>
-                    <li>
-                      <a href="#">02</a>
-                    </li>
-                    <li>
-                      <a href="#">03</a>
-                    </li>
-                    <li>
-                      <a href="#">04</a>
-                    </li>
-                    <li>
-                      <a href="#">..</a>
-                    </li>
-                    <li>
-                      <a href="#">25</a>
-                    </li>
-                    <li>
-                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
-                    </li>
-                   
-                  </ul>
-                </div>
-              </div>
+            <div class="table-bottom" id="aspect-topic-table-pagination">
             </div>
 
           </div>
@@ -494,11 +429,11 @@
                 </a> </h4>
               <div class="col-auto p-0 d-flex flex-wrap ">
               <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="inputGroupSelect01">
-                  <option selected>10</option>
-                  <option value="1">20</option>
-                  <option value="2">30</option>
-                  <option value="3">40</option>
+                Show <select class="custom-select" id="entity-table-page-size">
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="40">40</option>
                 </select> Entries
               </div>
               <div class="data-search">
@@ -545,114 +480,12 @@
                    
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Atkins diet</a>
-                    </td>
-                    <td>Health.diet</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">402</a>
-                    </td>
-                    
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Ketogenic diet</a>
-                    </td>
-                    <td>Health.condition</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">20</a>
-                    </td>
-                    
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Love</a>
-                    </td>
-                    <td>Person.relationship</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">5</a>
-                    </td>
-                    
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Atkins diet</a>
-                    </td>
-                    <td>Health.diet</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">402</a>
-                    </td>
-                    
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Ketogenic diet</a>
-                    </td>
-                    <td>Health.condition</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">20</a>
-                    </td>
-                    
-                  </tr>
-                  <tr>
-                    <td>
-                      <a href="#" class="data-link">Love</a>
-                    </td>
-                    <td>Person.relationship</td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">5</a>
-                    </td>
-                    
-                  </tr>
-       
-     
-   
-       
-      
-              
+                <tbody id="entity-table-content">
                 </tbody>
               </table>
             </div>
 
-            <div class="table-bottom">
-              <div class="row no-gutters">
-                <div class="col-12 col-md">
-                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
-                </div>
-                <div class="col-12 col-md-auto">
-                  <ul class="pagination">
-                    <li>
-                      <a href="#">
-                        <i class="fe fe-chevron-left"></i>
-                      </a>
-                    </li>
-                    <li class="active">
-                      <a href="#">01</a>
-                    </li>
-                    <li>
-                      <a href="#">02</a>
-                    </li>
-                    <li>
-                      <a href="#">03</a>
-                    </li>
-                    <li>
-                      <a href="#">04</a>
-                    </li>
-                    <li>
-                      <a href="#">..</a>
-                    </li>
-                    <li>
-                      <a href="#">25</a>
-                    </li>
-                    <li>
-                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
-                    </li>
-                   
-                  </ul>
-                </div>
-              </div>
+            <div class="table-bottom" id="entity-table-pagination">
             </div>
 
           </div>
@@ -668,11 +501,11 @@
                 </a> </h4>
               <div class="col-auto p-0 d-flex flex-wrap ">
               <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="inputGroupSelect01">
-                  <option selected>10</option>
-                  <option value="1">20</option>
-                  <option value="2">30</option>
-                  <option value="3">40</option>
+                Show <select class="custom-select" id="data-table-page-size">
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="40">40</option>
                 </select> Entries
               </div>
               <div class="data-search">
@@ -749,132 +582,15 @@
                    
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                     <small>2021-02-08</small>
-                    </td>
-                    <td>
-                      @MeganK7x Bit like the old Atkins diet x
-                    </td>
-                    <td >
-                     <b>Facebook</b>
-                    </td>
-                    <td class="text-center">
-                     -0.0502
-                    </td>
-                    <td class="text-center">
-                      0.8307
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">En</a>
-                    </td>
-                    
-                  </tr>
-
-                  <tr>
-                    <td>
-                     <small>2021-02-08</small>
-                    </td>
-                    <td>
-                      @TruthsRebirth So like for myself I just started the Atkins diet and I limit myself to a certain amount of calories a day along with my workout plan
-                    </td>
-                    <td >
-                     <b>Youtube</b>
-                    </td>
-                    <td class="text-center">
-                     -0.0502
-                    </td>
-                    <td class="text-center">
-                      0.8307
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">En</a>
-                    </td>
-                    
-                  </tr>
-
-                  <tr>
-                    <td>
-                     <small>2021-02-08</small>
-                    </td>
-                    <td>
-                      @MeganK7x Is it like the Atkins diet ?
-                    </td>
-                    <td >
-                     <b>Twitter</b>
-                    </td>
-                    <td class="text-center">
-                     -0.0502
-                    </td>
-                    <td class="text-center">
-                      0.8307
-                    </td>
-                    <td class="text-center">
-                      <a href="#" class="info-button">En</a>
-                    </td>
-                    
-                  </tr>
-       
-     
-         
-  
-       
-     
-   
-       
-      
-              
+                <tbody id="data-table-content">
                 </tbody>
               </table>
             </div>
 
-            <div class="table-bottom">
-              <div class="row no-gutters">
-                <div class="col-12 col-md">
-                  <div class="pagination-data">Showing 1 to 10 of 249 entries</div>
-                </div>
-                <div class="col-12 col-md-auto">
-                  <ul class="pagination">
-                    <li>
-                      <a href="#">
-                        <i class="fe fe-chevron-left"></i>
-                      </a>
-                    </li>
-                    <li class="active">
-                      <a href="#">01</a>
-                    </li>
-                    <li>
-                      <a href="#">02</a>
-                    </li>
-                    <li>
-                      <a href="#">03</a>
-                    </li>
-                    <li>
-                      <a href="#">04</a>
-                    </li>
-                    <li>
-                      <a href="#">..</a>
-                    </li>
-                    <li>
-                      <a href="#">25</a>
-                    </li>
-                    <li>
-                      <a href="#"> <i class="fe fe-chevron-right"></i></a>
-                    </li>
-                   
-                  </ul>
-                </div>
-              </div>
+            <div class="table-bottom" id="data-table-pagination">
             </div>
-
           </div>
-
-
         </div>
-
-       
-      
       </div>
     </div>
   </div>
@@ -1072,12 +788,6 @@
                   <button type="submit" class="btn btn-outline-primary mr-2 mt-2">Add New Rule</button>
                 
                   <button type="submit" class="btn btn-primary mt-2">Save And Close </button>
-                
-  
-  
-  
-  
-  
                 </form>
             </div>
           </div>
@@ -1193,14 +903,7 @@
                   <label for="email" class="form-label">Email to send results to</label>
                   <input type="email" class="form-control email-icon" id="email" aria-describedby="emailHelp">
                 </div>
-
                 <button type="submit" class="btn btn-primary">Send Raw Data <i class="fe fe-send"></i> </button>
-              
-
-
-
-
-
               </form>
           </div>
         </div>
@@ -1283,465 +986,6 @@
     });
   </script>
 <script>
-      
-  var options1a = {
-      series: [45],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#00CFE8'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart9 = new ApexCharts(document.querySelector("#chart-9"), options1a);
-    chart9.render();
-  
-    var options1 = {
-      series: [60],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#28C76F'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart1 = new ApexCharts(document.querySelector("#chart-1"), options1);
-    chart1.render();
-  
-    var options2 = {
-      series: [25],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#EA5455'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart2 = new ApexCharts(document.querySelector("#chart-2"), options2);
-    chart2.render();
-  
-    var options3 = {
-      series: [33],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#00CFE8'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart3 = new ApexCharts(document.querySelector("#chart-3"), options3);
-    chart3.render();
-  
-    var options4 = {
-      series: [85],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#7367F0'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart4 = new ApexCharts(document.querySelector("#chart-4"), options4);
-    chart4.render();
-  
-    var options5 = {
-      series: [45],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#FF9F43'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart5 = new ApexCharts(document.querySelector("#chart-5"), options5);
-    chart5.render();
-  
-    var options6 = {
-      series: [45],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    colors: ['#FF9F43'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '40%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart6 = new ApexCharts(document.querySelector("#chart-6"), options6);
-    chart6.render();
-  
-    var options7 = {
-      series: [45],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    
-    colors: ['#FF9F43'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '50%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart7 = new ApexCharts(document.querySelector("#chart-7"), options7);
-    chart7.render();
-  
-    var options8 = { series: [65],
-      chart: {
-      type: 'radialBar',
-      width: 30,
-      height: 30,
-      sparkline: {
-        enabled: true
-      }
-    },
-    colors: ['#FF9F43'],
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      radialBar: {
-        hollow: {
-          margin: 0,
-          size: '45%'
-        },
-        track: {
-          margin: 0
-        },
-        dataLabels: {
-          show: false
-        }
-      }
-    }
-    };
-
-    var chart8 = new ApexCharts(document.querySelector("#chart-8"), options8);
-    chart8.render();
-
-    var options11 = {
-      series: [{
-            name: 'Program',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Nutrition',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'food',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Results',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Timeline',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Wow',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Meal',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Emotions',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Money',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          },
-          {
-            name: 'Bill',
-            data: generateData(10, {
-              min: 0,
-              max: 100
-            })
-          }
-        ],
-        
-        chart: {
-          height: 480,
-          type: 'heatmap',
-        },
-
-  
-        plotOptions: {
-          heatmap: {
-            shadeIntensity: 0.5,
-            radius: 0,
-            
-            colorScale: {
-              ranges: [{
-                  from: 0,
-                  to: 20,
-                  name: '0-20',
-                  color: '#E2E0FB'
-                },
-                {
-                  from: 21,
-                  to: 40,
-                  name: '21-40',
-                  color: '#D4D0FA'
-                },
-                {
-                  from: 41,
-                  to: 60,
-                  name: '41-60 ',
-                  color: '#C6C1F8'
-                },
-                {
-                  from: 61,
-                  to: 80,
-                  name: '61-80',
-                  color: '#968DF3'
-                },
-                {
-                  from: 81,
-                  to: 99,
-                  name: '81-99',
-                  color: '#8075F1'
-                },
-                {
-                  from: 100,
-                  to: 100,
-                  name: '100',
-                  color: '#7367F0'
-                }
-              ]
-            }
-          }
-        },
-        dataLabels: {
-          enabled: false,
-          style: {
-      fontSize: '14px',
-      fontFamily: 'Helvetica, Arial, sans-serif',
-      fontWeight: 'bold',
-      
-  },
-        },
-        legend: { 
-          position: 'bottom',
-         
-          markers: {
-            width: 30,
-          },
-        },
-
-        stroke: {
-          width: 1
-        },
-        xaxis: {
-          type: 'category',
-          categories: ['Program', 'Nutrition', 'food', 'Results', 'Timeline', 'Wow', 'Meal', 'Emotions', 'Money', 'Bill']
-        },
-       
-        };
-
-    var chart11 = new ApexCharts(document.querySelector("#chart-11"), options11);
-    chart11.render();
-
     var options12 = { 
       
       

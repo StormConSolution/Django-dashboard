@@ -51,31 +51,6 @@
             <a class="navbar-brand" href="#">
               <img src="/static/assets/images/logo-repustate-dark.svg">
             </a>
-            <div class="d-none visible-md align-items-center">
-             
-              <div class="header-right-sidebar d-flex align-items-center mr-3 ">
-                <div class="dropdown avatar-dropdown">
-                  <a class="menu-avatar d-flex align-items-center dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="/static/assets/images/Avatar.svg" alt="">
-                    <span>
-                      {{user.username}}
-                      <small>Manager</small>
-                    </span>
-                  </a>
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#"><i class="fe fe-user"></i> My Account</a>
-                    <a class="dropdown-item" href="#"><i class="fe fe-settings"></i> Edit Profile</a>
-                    <a class="dropdown-item" href="#"><i class="fe fe-log-out"></i> Logout</a>
-                  </div>
-                </div>
-                <a href="#" id="lightdark1">
-                  <i class="fe fe-moon"></i>
-                  <i class="fe fe-sun"></i>
-      
-                </a>
-              </div>
-            </div>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <i class="fe fe-menu"></i>
@@ -105,9 +80,9 @@
                 <div class="dropdown avatar-dropdown">
                   <a class="menu-avatar d-flex align-items-center dropdown-toggle" href="#" id="navbarDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="images/Avatar.svg" alt="">
+                    <img src="/static/assets/images/Avatar.svg" alt="">
                     <span>
-                      Terry Williams
+                        {{user.username}}
                       <small>Manager</small>
                     </span>
                   </a>

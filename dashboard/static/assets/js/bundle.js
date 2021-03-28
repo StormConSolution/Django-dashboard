@@ -85,14 +85,69 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _con
 
 /***/ }),
 
-/***/ "./assets/js/project-graphs.js":
-/*!*************************************!*\
-  !*** ./assets/js/project-graphs.js ***!
-  \*************************************/
+/***/ "./assets/js/dashboard/tables.js":
+/*!***************************************!*\
+  !*** ./assets/js/dashboard/tables.js ***!
+  \***************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _dashboard_graphs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dashboard/graphs */ \"./assets/js/dashboard/graphs.js\");\n\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/project-graphs.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _tables_data_table__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./tables/data_table */ \"./assets/js/dashboard/tables/data_table.js\");\n/* harmony import */ var _tables_entities_table__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./tables/entities_table */ \"./assets/js/dashboard/tables/entities_table.js\");\n/* harmony import */ var _tables_aspect_topic_table__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./tables/aspect_topic_table */ \"./assets/js/dashboard/tables/aspect_topic_table.js\");\n\n\n\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/dashboard/tables.js?");
+
+/***/ }),
+
+/***/ "./assets/js/dashboard/tables/aspect_topic_table.js":
+/*!**********************************************************!*\
+  !*** ./assets/js/dashboard/tables/aspect_topic_table.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/utils */ \"./assets/js/dashboard/tables/utils/utils.js\");\n\n\nfunction createTable(page){\n    let content = document.getElementById(\"aspect-topic-table-content\");\n    content.innerHTML = \"\";\n    let pagination = document.getElementById(\"aspect-topic-table-pagination\");\n    let pageSize = document.getElementById(\"aspect-topic-table-page-size\").value\n    pagination.innerHTML = \"\"\n    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)\n    .then((response) => response.json())\n    .then((data) => {\n        for (let element of data.data) {\n            let tr = document.createElement(\"tr\");\n            let row = `\n            <td>\n            <a href=\"#\" class=\"data-link\">${element.topicLabel}</a>\n           </td>\n           <td>\n             ${element.aspectLabel}\n           </td>\n           <td class=\"text-center\">\n            <a href=\"#\" class=\"info-button green\">${element.positivesCount}</a>\n           </td>\n           <td class=\"text-center\">\n            <a href=\"#\" class=\"info-button red\">${element.negativesCount}</a>\n           </td>\n            `;\n                tr.innerHTML = row;\n                content.append(tr);\n            }\n            let firstElement = data.pageSize * (data.currentPage - 1);\n            let lastElement = firstElement + data.pageSize;\n            (0,_utils_utils__WEBPACK_IMPORTED_MODULE_0__.createPagination)(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);\n    });\n}\ncreateTable(1);\n/*\n<div class=\"col-12 col-md-auto\">\n        <ul class=\"pagination\">\n        <li>\n            <a href=\"#\">\n            <i class=\"fe fe-chevron-left\"></i>\n            </a>\n        </li>\n        <li class=\"active\">\n            <a href=\"#\">01</a>\n        </li>\n        <li>\n            <a href=\"#\">02</a>\n        </li>\n        <li>\n            <a href=\"#\">03</a>\n        </li>\n        <li>\n            <a href=\"#\">04</a>\n        </li>\n        <li>\n            <a href=\"#\">..</a>\n        </li>\n        <li>\n            <a href=\"#\">25</a>\n        </li>\n        <li>\n            <a href=\"#\"> <i class=\"fe fe-chevron-right\"></i></a>\n        </li>\n        \n        </ul>\n    </div>\n*/\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/dashboard/tables/aspect_topic_table.js?");
+
+/***/ }),
+
+/***/ "./assets/js/dashboard/tables/data_table.js":
+/*!**************************************************!*\
+  !*** ./assets/js/dashboard/tables/data_table.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/utils */ \"./assets/js/dashboard/tables/utils/utils.js\");\n\n\nfunction createTable(page){\n    let content = document.getElementById(\"data-table-content\");\n    content.innerHTML = \"\";\n    let pagination = document.getElementById(\"data-table-pagination\");\n    pagination.innerHTML = \"\"\n    let pageSize = document.getElementById(\"data-table-page-size\").value\n    console.log(pageSize)\n    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)\n    .then((response) => response.json())\n    .then((data) => {\n        for (let element of data.data) {\n            let tr = document.createElement(\"tr\");\n            var length = 150;\n            let text = \"\";\n            if(element.text.length > length){\n                text = element.text.substring(0, length) + \"...\";\n            } else {\n                text = element.text\n            }\n            let row = `\n        <td>\n        <small>${element.dateCreated}</small>\n       </td>\n       <td>\n         ${text}\n       </td>\n       <td >\n        <b>${element.sourceLabel}</b>\n       </td>\n       <td class=\"text-center\">\n        ${element.weightedScore.toFixed(4)}\n       </td>\n       <td class=\"text-center\">\n         ${element.sentimentValue.toFixed(4)}\n       </td>\n       <td class=\"text-center\">\n         <a href=\"#\" class=\"info-button\">${element.languageCode}</a>\n       </td>\n        `;\n            tr.innerHTML = row;\n            content.append(tr);\n        }\n        let firstElement = data.pageSize * (data.currentPage - 1);\n        let lastElement = firstElement + data.pageSize;\n        (0,_utils_utils__WEBPACK_IMPORTED_MODULE_0__.createPagination)(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);\n    });\n}\ncreateTable(1);\n/*\n<div class=\"col-12 col-md-auto\">\n        <ul class=\"pagination\">\n        <li>\n            <a href=\"#\">\n            <i class=\"fe fe-chevron-left\"></i>\n            </a>\n        </li>\n        <li class=\"active\">\n            <a href=\"#\">01</a>\n        </li>\n        <li>\n            <a href=\"#\">02</a>\n        </li>\n        <li>\n            <a href=\"#\">03</a>\n        </li>\n        <li>\n            <a href=\"#\">04</a>\n        </li>\n        <li>\n            <a href=\"#\">..</a>\n        </li>\n        <li>\n            <a href=\"#\">25</a>\n        </li>\n        <li>\n            <a href=\"#\"> <i class=\"fe fe-chevron-right\"></i></a>\n        </li>\n        \n        </ul>\n    </div>\n*/\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/dashboard/tables/data_table.js?");
+
+/***/ }),
+
+/***/ "./assets/js/dashboard/tables/entities_table.js":
+/*!******************************************************!*\
+  !*** ./assets/js/dashboard/tables/entities_table.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _utils_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/utils */ \"./assets/js/dashboard/tables/utils/utils.js\");\n\n\nfunction createTable(page){\n    let content = document.getElementById(\"entity-table-content\");\n    content.innerHTML = \"\";\n    let pagination = document.getElementById(\"entity-table-pagination\");\n    pagination.innerHTML = \"\"\n    let pageSize = document.getElementById(\"aspect-topic-table-page-size\").value\n    console.log(pageSize)\n    fetch(`/api/entity/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)\n    .then((response) => response.json())\n    .then((data) => {\n        for (let element of data.data) {\n            let tr = document.createElement(\"tr\");\n            let row = `\n        <td>\n        <a href=\"#\" class=\"data-link\">${element.entityLabel}</a>\n       </td>\n       <td>\n         ${element.classificationLabel}\n       </td>\n       <td class=\"text-center\">\n        <a href=\"#\" class=\"info-button\">${element.count}</a>\n       </td>\n        `;\n            tr.innerHTML = row;\n            content.append(tr);\n        }\n        let firstElement = data.pageSize * (data.currentPage - 1);\n        let lastElement = firstElement + data.pageSize;\n        (0,_utils_utils__WEBPACK_IMPORTED_MODULE_0__.createPagination)(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);\n    });\n}\ncreateTable(1);\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/dashboard/tables/entities_table.js?");
+
+/***/ }),
+
+/***/ "./assets/js/dashboard/tables/utils/utils.js":
+/*!***************************************************!*\
+  !*** ./assets/js/dashboard/tables/utils/utils.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"createPagination\": () => (/* binding */ createPagination)\n/* harmony export */ });\nfunction createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack){\n    let paginationDiv = document.createElement(\"div\")\n    paginationDiv.className = \"row no-gutters\"\n    let paginationHtml = `\n    <div class=\"col-12 col-md\">\n        <div class=\"pagination-data\">Showing ${firstElement} to ${lastElement} of ${totalElements} entries</div>\n    </div>\n    `;\n\n    paginationDiv.innerHTML = paginationHtml;\n\n    let paginationNumbers = document.createElement(\"div\")\n    paginationNumbers.className = \"col-12 col-md-auto\";\n    let ulPagination = document.createElement(\"ul\")\n    ulPagination.className=\"pagination\"\n    paginationNumbers.append(ulPagination)\n    paginationDiv.append(paginationNumbers)\n    \n    let page = 5\n    if(totalPages < 5){\n        page = totalPages\n    }\n    for(let i = 1; i < page; i++){\n        let li = createPageNumber(currentPage, i, callBack)\n        \n        ulPagination.append(li)\n    }\n\n\n    if(totalPages == 5){\n        let li = createPageNumber(currentPage, 5, callBack)\n        ulPagination.append(li)\n    }\n\n    if(totalPages > 6){\n        let li = document.createElement(\"li\")\n        let a = document.createElement(\"a\")\n        a.innerHTML = \"..\"\n        li.append(a);\n        ulPagination.append(li)\n        li = createPageNumber(currentPage, totalPages, callBack)\n        ulPagination.append(li)\n    }\n\n    paginationContainer.append(paginationDiv);\n}\n\nfunction createPageNumber(currentPageNumber, pageNumber, callBack){\n    let li = document.createElement(\"li\")\n    let a = document.createElement(\"a\")\n    a.innerHTML = pageNumber\n    a.setAttribute(\"style\", \"cursor:pointer\")\n    a.addEventListener(\"click\", (e)=>{\n        callBack(pageNumber)\n    })\n    if(currentPageNumber == pageNumber){\n        li.className = \"active\"\n    }\n    li.append(a);\n    return li\n}\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/dashboard/tables/utils/utils.js?");
+
+/***/ }),
+
+/***/ "./assets/js/project-details.js":
+/*!**************************************!*\
+  !*** ./assets/js/project-details.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _dashboard_graphs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dashboard/graphs */ \"./assets/js/dashboard/graphs.js\");\n/* harmony import */ var _dashboard_tables__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dashboard/tables */ \"./assets/js/dashboard/tables.js\");\n\n\n\n//# sourceURL=webpack://repustate-dashboard/./assets/js/project-details.js?");
 
 /***/ })
 
@@ -168,7 +223,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _das
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./assets/js/project-graphs.js");
+/******/ 	var __webpack_exports__ = __webpack_require__("./assets/js/project-details.js");
 /******/ 	
 /******/ })()
 ;

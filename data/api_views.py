@@ -1,5 +1,6 @@
 import datetime
 import json
+import math
 import data.charts as charts
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -459,4 +460,124 @@ def sentiment_per_aspect(request, project_id):
                 'positiveCount': row[2],
                 'negativeCount': row[3],
             })
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def data(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*) from data_data where project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total_data = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total_data / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where project_id = %s order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["totalData"] = total_data
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
+
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def entities(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select de."label" , dc."label" , count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s group by (de."label" , dc."label") order by count(*) desc limit %s offset %s;
+""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "entityLabel": row[0],
+            "classificationLabel": row[1],
+            "count": row[2]
+        })
+
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def aspect_topic(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "topicLabel": row[0],
+            "aspectLabel": row[1],
+            "positivesCount": row[3],
+            "negativesCount": row[4]
+        })
+
     return JsonResponse(response, safe=False)
