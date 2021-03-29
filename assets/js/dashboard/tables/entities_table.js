@@ -6,7 +6,6 @@ function createTable(page){
     let pagination = document.getElementById("entity-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
-    console.log(pageSize)
     fetch(`/api/entity/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)
     .then((response) => response.json())
     .then((data) => {

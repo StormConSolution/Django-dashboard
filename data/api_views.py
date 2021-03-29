@@ -590,3 +590,37 @@ def aspect_topic(request, project_id):
         })
 
     return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def sentiment_trend(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd where dd.project_id = %s order by date desc limit 7) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date group by dates.date order by dates.date asc;""", [project.id])
+        rows = cursor.fetchall()
+    
+    response=[]
+    for row in rows:
+        response.append({
+            "date": row[0],
+            "positivesCount": row[1],
+            "negativesCount": row[2]
+        })
+
+
+    return JsonResponse(response, safe=False)
