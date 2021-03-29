@@ -1,0 +1,225 @@
+{% extends 'layouts/new-base.html' %}
+{% block content %}
+<div class="main-content">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-title d-flex flex-wrap">
+                Active projects <span>{{projects_count}}</span>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="project-cards"></div>
+</div>
+</div>
+    <script>
+        var projects_data = {{ projects_data | safe }};
+    </script>
+
+
+
+    <script>
+        (function () {
+            let projectCards = document.getElementById("project-cards");
+            for (project of projects_data) {
+                let positiveChartID = `positive-chart-${project.id}`;
+                let negativeChartID = `negative-chart-${project.id}`;
+                let neutralChartID = `neutral-chart-${project.id}`;
+                let total_data =
+                    project.positive_count +
+                    project.neutral_count +
+                    project.negative_count;
+                let positivePercentage = (
+                    (project.positive_count / total_data) *
+                    100
+                ).toFixed(2);
+                let negativePercentage = (
+                    (project.negative_count / total_data) *
+                    100
+                ).toFixed(2);
+                let neutralPercentage = (
+                    (project.neutral_count / total_data) *
+                    100
+                ).toFixed(2);
+                let div = document.createElement("div");
+                div.className = "col-12 col-md-6 col-lg-4 project-card";
+                let project_card = `
+            <div class="project-card-inner">
+                <div class="project-header">
+                    <a href="/new-projects/${project.id}/" style="text-decoration:none;color:#1E2746;">${project.name}</a>
+                    <div class="dropdown more-dropdown">
+                        <a class="dropdown-toggle" href="#" id="projectdropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fe fe-more-horizontal"></i>
+                            
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="projectdropdown">
+                            <a class="dropdown-item" href="#"><i class="fe fe-share-2"></i> Share Project</a>           
+                            <a class="dropdown-item" href="#"><i class="fe fe-trash-2"></i> Delete</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-list-alldata">
+                    ${total_data}
+                    <span>Total data items</span>
+                </div>
+                <div class="project-list-data">
+                    <table class="table mb-0">
+                    
+                        <tbody>
+                            <tr class="postive-data">
+                            <td >
+                                <small>Total Positive</small>
+                            </td>
+                            <td>
+                                <span>${project.positive_count}</span>
+                            </td>
+                            <td class="text-right">${positivePercentage}%</td>
+                            <td class="text-right small-chart">
+                                <div id="${positiveChartID}"></div>
+                            </td>
+                            </tr>
+                            <tr class="negative-data">
+                            
+                            <td>
+                                <small>Total Negative</small>
+                            </td>
+                            <td>
+                                <span>${project.negative_count}</span>
+                            </td>
+                            <td class="text-right">${negativePercentage}%</td>
+                            <td class="text-right small-chart">
+                                <div id="${negativeChartID}"></div>
+                            </td>
+                            </tr>
+                            <tr class="neutral-data">
+                            
+                            <td>
+                                <small>Total Neutral</small>
+                            </td>
+                            <td>
+                                <span>${project.neutral_count}</span>
+                            </td>
+                            <td class="text-right">${neutralPercentage}%</td>
+                            <td class="text-right small-chart">
+                                <div id="${neutralChartID}"></div>
+                            </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            `;
+
+                div.innerHTML = project_card;
+                projectCards.appendChild(div);
+                let positiveChartOptions = {
+                    series: [positivePercentage],
+                    chart: {
+                        type: "radialBar",
+                        width: 30,
+                        height: 30,
+                        sparkline: {
+                            enabled: true,
+                        },
+                    },
+
+                    colors: ["#28C76F"],
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: {
+                                margin: 0,
+                                size: '40%',
+                            },
+                            track: {
+                                margin: 0,
+                            },
+                            dataLabels: {
+                                show: false,
+                            },
+                        },
+                    },
+                };
+
+
+                let positiveChart = new ApexCharts(
+                    document.querySelector(`#${positiveChartID}`),
+                    positiveChartOptions
+                );
+                positiveChart.render();
+
+                var negativeChartOptions = {
+                    series: [negativePercentage],
+                    chart: {
+                        type: "radialBar",
+                        width: 30,
+                        height: 30,
+                        sparkline: {
+                            enabled: true,
+                        },
+                    },
+
+                    colors: ["#EA5455"],
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: {
+                                margin: 0,
+                                size: '40%',
+                            },
+                            track: {
+                                margin: 0,
+                            },
+                            dataLabels: {
+                                show: false,
+                            },
+                        },
+                    },
+                };
+
+                let negativeChart = new ApexCharts(
+                    document.querySelector(`#${negativeChartID}`),
+                    negativeChartOptions
+                );
+                negativeChart.render();
+                let neutralChartOptions = {
+                    series: [neutralPercentage],
+                    chart: {
+                        type: "radialBar",
+                        width: 30,
+                        height: 30,
+                        sparkline: {
+                            enabled: true,
+                        },
+                    },
+
+                    colors: ["#00CFE8"],
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: {
+                                margin: 0,
+                                size: '40%',
+                            },
+                            track: {
+                                margin: 0,
+                            },
+                            dataLabels: {
+                                show: false,
+                            },
+                        },
+                    },
+                };
+
+                let neutralChart = new ApexCharts(document.querySelector(`#${neutralChartID}`), neutralChartOptions);
+                neutralChart.render();
+            }
+        })();
+    </script>
+{% endblock %}

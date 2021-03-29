@@ -1,6 +1,8 @@
 import datetime
 import json
-
+import math
+import data.charts as charts
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,28 +13,82 @@ from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 import requests
-
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
 from .permissions import IsAllowedAccessToData
 import data.models as data_models
 from data import serializers
 from data import weighted
+from django.db.models.functions import Coalesce
+from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
+
+from django.db import connection
+LOGIN_URL = '/login/'
+
+ASPECT_COLORS = [
+    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
+    'DarkOliveGreen', 'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown',
+    'Tomato', 'SeaGreen', 'DarkKhaki', 'DarkOrange', 'DarkSlateGray',
+    'DeepSkyBlue', 'DimGrey', 'DarkRed', 'Gold', 'IndianRed', 'Lavender',
+    'LightGrat', 'LightSlateGray',
+]
+
+def default_encoder(o):
+    if isinstance(o, (datetime.date, datetime.datetime)):
+        return o.isoformat()
+
+def get_chart_data(this_project, start, end, entity_filter, 
+        aspect_topic, aspect_name, lang_filter, source_filter, request):
+
+    result = {
+        "status": "OK",
+        "colors": charts.COLORS["contrasts"],
+    }
+
+    chart_classes = [
+        charts.SentimentDonutChart,
+        charts.SentimentTimeChart,
+        charts.VolumeBySourceChart,
+    ]
+
+    if this_project.aspect_model:
+        chart_classes.append(charts.AspectCooccurrence)
+
+    for chart_class in chart_classes:
+        instance = chart_class(
+            this_project,
+            start,
+            end,
+            entity_filter,
+            aspect_topic,
+            aspect_name,
+            lang_filter,
+            source_filter,
+            request
+        )
+        
+        chart_data = instance.render_data()
+        result.update(chart_data)
+    
+    return result
 
 class DataViewSet(viewsets.ModelViewSet):
     queryset = data_models.Data.objects.all()
     serializer_class = serializers.DataSerializer
     permission_classes = [IsAllowedAccessToData]
 
+
 country_param = openapi.Parameter('country', in_=openapi.IN_QUERY, description='Filter By Country',
-                                   type=openapi.TYPE_STRING)
+                                  type=openapi.TYPE_STRING)
 source_param = openapi.Parameter('source', in_=openapi.IN_QUERY, description='Filter By Source',
-                                   type=openapi.TYPE_STRING)
+                                 type=openapi.TYPE_STRING)
 language_param = openapi.Parameter('language', in_=openapi.IN_QUERY, description='Filter By Language',
                                    type=openapi.TYPE_STRING)
 date_created_param = openapi.Parameter('date_created',
                                        in_=openapi.IN_QUERY,
                                        description='Filter By Created Period. Example: :start_date,:end_date. Here '
-                                                   'start_date and end_date can be empty'
-                                       , type=openapi.TYPE_STRING)
+                                                   'start_date and end_date can be empty', type=openapi.TYPE_STRING)
+
 
 class ProjectDataListView(ListAPIView):
     serializer_class = serializers.DataSerializer
@@ -44,13 +100,15 @@ class ProjectDataListView(ListAPIView):
         }
 
         if self.request.query_params.get('country'):
-            filters['country__label'] = self.request.query_params.get('country');
+            filters['country__label'] = self.request.query_params.get(
+                'country')
 
         if self.request.query_params.get('source'):
             filters['source__label'] = self.request.query_params.get('source')
 
         if self.request.query_params.get('date_created'):
-            start_date, end_date = self.request.query_params.get('date_created').split(',')
+            start_date, end_date = self.request.query_params.get(
+                'date_created').split(',')
 
             if start_date:
                 filters['date_created__gt'] = start_date
@@ -66,13 +124,16 @@ class ProjectDataListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         return super(ProjectDataListView, self).get(request, *args, **kwargs)
 
+
 class SourceListAPI(ListAPIView):
     queryset = data_models.Source.objects.all()
     serializer_class = serializers.SourceSerializer
 
+
 class CountryListAPI(ListAPIView):
     queryset = data_models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
+
 
 class ProjectListView(ListAPIView):
     serializer_class = serializers.ProjectSerializer
@@ -80,6 +141,7 @@ class ProjectListView(ListAPIView):
 
     def get_queryset(self):
         return data_models.Project.objects.filter(users=self.request.user)
+
 
 @csrf_exempt
 def create_project(request):
@@ -97,7 +159,8 @@ def create_project(request):
         name=request.POST['name'])
 
     if 'aspect_model' in request.POST:
-        m, _ = data_models.AspectModel.objects.get_or_create(label=request.POST['aspect_model'])
+        m, _ = data_models.AspectModel.objects.get_or_create(
+            label=request.POST['aspect_model'])
         proj.aspect_model = m
         proj.save()
 
@@ -106,11 +169,12 @@ def create_project(request):
 
     return JsonResponse({"status": "OK", "project_id": proj.id})
 
+
 @csrf_exempt
 def add_data(request, project_id):
     """
     API endpoint for loading data. May need some work as we go.
-    
+
     Required: 
         text: the text itself
         source: where did the text come from, create if doesn't exist
@@ -127,10 +191,10 @@ def add_data(request, project_id):
     for key in ('text', 'source'):
         if key not in request.POST:
             return JsonResponse({
-                "status": "Fail", 
+                "status": "Fail",
                 "message": "Missing required field `{}`".format(key)
             })
-    
+
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
 
@@ -143,7 +207,7 @@ def add_data(request, project_id):
             return JsonResponse(resp)
     except Exception as e:
         return JsonResponse({"status": "Fail", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
-    
+
     project = data_models.Project.objects.get(pk=project_id)
 
     source, _ = data_models.Source.objects.get_or_create(
@@ -152,7 +216,7 @@ def add_data(request, project_id):
     weight_args = json.loads(request.POST.get('weight_args', '{}'))
     weight_args['raw_score'] = sentiment
     weighted_score = weighted.calculate(**weight_args)
-    
+
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
         project=project,
@@ -163,12 +227,12 @@ def add_data(request, project_id):
         language=lang,
         url=request.POST.get('url', ''),
     )
-    
+
     metadata = request.POST.get('metadata')
     if metadata:
         data.metadata = json.loads(metadata)
         data.save()
-    
+
     if request.POST.get('country'):
         country, _ = data_models.Country.objects.get_or_create(
             label=request.POST['country'])
@@ -205,6 +269,315 @@ def add_data(request, project_id):
                         topic=v['sentiment_topic'],
                         sentiment_text=v['sentiment_text']
                     )
-    
 
     return JsonResponse({"status": "OK"})
+
+
+@login_required(login_url=LOGIN_URL)
+def sentiment_count(request, project_id):
+    user = request.user
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    data = data_models.Data.objects.filter(project=project).aggregate(
+        positive_count=Coalesce(
+            Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
+        negative_count=Coalesce(
+            Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
+        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
+    context = {}
+    return JsonResponse(data, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def volume_by_source(request, project_id):
+    user = request.user
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    data = data_models.Data.objects.filter(project=project).aggregate(
+        positive_count=Coalesce(
+            Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
+        negative_count=Coalesce(
+            Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
+        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
+    context = {}
+    return JsonResponse(data, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def volume_by_source(request, project_id):
+    user = request.user
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s group by ds.id;""", [project.id])
+        rows = cursor.fetchall()
+    response = []
+    for row in rows:
+        aux = {}
+        aux["sourceName"] = row[1]
+        aux["sourceCount"] = row[2]
+        response.append(aux)
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def aspect_count(request, project_id):
+    user = request.user
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s group by da."label" order by count(da."label") desc ;""", [project.id])
+        rows = cursor.fetchall()
+    response = []
+    for row in rows:
+        aux = {}
+        aux["aspectLabel"] = row[0]
+        aux["aspectCount"] = row[1]
+        response.append(aux)
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def co_occurence(request, project_id):
+    context = {}
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    end = this_project.data_set.latest().date_created
+    start = end - datetime.timedelta(days=30)
+
+    # list of languages in a given project
+    lan_data = list(data_models.Data.objects.filter(
+        project=this_project).values('language').distinct())
+    lang_list = []
+    for lan in lan_data:
+        lang_list.append(lan['language'])
+    
+    lang = request.GET.getlist('filter_language')
+    if lang and lang[0]:
+        lang_filter = lang[0].split(",")
+        context['selected_langs'] = lang_filter
+    else:
+        lang_filter = None
+
+    src = request.GET.getlist('filter_source')
+    if src and src[0]:
+        source_filter = src[0].split(",")
+        context['selected_sources'] = source_filter
+    else:
+        source_filter = None
+    
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+    
+    chart_data = get_chart_data(
+        this_project,
+        start,
+        end,
+        entity_filter,
+        aspect_topic,
+        aspect_name,
+        lang_filter,
+        source_filter,
+        request,
+    )
+    return JsonResponse(chart_data["aspect_cooccurrence_data"], safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def sentiment_per_aspect(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+    ASPECT_QUERY = """
+    SELECT 
+        label, count(data_id),
+        sum(case when data_aspect.sentiment > 0 then 1 else 0 end) as PosCount,
+        sum(case when data_aspect.sentiment < 0 then 1 else 0 end) as NegCount
+    FROM 
+        data_aspect, data_data
+    WHERE 
+        %s
+    GROUP BY label
+    """
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+    src = request.GET.getlist('filter_source')
+    if src and src[0]:
+        source_filter = src[0].split(",")
+        context['selected_sources'] = source_filter
+    else:
+        source_filter = None
+    end = this_project.data_set.latest().date_created
+    start = end - datetime.timedelta(days=30)
+    where_clause = [
+        'data_aspect.data_id = data_data.id',
+        'data_data.project_id = %s',
+        'data_data.date_created between %s AND %s',
+    ]
+    query_args = [project_id, start, end]
+    lang = request.GET.getlist('filter_language')
+    if lang and lang[0]:
+        lang_filter = lang[0].split(",")
+        context['selected_langs'] = lang_filter
+    else:
+        lang_filter = None
+
+    if lang_filter:
+        lang_string = len(lang_filter) * '%s,'
+        where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
+        query_args.extend(lang_filter)
+    
+    if source_filter:
+        source_string = len(source_filter) * '%s,'
+        where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+        # Get the raw IDs for our sources.
+        source_ids = data_models.Source.objects.filter(
+                label__in=source_filter).values_list('id', flat=True)
+        query_args.extend(source_ids)
+    
+    if aspect_topic:
+        where_clause.append('data_aspect.topic = %s')
+        query_args.append(aspect_topic)
+    
+    if aspect_name:
+        where_clause.append('data_aspect.label = %s')
+        query_args.append(aspect_name)
+
+    total = 0
+    response = []
+    with connection.cursor() as cursor:
+        cursor.execute(ASPECT_QUERY % ' AND '.join(where_clause), query_args)
+        for idx, row in enumerate(cursor.fetchall()):
+            total += row[1]
+            response.append({
+                'aspectLabel':row[0],
+                'count':row[1],
+                'positiveCount': row[2],
+                'negativeCount': row[3],
+            })
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def data(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*) from data_data where project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total_data = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total_data / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where project_id = %s order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["totalData"] = total_data
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
+
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def entities(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select de."label" , dc."label" , count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s group by (de."label" , dc."label") order by count(*) desc limit %s offset %s;
+""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "entityLabel": row[0],
+            "classificationLabel": row[1],
+            "count": row[2]
+        })
+
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def aspect_topic(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s;""", [project.id])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+        rows = cursor.fetchall()
+    
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "topicLabel": row[0],
+            "aspectLabel": row[1],
+            "positivesCount": row[3],
+            "negativesCount": row[4]
+        })
+
+    return JsonResponse(response, safe=False)
