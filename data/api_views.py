@@ -274,7 +274,7 @@ def add_data(request, project_id):
 
 
 @login_required(login_url=LOGIN_URL)
-def sentiment_count(request, project_id):
+def project_overview(request, project_id):
     user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
@@ -285,7 +285,16 @@ def sentiment_count(request, project_id):
         negative_count=Coalesce(
             Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
         neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
-    context = {}
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*) from data_aspectlabel_source das where das.project_id = %s;""", [project.id])
+        rows = cursor.fetchall()
+    data["aspectCount"] = rows[0][0]
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(distinct ds."label") from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s;""", [project.id])
+        rows = cursor.fetchall()
+    data["sourceCount"] = rows[0][0]
     return JsonResponse(data, safe=False)
 
 @login_required(login_url=LOGIN_URL)

@@ -1,29 +1,11 @@
   {% extends 'layouts/new-base.html' %}
+  {% block title%}
+  <title>Repustate Insights | {{project_name}}</title>
+  {% endblock%}
   {% block content %}
   <script>
       window.project_id = {{project_id | safe}}
   </script>
- 
-
-
-  <script>
-      
-    function generateData(count, yrange) {
-      var i = 0;
-      var series = [];
-      while (i < count) {
-        var x = 'w' + (i).toString();
-        var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-    
-        series.push({
-          x: x,
-          y: y
-        });
-        i++;
-      }
-      return series;
-    }
-    </script>
 <div class="main-content">
     <div class="container-fluid">
         <div class="row">
@@ -216,7 +198,7 @@
               <div class="project-card-inner">
                 <div class="simple-data">
                   <i class="fe fe-hash"></i>
-                  <h2>34</h2>
+                  <h2 id="aspect-count"></h2>
                   <span>Different Aspect </span>
                 </div>
               </div>
@@ -225,7 +207,7 @@
               <div class="project-card-inner">
                 <div class="simple-data">
                   <i class="fe fe-command"></i>
-                  <h2>10</h2>
+                  <h2 id="source-count"></h2>
                   <span>Different Source </span>
                 </div>
               </div>
@@ -872,77 +854,6 @@
   <!-- Export data modal End -->
   
   <!-- modal End -->
-
-
-  <!-- js -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="/static/assets/js/bootstrap-datepicker.min.js"></script>
-  <script src="/static/assets/js/jQuery.tagify.min.js"></script>
-  
-  <script>
-    // if IE, add IE tagify's polyfills
-    !function( d ) {
-        if( !d.currentScript ){
-            var s = d.createElement( 'script' );
-            s.src = 'js/tagify.polyfills.min.js';
-            d.head.appendChild( s );
-        }
-    }(document)
-</script>
-
-<script data-name="basic">
-  (function(){
-  // The DOM element you wish to replace with Tagify
-  var input = document.querySelector('input[name=basic]');
-  
-  // initialize Tagify on the above input node reference
-  new Tagify(input)
-  })()
-  </script>
-
-<script data-name="basic1">
-  (function(){
-  // The DOM element you wish to replace with Tagify
-  var input = document.querySelector('input[name=basic1]');
-  
-  // initialize Tagify on the above input node reference
-  new Tagify(input)
-  })()
-  </script>
-  
-  
-
-  <script>
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    })
-
-  </script>
-  <script>
-    $('#sandbox-container input').datepicker({
-      todayHighlight: true
-    });
-  </script>
-
-
-  
-    <script>
-      $("#sidemenu").click(function () {
-        $("body").toggleClass("menu-close");
-      });
-    </script>
-  <script>
-    $("#lightdark").click(function () {
-      $("body").toggleClass("dark-theme");
-    });
-  </script>
-   <script>
-    $("#lightdark1").click(function () {
-      $("body").toggleClass("dark-theme");
-    });
-  </script>
 <script>
     var options12 = { 
       

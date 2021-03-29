@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
-    <title>repustate</title>
+    {% block title%}
+    <title>Respustate Insights</title>
+    {% endblock %}
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
@@ -110,7 +112,11 @@
         <ul>
             {% for project in projects_data %}
             <li>
-                <a href="/new-projects/{{project.id}}/"> {{project.name}} </a>
+                {% if project.name == project_name %}
+                    <a href="/new-projects/{{project.id}}/" class="active"> {{project.name}} </a>
+                {% else %}
+                    <a href="/new-projects/{{project.id}}/" > {{project.name}} </a>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
