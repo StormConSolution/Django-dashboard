@@ -42,8 +42,8 @@ fetch(`/api/sentiment-trend/${projectId}/`)
         for (let element of data) {
             totalPositives += element.positivesCount
             totalNegatives += element.negativesCount
-            positives.push(element.positivesCount);
-            negatives.push(element.negativesCount);
+            positives.push(totalPositives);
+            negatives.push(totalNegatives);
             categories.push(element.date);
         }
         chartOptions.series.push(

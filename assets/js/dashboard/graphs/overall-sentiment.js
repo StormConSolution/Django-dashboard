@@ -44,10 +44,14 @@ function aspectAndSourceCount(data){
     aspectCount.innerHTML = data.aspectCount
     sourceCount.innerHTML = data.sourceCount
 }
+function seeAllTotalItems(data){
+    let seeAllTotalItemsDiv = document.getElementById("see-all-total-items").innerHTML = `See all ${data.positive_count + data.negative_count + data.neutral_count} data items`
+}
 
 let project_id = window.project_id
 fetch(`/api/project-overview/${project_id}/`).then(response => response.json()).then(data => {
     overallSentiment(data)
     aspectAndSourceCount(data)
+    seeAllTotalItems(data)
 })
 

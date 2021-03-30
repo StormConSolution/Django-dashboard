@@ -30,3 +30,4 @@ scrapers/data/
 tmp/
 
 node_modules/
+.idea
