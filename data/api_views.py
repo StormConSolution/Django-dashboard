@@ -513,7 +513,7 @@ def data(request, project_id):
     return JsonResponse(response, safe=False)
 
 @login_required(login_url=LOGIN_URL)
-def entities(request, project_id):
+def entity_classification_count(request, project_id):
     user = request.user
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))
@@ -524,7 +524,7 @@ def entities(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s;""", [project.id])
+        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s;""", [project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -533,7 +533,7 @@ def entities(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*)  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s group by (de."label" , dc."label") order by count(*) desc limit %s offset %s;
+            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc limit %s offset %s;
 """, [project.id, page_size, offset])
         rows = cursor.fetchall()
     
@@ -546,7 +546,9 @@ def entities(request, project_id):
     for row in rows:
         response["data"].append({
             "entityLabel": row[0],
+            "entityID": row[3],
             "classificationLabel": row[1],
+            "classificationID": row[4],
             "count": row[2]
         })
 
@@ -622,5 +624,53 @@ def sentiment_trend(request, project_id):
             "negativesCount": row[2]
         })
 
+
+    return JsonResponse(response, safe=False)
+
+
+@login_required(login_url=LOGIN_URL)
+def data_per_classification_and_entity(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    entity = int(request.GET.get("entity"))
+    classification = int(request.GET.get("classification"))
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select count(*) from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s and de.id = %s and dc.id = %s;""",
+                       [project.id, entity, classification])
+        row = cursor.fetchone()
+    total = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s and de.id = %s and dc.id = %s order by dd.date_created desc limit %s offset %s;""",
+                       [project.id, entity, classification, page_size, offset])
+        rows = cursor.fetchall()
+
+    response = {}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    response["entity"] = entity
+    response["classification"] = classification
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
 
     return JsonResponse(response, safe=False)

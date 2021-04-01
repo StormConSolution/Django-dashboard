@@ -12,8 +12,9 @@ urlpatterns = [
     path('co-occurence/<int:project_id>/', views.co_occurence),
     path('sentiment-per-aspect/<int:project_id>/', views.sentiment_per_aspect),
     path('new-data/project/<int:project_id>/', views.data),
-    path('entity/project/<int:project_id>/', views.entities),
+    path('entity-classification-count/<int:project_id>/', views.entity_classification_count),
     path('aspect-topic/project/<int:project_id>/', views.aspect_topic),
     path('sentiment-trend/<int:project_id>/', views.sentiment_trend),
+    path('data-per-classification-and-entity/<int:project_id>/', views.data_per_classification_and_entity),
     path('aspect-count/<int:project_id>/', views.aspect_count)
 ]
