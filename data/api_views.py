@@ -21,7 +21,7 @@ from data import serializers
 from data import weighted
 from django.db.models.functions import Coalesce
 from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-
+from urllib import parse
 from django.db import connection
 LOGIN_URL = '/login/'
 
@@ -556,7 +556,6 @@ def entity_classification_count(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def aspect_topic(request, project_id):
-    user = request.user
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))
     project = get_object_or_404(data_models.Project, pk=project_id)
@@ -585,8 +584,8 @@ def aspect_topic(request, project_id):
     response["pageSize"] = page_size
     for row in rows:
         response["data"].append({
-            "topicLabel": row[0],
-            "aspectLabel": row[1],
+            "aspectLabel": row[0],
+            "topicLabel": row[1],
             "positivesCount": row[3],
             "negativesCount": row[4]
         })
@@ -673,4 +672,58 @@ def data_per_classification_and_entity(request, project_id):
             "languageCode": row[5]
         })
 
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def data_per_aspect_topic(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    aspect_label = parse.unquote(request.GET.get("aspect-label"))
+    topic_label = parse.unquote(request.GET.get("topic-label"))
+    sentiment = request.GET.get("sentiment")
+    sentiment_filter = ""
+    if sentiment == "positive":
+        sentiment_filter = "and dd.sentiment > 0"
+    elif sentiment == "negative":
+        sentiment_filter = "and dd.sentiment < 0"
+
+    count_query = """select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s and da."label" = %s and da.topic =%s """ + sentiment_filter
+    with connection.cursor() as cursor:
+        cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s and da."label" = %s and da.topic = %s """ + sentiment_filter,
+                       [project.id, aspect_label, topic_label])
+
+        row = cursor.fetchone()
+    total = int(row[0])
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s and da."label" = %s and da.topic =%s """ + sentiment_filter + """ order by dd.date_created desc limit %s offset %s """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query,
+                       [project.id, aspect_label, topic_label, page_size, offset])
+        rows = cursor.fetchall()
+
+    response = {}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    response["topicLabel"] = topic_label
+    response["aspectLabel"] = aspect_label
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
     return JsonResponse(response, safe=False)

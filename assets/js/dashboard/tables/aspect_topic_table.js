@@ -1,5 +1,5 @@
 import {createPagination} from './utils/utils'
-
+import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
 function createTable(page){
     let content = document.getElementById("aspect-topic-table-content");
     content.innerHTML = "";
@@ -19,14 +19,27 @@ function createTable(page){
              ${element.aspectLabel}
            </td>
            <td class="text-center">
-            <a href="#" class="info-button green">${element.positivesCount}</a>
+            <a style="cursor:pointer" class="info-button green" data-aspect="${element.aspectLabel}" data-topic="${element.topicLabel}" data-sentiment="positive">${element.positivesCount}</a>
            </td>
            <td class="text-center">
-            <a href="#" class="info-button red">${element.negativesCount}</a>
+            <a style="cursor:pointer" class="info-button red" data-aspect="${element.aspectLabel}" data-topic="${element.topicLabel}" data-sentiment="negative">${element.negativesCount}</a>
            </td>
             `;
                 tr.innerHTML = row;
                 content.append(tr);
+
+            }
+            let buttons =content.querySelectorAll("a[data-topic]")
+            for(let button of buttons){
+                button.addEventListener("click", (e)=>{
+                    let dataAspectLabel = e.target.getAttribute("data-aspect")
+                    console.log(dataAspectLabel)
+                    let dataTopicLabel = e.target.getAttribute("data-topic")
+                    console.log(dataTopicLabel)
+                    let sentiment = e.target.getAttribute("data-sentiment")
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    dataModalTable(1, dataAspectLabel, dataTopicLabel, sentiment)
+                })
             }
             let firstElement = data.pageSize * (data.currentPage - 1);
             let lastElement = firstElement + data.pageSize;
