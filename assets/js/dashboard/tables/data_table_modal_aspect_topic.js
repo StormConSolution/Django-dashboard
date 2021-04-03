@@ -1,15 +1,19 @@
+import {getFilters} from "../helpers/filters"
 export function createTable(page, aspectLabel, topicLabel, sentiment){
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
+    let filtersValues = getFilters() 
     fetch(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
         "aspect-label": encodeURIComponent(aspectLabel),
         "topic-label": encodeURIComponent(topicLabel),
         "page": page,
         "page-size": pageSize,
-        "sentiment": sentiment
+        "sentiment": sentiment,
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
     }))
     .then((response) => response.json())
     .then((data) => {

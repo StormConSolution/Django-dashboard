@@ -1,5 +1,5 @@
 import config from "../config";
-
+import {getFilters} from "../helpers/filters"
 let chart
 export function createGraph(){
     if(chart){
@@ -27,7 +27,12 @@ export function createGraph(){
         }
     };
     let project_id = window.project_id;
-    fetch(`/api/volume-by-source/${project_id}/`)
+    let filtersValues = getFilters()
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+    fetch(`/api/volume-by-source/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
             let series = []

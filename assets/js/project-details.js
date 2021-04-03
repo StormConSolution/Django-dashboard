@@ -1,6 +1,6 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
-import { getFilters } from "./dashboard/utils/filters";
+import { getFilters } from "./dashboard/helpers/filters";
 
 function updateProjectTables(){
     tables.aspectTopicTable(1)

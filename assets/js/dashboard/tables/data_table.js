@@ -1,12 +1,17 @@
 import {createPagination} from './utils/utils'
-
+import {getFilters} from "../helpers/filters"
 export function createTable(page){
     let content = document.getElementById("data-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
-    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {

@@ -1,10 +1,16 @@
+import {getFilters} from "../helpers/filters"
 export function createTable(page, classification, entity){
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
-    fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}`)
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+    fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {

@@ -1,10 +1,7 @@
 import config from "../config";
-import * as filters from "../utils/filters"
+import * as filters from "../helpers/filters"
 let chart
 function overallSentiment(data){
-    if(chart){
-        chart.destroy()
-    }
     var chartOptions = {
         colors: [config.positive, config.negative, config.neutral],
         chart: {
@@ -59,9 +56,11 @@ export function createGraph(){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo
     })
+    if(chart){
+        chart.destroy()
+    }
 
     fetch(`/api/project-overview/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
-        console.log(data)
         overallSentiment(data)
         aspectAndSourceCount(data)
         seeAllTotalItems(data)

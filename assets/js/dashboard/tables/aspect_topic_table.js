@@ -1,12 +1,18 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
+import {getFilters} from '../helpers/filters'
 export function createTable(page){
     let content = document.getElementById("aspect-topic-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("aspect-topic-table-pagination");
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
     pagination.innerHTML = ""
-    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {
