@@ -1,6 +1,10 @@
 import config from "../config";
-
+import { getFilters } from "../helpers/filters";
+let chart 
 export function createGraph() {
+    if(chart){
+        chart.destroy()
+    }
     var chartOptions = {
         series: [],
         chart: {
@@ -64,7 +68,12 @@ export function createGraph() {
         },
     };
 
-    fetch(`/api/sentiment-per-aspect/${window.project_id}/`)
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+    fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
             let positiveData = [];
@@ -96,7 +105,7 @@ export function createGraph() {
             chartOptions.yaxis.min =
                 -maxNegative - Math.round(maxNegative * 0.1);
             chartOptions.xaxis.categories = aspects;
-            var chart = new ApexCharts(
+            chart = new ApexCharts(
                 document.querySelector("#aspect-by-sentiment"),
                 chartOptions
             );

@@ -46,7 +46,7 @@
                         aria-haspopup="true" aria-expanded="false">
                         Choose Languages
                       </button>
-                      <div class="dropdown-menu" aria-labelledby="choose-languages">
+                      <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
                           <!--
@@ -72,7 +72,7 @@
                         aria-haspopup="true" aria-expanded="false">
                         Choose Sources
                       </button>
-                      <div class="dropdown-menu" aria-labelledby="choose-sources">
+                      <div class="dropdown-menu" aria-labelledby="choose-sources" id="dropdown-sources">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
                           <!--
@@ -92,9 +92,19 @@
                       </div>
                     </div>
                   </div>
+                  <script>
+                  document.getElementById('dropdown-sources').addEventListener('click', (e)=>{
+                      e.stopPropagation()
+                  })
+                  document.getElementById('dropdown-languages').addEventListener('click', (e)=>{
+                      e.stopPropagation()
+                  })
+                  </script>
+                  <!--
                   <div class="col-auto">
                     <a href="#" class="reset-filter">Reset Filter <i class="fe fe-refresh-cw"></i> </a>
                   </div>
+                  -->
                 </div>
               </form>
             </div>
@@ -106,10 +116,10 @@
                 <a href="#overview-graph">Overview</a>
               </li>
               <li>
-                <a href="#sentiment-graph">Sentiment</a>
+                <a href="#overall-sentiment-chart">Sentiment</a>
               </li>
               <li>
-                <a href="#aspect-graph">Aspects</a>
+                <a href="#aspect-count-graphs">Aspects</a>
               </li>
               <li>
                 <a href="#entity-table">Entities</a>

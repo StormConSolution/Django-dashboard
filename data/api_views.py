@@ -322,13 +322,13 @@ def volume_by_source(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def aspect_count(request, project_id):
-    user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
+    filtersSQL = getFiltersSQL(request)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s group by da."label" order by count(da."label") desc ;""", [project.id])
+            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s """ + filtersSQL + """ group by da."label" order by count(da."label") desc ;""", [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -394,10 +394,10 @@ def sentiment_per_aspect(request, project_id):
     ASPECT_QUERY = """
     SELECT 
         label, count(data_id),
-        sum(case when data_aspect.sentiment > 0 then 1 else 0 end) as PosCount,
-        sum(case when data_aspect.sentiment < 0 then 1 else 0 end) as NegCount
+        sum(case when da.sentiment > 0 then 1 else 0 end) as PosCount,
+        sum(case when da.sentiment < 0 then 1 else 0 end) as NegCount
     FROM 
-        data_aspect, data_data
+        data_aspect da, data_data dd
     WHERE 
         %s
     GROUP BY label
@@ -411,14 +411,23 @@ def sentiment_per_aspect(request, project_id):
         context['selected_sources'] = source_filter
     else:
         source_filter = None
-    end = this_project.data_set.latest().date_created
-    start = end - datetime.timedelta(days=30)
+
     where_clause = [
-        'data_aspect.data_id = data_data.id',
-        'data_data.project_id = %s',
-        'data_data.date_created between %s AND %s',
+        'da.data_id = dd.id',
+        'dd.project_id = %s',
     ]
-    query_args = [project_id, start, end]
+    dateFrom = request.GET.get("date-from")
+    dateTo = request.GET.get("date-to")
+    if not dateFrom:
+        dateFrom = ""
+    if not dateTo:
+        dateTo = ""
+    filters = []
+    if dateFrom != "" :
+        where_clause.append("dd.date_created > '" + dateFrom + "'")
+    if dateTo != "":
+        where_clause.append("dd.date_created < '" + dateTo + "'")
+    query_args = [project_id]
     lang = request.GET.getlist('filter_language')
     if lang and lang[0]:
         lang_filter = lang[0].split(",")
@@ -428,23 +437,23 @@ def sentiment_per_aspect(request, project_id):
 
     if lang_filter:
         lang_string = len(lang_filter) * '%s,'
-        where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
+        where_clause.append('dd.language IN ({})'.format(lang_string[:-1]))
         query_args.extend(lang_filter)
     
     if source_filter:
         source_string = len(source_filter) * '%s,'
-        where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+        where_clause.append('dd.source_id IN ({})'.format(source_string[:-1]))
         # Get the raw IDs for our sources.
         source_ids = data_models.Source.objects.filter(
                 label__in=source_filter).values_list('id', flat=True)
         query_args.extend(source_ids)
     
     if aspect_topic:
-        where_clause.append('data_aspect.topic = %s')
+        where_clause.append('da.topic = %s')
         query_args.append(aspect_topic)
     
     if aspect_name:
-        where_clause.append('data_aspect.label = %s')
+        where_clause.append('da.label = %s')
         query_args.append(aspect_name)
 
     total = 0

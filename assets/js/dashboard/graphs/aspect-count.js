@@ -1,13 +1,23 @@
 import config from "../config";
+import {getFilters} from "../helpers/filters"
 
+let chart
 export function createGraph(){
+    if(chart){
+        chart.destroy()
+    }
     let colors = ["#28C76F", "#EA5455", "#00CFE8", "#7367F0", "#FF9F43"];
     let colorsIndex = 0;
     
     let aspectCountGraphs = document.querySelector("#aspect-count-graphs");
     aspectCountGraphs.innerHTML = '' 
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
     let project_id = window.project_id;
-    fetch(`/api/aspect-count/${project_id}/`)
+    fetch(`/api/aspect-count/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
             let totalCount = 0
@@ -68,7 +78,7 @@ export function createGraph(){
                         },
                     },
                 };
-                let chart = new ApexCharts(
+                chart = new ApexCharts(
                     document.querySelector(`#${id}`),
                     chartOptions
                 );
