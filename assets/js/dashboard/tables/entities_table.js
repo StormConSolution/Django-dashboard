@@ -1,6 +1,6 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
-function createTable(page){
+export function createTable(page){
     let content = document.getElementById("entity-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("entity-table-pagination");
@@ -37,4 +37,4 @@ function createTable(page){
         createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
     });
 }
-createTable(1);
+//createTable(1);

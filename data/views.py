@@ -317,11 +317,27 @@ def new_project_details(request, project_id):
 
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
+
     context={}
     context["projects_data"] = projects
     context["project_id"] = project_id
     context["project_name"] = this_project.name
     context["user"] = user
+    context["sourceLabels"] = []
+    context["languages"] = []
+
+    source_query = """select distinct (ds.id) , ds."label", count(ds.id) from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    with connection.cursor() as cursor:
+        cursor.execute(source_query, [project_id])
+        rows = cursor.fetchall()
+    for row in rows:
+        context["sourceLabels"].append(row[1])
+    language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
+    with connection.cursor() as cursor:
+        cursor.execute(language_query, [project_id])
+        rows = cursor.fetchall()
+    for row in rows:
+        context["languages"].append(row[0])
     return render(request, "project-details.html", context)
 
 def entities(request, project_id):

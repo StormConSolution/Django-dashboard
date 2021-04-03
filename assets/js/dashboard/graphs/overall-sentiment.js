@@ -1,6 +1,10 @@
 import config from "../config";
-
+import * as filters from "../utils/filters"
+let chart
 function overallSentiment(data){
+    if(chart){
+        chart.destroy()
+    }
     var chartOptions = {
         colors: [config.positive, config.negative, config.neutral],
         chart: {
@@ -33,8 +37,8 @@ function overallSentiment(data){
         },
         labels: ["Positive", "Negative", "Neutral"],
     };
-    chartOptions.series = [data.positive_count, data.negative_count, data.neutral_count]
-    let chart = new ApexCharts(document.querySelector("#overall-sentiment-chart"), chartOptions);
+    chartOptions.series = [data.positivesCount, data.negativesCount, data.neutralsCount]
+    chart = new ApexCharts(document.querySelector("#overall-sentiment-chart"), chartOptions);
     chart.render();
 }
 
@@ -45,13 +49,23 @@ function aspectAndSourceCount(data){
     sourceCount.innerHTML = data.sourceCount
 }
 function seeAllTotalItems(data){
-    let seeAllTotalItemsDiv = document.getElementById("see-all-total-items").innerHTML = `See all ${data.positive_count + data.negative_count + data.neutral_count} data items`
+    //document.getElementById("see-all-total-items").innerHTML = `See all ${data.positive_count + data.negative_count + data.neutral_count} data items`
 }
 
 let project_id = window.project_id
-fetch(`/api/project-overview/${project_id}/`).then(response => response.json()).then(data => {
-    overallSentiment(data)
-    aspectAndSourceCount(data)
-    seeAllTotalItems(data)
-})
+export function createGraph(){
+    let filtersValues = filters.getFilters()
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo
+    })
+
+    fetch(`/api/project-overview/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
+        console.log(data)
+        overallSentiment(data)
+        aspectAndSourceCount(data)
+        seeAllTotalItems(data)
+    })
+}
+
 

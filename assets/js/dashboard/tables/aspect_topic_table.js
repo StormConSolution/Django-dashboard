@@ -1,6 +1,6 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
-function createTable(page){
+export function createTable(page){
     let content = document.getElementById("aspect-topic-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("aspect-topic-table-pagination");
@@ -33,9 +33,7 @@ function createTable(page){
             for(let button of buttons){
                 button.addEventListener("click", (e)=>{
                     let dataAspectLabel = e.target.getAttribute("data-aspect")
-                    console.log(dataAspectLabel)
                     let dataTopicLabel = e.target.getAttribute("data-topic")
-                    console.log(dataTopicLabel)
                     let sentiment = e.target.getAttribute("data-sentiment")
                     document.querySelector("#data-table-modal").style.display = "block"
                     dataModalTable(1, dataAspectLabel, dataTopicLabel, sentiment)
@@ -46,7 +44,7 @@ function createTable(page){
             createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
     });
 }
-createTable(1);
+//createTable(1);
 /*
 <div class="col-12 col-md-auto">
         <ul class="pagination">

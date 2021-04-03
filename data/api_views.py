@@ -275,16 +275,35 @@ def add_data(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def project_overview(request, project_id):
-    user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    data = data_models.Data.objects.filter(project=project).aggregate(
-        positive_count=Coalesce(
-            Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
-        negative_count=Coalesce(
-            Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
-        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
+    data = {}
+    dateFrom = request.GET.get("date-from")
+    dateTo = request.GET.get("date-to")
+    if not dateFrom:
+        dateFrom = ""
+    if not dateTo:
+        dateTo = ""
+    filters = []
+    if dateFrom != "" :
+        filters.append("dd.date_created > '" + dateFrom + "'")
+    if dateTo != "":
+        filters.append("dd.date_created < '" + dateTo + "'")
+    filtersSQL = " and ".join(filters)
+    if filtersSQL != "":
+        filtersSQL = " and " + filtersSQL
+    else:
+        filterSQL = ""
+
+    query = """
+            select sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd where dd.project_id = %s""" + filtersSQL
+    with connection.cursor() as cursor:
+        cursor.execute(query, [project.id])
+        row = cursor.fetchone()
+    data["positivesCount"] = row[0] or 0
+    data["negativesCount"] = row[1] or 0
+    data["neutralsCount"] = row[2] or 0
     with connection.cursor() as cursor:
         cursor.execute("""
             select count(*) from data_aspectlabel_source das where das.project_id = %s;""", [project.id])

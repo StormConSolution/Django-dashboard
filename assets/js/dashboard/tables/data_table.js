@@ -1,6 +1,6 @@
 import {createPagination} from './utils/utils'
 
-function createTable(page){
+export function createTable(page){
     let content = document.getElementById("data-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-pagination");
@@ -46,7 +46,7 @@ function createTable(page){
         createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
     });
 }
-createTable(1);
+//createTable(1);
 /*
 <div class="col-12 col-md-auto">
         <ul class="pagination">

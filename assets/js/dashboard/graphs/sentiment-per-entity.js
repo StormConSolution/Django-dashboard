@@ -10,10 +10,8 @@ function createSentimentPerEntityGraph(max_entities) {
                 stackType: '100%',
                 events: {
                     click: function (event, chartContext, config) {
-                        console.log(config)
                         let seriesIndex = config.seriesIndex;
                         let dataPointIndex = config.dataPointIndex
-                        console.log(data[dataPointIndex])
                         let modal_data;
                         let sentiment = '';
                         if (seriesIndex == 0) {
@@ -26,7 +24,6 @@ function createSentimentPerEntityGraph(max_entities) {
                             sentiment = "Negative"
                             modal_data = data[dataPointIndex].data.filter(element => element.sentiment < 0)
                         }
-                        console.log(modal_data)
                         let modalElement = document.getElementById("aspectModal")
                         modalElement.style.display = "block"
                         modalElement.classList.add("show")
@@ -127,9 +124,12 @@ function createSentimentPerEntityGraph(max_entities) {
     })
 }
 createSentimentPerEntityGraph(8);
-document.getElementById("select-max-top-sentiment-per-entity").addEventListener("change", (e) => {
+function updateGraph(){
     let maxEntities = e.target.value;
     document.getElementById("sentiment-for-each-entity").innerHTML = "";
     chart.destroy();
     createSentimentPerEntityGraph(maxEntities);
+}
+document.getElementById("select-max-top-sentiment-per-entity").addEventListener("change", (e) => {
+    updateGraph()
 })

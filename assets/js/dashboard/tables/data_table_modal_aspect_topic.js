@@ -4,12 +4,6 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
-    console.log(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
-        "aspect-label": encodeURIComponent(aspectLabel),
-        "topic-label": encodeURIComponent(topicLabel),
-        "page": page,
-        "page-size": pageSize,
-        "sentiment": sentiment}))
     fetch(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
         "aspect-label": encodeURIComponent(aspectLabel),
         "topic-label": encodeURIComponent(topicLabel),
