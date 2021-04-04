@@ -1,13 +1,29 @@
 import config from "../config";
 import {update} from '../helpers/helpers'
-
-let chart 
+import { getFilters } from "../helpers/filters";
+let chart;
+let def = 1;
 export function createGraph(){
-    if(!chart){
-        var projectId = window.project_id;
-    fetch(`/api/sentiment-trend/${projectId}/`)
+    update.startUpdate()
+    if(chart){
+        chart.destroy()
+    }
+    document.getElementById("sentiment-trend-total").innerHTML = 0
+    document.getElementById("sentiment-trend-total-positives").innerHTML = 0
+    document.getElementById("sentiment-trend-total-negatives").innerHTML = 0
+    var projectId = window.project_id;
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources,
+        "default": def
+    })
+    fetch(`/api/sentiment-trend/${projectId}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
+            def = 0
             let chartOptions = {
                 series: [],
                 colors: ["#28C76F", "#EA5455"],
@@ -65,8 +81,8 @@ export function createGraph(){
                 chartOptions
             );
             chart.render();
+            update.finishUpdate()
         });
-    }
     
 }
 

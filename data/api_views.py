@@ -320,7 +320,7 @@ def volume_by_source(request, project_id):
     ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clauses) + """ group by ds.id;""", [project.id])
+            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clauses) + """ group by ds.id limit 10;""", [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -567,18 +567,34 @@ def sentiment_trend(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    where_clause = []
+    dateFrom = request.GET.get("date-from")
+    dateTo = request.GET.get("date-to")
+    languages = request.GET.get("languages").split(",")
+    sources = request.GET.get("sources").split(",")
+    default = request.GET.get("default", "0")
+    limit_clause = ""
+    if default == "0":
+        if not dateFrom:
+            dateFrom = ""
+        if not dateTo:
+            dateTo = ""
+        if dateFrom != "":
+            where_clause.append("dd.date_created > '" + dateFrom + "'")
+        if dateTo != "":
+            where_clause.append("dd.date_created < '" + dateTo + "'")
+    else:
+        limit_clause = "limit 3"
+    map(lambda x: "''%s''" % x, sources)
+    map(lambda x: "''%s''" % x, languages)
+    where_clause.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
+    where_clause.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    
+    where_clause.append("dd.project_id = %s")
+
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where dd.project_id = %s;""", [project.id])
-        row = cursor.fetchone()
-    total = int(row[0])
-
-    offset = (page - 1) * page_size
-    total_pages = math.ceil(total / page_size)
-
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where dd.project_id = %s order by date desc limit 7) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date where dd.project_id = %s group by dates.date order by dates.date asc;""", [project.id, project_id])
+            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + " and ".join(where_clause) + """ order by date desc """ + limit_clause + """ ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + " and ".join(where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
         rows = cursor.fetchall()
     
     response=[]
