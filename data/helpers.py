@@ -1,4 +1,4 @@
-
+from urllib import parse
 def getFiltersSQL(request):
     where_clauses = []
     dateFrom = request.GET.get("date-from")
@@ -27,7 +27,7 @@ def getFiltersSQL2(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     languages = request.GET.get("languages").split(",")
-    sources = request.GET.get("sources").split(",")
+    sources = parse.unquote(request.GET.get("sources")).split(",")
     if not dateFrom:
         dateFrom = ""
     if not dateTo:

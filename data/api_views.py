@@ -571,7 +571,7 @@ def sentiment_trend(request, project_id):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     languages = request.GET.get("languages").split(",")
-    sources = request.GET.get("sources").split(",")
+    sources = parse.unquote(request.GET.get("sources")).split(",")
     default = request.GET.get("default", "0")
     limit_clause = ""
     if default == "0":
