@@ -1,6 +1,8 @@
 import config from "../config";
 
+import {update} from '../helpers/helpers'
 export function createGraph(){
+    update.startUpdate()
     var chartOptions = {
         series: [],
         chart: {
@@ -88,5 +90,6 @@ export function createGraph(){
                 chartOptions
             );
             chart.render();
+            update.finishUpdate()
         });     
 }

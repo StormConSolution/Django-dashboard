@@ -1,7 +1,9 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
+import {update} from '../helpers/helpers'
 let chart
 export function createGraph(){
+    update.startUpdate()
     if(chart){
         chart.destroy()
     }
@@ -52,5 +54,6 @@ export function createGraph(){
                 chartOptions
             );
             chart.render();
+            update.finishUpdate()
         });    
 }

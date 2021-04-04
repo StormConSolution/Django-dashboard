@@ -1,5 +1,6 @@
 import config from "../config";
 import * as filters from "../helpers/filters"
+import {update} from '../helpers/helpers'
 let chart
 function overallSentiment(data){
     var chartOptions = {
@@ -51,6 +52,7 @@ function seeAllTotalItems(data){
 
 let project_id = window.project_id
 export function createGraph(){
+    update.startUpdate()
     let filtersValues = filters.getFilters()
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
@@ -66,6 +68,7 @@ export function createGraph(){
         overallSentiment(data)
         aspectAndSourceCount(data)
         seeAllTotalItems(data)
+        update.finishUpdate()
     })
 }
 

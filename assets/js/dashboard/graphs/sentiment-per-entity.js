@@ -1,6 +1,8 @@
 import config from "../config";
 let chart;
 function createSentimentPerEntityGraph(max_entities) {
+
+    update.startUpdate()
     fetch('/sentiment-per-entity/' + window.project_id + '/?max-entities=' + max_entities).then(response => response.json()).then(data => {
         var options = {
             chart: {
@@ -121,13 +123,16 @@ function createSentimentPerEntityGraph(max_entities) {
         }
         chart = new ApexCharts(document.querySelector("#sentiment-for-each-entity"), options);
         chart.render();
+        update.finishUpdate()
     })
 }
 createSentimentPerEntityGraph(8);
 function updateGraph(){
     let maxEntities = e.target.value;
     document.getElementById("sentiment-for-each-entity").innerHTML = "";
-    chart.destroy();
+    if(chart){
+        chart.destroy();
+    }
     createSentimentPerEntityGraph(maxEntities);
 }
 document.getElementById("select-max-top-sentiment-per-entity").addEventListener("change", (e) => {

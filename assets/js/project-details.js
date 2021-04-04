@@ -1,7 +1,8 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
-
+import {update} from './dashboard/helpers/helpers'
+let timeOut
 function updateProjectTables(){
     tables.aspectTopicTable(1)
     tables.dataTable(1)
@@ -17,8 +18,15 @@ function updateGraphs(){
 }
 
 function updateProjectDetailsPage(){
-    updateProjectTables()
-    updateGraphs()
+    if(update.canUpdate()){
+        updateProjectTables()
+        updateGraphs()
+    } else {
+        if(timeOut){
+            clearTimeout(timeOut)
+        }
+        timeOut = setTimeout(updateProjectDetailsPage,1000)
+    }
 }
 
 updateProjectDetailsPage()

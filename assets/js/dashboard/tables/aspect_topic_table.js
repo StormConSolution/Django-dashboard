@@ -1,7 +1,13 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
 import {getFilters} from '../helpers/filters'
+import {update} from '../helpers/helpers'
 export function createTable(page){
+    update.startUpdate()
+    makeTable(page)
+}
+
+function makeTable(page){
     let content = document.getElementById("aspect-topic-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("aspect-topic-table-pagination");
@@ -50,6 +56,7 @@ export function createTable(page){
             let firstElement = data.pageSize * (data.currentPage - 1);
             let lastElement = firstElement + data.pageSize;
             createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+            update.finishUpdate()
     });
 }
 //createTable(1);

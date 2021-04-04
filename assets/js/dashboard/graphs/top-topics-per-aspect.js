@@ -1,4 +1,5 @@
 import config from "../config";
+import {update} from '../helpers/helpers'
 
 let chart
 function topicsPerAspect(maxTopicsPerAspect) {
