@@ -38,8 +38,9 @@ def getFiltersSQL2(request):
         where_clauses.append("dd.date_created < '" + dateTo + "'")
     map(lambda x: "''%s''" % x, sources)
     map(lambda x: "''%s''" % x, languages)
-    where_clauses.append("dd.language in (%s)" % ("'" + ",'".join(languages) + "'"))
-    where_clauses.append('ds."label" in (%s)' % ("'" + ",".join(sources) + "'"))
+    where_clauses.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
+    where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    print(where_clauses)
     return where_clauses
 
 def getWhereClauses(request, where_clauses):

@@ -14,8 +14,8 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         "sentiment": sentiment,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
     }))
     .then((response) => response.json())
     .then((data) => {
