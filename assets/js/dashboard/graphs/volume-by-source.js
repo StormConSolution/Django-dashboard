@@ -1,6 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal_volume_by_source'
 let chart
 export function createGraph(){
     update.startUpdate()
@@ -13,6 +14,15 @@ export function createGraph(){
         chart: {
             type: "bar",
             height: 320,
+            events: {
+                dataPointSelection: function(event, chartContext, config) {
+                    let source = config.w.config.xaxis.categories[config.dataPointIndex]
+                    let options = {}
+                    options.source = source
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    dataTableModalVolumeBySource(1, options)
+                }            
+            }
         },
         plotOptions: {
             bar: {

@@ -57,8 +57,8 @@ export function createGraph(){
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
     })
     if(chart){
         chart.destroy()

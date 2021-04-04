@@ -1,4 +1,4 @@
-export function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack){
+export function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack, options){
     let paginationDiv = document.createElement("div")
     paginationDiv.className = "row no-gutters"
     let paginationHtml = `
@@ -17,17 +17,17 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     paginationDiv.append(paginationNumbers)
     
     if(totalPages < 7){
-        for(let i = 0; i < totalPages; i++){
-            let li = createPageNumber(currentPage, i, callBack)
+        for(let i = 1; i < totalPages + 1; i++){
+            let li = createPageNumber(currentPage, i, callBack, options)
             ulPagination.append(li) 
         }
     } else {
-        let li = createPageNumber(currentPage, 1, callBack)
+        let li = createPageNumber(currentPage, 1, callBack, options)
         ulPagination.append(li) 
 
         if(currentPage < 4){
             for(let i = 2; i < 5; i++){
-                let li = createPageNumber(currentPage, i, callBack)
+                let li = createPageNumber(currentPage, i, callBack, options)
                 ulPagination.append(li) 
             }
             let li = document.createElement("li")
@@ -35,7 +35,7 @@ export function createPagination(firstElement, lastElement, totalElements, curre
             a.innerHTML = ".."
             li.append(a);
             ulPagination.append(li)
-            li = createPageNumber(currentPage, totalPages, callBack)
+            li = createPageNumber(currentPage, totalPages, callBack, options)
             ulPagination.append(li) 
         }
 
@@ -47,7 +47,7 @@ export function createPagination(firstElement, lastElement, totalElements, curre
             ulPagination.append(li)
             if(currentPage < totalPages - 3){
                 for(let i = currentPage - 1; i < currentPage +2; i++){
-                    let li = createPageNumber(currentPage, i, callBack)
+                    let li = createPageNumber(currentPage, i, callBack, options)
                     ulPagination.append(li) 
                 }
                 li = document.createElement("li")
@@ -55,11 +55,11 @@ export function createPagination(firstElement, lastElement, totalElements, curre
                 a.innerHTML = ".."
                 li.append(a);
                 ulPagination.append(li)
-                li = createPageNumber(currentPage, totalPages, callBack)
+                li = createPageNumber(currentPage, totalPages, callBack, options)
                 ulPagination.append(li)
             } else {
                 for(let i = currentPage - 1; i <= totalPages; i++){
-                    let li = createPageNumber(currentPage, i, callBack)
+                    let li = createPageNumber(currentPage, i, callBack, options)
                     ulPagination.append(li)  
                 }
             }
@@ -70,13 +70,13 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     paginationContainer.append(paginationDiv);
 }
 
-function createPageNumber(currentPageNumber, pageNumber, callBack){
+function createPageNumber(currentPageNumber, pageNumber, callBack, options){
     let li = document.createElement("li")
     let a = document.createElement("a")
     a.innerHTML = pageNumber
     a.setAttribute("style", "cursor:pointer")
     a.addEventListener("click", (e)=>{
-        callBack(pageNumber)
+        callBack(pageNumber, options)
     })
     if(currentPageNumber == pageNumber){
         li.className = "active"

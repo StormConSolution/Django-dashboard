@@ -284,7 +284,7 @@ def project_overview(request, project_id):
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
     query = """
-            select sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
+            select distinct sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
     with connection.cursor() as cursor:
         cursor.execute(query, [project.id])
         row = cursor.fetchone()
@@ -321,7 +321,6 @@ def volume_by_source(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clauses) + """ group by ds.id order by count(ds.id) desc limit 10;""", [project.id])
-        print(cursor.query)
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -431,32 +430,54 @@ def data(request, project_id):
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-
-    filtersSQL = getFiltersSQL(request)
     where_clause = [
         "dd.project_id = %s"
     ]
+    query_args = []
+    aspect_label = parse.unquote(request.GET.get("aspect-label", ""))
+    topic_label = parse.unquote(request.GET.get("topic-label", ""))
+    sentiment = request.GET.get("sentiment")
+    sentiment_filter = ""
+    if sentiment == "positive":
+        sentiment_filter = "dd.sentiment > 0"
+        where_clause.append(sentiment_filter)
+    elif sentiment == "negative":
+        sentiment_filter = "dd.sentiment < 0"
+        where_clause.append(sentiment_filter)
+
+
+    query_args.append(project_id)
+
+    if aspect_label != "":
+        where_clause.append('da."label" = %s')
+        query_args.append(aspect_label)
+    
+    if topic_label != "":
+        where_clause.append("da.topic = %s")
+        query_args.append(topic_label)
+
+
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project.id])
+            select count(distinct(dd.id)) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause), query_args)
         row = cursor.fetchone()
     total_data = int(row[0])
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total_data / page_size)
 
-    where_clause = [
-        "project_id = %s"
-    ]
+
+    query_args.append(page_size)
+    query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+            select distinct dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", query_args)
         rows = cursor.fetchall()
     
     response={}
     response["data"] = []
     response["currentPage"] = page
-    response["totalData"] = total_data
+    response["total"] = total_data
     response["totalPages"] = total_pages
     response["pageSize"] = page_size
     for row in rows:
@@ -540,7 +561,7 @@ def aspect_topic(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
         rows = cursor.fetchall()
     
     response={}
@@ -672,36 +693,49 @@ def data_per_aspect_topic(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    aspect_label = parse.unquote(request.GET.get("aspect-label"))
-    topic_label = parse.unquote(request.GET.get("topic-label"))
+    where_clause = [
+        "dd.project_id = %s"
+    ]
+    query_args = []
+    aspect_label = parse.unquote(request.GET.get("aspect-label", ""))
+    topic_label = parse.unquote(request.GET.get("topic-label", ""))
     sentiment = request.GET.get("sentiment")
     sentiment_filter = ""
     if sentiment == "positive":
         sentiment_filter = "dd.sentiment > 0"
+        where_clause.append(sentiment_filter)
     elif sentiment == "negative":
         sentiment_filter = "dd.sentiment < 0"
+        where_clause.append(sentiment_filter)
 
-    where_clause = [
-        "dd.project_id = %s",
-        'da."label" = %s',
-        "da.topic = %s",
-        sentiment_filter
-    ]
-    filtersSQL = getFiltersSQL(request)
+
+    query_args.append(project_id)
+
+    if aspect_label != "":
+        where_clause.append('da."label" = %s')
+        query_args.append(aspect_label)
+    
+    if topic_label != "":
+        where_clause.append("da.topic = %s")
+        query_args.append(topic_label)
+
+    
     with connection.cursor() as cursor:
         cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause),
-                       [project.id, aspect_label, topic_label])
+                       query_args)
 
         row = cursor.fetchone()
     total = int(row[0])
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
 
-    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """
+    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """
 
+    query_args.append(page_size)
+    query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute(query,
-                       [project.id, aspect_label, topic_label, page_size, offset])
+                       query_args)
         rows = cursor.fetchall()
 
     response = {}

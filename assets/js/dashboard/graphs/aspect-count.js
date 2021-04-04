@@ -1,7 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
-
+import {createTable as dataPerAspectTable} from '../tables/data_table_modal_per_aspect'
 let chart
 export function createGraph(){
     update.startUpdate()
@@ -34,7 +34,7 @@ export function createGraph(){
                 let li = document.createElement("li")
     
                 let domElement = `
-                <a href="#" class="d-flex color-1">
+                <a class="d-flex color-1" style="cursor:pointer">
                 <small>${element.aspectLabel}</small>
                 <b style="color:${colors[colorsIndex]};">${element.aspectCount}</b>
                 <span>${percentage}%</span>
@@ -44,6 +44,7 @@ export function createGraph(){
                 </a>
                 `;
                 li.innerHTML = domElement;
+                li.setAttribute("data-aspect-label", element.aspectLabel)
                 aspectCountGraphs.append(li)
                 let color = colors[colorsIndex];
                 if(colorsIndex == colors.length - 1){
@@ -87,6 +88,17 @@ export function createGraph(){
                     chartOptions
                 );
                 chart.render();
+            }
+            let aspectCountElements = aspectCountGraphs.querySelectorAll("li")
+            for(let element of aspectCountElements){
+                element.addEventListener("click", (e)=>{
+
+                    let aspectLabel = e.currentTarget.getAttribute("data-aspect-label")
+                    let options = {}
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    options.aspectLabel = aspectLabel
+                    dataPerAspectTable(1, options)
+                })
             }
             update.finishUpdate()
         });

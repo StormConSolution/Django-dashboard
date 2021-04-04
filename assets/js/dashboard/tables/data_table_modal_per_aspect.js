@@ -1,21 +1,21 @@
-import {createPagination} from './utils/utils'
 import {getFilters} from "../helpers/filters"
-import {update} from '../helpers/helpers'
-export function createTable(page){
-    update.startUpdate()
-    let content = document.getElementById("data-table-content");
+import {createPagination} from './utils/utils'
+export function createTable(page, options){
+    let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
-    let pagination = document.getElementById("data-table-pagination");
+    let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
-    let pageSize = document.getElementById("data-table-page-size").value
+    let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
+    fetch(`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
+        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "page": page,
+        "page-size": pageSize,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources)
-    })
-    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
+    }))
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {
@@ -52,41 +52,6 @@ export function createTable(page){
         }
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
-        update.finishUpdate()
+        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, options);
     });
 }
-//createTable(1);
-/*
-<div class="col-12 col-md-auto">
-        <ul class="pagination">
-        <li>
-            <a href="#">
-            <i class="fe fe-chevron-left"></i>
-            </a>
-        </li>
-        <li class="active">
-            <a href="#">01</a>
-        </li>
-        <li>
-            <a href="#">02</a>
-        </li>
-        <li>
-            <a href="#">03</a>
-        </li>
-        <li>
-            <a href="#">04</a>
-        </li>
-        <li>
-            <a href="#">..</a>
-        </li>
-        <li>
-            <a href="#">25</a>
-        </li>
-        <li>
-            <a href="#"> <i class="fe fe-chevron-right"></i></a>
-        </li>
-        
-        </ul>
-    </div>
-*/
