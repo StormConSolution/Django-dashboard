@@ -54,7 +54,9 @@ export function createGraph(){
     let filtersValues = filters.getFilters()
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     })
     if(chart){
         chart.destroy()

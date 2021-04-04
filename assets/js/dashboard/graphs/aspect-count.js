@@ -14,7 +14,9 @@ export function createGraph(){
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     })
     let project_id = window.project_id;
     fetch(`/api/aspect-count/${project_id}/?` + urlParams)

@@ -1,7 +1,9 @@
 import config from "../config";
 
+let chart 
 export function createGraph(){
-    var projectId = window.project_id;
+    if(!chart){
+        var projectId = window.project_id;
     fetch(`/api/sentiment-trend/${projectId}/`)
         .then((response) => response.json())
         .then((data) => {
@@ -57,11 +59,13 @@ export function createGraph(){
             document.getElementById("sentiment-trend-total").innerHTML = totalPositives + totalNegatives
             document.getElementById("sentiment-trend-total-positives").innerHTML = totalPositives
             document.getElementById("sentiment-trend-total-negatives").innerHTML = totalNegatives
-            let chart = new ApexCharts(
+            chart = new ApexCharts(
                 document.querySelector("#sentiment-trend-graph"),
                 chartOptions
             );
             chart.render();
         });
+    }
+    
 }
 

@@ -10,7 +10,9 @@ export function createTable(page){
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     })
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())

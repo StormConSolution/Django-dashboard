@@ -52,13 +52,13 @@
                           <!--
                             <span>Check All</span>
                             <span>UnCheck All</span>
-                            -->
+                           --> 
                           </div>
                           <div class="choose">
                             {% for language in languages %}
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" value="{{language}}" checked>
-                              <label class="custom-control-label" for="f4">{{language}}</label>
+                            <div class=" ">
+                              <input type="checkbox" class="" value="{{language}}" checked onclick="return true">
+                              <label class="">{{language}}</label>
                             </div>
                             {% endfor %}
                           </div>
@@ -82,9 +82,9 @@
                           </div>
                           <div class="choose">
                             {% for sourceLabel in sourceLabels %}
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" value="{{sourceLabel}}" checked>
-                              <label class="custom-control-label" for="f4">{{sourceLabel}}</label>
+                            <div class="">
+                              <input type="checkbox" class="" value="{{sourceLabel}}" onclick="return true" checked>
+                              <label class="">{{sourceLabel}}</label>
                             </div>
                             {% endfor %}
                           </div>

@@ -71,7 +71,9 @@ export function createGraph() {
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     })
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())

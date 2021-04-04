@@ -13,7 +13,9 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         "page-size": pageSize,
         "sentiment": sentiment,
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     }))
     .then((response) => response.json())
     .then((data) => {

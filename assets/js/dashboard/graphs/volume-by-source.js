@@ -30,7 +30,9 @@ export function createGraph(){
     let filtersValues = getFilters()
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
     })
     fetch(`/api/volume-by-source/${project_id}/?` + urlParams)
         .then((response) => response.json())
