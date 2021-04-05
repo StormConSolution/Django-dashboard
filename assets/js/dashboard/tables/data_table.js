@@ -1,12 +1,21 @@
 import {createPagination} from './utils/utils'
-
-function createTable(page){
+import {getFilters} from "../helpers/filters"
+import {update} from '../helpers/helpers'
+export function createTable(page){
+    update.startUpdate()
     let content = document.getElementById("data-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
-    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}`)
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
+    })
+    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {
@@ -43,10 +52,11 @@ function createTable(page){
         }
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+        createPagination(firstElement, lastElement, data.totalData, data.currentPage, data.totalPages, pagination, createTable);
+        update.finishUpdate()
     });
 }
-createTable(1);
+//createTable(1);
 /*
 <div class="col-12 col-md-auto">
         <ul class="pagination">

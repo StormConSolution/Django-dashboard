@@ -21,8 +21,9 @@ from data import serializers
 from data import weighted
 from django.db.models.functions import Coalesce
 from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-
+from urllib import parse
 from django.db import connection
+from data.helpers import getFiltersSQL, getWhereClauses, getFiltersSQL2
 LOGIN_URL = '/login/'
 
 ASPECT_COLORS = [
@@ -275,52 +276,52 @@ def add_data(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def project_overview(request, project_id):
-    user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    data = data_models.Data.objects.filter(project=project).aggregate(
-        positive_count=Coalesce(
-            Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
-        negative_count=Coalesce(
-            Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
-        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
+    data = {}
+    filtersSQL = getFiltersSQL(request)
+    where_clauses = []
+    where_clauses.append("dd.project_id = %s")
+    query = """
+            select sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
+    with connection.cursor() as cursor:
+        cursor.execute(query, [project.id])
+        row = cursor.fetchone()
+    data["positivesCount"] = row[0] or 0
+    data["negativesCount"] = row[1] or 0
+    data["neutralsCount"] = row[2] or 0
+
+    where_clauses = []
+    where_clauses.append("das.project_id = %s")
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_aspectlabel_source das where das.project_id = %s;""", [project.id])
+            select count(*) from data_aspectlabel_source das where """ + " and ".join(where_clauses), [project.id])
         rows = cursor.fetchall()
     data["aspectCount"] = rows[0][0]
+
+    where_clauses = []
+    where_clauses.append("dd.project_id = %s")
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(distinct ds."label") from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s;""", [project.id])
+            select count(distinct ds."label") from data_source ds inner join data_data dd on ds.id = dd.source_id where """ + " and ".join(where_clauses), [project.id])
         rows = cursor.fetchall()
     data["sourceCount"] = rows[0][0]
     return JsonResponse(data, safe=False)
 
 @login_required(login_url=LOGIN_URL)
 def volume_by_source(request, project_id):
-    user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
+    filtersSQL = getFiltersSQL(request)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    data = data_models.Data.objects.filter(project=project).aggregate(
-        positive_count=Coalesce(
-            Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
-        negative_count=Coalesce(
-            Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()), 0),
-        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()), 0))
-    context = {}
-    return JsonResponse(data, safe=False)
-
-@login_required(login_url=LOGIN_URL)
-def volume_by_source(request, project_id):
-    user = request.user
-    project = get_object_or_404(data_models.Project, pk=project_id)
-    if project.users.filter(pk=request.user.id).count() == 0:
-        raise PermissionDenied
+    where_clauses = [
+       "dd.project_id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s group by ds.id;""", [project.id])
+            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clauses) + """ group by ds.id order by count(ds.id) desc limit 10;""", [project.id])
+        print(cursor.query)
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -332,13 +333,16 @@ def volume_by_source(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def aspect_count(request, project_id):
-    user = request.user
     project = get_object_or_404(data_models.Project, pk=project_id)
+    filtersSQL = getFiltersSQL(request)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
+    where_clauses = [
+        "dd.project_id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id where dd.project_id = %s group by da."label" order by count(da."label") desc ;""", [project.id])
+            select distinct da."label", count(da."label")  from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clauses) + """ group by da."label" order by count(da."label") desc ;""", [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -401,97 +405,52 @@ def sentiment_per_aspect(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    ASPECT_QUERY = """
-    SELECT 
-        label, count(data_id),
-        sum(case when data_aspect.sentiment > 0 then 1 else 0 end) as PosCount,
-        sum(case when data_aspect.sentiment < 0 then 1 else 0 end) as NegCount
-    FROM 
-        data_aspect, data_data
-    WHERE 
-        %s
-    GROUP BY label
-    """
-    entity_filter = request.GET.get('entity')
-    aspect_topic = request.GET.get('aspecttopic')
-    aspect_name = request.GET.get('aspectname')
-    src = request.GET.getlist('filter_source')
-    if src and src[0]:
-        source_filter = src[0].split(",")
-        context['selected_sources'] = source_filter
-    else:
-        source_filter = None
-    end = this_project.data_set.latest().date_created
-    start = end - datetime.timedelta(days=30)
     where_clause = [
-        'data_aspect.data_id = data_data.id',
-        'data_data.project_id = %s',
-        'data_data.date_created between %s AND %s',
+        'dd.source_id = ds.id and '
+        'da.data_id = dd.id',
+        'dd.project_id = %s',
     ]
-    query_args = [project_id, start, end]
-    lang = request.GET.getlist('filter_language')
-    if lang and lang[0]:
-        lang_filter = lang[0].split(",")
-        context['selected_langs'] = lang_filter
-    else:
-        lang_filter = None
-
-    if lang_filter:
-        lang_string = len(lang_filter) * '%s,'
-        where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
-        query_args.extend(lang_filter)
-    
-    if source_filter:
-        source_string = len(source_filter) * '%s,'
-        where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
-        # Get the raw IDs for our sources.
-        source_ids = data_models.Source.objects.filter(
-                label__in=source_filter).values_list('id', flat=True)
-        query_args.extend(source_ids)
-    
-    if aspect_topic:
-        where_clause.append('data_aspect.topic = %s')
-        query_args.append(aspect_topic)
-    
-    if aspect_name:
-        where_clause.append('data_aspect.label = %s')
-        query_args.append(aspect_name)
-
-    total = 0
     response = []
     with connection.cursor() as cursor:
-        cursor.execute(ASPECT_QUERY % ' AND '.join(where_clause), query_args)
-        for idx, row in enumerate(cursor.fetchall()):
-            total += row[1]
-            response.append({
-                'aspectLabel':row[0],
-                'count':row[1],
-                'positiveCount': row[2],
-                'negativeCount': row[3],
-            })
+        cursor.execute("""select da."label", count(data_id),sum(case when da.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when da.sentiment < 0 then 1 else 0 end) as NegCount from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by da."label" """ , [project_id])
+        rows = cursor.fetchall()
+    
+    for row in rows:
+        response.append({
+            'aspectLabel':row[0],
+            'count':row[1],
+            'positiveCount': row[2],
+            'negativeCount': row[3],
+        })
     return JsonResponse(response, safe=False)
 
 @login_required(login_url=LOGIN_URL)
 def data(request, project_id):
-    user = request.user
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    filtersSQL = getFiltersSQL(request)
+    where_clause = [
+        "dd.project_id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data where project_id = %s;""", [project.id])
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project.id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total_data / page_size)
 
+    where_clause = [
+        "project_id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where project_id = %s order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
         rows = cursor.fetchall()
     
     response={}
@@ -522,9 +481,13 @@ def entity_classification_count(request, project_id):
         raise PermissionDenied
 
 
+    filtersSQL = getFiltersSQL(request)
+    where_clause = [
+        "dd.project_id = %s"    
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s;""", [project.id])
+        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause), [project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -533,7 +496,7 @@ def entity_classification_count(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id where dd.project_id = %s group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc limit %s offset %s;
+            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc limit %s offset %s;
 """, [project.id, page_size, offset])
         rows = cursor.fetchall()
     
@@ -556,16 +519,19 @@ def entity_classification_count(request, project_id):
 
 @login_required(login_url=LOGIN_URL)
 def aspect_topic(request, project_id):
-    user = request.user
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    filtersSQL = getFiltersSQL(request)
+    where_clause = [
+        "dd.project_id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s;""", [project.id])
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clause), [project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -574,7 +540,7 @@ def aspect_topic(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
         rows = cursor.fetchall()
     
     response={}
@@ -585,8 +551,8 @@ def aspect_topic(request, project_id):
     response["pageSize"] = page_size
     for row in rows:
         response["data"].append({
-            "topicLabel": row[0],
-            "aspectLabel": row[1],
+            "aspectLabel": row[0],
+            "topicLabel": row[1],
             "positivesCount": row[3],
             "negativesCount": row[4]
         })
@@ -602,18 +568,34 @@ def sentiment_trend(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    where_clause = []
+    dateFrom = request.GET.get("date-from")
+    dateTo = request.GET.get("date-to")
+    languages = request.GET.get("languages").split(",")
+    sources = parse.unquote(request.GET.get("sources")).split(",")
+    default = request.GET.get("default", "0")
+    limit_clause = ""
+    if default == "0":
+        if not dateFrom:
+            dateFrom = ""
+        if not dateTo:
+            dateTo = ""
+        if dateFrom != "":
+            where_clause.append("dd.date_created > '" + dateFrom + "'")
+        if dateTo != "":
+            where_clause.append("dd.date_created < '" + dateTo + "'")
+    else:
+        limit_clause = "limit 3"
+    map(lambda x: "''%s''" % x, sources)
+    map(lambda x: "''%s''" % x, languages)
+    where_clause.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
+    where_clause.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    
+    where_clause.append("dd.project_id = %s")
+
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s;""", [project.id])
-        row = cursor.fetchone()
-    total = int(row[0])
-
-    offset = (page - 1) * page_size
-    total_pages = math.ceil(total / page_size)
-
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd where dd.project_id = %s order by date desc limit 7) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date where dd.project_id = %s group by dates.date order by dates.date asc;""", [project.id, project_id])
+            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + " and ".join(where_clause) + """ order by date desc """ + limit_clause + """ ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + " and ".join(where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
         rows = cursor.fetchall()
     
     response=[]
@@ -637,11 +619,17 @@ def data_per_classification_and_entity(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    filtersSQL = getFiltersSQL(request)
     entity = int(request.GET.get("entity"))
     classification = int(request.GET.get("classification"))
+    where_clause = [
+        "dd.project_id = %s",
+        "de.id = %s",
+        "dc.id = %s"
+    ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(*) from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s and de.id = %s and dc.id = %s;""",
+        select count(*) from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause),
                        [project.id, entity, classification])
         row = cursor.fetchone()
     total = int(row[0])
@@ -651,7 +639,7 @@ def data_per_classification_and_entity(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where dd.project_id = %s and de.id = %s and dc.id = %s order by dd.date_created desc limit %s offset %s;""",
+        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """,
                        [project.id, entity, classification, page_size, offset])
         rows = cursor.fetchall()
 
@@ -673,4 +661,64 @@ def data_per_classification_and_entity(request, project_id):
             "languageCode": row[5]
         })
 
+    return JsonResponse(response, safe=False)
+
+@login_required(login_url=LOGIN_URL)
+def data_per_aspect_topic(request, project_id):
+    user = request.user
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    aspect_label = parse.unquote(request.GET.get("aspect-label"))
+    topic_label = parse.unquote(request.GET.get("topic-label"))
+    sentiment = request.GET.get("sentiment")
+    sentiment_filter = ""
+    if sentiment == "positive":
+        sentiment_filter = "dd.sentiment > 0"
+    elif sentiment == "negative":
+        sentiment_filter = "dd.sentiment < 0"
+
+    where_clause = [
+        "dd.project_id = %s",
+        'da."label" = %s',
+        "da.topic = %s",
+        sentiment_filter
+    ]
+    filtersSQL = getFiltersSQL(request)
+    with connection.cursor() as cursor:
+        cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause),
+                       [project.id, aspect_label, topic_label])
+
+        row = cursor.fetchone()
+    total = int(row[0])
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total / page_size)
+
+    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query,
+                       [project.id, aspect_label, topic_label, page_size, offset])
+        rows = cursor.fetchall()
+
+    response = {}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    response["topicLabel"] = topic_label
+    response["aspectLabel"] = aspect_label
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
     return JsonResponse(response, safe=False)

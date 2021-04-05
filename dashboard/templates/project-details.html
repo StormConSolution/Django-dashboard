@@ -32,9 +32,13 @@
             <div class="ml-0 ml-md-auto">
               <form>
                 <div class="form-row align-items-center">
-                  <div id="sandbox-container" class="col-auto">
-
-                    <input type="text" class="form-control " placeholder="CHoose Date">
+                  <div class="col-auto" style="display:flex;flex-direction:row">
+                    <label style="display:flex;justify-content:center;align-items:center;margin-right:0.5rem">From:</label>
+                    <input type="date" class="form-control" id="date-from">
+                  </div>
+                  <div class="col-auto" style="display:flex;flex-direction:row">
+                    <label style="display:flex;justify-content:center;align-items:center;margin-right:.5rem">To:</label>
+                    <input type="date" class="form-control" id="date-to">
                   </div>
                   <div class="col-auto">
                     <div class="dropdown choose-languages">
@@ -42,30 +46,21 @@
                         aria-haspopup="true" aria-expanded="false">
                         Choose Languages
                       </button>
-                      <div class="dropdown-menu" aria-labelledby="choose-languages">
+                      <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
+                          <!--
                             <span>Check All</span>
                             <span>UnCheck All</span>
+                           --> 
                           </div>
                           <div class="choose">
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="c1">
-                              <label class="custom-control-label" for="c1">English</label>
+                            {% for language in languages %}
+                            <div class=" ">
+                              <input type="checkbox" class="" value="{{language}}" checked onclick="return true">
+                              <label class="">{{language}}</label>
                             </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="c2">
-                              <label class="custom-control-label" for="c2">Hindi</label>
-                            </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="c3">
-                              <label class="custom-control-label" for="c3">Spanish</label>
-                            </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="c4">
-                              <label class="custom-control-label" for="c4">Portuguese</label>
-                            </div>
-
+                            {% endfor %}
                           </div>
                         </div>
                       </div>
@@ -77,38 +72,39 @@
                         aria-haspopup="true" aria-expanded="false">
                         Choose Sources
                       </button>
-                      <div class="dropdown-menu" aria-labelledby="choose-sources">
+                      <div class="dropdown-menu" aria-labelledby="choose-sources" id="dropdown-sources">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
+                          <!--
                             <span>Check All</span>
                             <span>UnCheck All</span>
+-->
                           </div>
                           <div class="choose">
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="f1">
-                              <label class="custom-control-label" for="f1">Twitter</label>
+                            {% for sourceLabel in sourceLabels %}
+                            <div class="">
+                              <input type="checkbox" class="" value="{{sourceLabel}}" onclick="return true" checked>
+                              <label class="">{{sourceLabel}}</label>
                             </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="f2">
-                              <label class="custom-control-label" for="f2">Youtube</label>
-                            </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="f3">
-                              <label class="custom-control-label" for="f3">Facebook</label>
-                            </div>
-                            <div class="custom-control checkbox-list custom-checkbox">
-                              <input type="checkbox" class="custom-control-input" id="f4">
-                              <label class="custom-control-label" for="f4">Linkedin</label>
-                            </div>
-
+                            {% endfor %}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <script>
+                  document.getElementById('dropdown-sources').addEventListener('click', (e)=>{
+                      e.stopPropagation()
+                  })
+                  document.getElementById('dropdown-languages').addEventListener('click', (e)=>{
+                      e.stopPropagation()
+                  })
+                  </script>
+                  <!--
                   <div class="col-auto">
                     <a href="#" class="reset-filter">Reset Filter <i class="fe fe-refresh-cw"></i> </a>
                   </div>
+                  -->
                 </div>
               </form>
             </div>
@@ -117,19 +113,19 @@
           <div class="project-menu">
             <ul class="d-flex flex-wrap">
               <li>
-                <a href="#">Overview</a>
+                <a href="#overview-graph">Overview</a>
               </li>
               <li>
-                <a href="#">Sentiment</a>
+                <a href="#overall-sentiment-chart">Sentiment</a>
               </li>
               <li>
-                <a href="#">Aspects</a>
+                <a href="#aspect-count-graphs">Aspects</a>
               </li>
               <li>
-                <a href="#">Entities</a>
+                <a href="#entity-table">Entities</a>
               </li>
               <li>
-                <a href="#">Sources</a>
+                <a href="#data-items">Sources</a>
               </li>
               <li class="ml-auto">
                 <div class="dropdown ">
@@ -151,7 +147,7 @@
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4 class="col p-0 sentiment-trend ">Sentiment
-                Trend (last 7 months) <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                Trend <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
                   <i class="fe fe-help-circle"></i>
                 </a> </h4>
               <div class="col-auto ml-auto p-0">
@@ -179,7 +175,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-lg-4 project-card">
+        <div class="col-12 col-lg-4 project-card" id="overall-graph">
           <div class="row">
             <div class="col-12 pb-3 ">
               <div class="project-card-inner">
@@ -235,7 +231,7 @@
 
         </div>
 
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" id="aspect-graph">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -258,7 +254,7 @@
         <div class="col-12 project-card">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4>Aspect Co-Occurrence <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+              <h4>Aspect Co-Occurrence (last 30 days of data) <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
                   <i class="fe fe-help-circle"></i>
                 </a> </h4>
 
@@ -361,7 +357,7 @@
 
 
         </div>
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" id="entity-table">
           <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
               <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -737,120 +733,6 @@
     </div>
     <!-- create-Aspect modal End -->
 
-  <!-- Export data modal start -->
-  <div class="modal fade" id="exportdata" tabindex="-1" aria-labelledby="exportdataLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exportdataLabel">Export Data</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <i class="fe fe-x-circle"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          
-          <div class="modal-data">
-              <form>
-                <div class="form-group">
-                  <label for="project" class="form-label">Project</label>
-                  <select class="custom-select" id="project">
-                    <option selected="">Rolex</option>
-                    <option value="1">Royal Enfiled</option>
-                    <option value="2">Google</option>
-                   
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="chosedate" class="form-label">CHoose Date</label>
-                  <div id="sandbox-container" >  
-                    <input type="text" class="form-control" id="chosedate" placeholder="CHoose Date">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Languages</label>
-                  <div class="dropdown choose-languages">
-                    <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-                      Choose Languages
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="choose-languages">
-                      <div class="choose-lang">
-                        <div class="d-flex checkuncheck">
-                          <span>Check All</span>
-                          <span>UnCheck All</span>
-                        </div>
-                        <div class="choose">
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="c1">
-                            <label class="custom-control-label" for="c1">English</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="c2">
-                            <label class="custom-control-label" for="c2">Hindi</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="c3">
-                            <label class="custom-control-label" for="c3">Spanish</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="c4">
-                            <label class="custom-control-label" for="c4">Portuguese</label>
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Sources</label>
-                  
-                  <div class="dropdown choose-sources">
-                    <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-                      Choose Sources
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="choose-sources">
-                      <div class="choose-lang">
-                        <div class="d-flex checkuncheck">
-                          <span>Check All</span>
-                          <span>UnCheck All</span>
-                        </div>
-                        <div class="choose">
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="f1">
-                            <label class="custom-control-label" for="f1">Twitter</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="f2">
-                            <label class="custom-control-label" for="f2">Youtube</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="f3">
-                            <label class="custom-control-label" for="f3">Facebook</label>
-                          </div>
-                          <div class="custom-control checkbox-list custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="f4">
-                            <label class="custom-control-label" for="f4">Linkedin</label>
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="email" class="form-label">Email to send results to</label>
-                  <input type="email" class="form-control email-icon" id="email" aria-describedby="emailHelp">
-                </div>
-                <button type="submit" class="btn btn-primary">Send Raw Data <i class="fe fe-send"></i> </button>
-              </form>
-          </div>
-        </div>
-       
-      </div>
-    </div>
-  </div>
   <!-- Export data modal End -->
   
   <!-- modal End -->
@@ -873,17 +755,17 @@
               <div class="data-search">
                 <input type="text" class="form-control " placeholder="Search">
               </div>
-                            <button type="button" class="close" aria-label="Close" id="close-data-table-modal">
-						<span aria-hidden="true" style="color:black;margin-left:1rem;">X</span>
+            <button type="button" class="close" aria-label="Close" id="close-data-table-modal">
+                <span aria-hidden="true" style="color:black;margin-left:1rem;">X</span>
 			</button>
               </div>
 
             </div>
 
-            <div class="data-table table-responsive">
+            <div class="data-table table-responsive" id="data-items">
               <table class="table table-striped table-borderless">
                 <thead>
-                  <tr>
+                  <tr id="data-table-modal-header-row">
                     <th scope="col">
                       ENTITY <span class="data-short">
                         <a href="#" class="active">
@@ -957,7 +839,6 @@
 </div>
 <script>
 let dataTableModalContainer = document.querySelector("#data-table-modal")
-console.log(dataTableModalContainer)
 let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
 dataTableModalCloseButton.addEventListener("click", (e) => {
     dataTableModalContainer.style.display = 'none'

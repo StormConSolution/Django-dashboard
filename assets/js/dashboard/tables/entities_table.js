@@ -1,12 +1,23 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
-function createTable(page){
+import {getFilters} from "../helpers/filters"
+import {update} from '../helpers/helpers'
+export function createTable(page){
+    update.startUpdate()
     let content = document.getElementById("entity-table-content");
     content.innerHTML = "";
     let pagination = document.getElementById("entity-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
-    fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}`)
+
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
+    })
+    fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {
@@ -35,6 +46,7 @@ function createTable(page){
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
         createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+        update.finishUpdate()
     });
 }
-createTable(1);
+//createTable(1);
