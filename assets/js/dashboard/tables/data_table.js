@@ -52,7 +52,7 @@ export function createTable(page){
         }
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+        createPagination(firstElement, lastElement, data.totalData, data.currentPage, data.totalPages, pagination, createTable);
         update.finishUpdate()
     });
 }
