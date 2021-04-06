@@ -17,5 +17,6 @@ urlpatterns = [
     path('sentiment-trend/<int:project_id>/', views.sentiment_trend),
     path('data-per-classification-and-entity/<int:project_id>/', views.data_per_classification_and_entity),
     path('data-per-aspect-topic/<int:project_id>/', views.data_per_aspect_topic),
+    path('data-per-aspect/<int:project_id>/', views.data_per_aspect),
     path('aspect-count/<int:project_id>/', views.aspect_count)
 ]

@@ -1,6 +1,7 @@
 import config from "../config";
 import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
+import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
 let chart
 function overallSentiment(data){
     var chartOptions = {
@@ -8,6 +9,15 @@ function overallSentiment(data){
         chart: {
             height: 250,
             type: "donut",
+            events: {
+                dataPointSelection: function(event, chartContext, config) {
+                    let sentiment = config.w.config.labels[config.dataPointIndex].toLowerCase()
+                    let options = {}
+                    options.sentiment = sentiment
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    dataTableModalPerSentiment(1, options)
+                }            
+            }
         },
         dataLabels: {
             enabled: false,

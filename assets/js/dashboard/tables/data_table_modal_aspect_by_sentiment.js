@@ -8,7 +8,8 @@ export function createTable(page, options){
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
     fetch(`/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
-        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "sentiment": encodeURIComponent(options.sentiment),
+        "aspect-label": encodeURIComponent(options.aspect), 
         "page": page,
         "page-size": pageSize,
         "date-from": filtersValues.dateFrom,

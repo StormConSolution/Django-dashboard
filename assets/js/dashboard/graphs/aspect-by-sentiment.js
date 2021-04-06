@@ -1,6 +1,7 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import {update} from '../helpers/helpers'
+import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/data_table_modal_aspect_by_sentiment"
 let chart 
 export function createGraph() {
     update.startUpdate()
@@ -13,6 +14,23 @@ export function createGraph() {
             type: "bar",
             height: 440,
             stacked: true,
+            events: {
+                dataPointSelection: function(event, chartContext, config) {
+                    let aspect = config.w.config.xaxis.categories[config.dataPointIndex]
+                    let count = config.w.config.series[config.seriesIndex].data[config.dataPointIndex]
+                    let options = {}
+                    if(count > 0){
+                        options.sentiment = "positive"
+                    } else {
+                        options.sentiment = "negative"
+                    }
+                    options.aspect = aspect
+                    console.log(aspect)
+                    console.log(count)
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    dataTableModalDataPerAspectAndSentiment(1, options)
+                }            
+            }
         },
         legend: { show: false },
         colors: ["#28C76F", "#EA5455"],
