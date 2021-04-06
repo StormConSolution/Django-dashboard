@@ -7,7 +7,6 @@ export function createTable(page, options){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
-    console.log(options)
     fetch(`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
         "page": page,
         "page-size": pageSize,

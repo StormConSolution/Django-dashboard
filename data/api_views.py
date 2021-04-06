@@ -287,7 +287,7 @@ def project_overview(request, project_id):
     query = """
             select distinct sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
     with connection.cursor() as cursor:
-        cursor.execute(query, [project.id])
+        cursor.execute(query, [project_id])
         row = cursor.fetchone()
     data["positivesCount"] = row[0] or 0
     data["negativesCount"] = row[1] or 0
@@ -447,7 +447,7 @@ def data(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project.id])
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
@@ -455,7 +455,7 @@ def data(request, project_id):
     total_pages = math.ceil(total_data / page_size)
 
     where_clause = [
-        "project_id = %s"
+        "dd.project_id = %s"
     ]
     sentiment = request.GET.get("sentiment", "")
 
