@@ -59,6 +59,27 @@ function makeTable(page){
             update.finishUpdate()
     });
 }
+
+document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>{
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
+    })
+    fetch(`/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams)
+    .then(response => response.blob())
+    .then(blob => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "aspect_topic_breakdown.csv"
+        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+        a.click();    
+        a.remove();
+    })
+})
 //createTable(1);
 /*
 <div class="col-12 col-md-auto">

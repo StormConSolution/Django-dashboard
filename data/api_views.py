@@ -1,4 +1,5 @@
 import datetime
+import csv
 import json
 import math
 import data.charts as charts
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
@@ -464,11 +465,31 @@ def data(request, project_id):
         where_clause.append("dd.sentiment < 0")
     if sentiment == "neutral":
         where_clause.append("dd.sentiment = 0")
+    
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -564,13 +585,30 @@ def entity_classification_count(request, project_id):
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
-
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc limit %s offset %s;
-""", [project.id, page_size, offset])
+            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc 
+""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="entities_frequency.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Entity', "Classification", "Frequency"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -608,12 +646,28 @@ def aspect_topic(request, project_id):
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
-
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
-    
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="aspect_topic_breakdown.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Topic', "Aspect", "Positives", "Negatives"])
+        for row in rows:
+            writer.writerow([row[1], row[0], row[3], row[4]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page

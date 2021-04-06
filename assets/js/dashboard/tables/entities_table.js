@@ -49,4 +49,24 @@ export function createTable(page){
         update.finishUpdate()
     });
 }
+document.getElementById("entities-table-csv").addEventListener("click", ()=>{
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sources": filtersValues.sources
+    })
+    fetch(`/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams)
+    .then((response) => response.blob())
+    .then(blob => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "entities_frequency.csv"
+        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+        a.click();    
+        a.remove();
+    })
+})
 //createTable(1);
