@@ -6,11 +6,17 @@ export function createTable(page, classification, entity){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
+    document.getElementById("data-modal-table-csv").href = `/api/data-per-classification-and-entity/${window.project_id}/?format=csv&&classification=${classification}&entity=${entity}&` + new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
+    })
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
     })
     fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}&` + urlParams)
     .then((response) => response.json())

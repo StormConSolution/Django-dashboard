@@ -7,6 +7,13 @@ export function createTable(page, options){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
+    document.getElementById("data-modal-table-csv").href = `/api/data-per-aspect/${window.project_id}/?format=csv&` + new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
+    })
     fetch(`/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
         "aspect-label": encodeURIComponent(options.aspectLabel),
         "page": page,

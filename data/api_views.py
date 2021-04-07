@@ -519,6 +519,7 @@ def data_per_aspect(request, project_id):
     aspect_label = parse.unquote(request.GET.get("aspect-label"))
     sentiment = request.GET.get("sentiment", "")
 
+    response_format = request.GET.get("format", "")
 
     where_clause = [
         "dd.project_id = %s",
@@ -540,11 +541,29 @@ def data_per_aspect(request, project_id):
     offset = (page - 1) * page_size
     total_pages = math.ceil(total_data / page_size)
 
+    limit_offset_clause = ""
+    query_args = []
+    query_args.append(project_id)
+    query_args.append(aspect_label)
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", [project.id, aspect_label, page_size, offset])
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
-    
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items_per_aspect.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
+
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -602,7 +621,7 @@ def entity_classification_count(request, project_id):
     
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="entities_frequency.csv"'
+        response['Content-Disposition'] = 'attachment; filename="data_items_entities_classification_frequency.csv"'
 
         writer = csv.writer(response)
         writer.writerow(['Entity', "Classification", "Frequency"])
@@ -762,11 +781,33 @@ def data_per_classification_and_entity(request, project_id):
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
 
+    response_format = request.GET.get("format", "")
+    limit_offset_clause = ""
+  
+    query_args = []
+    query_args.append(project_id)
+    query_args.append(entity)
+    query_args.append(classification)
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
     with connection.cursor() as cursor:
         cursor.execute("""
-        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """,
-                       [project.id, entity, classification, page_size, offset])
+        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause,
+                       query_args)
         rows = cursor.fetchall()
+
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_per_classification_and_entity.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
 
     response = {}
     response["data"] = []
@@ -822,6 +863,8 @@ def data_per_aspect_topic(request, project_id):
     if topic_label != "":
         where_clause.append("da.topic = %s")
         query_args.append(topic_label)
+    
+    response_format = request.GET.get("format", "")
 
     
     with connection.cursor() as cursor:
@@ -832,16 +875,30 @@ def data_per_aspect_topic(request, project_id):
     total = int(row[0])
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
+    limit_offset_clause = ""
 
-    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
 
-    query_args.append(page_size)
-    query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute(query,
                        query_args)
         rows = cursor.fetchall()
 
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items_per_aspect_topic.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
+
+  
     response = {}
     response["data"] = []
     response["currentPage"] = page

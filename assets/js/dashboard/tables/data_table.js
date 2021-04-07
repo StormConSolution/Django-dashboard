@@ -15,6 +15,7 @@ export function createTable(page){
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources)
     })
+    document.getElementById("data-items-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
@@ -56,27 +57,6 @@ export function createTable(page){
         update.finishUpdate()
     });
 }
-
-document.getElementById("data-items-table-csv").addEventListener("click", ()=>{
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
-    })
-    fetch(`/api/new-data/project/${window.project_id}/?format=csv&` + urlParams)
-    .then(response => response.blob())
-    .then(blob => {
-        let url = window.URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = "data_items.csv"
-        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-        a.click();    
-        a.remove();
-    })
-})
 //createTable(1);
 /*
 <div class="col-12 col-md-auto">

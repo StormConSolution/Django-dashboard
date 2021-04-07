@@ -20,6 +20,7 @@ function makeTable(page){
         "languages": filtersValues.languages,
         "sources": filtersValues.sources
     })
+    document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
@@ -60,7 +61,7 @@ function makeTable(page){
     });
 }
 
-document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>{
+/* document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>{
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
@@ -79,7 +80,7 @@ document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>
         a.click();    
         a.remove();
     })
-})
+}) */
 //createTable(1);
 /*
 <div class="col-12 col-md-auto">
