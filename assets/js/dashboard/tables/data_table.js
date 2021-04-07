@@ -1,10 +1,10 @@
 import {createPagination} from './utils/utils'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+let content = document.getElementById("data-table-content");
 export function createTable(page){
     update.startUpdate()
-    let content = document.getElementById("data-table-content");
-    content.innerHTML = "";
+    content.innerHTML = "Loading...";
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
@@ -19,6 +19,7 @@ export function createTable(page){
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
+        content.innerHTML = "";
         for (let element of data.data) {
             let tr = document.createElement("tr");
             var length = 150;

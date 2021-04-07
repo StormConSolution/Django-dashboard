@@ -1,8 +1,10 @@
 import config from "../config";
 import {update} from '../helpers/helpers'
 
+let div = document.querySelector("#sentiment-for-each-aspect")
 export function createGraph(){
     update.startUpdate()
+    div.innerHTML = "Loading..."
     var aspect_data = window.project_data.aspect_data;
     let positives = [];
     let negatives = [];
@@ -84,7 +86,8 @@ export function createGraph(){
             }
         }
     }
-    var chart = new ApexCharts(document.querySelector("#sentiment-for-each-aspect"), options);
+    div.innerHTML = ""
+    var chart = new ApexCharts(div, options);
     chart.render();
     update.finishUpdate()
 }

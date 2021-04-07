@@ -3,11 +3,13 @@ import {update} from '../helpers/helpers'
 import { getFilters } from "../helpers/filters";
 let chart;
 let def = 1;
+let div = document.querySelector("#sentiment-trend-graph")
 export function createGraph(){
     update.startUpdate()
     if(chart){
         chart.destroy()
     }
+    div.innerHTML = "Loading..."
     document.getElementById("sentiment-trend-total").innerHTML = 0
     document.getElementById("sentiment-trend-total-positives").innerHTML = 0
     document.getElementById("sentiment-trend-total-negatives").innerHTML = 0
@@ -76,10 +78,12 @@ export function createGraph(){
             document.getElementById("sentiment-trend-total").innerHTML = totalPositives + totalNegatives
             document.getElementById("sentiment-trend-total-positives").innerHTML = totalPositives
             document.getElementById("sentiment-trend-total-negatives").innerHTML = totalNegatives
+            div.innerHTML = ""
             chart = new ApexCharts(
-                document.querySelector("#sentiment-trend-graph"),
+                div,
                 chartOptions
             );
+            
             chart.render();
             update.finishUpdate()
         });

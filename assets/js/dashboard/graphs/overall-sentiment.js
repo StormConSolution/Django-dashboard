@@ -3,6 +3,7 @@ import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
 let chart
+let div = document.querySelector("#overall-sentiment-chart")
 function overallSentiment(data){
     var chartOptions = {
         colors: [config.positive, config.negative, config.neutral],
@@ -46,7 +47,7 @@ function overallSentiment(data){
         labels: ["Positive", "Negative", "Neutral"],
     };
     chartOptions.series = [data.positivesCount, data.negativesCount, data.neutralsCount]
-    chart = new ApexCharts(document.querySelector("#overall-sentiment-chart"), chartOptions);
+    chart = new ApexCharts(div, chartOptions);
     chart.render();
 }
 
@@ -73,8 +74,10 @@ export function createGraph(){
     if(chart){
         chart.destroy()
     }
+    div.innerHTML = "Loading..."
 
     fetch(`/api/project-overview/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
+        div.innerHTML = ""
         overallSentiment(data)
         aspectAndSourceCount(data)
         seeAllTotalItems(data)

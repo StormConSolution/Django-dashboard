@@ -7,9 +7,9 @@ export function createTable(page){
     makeTable(page)
 }
 
+let content = document.getElementById("aspect-topic-table-content");
 function makeTable(page){
-    let content = document.getElementById("aspect-topic-table-content");
-    content.innerHTML = "";
+    content.innerHTML = "Loading...";
     let pagination = document.getElementById("aspect-topic-table-pagination");
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
     pagination.innerHTML = ""
@@ -24,6 +24,7 @@ function makeTable(page){
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
+        content.innerHTML = ""
         for (let element of data.data) {
             let tr = document.createElement("tr");
             let row = `

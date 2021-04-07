@@ -8,6 +8,7 @@ export function createGraph() {
     if(chart){
         chart.destroy()
     }
+    document.querySelector("#aspect-by-sentiment").innerHTML = "Loading..."
     var chartOptions = {
         series: [],
         chart: {
@@ -127,7 +128,8 @@ export function createGraph() {
             chartOptions.yaxis.min =
                 -maxNegative - Math.round(maxNegative * 0.1);
             chartOptions.xaxis.categories = aspects;
-            chart = new ApexCharts(
+            document.querySelector("#aspect-by-sentiment").innerHTML = ""
+                chart = new ApexCharts(
                 document.querySelector("#aspect-by-sentiment"),
                 chartOptions
             );
