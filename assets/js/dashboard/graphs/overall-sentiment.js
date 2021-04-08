@@ -1,13 +1,24 @@
 import config from "../config";
 import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
+import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
 let chart
+let div = document.querySelector("#overall-sentiment-chart")
 function overallSentiment(data){
     var chartOptions = {
         colors: [config.positive, config.negative, config.neutral],
         chart: {
             height: 250,
             type: "donut",
+            events: {
+                dataPointSelection: function(event, chartContext, config) {
+                    let sentiment = config.w.config.labels[config.dataPointIndex].toLowerCase()
+                    let options = {}
+                    options.sentiment = sentiment
+                    document.querySelector("#data-table-modal").style.display = "block"
+                    dataTableModalPerSentiment(1, options)
+                }            
+            }
         },
         dataLabels: {
             enabled: false,
@@ -36,7 +47,7 @@ function overallSentiment(data){
         labels: ["Positive", "Negative", "Neutral"],
     };
     chartOptions.series = [data.positivesCount, data.negativesCount, data.neutralsCount]
-    chart = new ApexCharts(document.querySelector("#overall-sentiment-chart"), chartOptions);
+    chart = new ApexCharts(div, chartOptions);
     chart.render();
 }
 
@@ -57,14 +68,16 @@ export function createGraph(){
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
     })
     if(chart){
         chart.destroy()
     }
+    div.innerHTML = "Loading..."
 
     fetch(`/api/project-overview/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
+        div.innerHTML = ""
         overallSentiment(data)
         aspectAndSourceCount(data)
         seeAllTotalItems(data)

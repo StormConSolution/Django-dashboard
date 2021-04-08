@@ -3,7 +3,6 @@ import {update} from '../helpers/helpers'
 
 let chart
 function topicsPerAspect(maxTopicsPerAspect) {
-    document.querySelector("#top-topics-per-aspect").innerHTML = "";
     let data = topicsPerAspectData;
     for (aspect in data.aspects) {
         let series = [];
@@ -81,12 +80,14 @@ function topicsPerAspect(maxTopicsPerAspect) {
         // div.style.marginLeft = 'auto';
         document.querySelector("#top-topics-per-aspect").append(h2);
         document.querySelector("#top-topics-per-aspect").append(div);
+        document.querySelector("#top-topics-per-aspect").innerHTML = ""
         chart = new ApexCharts(div, options);
         chart.render();
     }
 
 }
 let topicsPerAspectData;
+document.querySelector("#top-topics-per-aspect").innerHTML = "Loading...";
 fetch('/topics-per-aspect/' + window.project_id + '/').then(response => response.json()).then(data => {
     topicsPerAspectData = data;
     topicsPerAspect(6);

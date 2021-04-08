@@ -49,12 +49,12 @@
                       <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
-                          <!--
-                            <span>Check All</span>
-                            <span>UnCheck All</span>
-                           --> 
+                          
+                            <span class="check-all">Check All</span>
+                            <span class="uncheck-all">UnCheck All</span>
+                           
                           </div>
-                          <div class="choose">
+                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
                             {% for language in languages %}
                             <div class=" ">
                               <input type="checkbox" class="" value="{{language}}" checked onclick="return true">
@@ -75,12 +75,12 @@
                       <div class="dropdown-menu" aria-labelledby="choose-sources" id="dropdown-sources">
                         <div class="choose-lang">
                           <div class="d-flex checkuncheck">
-                          <!--
-                            <span>Check All</span>
-                            <span>UnCheck All</span>
--->
+                          
+                            <span class="check-all">Check All</span>
+                            <span class="uncheck-all">UnCheck All</span>
+
                           </div>
-                          <div class="choose">
+                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
                             {% for sourceLabel in sourceLabels %}
                             <div class="">
                               <input type="checkbox" class="" value="{{sourceLabel}}" onclick="return true" checked>
@@ -309,6 +309,7 @@
               <div class="data-search">
                 <input type="text" class="form-control " placeholder="Search">
               </div>
+              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="aspect-topic-table-csv" target="_blank">Download CSV</a>
               </div>
 
             </div>
@@ -375,6 +376,7 @@
               <div class="data-search">
                 <input type="text" class="form-control " placeholder="Search">
               </div>
+              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="entities-table-csv" target="_blank">Download CSV</a>
               </div>
 
             </div>
@@ -447,6 +449,7 @@
               <div class="data-search">
                 <input type="text" class="form-control " placeholder="Search">
               </div>
+              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="data-items-table-csv" target="_blank">Download CSV</a>
               </div>
 
             </div>
@@ -456,7 +459,7 @@
                 <thead>
                   <tr>
                     <th scope="col">
-                      ENTITY <span class="data-short">
+                      DATE <span class="data-short">
                         <a href="#" class="active">
                           <i class="fe fe-chevron-up"></i>
                         </a>
@@ -755,6 +758,7 @@
               <div class="data-search">
                 <input type="text" class="form-control " placeholder="Search">
               </div>
+              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="data-modal-table-csv" target="_blank">Download CSV</a>
             <button type="button" class="close" aria-label="Close" id="close-data-table-modal">
                 <span aria-hidden="true" style="color:black;margin-left:1rem;">X</span>
 			</button>
@@ -767,7 +771,7 @@
                 <thead>
                   <tr id="data-table-modal-header-row">
                     <th scope="col">
-                      ENTITY <span class="data-short">
+                      DATE <span class="data-short">
                         <a href="#" class="active">
                           <i class="fe fe-chevron-up"></i>
                         </a>

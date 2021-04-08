@@ -2,10 +2,10 @@ import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+let content = document.getElementById("entity-table-content");
 export function createTable(page){
     update.startUpdate()
-    let content = document.getElementById("entity-table-content");
-    content.innerHTML = "";
+    content.innerHTML = "Loading...";
     let pagination = document.getElementById("entity-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
@@ -17,9 +17,11 @@ export function createTable(page){
         "languages": filtersValues.languages,
         "sources": filtersValues.sources
     })
+    document.getElementById("entities-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
+        content.innerHTML = ""
         for (let element of data.data) {
             let tr = document.createElement("tr");
             let row = `

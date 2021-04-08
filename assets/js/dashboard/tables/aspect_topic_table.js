@@ -7,9 +7,9 @@ export function createTable(page){
     makeTable(page)
 }
 
+let content = document.getElementById("aspect-topic-table-content");
 function makeTable(page){
-    let content = document.getElementById("aspect-topic-table-content");
-    content.innerHTML = "";
+    content.innerHTML = "Loading...";
     let pagination = document.getElementById("aspect-topic-table-pagination");
     let pageSize = document.getElementById("aspect-topic-table-page-size").value
     pagination.innerHTML = ""
@@ -20,9 +20,11 @@ function makeTable(page){
         "languages": filtersValues.languages,
         "sources": filtersValues.sources
     })
+    document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
+        content.innerHTML = ""
         for (let element of data.data) {
             let tr = document.createElement("tr");
             let row = `
@@ -59,6 +61,27 @@ function makeTable(page){
             update.finishUpdate()
     });
 }
+
+/* document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>{
+    let filtersValues = getFilters() 
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
+    })
+    fetch(`/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams)
+    .then(response => response.blob())
+    .then(blob => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "aspect_topic_breakdown.csv"
+        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+        a.click();    
+        a.remove();
+    })
+}) */
 //createTable(1);
 /*
 <div class="col-12 col-md-auto">

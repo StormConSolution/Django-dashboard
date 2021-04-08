@@ -1,8 +1,10 @@
 import config from "../config";
 
 import {update} from '../helpers/helpers'
+let div = document.querySelector("#co-occurrence-graph")
 export function createGraph(){
     update.startUpdate()
+    div.innerHTML = "Loading..."
     var chartOptions = {
         series: [],
         chart: {
@@ -85,8 +87,9 @@ export function createGraph(){
         .then((response) => response.json())
         .then((data) => {
             chartOptions.series = data
+            div.innerHTML = ""
             let chart = new ApexCharts(
-                document.querySelector("#co-occurrence-graph"),
+                div,
                 chartOptions
             );
             chart.render();

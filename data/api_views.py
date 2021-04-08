@@ -1,4 +1,5 @@
 import datetime
+import csv
 import json
 import math
 import data.charts as charts
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
@@ -284,9 +285,9 @@ def project_overview(request, project_id):
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
     query = """
-            select sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
+            select distinct sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clauses)
     with connection.cursor() as cursor:
-        cursor.execute(query, [project.id])
+        cursor.execute(query, [project_id])
         row = cursor.fetchone()
     data["positivesCount"] = row[0] or 0
     data["negativesCount"] = row[1] or 0
@@ -321,7 +322,6 @@ def volume_by_source(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clauses) + """ group by ds.id order by count(ds.id) desc limit 10;""", [project.id])
-        print(cursor.query)
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -406,13 +406,13 @@ def sentiment_per_aspect(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     where_clause = [
-        'dd.source_id = ds.id and '
+        'dd.source_id = ds.id ',
         'da.data_id = dd.id',
         'dd.project_id = %s',
     ]
     response = []
     with connection.cursor() as cursor:
-        cursor.execute("""select da."label", count(data_id),sum(case when da.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when da.sentiment < 0 then 1 else 0 end) as NegCount from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by da."label" """ , [project_id])
+        cursor.execute("""select da."label", count( da."label"),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by (da."label") """ , [project_id])
         rows = cursor.fetchall()
     
     for row in rows:
@@ -432,13 +432,22 @@ def data(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    filtersSQL = getFiltersSQL(request)
     where_clause = [
         "dd.project_id = %s"
     ]
+
+    sentiment = request.GET.get("sentiment", "")
+
+    if sentiment == "positive":
+        where_clause.append("dd.sentiment > 0")
+    if sentiment == "negative":
+        where_clause.append("dd.sentiment < 0")
+    if sentiment == "neutral":
+        where_clause.append("dd.sentiment = 0")
+
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project.id])
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
@@ -446,17 +455,45 @@ def data(request, project_id):
     total_pages = math.ceil(total_data / page_size)
 
     where_clause = [
-        "project_id = %s"
+        "dd.project_id = %s"
     ]
+    sentiment = request.GET.get("sentiment", "")
+
+    if sentiment == "positive":
+        where_clause.append("dd.sentiment > 0")
+    if sentiment == "negative":
+        where_clause.append("dd.sentiment < 0")
+    if sentiment == "neutral":
+        where_clause.append("dd.sentiment = 0")
+    
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc limit %s offset %s;""", [project.id, page_size, offset])
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page
-    response["totalData"] = total_data
+    response["total"] = total_data
     response["totalPages"] = total_pages
     response["pageSize"] = page_size
     for row in rows:
@@ -471,6 +508,80 @@ def data(request, project_id):
 
     return JsonResponse(response, safe=False)
 
+@login_required(login_url=LOGIN_URL)
+def data_per_aspect(request, project_id):
+    page_size = int(request.GET.get("page-size", 10))
+    page = int(request.GET.get("page", 1))
+    project = get_object_or_404(data_models.Project, pk=project_id)
+    if project.users.filter(pk=request.user.id).count() == 0:
+        raise PermissionDenied
+
+    aspect_label = parse.unquote(request.GET.get("aspect-label"))
+    sentiment = request.GET.get("sentiment", "")
+
+    response_format = request.GET.get("format", "")
+
+    where_clause = [
+        "dd.project_id = %s",
+        "da.data_id = dd.id",
+        "da.label = %s"
+    ]
+    if sentiment == "positive":
+        where_clause.append("dd.sentiment > 0")
+    if sentiment == "negative":
+        where_clause.append("dd.sentiment < 0")
+    if sentiment == "neutral":
+        where_clause.append("dd.sentiment = 0")
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause), [project.id, aspect_label])
+        row = cursor.fetchone()
+    total_data = int(row[0])
+
+    offset = (page - 1) * page_size
+    total_pages = math.ceil(total_data / page_size)
+
+    limit_offset_clause = ""
+    query_args = []
+    query_args.append(project_id)
+    query_args.append(aspect_label)
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc """ + limit_offset_clause, query_args)
+        rows = cursor.fetchall()
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items_per_aspect.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
+
+    response={}
+    response["data"] = []
+    response["currentPage"] = page
+    response["total"] = total_data
+    response["totalPages"] = total_pages
+    response["pageSize"] = page_size
+    for row in rows:
+        response["data"].append({
+            "dateCreated": row[0],
+            "text": row[1],
+            "sourceLabel": row[2],
+            "weightedScore": row[3],
+            "sentimentValue": row[4],
+            "languageCode": row[5]
+        })
+
+    return JsonResponse(response, safe=False)
+    
 @login_required(login_url=LOGIN_URL)
 def entity_classification_count(request, project_id):
     user = request.user
@@ -493,13 +604,30 @@ def entity_classification_count(request, project_id):
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
-
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc limit %s offset %s;
-""", [project.id, page_size, offset])
+            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc 
+""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items_entities_classification_frequency.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Entity', "Classification", "Frequency"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -537,12 +665,28 @@ def aspect_topic(request, project_id):
 
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
-
+    response_format = request.GET.get("format", "")
+    query_args = [
+        project_id
+    ]
+    limit_offset_clause = ""
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc limit %s offset %s;""", [project.id, page_size, offset])
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
-    
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="aspect_topic_breakdown.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Topic', "Aspect", "Positives", "Negatives"])
+        for row in rows:
+            writer.writerow([row[1], row[0], row[3], row[4]])
+        return response
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -637,11 +781,33 @@ def data_per_classification_and_entity(request, project_id):
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
 
+    response_format = request.GET.get("format", "")
+    limit_offset_clause = ""
+  
+    query_args = []
+    query_args.append(project_id)
+    query_args.append(entity)
+    query_args.append(classification)
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+
     with connection.cursor() as cursor:
         cursor.execute("""
-        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """,
-                       [project.id, entity, classification, page_size, offset])
+        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause,
+                       query_args)
         rows = cursor.fetchall()
+
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_per_classification_and_entity.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
 
     response = {}
     response["data"] = []
@@ -672,38 +838,67 @@ def data_per_aspect_topic(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    aspect_label = parse.unquote(request.GET.get("aspect-label"))
-    topic_label = parse.unquote(request.GET.get("topic-label"))
+    where_clause = [
+        "dd.project_id = %s"
+    ]
+    query_args = []
+    aspect_label = parse.unquote(request.GET.get("aspect-label", ""))
+    topic_label = parse.unquote(request.GET.get("topic-label", ""))
     sentiment = request.GET.get("sentiment")
     sentiment_filter = ""
     if sentiment == "positive":
         sentiment_filter = "dd.sentiment > 0"
+        where_clause.append(sentiment_filter)
     elif sentiment == "negative":
         sentiment_filter = "dd.sentiment < 0"
+        where_clause.append(sentiment_filter)
 
-    where_clause = [
-        "dd.project_id = %s",
-        'da."label" = %s',
-        "da.topic = %s",
-        sentiment_filter
-    ]
-    filtersSQL = getFiltersSQL(request)
+
+    query_args.append(project_id)
+
+    if aspect_label != "":
+        where_clause.append('da."label" = %s')
+        query_args.append(aspect_label)
+    
+    if topic_label != "":
+        where_clause.append("da.topic = %s")
+        query_args.append(topic_label)
+    
+    response_format = request.GET.get("format", "")
+
+    
     with connection.cursor() as cursor:
         cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause),
-                       [project.id, aspect_label, topic_label])
+                       query_args)
 
         row = cursor.fetchone()
     total = int(row[0])
     offset = (page - 1) * page_size
     total_pages = math.ceil(total / page_size)
+    limit_offset_clause = ""
 
-    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc limit %s offset %s """
+    if response_format != "csv":
+        limit_offset_clause = """ limit %s offset %s;"""
+        query_args.append(page_size)
+        query_args.append(offset)
+    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
 
     with connection.cursor() as cursor:
         cursor.execute(query,
-                       [project.id, aspect_label, topic_label, page_size, offset])
+                       query_args)
         rows = cursor.fetchall()
 
+    if response_format == "csv":
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data_items_per_aspect_topic.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        return response
+
+  
     response = {}
     response["data"] = []
     response["currentPage"] = page

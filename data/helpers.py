@@ -26,7 +26,7 @@ def getFiltersSQL2(request):
     where_clauses = []
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
-    languages = request.GET.get("languages").split(",")
+    languages =parse.unquote(request.GET.get("languages")).split(",")
     sources = parse.unquote(request.GET.get("sources")).split(",")
     if not dateFrom:
         dateFrom = ""

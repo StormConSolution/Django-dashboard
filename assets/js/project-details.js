@@ -51,3 +51,25 @@ for(let sourceCheckbox of sourcesCheckbox){
         updateProjectDetailsPage()
     })
 }
+
+document.querySelectorAll(".check-all").forEach((element) => {
+    element.addEventListener("click", (e)=> {
+        
+        let parent = e.target.parentNode.parentNode
+        
+        parent.querySelectorAll("input").forEach((input) => {
+            input.checked = true
+        })
+        updateProjectDetailsPage()
+    })
+})
+
+document.querySelectorAll(".uncheck-all").forEach((element) => {
+    element.addEventListener("click", (e)=> {
+        let parent = e.target.parentNode.parentNode
+        parent.querySelectorAll("input").forEach((input) => {
+            input.checked = false
+        })
+        updateProjectDetailsPage()
+    })
+})

@@ -1,10 +1,10 @@
 import {createPagination} from './utils/utils'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+let content = document.getElementById("data-table-content");
 export function createTable(page){
     update.startUpdate()
-    let content = document.getElementById("data-table-content");
-    content.innerHTML = "";
+    content.innerHTML = "Loading...";
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
@@ -12,12 +12,14 @@ export function createTable(page){
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
     })
+    document.getElementById("data-items-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
+        content.innerHTML = "";
         for (let element of data.data) {
             let tr = document.createElement("tr");
             var length = 150;
@@ -52,7 +54,7 @@ export function createTable(page){
         }
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
-        createPagination(firstElement, lastElement, data.totalData, data.currentPage, data.totalPages, pagination, createTable);
+        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
         update.finishUpdate()
     });
 }

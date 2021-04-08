@@ -6,6 +6,15 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
+    document.getElementById("data-modal-table-csv").href = `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
+        "aspect-label": encodeURIComponent(aspectLabel),
+        "topic-label": encodeURIComponent(topicLabel),
+        "sentiment": sentiment,
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources)
+    })
     fetch(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
         "aspect-label": encodeURIComponent(aspectLabel),
         "topic-label": encodeURIComponent(topicLabel),
