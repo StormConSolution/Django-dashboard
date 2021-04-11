@@ -37,13 +37,18 @@ class ChartType(models.Model):
     def __str__(self):
         return self.label
 
-
 class AspectModel(models.Model):
-    label = models.CharField(max_length=80, blank=False, unique=True)
-
+    label = models.CharField(max_length=80, blank=False)
+    users = models.ManyToManyField(User, blank=True)
     def __str__(self):
         return self.label
 
+class AspectRule(models.Model):
+    rule_name = models.CharField(max_length=80, blank=False)
+    definition = models.TextField()
+    aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
+    class Meta:
+        unique_together=('rule_name', 'aspect_model')
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
