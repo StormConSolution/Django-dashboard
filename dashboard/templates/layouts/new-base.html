@@ -253,7 +253,7 @@
                                 aria-placeholder="Choose From Existing Aspects"
                                 name="aspect-id"
                             >
-                                <option>Choose From Existing Aspects</option>
+                                <option value="-1">Choose From Existing Aspects</option>
                                 {% for aspect in aspects %}
                                     <option value="{{aspect.id}}">{{aspect.label}}</option>
                                 {% endfor %}

@@ -321,8 +321,12 @@ class Projects(View):
         user = request.user
         project_name = request.POST.get("project-name")
         aspect_id = request.POST.get("aspect-id")
-        aspect = data_models.AspectModel.objects.get(pk=aspect_id)
-        project = data_models.Project(aspect_model=aspect, name=project_name)
+        if aspect_id != "-1":
+            aspect = data_models.AspectModel.objects.get(pk=aspect_id)
+            project = data_models.Project(aspect_model=aspect, name=project_name)
+        else:
+            project = data_models.Project(name=project_name)
+        
         project.save()
         project.users.add(user)
         project.save()
