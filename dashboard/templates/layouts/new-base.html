@@ -254,7 +254,7 @@
                                 name="aspect-id"
                             >
                                 <option value="-1">Choose From Existing Aspects</option>
-                                {% for aspect in aspects %}
+                                {% for aspect in all_aspects %}
                                     <option value="{{aspect.id}}">{{aspect.label}}</option>
                                 {% endfor %}
                             </select>

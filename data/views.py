@@ -314,6 +314,10 @@ class Projects(View):
         context["projects_data"] = projects
         context["projects_count"] = len(projects)
         context["user"] = user
+        context["all_aspects"] = []
+        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        for aspect in all_aspects:
+            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
         return render(request, "projects.html", context)
     
     @method_decorator(login_required)
@@ -330,7 +334,7 @@ class Projects(View):
         project.save()
         project.users.add(user)
         project.save()
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return redirect("new-project-details", project.id)
 
 @login_required(login_url=LOGIN_URL)
 def new_project_details(request, project_id):
@@ -348,7 +352,10 @@ def new_project_details(request, project_id):
     context["user"] = user
     context["sourceLabels"] = []
     context["languages"] = []
-
+    context["all_aspects"] = []
+    all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+    for aspect in all_aspects:
+        context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
     source_query = """select distinct (ds.id) , ds."label", count(ds.id) from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
@@ -557,8 +564,12 @@ class AspectsList(View):
         aspect_list = data_models.AspectModel.objects.filter(users=user).order_by("label", "id")
         context = {}
         context["aspects"] = []
+        context["all_aspects"] = []
         p = Paginator(aspect_list, page_size)
         page = p.page(page_number)
+        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        for aspect in all_aspects:
+            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
         for aspect in page.object_list:
             rules_list = []
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
