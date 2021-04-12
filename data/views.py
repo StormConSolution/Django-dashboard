@@ -558,8 +558,8 @@ class AspectsList(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        page_number = request.GET.get("page", 1)
-        page_size = request.GET.get("page-size", 10)
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
         user = request.user
         aspect_list = data_models.AspectModel.objects.filter(users=user).order_by("label", "id")
         context = {}
@@ -579,7 +579,7 @@ class AspectsList(View):
             context["aspects"].append({"id":aspect.id, "label": aspect.label, "rules":rules_list,"projects":projects})
         projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
         context["projects_data"] = projects
-        context["page"] = p.get_page(1)
+        context["page"] = p.get_page(page_number)
         context["paginator"] = p
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
