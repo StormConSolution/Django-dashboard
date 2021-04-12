@@ -70,7 +70,7 @@
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export data</a>
           </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#"> <i class="fe fe-hash"></i> Manage Aspect</a>
+                  <a class="nav-link" href="{% url 'aspects' %}"> <i class="fe fe-hash"></i> Manage Aspect</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#"> <i class="fe fe-crosshair"></i> Manage Sentiment</a>
@@ -121,7 +121,184 @@
             {% endfor %}
         </ul>
     </div>
+<!-- Upload-data modal start -->
+<div
+    class="modal fade"
+    id="uploaddata"
+    tabindex="-1"
+    aria-labelledby="uploaddataLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploaddataLabel">Upload Data</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i class="fe fe-x-circle"></i>
+                </button>
+            </div>
 
+            <div class="modal-body">
+                <div class="modal-data">
+                    <form>
+                        <div class="form-group">
+                            <label for="selectaspect" class="form-label"
+                                >Select Project</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="selectaspect"
+                                aria-placeholder="Choose From Existing Aspects"
+                            >
+                                <option>Choose From Existing Project</option>
+                                <option value="1">Royal Enfiled</option>
+                                <option value="2">Rolex</option>
+                            </select>
+                            <small
+                                id="emailHelp"
+                                class="form-text extra-text text-right"
+                            >
+                                Don't have aspect?
+                                <a href="#">Create Project</a>
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"
+                                >Upload data or Link spreadsheet</label
+                            >
+                            <div class="drganddrop mb-2">
+                                Drag and drop, or <b>browse</b> your files
+                            </div>
+                            <small class="form-text extra-text mb-2">
+                                OR url link to existing spreadsheet somewhere
+                            </small>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="fileurl"
+                                placeholder="Enter Spreadsheet URL"
+                            />
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Add Data <i class="fe fe-upload"></i>
+                            </button>
+                            <span class="extra-text ml-auto">
+                                Need help? <a href="#">Click here</a>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- upload-data modal End -->
+
+<!-- create-project modal start -->
+<div
+    class="modal fade"
+    id="createproject"
+    tabindex="-1"
+    aria-labelledby="createprojectLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createprojectLabel">
+                    Create New Project
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i class="fe fe-x-circle"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-data">
+                    <form method="POST" action="{% url 'new-projects' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="projectname" class="form-label"
+                                >Name of new project</label
+                            >
+
+                            <input
+                                type="text"
+                                name="project-name"
+                                class="form-control"
+                                id="projectname"
+                                placeholder="Enter Name"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="selectaspect" class="form-label"
+                                >Select Aspect</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="selectaspect"
+                                aria-placeholder="Choose From Existing Aspects"
+                                name="aspect-id"
+                            >
+                                <option value="-1">Choose From Existing Aspects</option>
+                                {% for aspect in all_aspects %}
+                                    <option value="{{aspect.id}}">{{aspect.label}}</option>
+                                {% endfor %}
+                            </select>
+                            <small
+                                id="emailHelp"
+                                class="form-text extra-text text-right"
+                            >
+                                Don't have aspect? <a href="{% url 'aspects' %}">Create Aspect</a>
+                            </small>
+                        </div>
+
+{% comment %}                         <div class="form-group">
+                            <label class="form-label"
+                                >Upload data or Link spreadsheet</label
+                            >
+                            <div class="drganddrop mb-2">
+                                Drag and drop, or <b>browse</b> your files
+                            </div>
+                            <small class="form-text extra-text mb-2">
+                                OR url link to existing spreadsheet somewhere
+                            </small>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="fileurl"
+                                placeholder="Enter Spreadsheet URL"
+                            />
+                        </div> {% endcomment %}
+
+                        <div class="d-flex flex-wrap align-items-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Add New Project <i class="fe fe-plus"></i>
+                            </button>
+                            <span class="extra-text ml-auto">
+                                Need help? <a href="#">Click here</a>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- create-project modal End -->
 
 
     <!-- js -->
@@ -162,7 +339,9 @@
   var input = document.querySelector('input[name=basic]');
   
   // initialize Tagify on the above input node reference
-  new Tagify(input)
+  new Tagify(input,{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+            })
   })()
   </script>
 
@@ -172,7 +351,9 @@
   var input = document.querySelector('input[name=basic1]');
   
   // initialize Tagify on the above input node reference
-  new Tagify(input)
+  new Tagify(input,{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+            })
   })()
   </script>
 
@@ -182,7 +363,9 @@
             var input = document.querySelector("input[name=basic1]");
 
             // initialize Tagify on the above input node reference
-            new Tagify(input);
+            new Tagify(input,{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+            });
         })();
     </script>
 
@@ -214,10 +397,12 @@
       <script data-name="basic">
         (function () {
             // The DOM element you wish to replace with Tagify
-            var input = document.querySelector("input[name=basic]");
+            var input = document.querySelector(".tagify");
 
             // initialize Tagify on the above input node reference
-            new Tagify(input);
+            new Tagify(input,{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+            });
         })();
     </script>
 

@@ -26,8 +26,10 @@ urlpatterns = [
     #path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('projects/<int:project_id>/', views.projects, name='projects'),
-    path('new-projects/', views.new_projects, name='new-projects'),
+    path('new-projects/', views.Projects.as_view(), name='new-projects'),
     path('new-projects/<int:project_id>/', views.new_project_details, name='new-project-details'),
+    path('aspect/', views.AspectsList.as_view(), name='aspects'),
+    path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
 
     path('projects/<int:project_id>/',

@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect, QueryDict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
@@ -18,6 +18,12 @@ from django.forms.models import model_to_dict
 from data import models as data_models
 from data import charts
 from django.db.models.functions import Coalesce
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from django.http.multipartparser import MultiPartParser
+
 LOGIN_URL = '/login/'
 
 MAX_TEXT_LENGTH = 30
@@ -291,23 +297,44 @@ def projects(request, project_id):
 
     return render(request, "project.html", context)
 
-@login_required(login_url=LOGIN_URL)
-def new_projects(request):
-    user = request.user
-    projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
-    for project in projects:
-        data = data_models.Data.objects.filter(project=project["id"]).aggregate(
-        positive_count=Coalesce(Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0), 
-        negative_count=Coalesce(Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()),0),
-        neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
-        #print(data)
-        project.update(data)
-        #print(project)
-    context={}
-    context["projects_data"] = projects
-    context["projects_count"] = len(projects)
-    context["user"] = user
-    return render(request, "projects.html", context)
+class Projects(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        user = request.user
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        for project in projects:
+            data = data_models.Data.objects.filter(project=project["id"]).aggregate(
+            positive_count=Coalesce(Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0), 
+            negative_count=Coalesce(Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()),0),
+            neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
+            #print(data)
+            project.update(data)
+            #print(project)
+        context={}
+        context["projects_data"] = projects
+        context["projects_count"] = len(projects)
+        context["user"] = user
+        context["all_aspects"] = []
+        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        for aspect in all_aspects:
+            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+        return render(request, "projects.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        project_name = request.POST.get("project-name")
+        aspect_id = request.POST.get("aspect-id")
+        if aspect_id != "-1":
+            aspect = data_models.AspectModel.objects.get(pk=aspect_id)
+            project = data_models.Project(aspect_model=aspect, name=project_name)
+        else:
+            project = data_models.Project(name=project_name)
+        
+        project.save()
+        project.users.add(user)
+        project.save()
+        return redirect("new-project-details", project.id)
 
 @login_required(login_url=LOGIN_URL)
 def new_project_details(request, project_id):
@@ -325,7 +352,10 @@ def new_project_details(request, project_id):
     context["user"] = user
     context["sourceLabels"] = []
     context["languages"] = []
-
+    context["all_aspects"] = []
+    all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+    for aspect in all_aspects:
+        context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
     source_query = """select distinct (ds.id) , ds."label", count(ds.id) from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
@@ -522,3 +552,142 @@ def topics_per_aspect(request, project_id):
             aux = {'topic': row[1], 'count': row[2]}
             response_data['aspects'][row[0]]['topics'].append(aux)
     return JsonResponse(response_data, safe=False)
+
+class AspectsList(View):
+    #@login_required(login_url=LOGIN_URL)
+
+    @method_decorator(login_required)
+    def get(self, request):
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        user = request.user
+        aspect_list = data_models.AspectModel.objects.filter(users=user).order_by("label", "id")
+        context = {}
+        context["aspects"] = []
+        context["all_aspects"] = []
+        p = Paginator(aspect_list, page_size)
+        page = p.page(page_number)
+        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        for aspect in all_aspects:
+            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+        for aspect in page.object_list:
+            rules_list = []
+            rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
+            for rule in rules:
+                rules_list.append(rule.__dict__)
+            projects = data_models.Project.objects.all().filter(users=user,aspect_model=aspect).values("name", "id")
+            context["aspects"].append({"id":aspect.id, "label": aspect.label, "rules":rules_list,"projects":projects})
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        return render(request, "aspect-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        aspect_label = request.POST.get("aspect-label", "")
+        rule_names = request.POST.getlist("rule-name")
+        rule_definitions = request.POST.getlist("rule-definition")
+
+
+        if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
+            return HttpResponse(status=409)
+         
+        aspect_model = data_models.AspectModel(label=aspect_label)
+        aspect_model.save() 
+        aspect_model.users.add(user)
+
+        
+        count = 0
+        for rule_name in rule_names:
+            aspect_definition = data_models.AspectRule(rule_name=rule_name, definition=rule_definitions[count], aspect_model=aspect_model) 
+            aspect_definition.save()
+        #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
+        
+        #print(aspect_name, rule_name, rule_definition)
+        return redirect("aspects")
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Aspect(View):
+    #@login_required(login_url=LOGIN_URL)
+    @method_decorator(login_required)
+    def delete(self, request, aspect_id):
+        user = request.user
+        aspect_label = request.POST.get("aspect-label", "")
+        rule_names = request.POST.getlist("rule-name")
+        rule_definitions = request.POST.getlist("rule-definition")
+
+        aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
+        if aspect.count() == 0:
+            return HttpResponse(status=403)
+
+       
+        aspect.delete()
+        return HttpResponse(status=200)
+
+    @method_decorator(login_required)
+    def get(self, request, aspect_id):
+        user = request.user
+
+        aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
+        if aspect.count() == 0:
+            return HttpResponse(status=403)
+        aspect = aspect.get()
+        rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
+        response = {}
+        response["aspect_id"] = aspect.id
+        response["aspect_label"] = aspect.label
+        response["rules"] = []
+        for rule in rules:
+            response["rules"].append({"rule_label":rule.rule_name, "rule_definitions":rule.definition, "rule_id":rule.id})
+        return JsonResponse(response, safe=False)
+    
+    @method_decorator(login_required)
+    def post(self, request, aspect_id):
+        method = request.POST.get("_method", "")
+        if method == "PUT":
+            return self.put(request, aspect_id)
+        return HttpResponse("test")
+
+    @method_decorator(login_required)
+    def put(self, request, aspect_id):
+        user = request.user
+        aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
+        aspect_label = request.POST.get("aspect-label", "")
+        rule_names = request.POST.getlist("rule-name")
+        rule_definitions = request.POST.getlist("rule-definition")
+        rules_id = request.POST.getlist("rule-id", "")
+
+        if aspect.count() == 0:
+            return HttpResponse(status=403)
+
+        aspect = aspect.get()
+        aspect.label = aspect_label
+        aspect.save()
+        rules = data_models.AspectRule.objects.all().filter(aspect_model=aspect)
+
+        for rule in rules:
+            rule_id = str(rule.id)
+            if rule_id not in rules_id:
+                rule.delete()
+                continue
+        rules_len = len(rules_id)
+        count = 0
+        for rule_name in rule_names:
+            if count >= rules_len:
+                new_rule = data_models.AspectRule(rule_name=rule_names[count], definition=rule_definitions[count], aspect_model=aspect)
+                new_rule.save()
+                continue
+            rule_id = rules_id[count]
+            rule_to_change = data_models.AspectRule.objects.filter(aspect_model=aspect, pk=rule_id)
+            if rule_to_change.count() !=0:
+                rule_to_change = rule_to_change.get()
+                rule_to_change.definition = rule_definitions[count]
+                rule_to_change.label = rule_names[count]
+                rule_to_change.save()
+            count = count + 1
+        return HttpResponse(status=200)
