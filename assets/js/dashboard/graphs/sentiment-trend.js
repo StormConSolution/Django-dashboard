@@ -1,43 +1,10 @@
 import config from "../config";
-import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
+import {update} from '../helpers/helpers'
 import { getFilters } from "../helpers/filters";
 let chart;
 let def = 1;
-let html = `
-        <div class="project-card-inner">
-        <div class="chart-title  align-items-center d-flex flex-wrap">
-            <h4 class="col p-0 sentiment-trend ">Sentiment
-            Trend <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                <i class="fe fe-help-circle"></i>
-            </a> </h4>
-            <div class="col-auto ml-auto p-0">
-            <div class="row">
-                <div class="col chart-total-data">
-                <h2 id="sentiment-trend-total">0</h2>
-                <span>Total positives and negatives </span>
-                </div>
-                <div class="col chart-positive-data">
-                <h2 id="sentiment-trend-total-positives">0</h2>
-                <span>Total positive</span>
-                </div>
-                <div class="col chart-negative-data">
-                <h2 id="sentiment-trend-total-negatives">0</h2>
-                <span>Total negative</span>
-                </div>
-            </div>
-            </div>
-
-        </div>
-        <div class="chart-wrap">
-            <div id="sentiment-trend-graph" >
-
-            </div>
-        </div>
-        </div>
-        `
+let div = document.querySelector("#sentiment-trend-graph")
 export function createGraph(){
-    createHTML(html)
-    let div = document.querySelector("#sentiment-trend-graph")
     update.startUpdate()
     if(chart){
         chart.destroy()

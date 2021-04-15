@@ -19,15 +19,12 @@ function canUpdate(){
 }
 let updateCount = 0
 
-export function createHTMLForGraphsContainer(html){
-    let container = document.querySelector("#graphs-container")
-    let div = document.createElement("div")
-    div.className = "col-12 project-card"
-    div.innerHTML = html
-    container.append(div)
+export function hideAllGraphsTables(){
+    document.querySelectorAll("[data-role='graph-table-container']").forEach((element) => {
+        element.style.display="none"
+    })
 }
 
-export function resetGraphsTablesContainer(){
-    let container = document.querySelector("#graphs-container")
-    container.innerHTML = ""
+export function showGraphTable(data_graph_table){
+    document.querySelector(`[data-graph-table="${data_graph_table}"]`).style.display="block"
 }

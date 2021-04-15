@@ -1,25 +1,9 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
-import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
+import {update} from '../helpers/helpers'
 import {createTable as dataPerAspectTable} from '../tables/data_table_modal_per_aspect'
-let html = `
-<div class="col-12 project-card" id="aspect-graph">
-<div class="project-card-inner">
-  <div class="chart-title  align-items-center d-flex flex-wrap">
-    <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-        <i class="fe fe-help-circle"></i>
-      </a> </h4>
-  </div>
-  <div class="aspects-list">
-    <ul class="flex-wrap" id="aspect-count-graphs">
-    </ul>
-  </div>
-</div>
-</div>
-`
 let chart
 export function createGraph(){
-    createHTML(html)
     update.startUpdate()
     if(chart){
         chart.destroy()

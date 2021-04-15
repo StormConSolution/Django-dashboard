@@ -1,7 +1,7 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
-import {update, resetGraphsTablesContainer} from './dashboard/helpers/helpers'
+import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers'
 let timeOut
 let currentTab = "overview-tab"
 function updateProjectTables(){
@@ -14,33 +14,14 @@ function updateGraphs(){
     graphs.aspectCountGraph()
     graphs.coOccurrenceGraph()
     graphs.overallSentimentGraph()
+    graphs.sentimentTrendGraph()
     graphs.volumeBySourceGraph()
 }
 
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
-        resetGraphsTablesContainer()
-        switch(currentTab){
-            case "overview-tab":
-                graphs.overallSentimentGraph()
-                graphs.sentimentTrendGraph()
-                break
-            case "sentiment-tab":
-                break
-            case "aspect-tab":
-                graphs.aspectCountGraph()
-                graphs.aspectBySentimentGraph()
-                graphs.coOccurrenceGraph()
-                tables.aspectTopicTable(1)
-                break
-            case "entity-tab":
-                tables.entityTable(1)
-                break
-            case "sources-tab":
-                graphs.volumeBySourceGraph()
-                tables.dataTable(1)
-                break
-        }
+        updateProjectTables()
+        updateGraphs()
     } else {
         if(timeOut){
             clearTimeout(timeOut)
@@ -49,6 +30,7 @@ function updateProjectDetailsPage(){
     }
 }
 
+updateProjectDetailsPage()
 
 document.getElementById("date-from").addEventListener("change", (e)=>{
     updateProjectDetailsPage()
@@ -93,25 +75,49 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
     })
 })
 
+function showHideGraphsTables(){
+    hideAllGraphsTables()
+    switch(currentTab){
+        case "overview-tab":
+            showGraphTable("overall-sentiment")
+            showGraphTable("sentiment-trend")
+            break
+        case "sentiment-tab":
+            break
+        case "aspect-tab":
+            showGraphTable("aspect-count")
+            showGraphTable("aspect-by-sentiment")
+            showGraphTable("aspect-co-occurrence")
+            showGraphTable("aspect-topic")
+            break
+        case "entity-tab":
+            showGraphTable("entities-table")
+            break
+        case "sources-tab":
+            showGraphTable("volume-by-source")
+            showGraphTable("data-table")
+            break
+    }
+}
+
+showHideGraphsTables()
 document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
-    updateProjectDetailsPage()
+    showHideGraphsTables()
 })
 document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
     currentTab = "sentiment-tab"
-    updateProjectDetailsPage()
+    showHideGraphsTables()
 })
 document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
     currentTab = "aspect-tab"
-    updateProjectDetailsPage()
+    showHideGraphsTables()
 })
 document.querySelector("#entity-tab").addEventListener("click", (e)=>{
     currentTab = "entity-tab"
-    updateProjectDetailsPage()
+    showHideGraphsTables()
 })
 document.querySelector("#sources-tab").addEventListener("click", (e)=>{
     currentTab = "sources-tab"
-    updateProjectDetailsPage()
+    showHideGraphsTables()
 })
-
-updateProjectDetailsPage()

@@ -1,5 +1,4 @@
 import config from "../config";
-import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
 let chart;
 let div =  document.getElementById("sentiment-for-each-entity")
 function createSentimentPerEntityGraph(max_entities) {
