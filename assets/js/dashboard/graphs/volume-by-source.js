@@ -1,11 +1,27 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
-import {update} from '../helpers/helpers'
+import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
 import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal_volume_by_source'
 let chart
-let div = document.querySelector("#volume-by-source")
+let html = `
+<div class="col-12 project-card">
+<div class="project-card-inner">
+  <div class="chart-title  align-items-center d-flex flex-wrap">
+    <h4>Volume By Source <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+        <i class="fe fe-help-circle"></i>
+      </a> </h4>
+  </div>
+  <div class="chart-wrap">
+    <div id="volume-by-source" >
+    </div>
+  </div>
+</div>
+</div
+`
 export function createGraph(){
     update.startUpdate()
+    createHTML(html)
+    let div = document.querySelector("#volume-by-source")
     if(chart){
         chart.destroy()
     }

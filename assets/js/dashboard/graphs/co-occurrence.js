@@ -1,9 +1,26 @@
 import config from "../config";
 
-import {update} from '../helpers/helpers'
-let div = document.querySelector("#co-occurrence-graph")
+import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
+let html = 
+`
+<div class="col-12 project-card">
+<div class="project-card-inner">
+  <div class="chart-title  align-items-center d-flex flex-wrap">
+    <h4>Aspect Co-Occurrence (last 30 days of data) <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+        <i class="fe fe-help-circle"></i>
+      </a> </h4>
+  </div>
+  <div class="chart-wrap">
+    <div id="co-occurrence-graph" >
+    </div>
+  </div>
+</div>
+</div>
+`
 export function createGraph(){
+    createHTML(html)
     update.startUpdate()
+    let div = document.querySelector("#co-occurrence-graph")
     div.innerHTML = "Loading..."
     var chartOptions = {
         series: [],

@@ -1,8 +1,9 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
-import {update} from './dashboard/helpers/helpers'
+import {update, resetGraphsTablesContainer} from './dashboard/helpers/helpers'
 let timeOut
+let currentTab = "overview-tab"
 function updateProjectTables(){
     tables.aspectTopicTable(1)
     tables.dataTable(1)
@@ -13,14 +14,33 @@ function updateGraphs(){
     graphs.aspectCountGraph()
     graphs.coOccurrenceGraph()
     graphs.overallSentimentGraph()
-    graphs.sentimentTrendGraph()
     graphs.volumeBySourceGraph()
 }
 
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
-        updateProjectTables()
-        updateGraphs()
+        resetGraphsTablesContainer()
+        switch(currentTab){
+            case "overview-tab":
+                graphs.overallSentimentGraph()
+                graphs.sentimentTrendGraph()
+                break
+            case "sentiment-tab":
+                break
+            case "aspect-tab":
+                graphs.aspectCountGraph()
+                graphs.aspectBySentimentGraph()
+                graphs.coOccurrenceGraph()
+                tables.aspectTopicTable(1)
+                break
+            case "entity-tab":
+                tables.entityTable(1)
+                break
+            case "sources-tab":
+                graphs.volumeBySourceGraph()
+                tables.dataTable(1)
+                break
+        }
     } else {
         if(timeOut){
             clearTimeout(timeOut)
@@ -29,7 +49,6 @@ function updateProjectDetailsPage(){
     }
 }
 
-updateProjectDetailsPage()
 
 document.getElementById("date-from").addEventListener("change", (e)=>{
     updateProjectDetailsPage()
@@ -73,3 +92,26 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
         updateProjectDetailsPage()
     })
 })
+
+document.querySelector("#overview-tab").addEventListener("click", (e)=>{
+    currentTab = "overview-tab"
+    updateProjectDetailsPage()
+})
+document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
+    currentTab = "sentiment-tab"
+    updateProjectDetailsPage()
+})
+document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
+    currentTab = "aspect-tab"
+    updateProjectDetailsPage()
+})
+document.querySelector("#entity-tab").addEventListener("click", (e)=>{
+    currentTab = "entity-tab"
+    updateProjectDetailsPage()
+})
+document.querySelector("#sources-tab").addEventListener("click", (e)=>{
+    currentTab = "sources-tab"
+    updateProjectDetailsPage()
+})
+
+updateProjectDetailsPage()

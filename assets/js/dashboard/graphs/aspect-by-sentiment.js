@@ -1,9 +1,26 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
-import {update} from '../helpers/helpers'
+import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
 import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/data_table_modal_aspect_by_sentiment"
 let chart 
+let html = 
+`
+<div class="col-12 project-card">
+<div class="project-card-inner">
+  <div class="chart-title  align-items-center d-flex flex-wrap">
+    <h4>Aspect By Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+        <i class="fe fe-help-circle"></i>
+      </a> </h4>
+  </div>
+  <div class="chart-wrap">
+    <div id="aspect-by-sentiment" >
+    </div>
+  </div>
+</div>
+</div>
+`
 export function createGraph() {
+    createHTML(html)
     update.startUpdate()
     if(chart){
         chart.destroy()

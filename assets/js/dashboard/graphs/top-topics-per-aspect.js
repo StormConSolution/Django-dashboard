@@ -1,5 +1,5 @@
 import config from "../config";
-import {update} from '../helpers/helpers'
+import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
 
 let chart
 function topicsPerAspect(maxTopicsPerAspect) {

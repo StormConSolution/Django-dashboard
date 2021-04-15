@@ -1,14 +1,83 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
 import {getFilters} from "../helpers/filters"
-import {update} from '../helpers/helpers'
-let content = document.getElementById("entity-table-content");
+import {update, createHTMLForGraphsContainer as createHTML} from '../helpers/helpers'
+let html = 
+`
+<div class="col-12 project-card" id="entity-table">
+    <div class="project-card-inner">
+    <div class="chart-title align-items-center d-flex flex-wrap">
+        <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+            <i class="fe fe-help-circle"></i>
+        </a> </h4>
+        <div class="col-auto p-0 d-flex flex-wrap ">
+        <div class="per-page align-items-center d-flex">
+        Show <select class="custom-select" id="entity-table-page-size">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+        </select> Entries
+        </div>
+        <div class="data-search">
+        <input type="text" class="form-control " placeholder="Search">
+        </div>
+        <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="entities-table-csv" target="_blank">Download CSV</a>
+        </div>
+    </div>
+    <div class="data-table table-responsive">
+        <table class="table table-striped table-borderless">
+        <thead>
+            <tr>
+            <th scope="col">
+                ENTITY <span class="data-short">
+                <a href="#" class="active">
+                    <i class="fe fe-chevron-up"></i>
+                </a>
+                <a href="#">
+                    <i class="fe fe-chevron-down"></i>
+                </a>
+                </span>
+            </th>
+            <th scope="col">
+                CLASSIFICATIONS <span class="data-short">
+                <a href="#">
+                    <i class="fe fe-chevron-up"></i>
+                </a>
+                <a href="#">
+                    <i class="fe fe-chevron-down"></i>
+                </a>
+                </span>
+            </th>
+            <th scope="col" class="text-center" >
+                FREQUENCY <span class="data-short">
+                <a href="#">
+                    <i class="fe fe-chevron-up"></i>
+                </a>
+                <a href="#">
+                    <i class="fe fe-chevron-down"></i>
+                </a>
+                </span>
+            </th>
+            </tr>
+        </thead>
+        <tbody id="entity-table-content">
+        </tbody>
+        </table>
+    </div>
+    <div class="table-bottom" id="entity-table-pagination">
+    </div>
+    </div>
+</div>
+`
 export function createTable(page){
+    createHTML(html)
+    let content = document.getElementById("entity-table-content");
     update.startUpdate()
     content.innerHTML = "Loading...";
     let pagination = document.getElementById("entity-table-pagination");
     pagination.innerHTML = ""
-    let pageSize = document.getElementById("aspect-topic-table-page-size").value
+    let pageSize = document.getElementById("entity-table-page-size").value
 
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
