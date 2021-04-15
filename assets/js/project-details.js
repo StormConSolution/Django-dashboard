@@ -1,8 +1,9 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
-import {update} from './dashboard/helpers/helpers'
+import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers'
 let timeOut
+let currentTab = "overview-tab"
 function updateProjectTables(){
     tables.aspectTopicTable(1)
     tables.dataTable(1)
@@ -72,4 +73,51 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
         })
         updateProjectDetailsPage()
     })
+})
+
+function showHideGraphsTables(){
+    hideAllGraphsTables()
+    switch(currentTab){
+        case "overview-tab":
+            showGraphTable("overall-sentiment")
+            showGraphTable("sentiment-trend")
+            break
+        case "sentiment-tab":
+            break
+        case "aspect-tab":
+            showGraphTable("aspect-count")
+            showGraphTable("aspect-by-sentiment")
+            showGraphTable("aspect-co-occurrence")
+            showGraphTable("aspect-topic")
+            break
+        case "entity-tab":
+            showGraphTable("entities-table")
+            break
+        case "sources-tab":
+            showGraphTable("volume-by-source")
+            showGraphTable("data-table")
+            break
+    }
+}
+
+showHideGraphsTables()
+document.querySelector("#overview-tab").addEventListener("click", (e)=>{
+    currentTab = "overview-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
+    currentTab = "sentiment-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
+    currentTab = "aspect-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#entity-tab").addEventListener("click", (e)=>{
+    currentTab = "entity-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#sources-tab").addEventListener("click", (e)=>{
+    currentTab = "sources-tab"
+    showHideGraphsTables()
 })

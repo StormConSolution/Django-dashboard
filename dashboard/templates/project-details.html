@@ -101,19 +101,19 @@
           <div class="project-menu">
             <ul class="d-flex flex-wrap">
               <li>
-                <a href="#overview-graph">Overview</a>
+                <a style="cursor:pointer;" id="overview-tab">Overview</a>
               </li>
               <li>
-                <a href="#overall-sentiment-chart">Sentiment</a>
+                <a style="cursor:pointer;" id="sentiment-tab">Sentiment</a>
               </li>
               <li>
-                <a href="#aspect-count-graphs">Aspects</a>
+                <a style="cursor:pointer;" id="aspect-tab">Aspects</a>
               </li>
               <li>
-                <a href="#entity-table">Entities</a>
+                <a style="cursor:pointer;" id="entity-tab">Entities</a>
               </li>
               <li>
-                <a href="#data-items">Sources</a>
+                <a style="cursor:pointer;" id="sources-tab">Sources</a>
               </li>
               <li class="ml-auto">
                 <div class="dropdown ">
@@ -131,7 +131,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-12 col-lg-8 project-card">
+        <div class="col-12 col-lg-8 project-card" data-role="graph-table-container" data-graph-table="sentiment-trend">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4 class="col p-0 sentiment-trend ">Sentiment
@@ -163,7 +163,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-lg-4 project-card" id="overall-graph">
+        <div class="col-12 col-lg-4 project-card" id="overall-graph" data-role="graph-table-container" data-graph-table="overall-sentiment">
           <div class="row">
             <div class="col-12 pb-3 ">
               <div class="project-card-inner">
@@ -198,7 +198,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="volume-by-source">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4>Volume By Source <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -219,7 +219,7 @@
 
         </div>
 
-        <div class="col-12 project-card" id="aspect-graph">
+        <div class="col-12 project-card" id="aspect-graph" data-role="graph-table-container" data-graph-table="aspect-count">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -239,7 +239,7 @@
 
         </div>
 
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-co-occurrence">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4>Aspect Co-Occurrence (last 30 days of data) <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -259,7 +259,7 @@
 
 
         </div>
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-by-sentiment">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
               <h4>Aspect By Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -279,7 +279,7 @@
 
 
         </div>
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-topic">
           <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
               <h4 class="col p-0">Aspect Topic Breakdown <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -346,7 +346,7 @@
 
 
         </div>
-        <div class="col-12 project-card" id="entity-table">
+        <div class="col-12 project-card" id="entity-table" data-role="graph-table-container" data-graph-table="entities-table">
           <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
               <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -419,7 +419,7 @@
 
         </div>
 
-        <div class="col-12 project-card">
+        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="data-table">
           <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
               <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">

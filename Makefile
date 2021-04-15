@@ -1,5 +1,5 @@
 webpack-dev:
-	webpack -w
+	npm run webpack-dev
 
 webpack-production:
-	webpack --mode="production"
+	npm run webpack

@@ -18,3 +18,13 @@ function canUpdate(){
     return false
 }
 let updateCount = 0
+
+export function hideAllGraphsTables(){
+    document.querySelectorAll("[data-role='graph-table-container']").forEach((element) => {
+        element.style.display="none"
+    })
+}
+
+export function showGraphTable(data_graph_table){
+    document.querySelector(`[data-graph-table="${data_graph_table}"]`).style.display="block"
+}
