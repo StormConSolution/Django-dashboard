@@ -1,7 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
-import {createTable as dataPerAspectTable} from '../tables/data_table_modal_per_aspect'
+import {createTable} from '../tables/data_table_modal_per_aspect'
 let chart
 let project_id = window.project_id;
 let firstRun = true
@@ -30,15 +30,16 @@ export function createGraph(){
         }
         let filtersValues = getFilters() 
         let aspectLabel = document.querySelector("#aspect-topic-tree-map-aspects").value
-        console.log(aspectLabel)
         let maxTopics = document.querySelector("#aspect-topic-tree-map-max-topics").value
+        let sentiment = document.querySelector("#aspect-topic-tree-map-sentiment").value
         let urlParams = new URLSearchParams({
             "date-from": filtersValues.dateFrom,
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
             "sources": filtersValues.sources,
             "aspect-label": encodeURIComponent(aspectLabel),
-            "max-topics": encodeURIComponent(maxTopics)
+            "max-topics": encodeURIComponent(maxTopics),
+            "sentiment": sentiment
         })
         fetch(`/api/topics-per-aspect/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
             console.log(data)
@@ -53,7 +54,14 @@ export function createGraph(){
                 },
                 chart: {
                     height: 480,
-                    type: 'treemap'
+                    type: 'treemap',
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            let topicLabel = config.w.config.series[0].data[config.dataPointIndex].x
+                            document.querySelector("#data-table-modal").style.display = "block"
+                            createTable(1, {topicLabel:topicLabel, sentiment: sentiment, aspectLabel: aspectLabel})
+                        }            
+                    }
                 }
             };
             options.series.push({data:chartData})
@@ -70,5 +78,9 @@ document.querySelector("#aspect-topic-tree-map-aspects").addEventListener("chang
 })
 
 document.querySelector("#aspect-topic-tree-map-max-topics").addEventListener("change", (e)=>{
+    createGraph()
+})
+
+document.querySelector("#aspect-topic-tree-map-sentiment").addEventListener("change", (e)=>{
     createGraph()
 })

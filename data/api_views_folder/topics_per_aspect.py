@@ -17,10 +17,18 @@ def topics_per_aspect(request, project_id):
         raise PermissionDenied
     aspect_label = parse.unquote(request.GET.get("aspect-label", ""))
     max_topics = parse.unquote(request.GET.get("max-topics", 10))
+    sentiment = request.GET.get("sentiment", "")
+
     where_clause = [
         'dd.project_id = %s',
         'da."label" = %s'
     ]
+
+    if sentiment == "positive":
+        where_clause.append("dd.sentiment > 0")
+    elif sentiment == "negative":
+        where_clause.append("dd.sentiment < 0")
+
     response = []
     with connection.cursor() as cursor:
         cursor.execute("""select da.topic , count(da.topic ) from data_aspect da inner join data_data dd on da.data_id = dd.id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic) order by count(da.topic) desc limit %s""", [project_id, aspect_label, max_topics])
