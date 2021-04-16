@@ -65,7 +65,6 @@ export function createGraph(){
                 }
             };
             options.series.push({data:chartData})
-            console.log(options)
             chart = new ApexCharts(document.querySelector("#aspect-topic-tree-map-container"), options);
             chart.render();
             update.finishUpdate()
