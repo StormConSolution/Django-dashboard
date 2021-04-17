@@ -85,20 +85,24 @@ export function createGraph(){
     };
     let project_id = window.project_id;
     let currentEntity = ""
+    let maxEmotions = document.querySelector("#emotion-aspect-co-occurrence-max-emotions").value
+    let countEmotions = 0
     fetch(`/api/entity-aspect-for-emotion/${project_id}/`)
         .then((response) => response.json())
         .then((data) => {
             let series = []
             let seriesData = []
             for(let element of data){
-
                     if(currentEntity != "" && currentEntity != element.entityLabel){
                         series.push({name: currentEntity, data: seriesData})
                         seriesData = []
+                        countEmotions++
+                        if(countEmotions==maxEmotions){
+                            break
+                        }
                     }
                     seriesData.push({x: element.aspectLabel, y:(element.aspectCount/element.entityCount * 100).toFixed(2)})
                     currentEntity = element.entityLabel
-                
             }
             chartOptions.series = series
             div.innerHTML = ""
@@ -111,3 +115,6 @@ export function createGraph(){
             update.finishUpdate()
         });     
 }
+document.querySelector("#emotion-aspect-co-occurrence-max-emotions").addEventListener("change", ()=>{
+    createGraph()
+})

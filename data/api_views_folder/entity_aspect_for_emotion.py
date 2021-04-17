@@ -22,7 +22,7 @@ def entity_aspect_for_emotion(request, project_id):
 
     response = []
     with connection.cursor() as cursor:
-        cursor.execute("""select * from get_entity_aspect_counts(13, %s) where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s) group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
+        cursor.execute("""select * from get_entity_aspect_counts(13, %s, language := 'en') where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s, language := 'en') group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
         rows = cursor.fetchall()
     
     for row in rows:
