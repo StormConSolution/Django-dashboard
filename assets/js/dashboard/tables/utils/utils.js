@@ -17,7 +17,7 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     paginationDiv.append(paginationNumbers)
     
     if(totalPages < 7){
-        for(let i = 1; i < totalPages + 1; i++){
+        for(let i = 1; i <= totalPages + 1; i++){
             let li = createPageNumber(currentPage, i, callBack, options)
             ulPagination.append(li) 
         }

@@ -17,6 +17,7 @@ function updateGraphs(){
     graphs.sentimentTrendGraph()
     graphs.volumeBySourceGraph()
     graphs.aspectTopicTreeMap()
+    graphs.emotionAspectCoOccurrence()
 }
 
 function updateProjectDetailsPage(){
@@ -91,6 +92,7 @@ function showHideGraphsTables(){
             showGraphTable("aspect-co-occurrence")
             showGraphTable("aspect-topic")
             showGraphTable("aspect-topic-tree-map")
+            showGraphTable("emotion-aspect-co-occurrence")
             break
         case "entity-tab":
             showGraphTable("entities-table")

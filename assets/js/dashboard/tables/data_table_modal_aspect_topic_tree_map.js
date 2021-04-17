@@ -7,8 +7,8 @@ export function createTable(page, options){
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
     document.getElementById("data-modal-table-csv").href = `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
-        "aspect-label": encodeURIComponent(aspectLabel),
-        "topic-label": encodeURIComponent(topicLabel),
+        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "topic-label": encodeURIComponent(options.topicLabel),
         "sentiment": options.sentiment,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
@@ -66,7 +66,7 @@ export function createTable(page, options){
     });
 }
 
-function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack, aspectLabel, topicLabel, sentiment){
+function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack, options){
     let paginationDiv = document.createElement("div")
     paginationDiv.className = "row no-gutters"
     let paginationHtml = `
@@ -85,7 +85,7 @@ function createPagination(firstElement, lastElement, totalElements, currentPage,
     paginationDiv.append(paginationNumbers)
     
     if(totalPages < 7){
-        for(let i = 0; i < totalPages; i++){
+        for(let i = 1; i <= totalPages; i++){
             let li = createPageNumber(currentPage, i, callBack, options)
             ulPagination.append(li) 
         }

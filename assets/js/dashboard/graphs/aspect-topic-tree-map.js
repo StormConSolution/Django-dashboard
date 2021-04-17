@@ -1,7 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
-import {createTable} from '../tables/data_table_modal_per_aspect'
+import {createTable} from '../tables/data_table_modal_aspect_topic_tree_map'
 let chart
 let project_id = window.project_id;
 let firstRun = true
@@ -42,7 +42,6 @@ export function createGraph(){
             "sentiment": sentiment
         })
         fetch(`/api/topics-per-aspect/${project_id}/?` + urlParams).then(response => response.json()).then(data => {
-            console.log(data)
             let chartData = []
             for(let element of data){
                 chartData.push({x:element.topicLabel, y:element.topicCount})
