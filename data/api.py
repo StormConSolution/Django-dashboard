@@ -20,5 +20,6 @@ urlpatterns = [
     path('data-per-aspect/<int:project_id>/', views.data_per_aspect),
     path('topics-per-aspect/<int:project_id>/', data_api_views.topics_per_aspect),
     path('entity-aspect-for-emotion/<int:project_id>/', data_api_views.entity_aspect_for_emotion),
+    path('keywords/<int:project_id>/', data_api_views.keywords_count),
     path('aspect-count/<int:project_id>/', views.aspect_count)
 ]

@@ -103,6 +103,8 @@ function showHideGraphsTables(){
             showGraphTable("volume-by-source")
             showGraphTable("data-table")
             break
+        case "word-cloud-tab":
+            showGraphTable("word-cloud")
     }
 }
 
@@ -125,5 +127,9 @@ document.querySelector("#entity-tab").addEventListener("click", (e)=>{
 })
 document.querySelector("#sources-tab").addEventListener("click", (e)=>{
     currentTab = "sources-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#word-cloud-tab").addEventListener("click", (e)=>{
+    currentTab = "word-cloud-tab"
     showHideGraphsTables()
 })
