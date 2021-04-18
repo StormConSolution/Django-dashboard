@@ -1,12 +1,14 @@
 import {getFilters} from "../helpers/filters"
 export function createTable(page, classification, entity){
+    let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect").value
+    console.log(selectAspect)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
-    document.getElementById("data-modal-table-csv").href = `/api/data-per-classification-and-entity/${window.project_id}/?format=csv&&classification=${classification}&entity=${entity}&` + new URLSearchParams({
+    document.getElementById("data-modal-table-csv").href = `/api/data-per-classification-and-entity/${window.project_id}/?format=csv&&classification=${classification}&entity=${entity}&aspect-label=${selectAspect}&` + new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
@@ -18,7 +20,7 @@ export function createTable(page, classification, entity){
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources)
     })
-    fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}&` + urlParams)
+    fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}&aspect-label=${selectAspect}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {

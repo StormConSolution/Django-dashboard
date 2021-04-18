@@ -8,6 +8,7 @@ function updateProjectTables(){
     tables.aspectTopicTable(1)
     tables.dataTable(1)
     tables.entityTable(1)
+    tables.topEntitiesPerAspectTable(1)
 }
 function updateGraphs(){
     graphs.aspectBySentimentGraph()
@@ -96,6 +97,7 @@ function showHideGraphsTables(){
             break
         case "entity-tab":
             showGraphTable("entities-table")
+            showGraphTable("top-entities-per-aspect-table")
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
