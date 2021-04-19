@@ -1,3 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS btree_gin;
+
+/*
+
+SELECT refresh_cached_entity_aspect_data()
+
+*/
 
 CREATE OR REPLACE FUNCTION refresh_cached_entity_aspect_data() RETURNS VOID
 LANGUAGE plpgsql
@@ -40,27 +47,39 @@ BEGIN
 END
 $$;
 
-SELECT refresh_cached_entity_aspect_data();
-
-
 /*
 
 SELECT * FROM get_entity_aspect_counts(13, 3155) ORDER BY entity, aspect;
 SELECT * FROM get_entity_aspect_counts(13, 3155, sql_filter := $SQL$date_created > '2020-01-01'$SQL$) ORDER BY entity, aspect;
-SELECT * FROM get_entity_aspect_counts(13, 3155, language := 'en', source_id := 17, sql_filter := $SQL$date_created > '2019-01-01'$SQL$) ORDER BY entity, aspect;
+SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en'], source_ids := ARRAY[17], sql_filter := $SQL$date_created > '2019-01-01'$SQL$) ORDER BY entity, aspect;
+SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en', 'zh']) ORDER BY entity, aspect;
 
 */
-DROP FUNCTION IF EXISTS get_entity_aspect_counts;
-CREATE OR REPLACE FUNCTION get_entity_aspect_counts(classification_id INT, project_id INT, language VARCHAR = NULL, source_id INT = NULL, sql_filter TEXT = NULL) RETURNS TABLE(entity VARCHAR, entity_count INT, aspect VARCHAR, aspect_count INT)
-LANGUAGE plpgsql
-PARALLEL SAFE
-AS $$
+
+drop function if exists get_entity_aspect_counts(integer, integer, varchar, integer, text);
+drop function if exists get_entity_aspect_counts(integer, integer, character varying[], integer[], text);
+
+create function get_entity_aspect_counts(classification_id integer, project_id integer, languages character varying[] DEFAULT NULL::character varying[], source_ids integer[] DEFAULT NULL::integer[], sql_filter text DEFAULT NULL::text) returns TABLE(entity character varying, entity_count integer, aspect character varying, aspect_count integer)
+	parallel safe
+	language plpgsql
+as $$
 DECLARE
     label_columns_select TEXT;
     filters TEXT[] = ARRAY['c=' || classification_id, 'p=' || project_id];
+    languages_filter TEXT[];
+    sources_filter TEXT[];
 BEGIN
-    IF (language IS NOT NULL) THEN filters = filters || ('l=' || language); END IF;
-    IF (source_id IS NOT NULL) THEN filters = filters || ('s=' || source_id); END IF;
+    sql_filter = 'AND (' || COALESCE(sql_filter, 'TRUE') || ')';
+    IF (languages IS NOT NULL)
+    THEN
+        languages_filter = ARRAY_AGG('l=' || unnest) FROM UNNEST(languages);
+        sql_filter = sql_filter || ' AND filters && $2';
+    END IF;
+    IF (source_ids IS NOT NULL)
+    THEN
+        sources_filter = ARRAY_AGG('s=' || unnest) FROM UNNEST(source_ids);
+        sql_filter = sql_filter || ' AND filters && $3';
+    END IF;
 
     label_columns_select = STRING_AGG(FORMAT('%1$s::TEXT, SUM(label_%1$s::INT)', id), ', ' ORDER BY id) FROM data_aspectlabel l WHERE l.project_id = get_entity_aspect_counts.project_id;
 
@@ -70,7 +89,7 @@ BEGIN
                 UNNEST(entities) entity_id
             FROM data_entity_aspect
             WHERE filters @> $1
-                AND (' || COALESCE(sql_filter, 'TRUE') || ')
+                ' || sql_filter || '
         ), counts AS (
             SELECT
                 e.label entity,
@@ -90,6 +109,6 @@ BEGIN
             CROSS JOIN LATERAL JSONB_EACH(c.aspect_counts) lp(id, ct)
             JOIN data_aspectlabel l ON l.project_id = ' || get_entity_aspect_counts.project_id || ' AND l.id = lp.id::INT
         WHERE NULLIF((lp.ct #> ''{}''), ''null''::JSONB) IS NOT NULL
-    ' USING (filters);
+    ' USING filters, languages_filter, sources_filter;
 END
 $$;
