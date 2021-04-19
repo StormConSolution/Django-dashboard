@@ -350,18 +350,19 @@ def new_project_details(request, project_id):
     context["project_id"] = project_id
     context["project_name"] = this_project.name
     context["user"] = user
-    context["sourceLabels"] = []
+    context["sources"] = []
+    context["sourceID"] = []
     context["languages"] = []
     context["all_aspects"] = []
     all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
     for aspect in all_aspects:
         context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
-    source_query = """select distinct (ds.id) , ds."label", count(ds.id) from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
         rows = cursor.fetchall()
     for row in rows:
-        context["sourceLabels"].append(row[1])
+        context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
     with connection.cursor() as cursor:
         cursor.execute(language_query, [project_id])

@@ -880,7 +880,6 @@ def data_per_aspect_topic(request, project_id):
         query_args.append(topic_label)
     
     response_format = request.GET.get("format", "")
-
     
     with connection.cursor() as cursor:
         cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause),

@@ -4,17 +4,20 @@ export function getFilters(){
     let languagesCheckbox = document.querySelectorAll("#dropdown-languages .choose input:checked")
     let sources = []
     let languages = []
+    let sourcesID = []
     for(let languageCheckbox of languagesCheckbox){
         languages.push(languageCheckbox.value)
     }
     let sourcesCheckbox = document.querySelectorAll("#dropdown-sources .choose input:checked")
     for(let sourceCheckbox of sourcesCheckbox){
         sources.push(sourceCheckbox.value)
+        sourcesID.push(sourceCheckbox.getAttribute("data-id"))
     }
     return {
         dateFrom: dateFrom,
         dateTo: dateTo,
         sources: sources.join(","),
+        sourcesID: sourcesID.join(","),
         languages: languages.join(",")
     }
 }

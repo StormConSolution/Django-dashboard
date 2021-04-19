@@ -5,10 +5,12 @@ export let update = {
 }
 function startUpdate(){
     updateCount++
+    console.log(updateCount)
 }
 
 function finishUpdate(){
     updateCount--
+    console.log(updateCount)
 }
 
 function canUpdate(){

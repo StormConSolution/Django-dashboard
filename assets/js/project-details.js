@@ -23,9 +23,11 @@ function updateGraphs(){
 
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
+        console.log("can update")
         updateProjectTables()
         updateGraphs()
     } else {
+        console.log("can not update")
         if(timeOut){
             clearTimeout(timeOut)
         }

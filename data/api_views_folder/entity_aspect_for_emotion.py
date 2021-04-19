@@ -16,13 +16,20 @@ def entity_aspect_for_emotion(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    where_clause = [
-        'dd.project_id = %s',
-    ]
+    languages =parse.unquote(request.GET.get("languages", "")).split(",")
+    sources = parse.unquote(request.GET.get("sources", "")).split(",")
+    function_arguments = ""
+    if languages != ['']:
+        languages = " ,languages := array['" + "','".join(languages) + "'] "
+        function_arguments = languages
 
+    if sources != ['']:
+        sources = " ,sources := array['" + "','".join(sources) + "'] "
+        function_arguments = function_arguments + sources
+    print(function_arguments)
     response = []
     with connection.cursor() as cursor:
-        cursor.execute("""select * from get_entity_aspect_counts(13, %s, language := 'en') where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s, language := 'en') group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
+        cursor.execute("""select * from get_entity_aspect_counts(13, %s """ + function_arguments + """ )where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s """ + function_arguments + """) group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
         rows = cursor.fetchall()
     
     for row in rows:
