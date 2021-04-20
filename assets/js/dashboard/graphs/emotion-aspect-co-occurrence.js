@@ -106,7 +106,6 @@ export function createGraph(){
             }
             chartOptions.series = series
             div.innerHTML = ""
-            console.log(chartOptions)
             chart = new ApexCharts(
                 div,
                 chartOptions

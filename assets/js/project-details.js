@@ -8,6 +8,7 @@ function updateProjectTables(){
     tables.aspectTopicTable(1)
     tables.dataTable(1)
     tables.entityTable(1)
+    tables.topEntitiesPerAspectTable(1)
 }
 function updateGraphs(){
     graphs.aspectBySentimentGraph()
@@ -96,11 +97,14 @@ function showHideGraphsTables(){
             break
         case "entity-tab":
             showGraphTable("entities-table")
+            showGraphTable("top-entities-per-aspect-table")
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
             showGraphTable("data-table")
             break
+        case "word-cloud-tab":
+            showGraphTable("word-cloud")
     }
 }
 
@@ -123,5 +127,9 @@ document.querySelector("#entity-tab").addEventListener("click", (e)=>{
 })
 document.querySelector("#sources-tab").addEventListener("click", (e)=>{
     currentTab = "sources-tab"
+    showHideGraphsTables()
+})
+document.querySelector("#word-cloud-tab").addEventListener("click", (e)=>{
+    currentTab = "word-cloud-tab"
     showHideGraphsTables()
 })

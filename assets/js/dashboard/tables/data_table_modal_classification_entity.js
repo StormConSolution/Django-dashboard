@@ -78,7 +78,7 @@ function createPagination(firstElement, lastElement, totalElements, currentPage,
     paginationDiv.append(paginationNumbers)
     
     if(totalPages < 7){
-        for(let i = 0; i < totalPages; i++){
+        for(let i = 1; i <= totalPages; i++){
             let li = createPageNumber(currentPage, i, callBack,  classification, entity)
             ulPagination.append(li) 
         }
