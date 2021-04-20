@@ -225,20 +225,34 @@
               <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
                   <i class="fe fe-help-circle"></i>
                 </a> </h4>
-
-
             </div>
-
             <div class="aspects-list">
               <ul class="flex-wrap" id="aspect-count-graphs">
               </ul>
             </div>
-
           </div>
-
-
         </div>
-
+        <div class="col-12 project-card" id="aspect-graph" data-role="graph-table-container" data-graph-table="emotion-aspect-co-occurrence">
+            <div class="project-card-inner">
+              <div class="chart-title  align-items-center d-flex flex-wrap">
+                <h4>Emotion Aspect Co-Occurrence<a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+                    <i class="fe fe-help-circle"></i>
+                  </a> </h4>
+                <div class="per-page align-items-center d-flex" style="margin-left:auto">
+                    Top Emotions <select class="custom-select" id="emotion-aspect-co-occurrence-max-emotions">
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select> 
+                </div>
+              </div>
+              <div class="aspects-list">
+                <ul class="flex-wrap" id="emotion-aspect-co-occurrence">
+                </ul>
+              </div>
+            </div>
+        </div>
         <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-co-occurrence">
           <div class="project-card-inner">
             <div class="chart-title  align-items-center d-flex flex-wrap">
@@ -306,7 +320,7 @@
                       <option value="30">30</option>
                       <option value="40">40</option>
                     </select> 
-                  </div>
+                </div>
  <!--                <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="aspect-topic-tree-map-csv" target="_blank">Download CSV</a> -->
                 </div>
               </div>

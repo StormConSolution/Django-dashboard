@@ -853,7 +853,6 @@ def data_per_aspect_topic(request, project_id):
         sentiment_filter = "dd.sentiment < 0"
         where_clause.append(sentiment_filter)
 
-
     query_args.append(project_id)
 
     if aspect_label != "":
