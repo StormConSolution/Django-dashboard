@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 from django.urls import path  # add this
 from data import api_views as views
-
+from data.api_views_folder.topics_per_aspect import topics_per_aspect
 urlpatterns = [
     path('source/', views.SourceListAPI.as_view()),
     path('country/', views.CountryListAPI.as_view()),
@@ -18,5 +18,6 @@ urlpatterns = [
     path('data-per-classification-and-entity/<int:project_id>/', views.data_per_classification_and_entity),
     path('data-per-aspect-topic/<int:project_id>/', views.data_per_aspect_topic),
     path('data-per-aspect/<int:project_id>/', views.data_per_aspect),
+    path('topics-per-aspect/<int:project_id>/', topics_per_aspect),
     path('aspect-count/<int:project_id>/', views.aspect_count)
 ]

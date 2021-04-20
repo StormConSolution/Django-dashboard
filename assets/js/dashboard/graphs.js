@@ -7,3 +7,4 @@ export {createGraph as aspectCountGraph} from "./graphs/aspect-count";
 export {createGraph as coOccurrenceGraph} from "./graphs/co-occurrence";
 export {createGraph as aspectBySentimentGraph} from "./graphs/aspect-by-sentiment";
 export {createGraph as sentimentTrendGraph} from "./graphs/sentiment-trend";
+export {createGraph as aspectTopicTreeMap} from "./graphs/aspect-topic-tree-map";

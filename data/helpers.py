@@ -26,8 +26,8 @@ def getFiltersSQL2(request):
     where_clauses = []
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
-    languages =parse.unquote(request.GET.get("languages")).split(",")
-    sources = parse.unquote(request.GET.get("sources")).split(",")
+    languages =parse.unquote(request.GET.get("languages", "")).split(",")
+    sources = parse.unquote(request.GET.get("sources", "")).split(",")
     if not dateFrom:
         dateFrom = ""
     if not dateTo:
@@ -36,10 +36,13 @@ def getFiltersSQL2(request):
         where_clauses.append("dd.date_created > '" + dateFrom + "'")
     if dateTo != "":
         where_clauses.append("dd.date_created < '" + dateTo + "'")
-    map(lambda x: "''%s''" % x, sources)
-    map(lambda x: "''%s''" % x, languages)
-    where_clauses.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
-    where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    if languages != ['']:
+        map(lambda x: "''%s''" % x, languages)
+        where_clauses.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
+
+    if sources != ['']:
+        map(lambda x: "''%s''" % x, sources)
+        where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
     return where_clauses
 
 def getWhereClauses(request, where_clauses):
