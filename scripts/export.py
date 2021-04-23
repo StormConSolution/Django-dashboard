@@ -65,20 +65,20 @@ def run():
     
     load_traffic_stats()
 
-    with open('data_export.csv', 'w') as data_out:
+    with open('data_export.csv', 'w', encoding='utf-8') as data_out:
         w = csv.writer(data_out)
         w.writerow(['id', 'date_created', 'text', 'url', 'language', 
             'country', 'source', 'raw sentiment', 'weighted_sentiment', 'relevance', 'web traffic'])
         
-        with open('aspect_export.csv', 'w') as aspect_out:
+        with open('aspect_export.csv', 'w', encoding='utf-8') as aspect_out:
             w2 = csv.writer(aspect_out)
             w2.writerow(['data_id', 'label', 'sentiment', 'chunk', 'topic', 'sentiment text'])
             
-            with open('entity_export.csv', 'w') as entity_out:
+            with open('entity_export.csv', 'w', encoding='utf-8') as entity_out:
                 w3 = csv.writer(entity_out)
                 w3.writerow(['data_id', 'entity', 'english', 'classifications'])
 
-                for d in Data.objects.filter(project__id=3155).prefetch_related('entities'):
+                for d in Data.objects.filter(project__id=3155, date_created__gt='2021-04-07').prefetch_related('entities'):
                     
                     w.writerow([
                         d.id, 
