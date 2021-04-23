@@ -1,5 +1,6 @@
 import {getFilters} from "../helpers/filters"
 import {createPagination} from './utils/utils'
+import wordlCloud from '../graphs/word-cloud-modal'
 export function createTable(page, options){
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
@@ -12,7 +13,19 @@ export function createTable(page, options){
         "date-to": filtersValues.dateTo,
         "sentiment": encodeURIComponent(options.sentiment),
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
+    })
+    fetch(`/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "sentiment": encodeURIComponent(options.sentiment),
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
+    })).then(response => response.json()).then( data => {
+        console.log("test")
+        wordlCloud(data)
     })
     fetch(`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
         "sentiment": encodeURIComponent(options.sentiment),
@@ -21,7 +34,8 @@ export function createTable(page, options){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     }))
     .then((response) => response.json())
     .then((data) => {

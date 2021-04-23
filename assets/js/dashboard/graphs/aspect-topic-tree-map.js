@@ -37,6 +37,7 @@ export function createGraph(){
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
             "sources": filtersValues.sources,
+            "sourcesID": filtersValues.sourcesID,
             "aspect-label": encodeURIComponent(aspectLabel),
             "max-topics": encodeURIComponent(maxTopics),
             "sentiment": sentiment

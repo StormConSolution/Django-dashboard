@@ -10,13 +10,15 @@ export function createTable(page, classification, entity){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     })
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     })
     fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${classification}&entity=${entity}&` + urlParams)
     .then((response) => response.json())

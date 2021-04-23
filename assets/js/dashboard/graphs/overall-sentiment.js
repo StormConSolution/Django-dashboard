@@ -2,6 +2,7 @@ import config from "../config";
 import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
+
 let chart
 let div = document.querySelector("#overall-sentiment-chart")
 function overallSentiment(data){
@@ -69,7 +70,8 @@ export function createGraph(){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesId": filtersValues.sourcesId
     })
     if(chart){
         chart.destroy()

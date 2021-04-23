@@ -18,7 +18,8 @@ export function createGraph(){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID
     })
     let project_id = window.project_id;
     fetch(`/api/aspect-count/${project_id}/?` + urlParams)

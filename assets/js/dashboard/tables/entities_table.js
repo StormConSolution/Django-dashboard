@@ -15,7 +15,8 @@ export function createTable(page){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     })
     document.getElementById("entities-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)

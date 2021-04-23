@@ -471,7 +471,21 @@ def data(request, project_id):
         project_id
     ]
     limit_offset_clause = ""
-    if response_format != "csv":
+
+    if response_format == "word-cloud":
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count DESC limit 35""" + limit_offset_clause, query_args)
+            print(cursor.query)
+            rows = cursor.fetchall()
+            response = []
+            for row in rows:
+                response.append({
+                    'keyword':row[0],
+                    'keywordCount':row[1],
+                })
+            return JsonResponse(response, safe=False)
+    if response_format == "":
         limit_offset_clause = """ limit %s offset %s;"""
         query_args.append(page_size)
         query_args.append(offset)
@@ -545,11 +559,23 @@ def data_per_aspect(request, project_id):
     query_args = []
     query_args.append(project_id)
     query_args.append(aspect_label)
-    if response_format != "csv":
-        limit_offset_clause = """ limit %s offset %s;"""
+    if response_format != "":
+        limit_offset_clause = """ limit %s offset %s """
         query_args.append(page_size)
         query_args.append(offset)
-
+    if response_format == "word-cloud":
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                        WITH counts AS (
+            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc", query_args)
+            rows = cursor.fetchall()
+            response = []
+            for row in rows:
+                response.append({
+                    'keyword':row[0],
+                    'keywordCount':row[1],
+                })
+            return JsonResponse(response, safe=False)
     with connection.cursor() as cursor:
         cursor.execute("""
             select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc """ + limit_offset_clause, query_args)
@@ -804,10 +830,22 @@ def data_per_classification_and_entity(request, project_id):
     response_format = request.GET.get("format", "")
     limit_offset_clause = ""
 
-    if response_format != "csv":
+    if response_format != "csv" or response_format != "word-cloud":
         limit_offset_clause = """ limit %s offset %s;"""
         query_args.append(page_size)
         query_args.append(offset)
+
+    if response_format == "word-cloud":
+        cursor.execute("""
+        select SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause,
+                       query_args)
+        rows = cursor.fetchall()
+        response = []
+        for row in rows:
+            response.append({
+                'keyword':row[0],
+                'keywordCount':row[1],
+            })
 
     with connection.cursor() as cursor:
         cursor.execute("""

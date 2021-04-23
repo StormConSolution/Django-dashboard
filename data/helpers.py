@@ -27,7 +27,8 @@ def getFiltersSQL2(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     languages =parse.unquote(request.GET.get("languages", "")).split(",")
-    sources = parse.unquote(request.GET.get("sources", "")).split(",")
+    #sources = parse.unquote(request.GET.get("sources", "")).split(",")
+    sourcesID = request.GET.get("sourcesID", "").split(",")
     if not dateFrom:
         dateFrom = ""
     if not dateTo:
@@ -40,9 +41,11 @@ def getFiltersSQL2(request):
         map(lambda x: "''%s''" % x, languages)
         where_clauses.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
 
-    if sources != ['']:
-        map(lambda x: "''%s''" % x, sources)
-        where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    #if sources != ['']:
+    if sourcesID != ['']:
+        #map(lambda x: "''%s''" % x, sources)
+        #where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+        where_clauses.append('ds.id in (%s)' % (",".join(sourcesID)))
     return where_clauses
 
 def getWhereClauses(request, where_clauses):

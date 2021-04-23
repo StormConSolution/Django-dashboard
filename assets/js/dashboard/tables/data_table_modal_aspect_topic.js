@@ -13,7 +13,8 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     })
     fetch(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
         "aspect-label": encodeURIComponent(aspectLabel),
@@ -24,7 +25,8 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesID": filtersValues.sourcesID
     }))
     .then((response) => response.json())
     .then((data) => {

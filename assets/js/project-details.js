@@ -23,11 +23,9 @@ function updateGraphs(){
 
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
-        console.log("can update")
         updateProjectTables()
         updateGraphs()
     } else {
-        console.log("can not update")
         if(timeOut){
             clearTimeout(timeOut)
         }
@@ -134,4 +132,13 @@ document.querySelector("#sources-tab").addEventListener("click", (e)=>{
 document.querySelector("#word-cloud-tab").addEventListener("click", (e)=>{
     currentTab = "word-cloud-tab"
     showHideGraphsTables()
+})
+
+
+document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>{
+    document.querySelector("#word-cloud-modal").style.display = "block"
+})
+
+document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=>{
+    document.querySelector("#word-cloud-modal").style.display = "none"
 })

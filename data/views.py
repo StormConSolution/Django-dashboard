@@ -23,6 +23,7 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http.multipartparser import MultiPartParser
+from datetime import datetime, timedelta
 
 LOGIN_URL = '/login/'
 
@@ -369,6 +370,13 @@ def new_project_details(request, project_id):
         rows = cursor.fetchall()
     for row in rows:
         context["languages"].append(row[0])
+
+    data = data_models.Data.objects.filter(project=project_id).latest('date_created')
+    print(data.date_created)
+    context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
+    #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
+    context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+
     return render(request, "project-details.html", context)
 
 def entities(request, project_id):

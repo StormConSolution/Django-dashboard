@@ -11,7 +11,8 @@ export function createTable(page, options){
         "sentiment": encodeURIComponent(options.sentiment),
         "aspect-label": encodeURIComponent(options.aspect),
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo
     })
@@ -23,10 +24,12 @@ export function createTable(page, options){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID
     }))
     .then((response) => response.json())
     .then((data) => {
+        console.log(data)
         for (let element of data.data) {
             let tr = document.createElement("tr");
             var length = 150;

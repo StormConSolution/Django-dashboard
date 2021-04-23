@@ -48,7 +48,6 @@ export function createGraph(){
         "languages": filtersValues.languages,
         "sources": filtersValues.sources
     })
-    console.log(`/api/volume-by-source/${project_id}/?` + urlParams)
     fetch(`/api/volume-by-source/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

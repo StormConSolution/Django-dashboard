@@ -14,7 +14,8 @@ export function createTable(page){
             "date-from": filtersValues.dateFrom,
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
-            "sources": filtersValues.sources
+            "sources": encodeURIComponent(filtersValues.sources),
+            "sourcesID": filtersValues.sourcesID
         })
         fetch(`/api/aspect-count/${window.project_id}/?` + urlParams).then(response => response.json()).then(data => {
             let first = true
