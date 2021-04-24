@@ -118,9 +118,6 @@
               <li>
                 <a style="cursor:pointer;" id="sources-tab">Sources</a>
               </li>
-              <li>
-                <a style="cursor:pointer;" id="word-cloud-tab">Word Cloud</a>
-              </li>
               <li class="ml-auto">
                 <div class="dropdown ">
                   <a class="dropdown-toggle" href="#" id="projectdropdown" role="button" data-toggle="dropdown"
@@ -596,7 +593,7 @@
             </button>
                 </div>
             </div>
-            <div class="" id="cloud-word-container">
+            <div class="" id="word-cloud-modal-container" style="display:flex;flex-direction:row;justify-content:center">
             </div>
         </div>
     </div>
@@ -606,6 +603,7 @@ let dataTableModalContainer = document.querySelector("#data-table-modal")
 let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
 dataTableModalCloseButton.addEventListener("click", (e) => {
     dataTableModalContainer.style.display = 'none'
+    document.querySelector("#word-cloud-modal-container").innerHTML = ""
 })
 </script>
 <script src="/static/assets/js/bundle.js"></script>

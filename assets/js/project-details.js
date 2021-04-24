@@ -3,6 +3,7 @@ import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
 import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers'
 let timeOut
+let timeOutUpdateDelay
 let currentTab = "overview-tab"
 function updateProjectTables(){
     tables.aspectTopicTable(1)
@@ -21,6 +22,13 @@ function updateGraphs(){
     graphs.emotionAspectCoOccurrence()
 }
 
+function updateProjectDetailsPageWithDelay(){
+    if(timeOutUpdateDelay){
+        clearTimeout(timeOutUpdateDelay)
+    } else {
+        setTimeout(updateProjectDetailsPage, 4000)
+    }
+}
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
         updateProjectTables()
@@ -36,23 +44,23 @@ function updateProjectDetailsPage(){
 updateProjectDetailsPage()
 
 document.getElementById("date-from").addEventListener("change", (e)=>{
-    updateProjectDetailsPage()
+    updateProjectDetailsPageWithDelay()
 })
 
 document.getElementById("date-to").addEventListener("change", (e)=>{
-    updateProjectDetailsPage()
+    updateProjectDetailsPageWithDelay()
 })
 
 let languagesCheckbox = document.querySelectorAll("#dropdown-languages .choose input")
 for(let languageCheckbox of languagesCheckbox){
     languageCheckbox.addEventListener("change", (e)=>{
-        updateProjectDetailsPage()
+        updateProjectDetailsPageWithDelay()
     })
 }
 let sourcesCheckbox = document.querySelectorAll("#dropdown-sources .choose input")
 for(let sourceCheckbox of sourcesCheckbox){
     sourceCheckbox.addEventListener("change", (e)=>{
-        updateProjectDetailsPage()
+        updateProjectDetailsPageWithDelay()
     })
 }
 
@@ -64,7 +72,7 @@ document.querySelectorAll(".check-all").forEach((element) => {
         parent.querySelectorAll("input").forEach((input) => {
             input.checked = true
         })
-        updateProjectDetailsPage()
+        updateProjectDetailsPageWithDelay()
     })
 })
 
@@ -74,7 +82,7 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
         parent.querySelectorAll("input").forEach((input) => {
             input.checked = false
         })
-        updateProjectDetailsPage()
+        updateProjectDetailsPageWithDelay()
     })
 })
 
@@ -103,8 +111,6 @@ function showHideGraphsTables(){
             showGraphTable("volume-by-source")
             showGraphTable("data-table")
             break
-        case "word-cloud-tab":
-            showGraphTable("word-cloud")
     }
 }
 
@@ -129,11 +135,6 @@ document.querySelector("#sources-tab").addEventListener("click", (e)=>{
     currentTab = "sources-tab"
     showHideGraphsTables()
 })
-document.querySelector("#word-cloud-tab").addEventListener("click", (e)=>{
-    currentTab = "word-cloud-tab"
-    showHideGraphsTables()
-})
-
 
 document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>{
     document.querySelector("#word-cloud-modal").style.display = "block"

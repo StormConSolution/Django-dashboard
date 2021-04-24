@@ -2,6 +2,7 @@ import {createPagination} from './utils/utils'
 import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
 import {getFilters} from '../helpers/filters'
 import {update} from '../helpers/helpers'
+import wordCloud from '../graphs/word-cloud-modal'
 export function createTable(page){
     update.startUpdate()
     makeTable(page)
@@ -53,7 +54,20 @@ function makeTable(page){
                     let dataTopicLabel = e.target.getAttribute("data-topic")
                     let sentiment = e.target.getAttribute("data-sentiment")
                     document.querySelector("#data-table-modal").style.display = "block"
-                    dataModalTable(1, dataAspectLabel, dataTopicLabel, sentiment)
+                    let filtersValues = getFilters()
+                    console.log("test")
+                    let wordCloudURL = `/api/data-per-aspect-topic/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                        "aspect-label": encodeURIComponent(dataAspectLabel),
+                        "topic-label": encodeURIComponent(dataTopicLabel),
+                        "sentiment": sentiment,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    wordCloud(wordCloudURL)
+                    dataModalTable(1, {aspectLabel: dataAspectLabel, topicLabel: dataTopicLabel, sentiment: sentiment})
                 })
             }
             let firstElement = data.pageSize * (data.currentPage - 1);

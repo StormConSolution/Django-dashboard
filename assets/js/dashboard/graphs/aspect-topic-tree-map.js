@@ -2,6 +2,7 @@ import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable} from '../tables/data_table_modal_aspect_topic_tree_map'
+import wordCloud from './word-cloud-modal'
 let chart
 let project_id = window.project_id;
 let firstRun = true
@@ -59,6 +60,18 @@ export function createGraph(){
                         dataPointSelection: function(event, chartContext, config) {
                             let topicLabel = config.w.config.series[0].data[config.dataPointIndex].x
                             document.querySelector("#data-table-modal").style.display = "block"
+                            filtersValues = getFilters()
+                            let wordCloudURL = `/api/data-per-aspect-topic/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                                "aspect-label": encodeURIComponent(aspectLabel),
+                                "topic-label": encodeURIComponent(topicLabel),
+                                "sentiment": options.sentiment,
+                                "date-from": filtersValues.dateFrom,
+                                "date-to": filtersValues.dateTo,
+                                "languages": encodeURIComponent(filtersValues.languages),
+                                "sources": filtersValues.sources,
+                                "sourcesID": filtersValues.sourcesID
+                            })
+                            wordCloud(wordCloudURL)
                             createTable(1, {topicLabel:topicLabel, sentiment: sentiment, aspectLabel: aspectLabel})
                         }            
                     }

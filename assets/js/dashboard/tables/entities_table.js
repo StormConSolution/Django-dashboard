@@ -2,6 +2,7 @@ import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+import wordCloud from '../graphs//word-cloud-modal'
 let content = document.getElementById("entity-table-content");
 export function createTable(page){
     update.startUpdate()
@@ -42,7 +43,16 @@ export function createTable(page){
                 let entityID = e.target.getAttribute("data-entity-id")
                 let classificationID = e.target.getAttribute("data-classification-id")
                 document.querySelector("#data-table-modal").style.display = "block"
-                dataEntityClassificationTable(1, classificationID, entityID)
+                filtersValues = getFilters()
+                let wordCloudURL =  `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&` + new URLSearchParams({
+                    "date-from": filtersValues.dateFrom,
+                    "date-to": filtersValues.dateTo,
+                    "languages": encodeURIComponent(filtersValues.languages),
+                    "sources": encodeURIComponent(filtersValues.sources),
+                    "sourcesID": filtersValues.sourcesID
+                })
+                wordCloud(wordCloudURL)
+                dataEntityClassificationTable(1, {classification: classificationID, entity: entityID})
             })
             content.append(tr);
         }

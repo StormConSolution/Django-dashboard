@@ -1,5 +1,6 @@
 import {getFilters} from "../helpers/filters"
-export function createTable(page, aspectLabel, topicLabel, sentiment){
+import {createPagination} from './utils/utils'
+export function createTable(page, options){
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
@@ -7,9 +8,9 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
     document.getElementById("data-modal-table-csv").href = `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
-        "aspect-label": encodeURIComponent(aspectLabel),
-        "topic-label": encodeURIComponent(topicLabel),
-        "sentiment": sentiment,
+        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "topic-label": encodeURIComponent(options.topicLabel),
+        "sentiment": options.sentiment,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
@@ -17,11 +18,11 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         "sourcesID": filtersValues.sourcesID
     })
     fetch(`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
-        "aspect-label": encodeURIComponent(aspectLabel),
-        "topic-label": encodeURIComponent(topicLabel),
+        "aspect-label": encodeURIComponent(options.aspectLabel),
+        "topic-label": encodeURIComponent(options.topicLabel),
         "page": page,
         "page-size": pageSize,
-        "sentiment": sentiment,
+        "sentiment": options.sentiment,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
@@ -64,93 +65,6 @@ export function createTable(page, aspectLabel, topicLabel, sentiment){
         }
         let firstElement = data.pageSize * (data.currentPage - 1);
         let lastElement = firstElement + data.pageSize;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, aspectLabel, topicLabel, sentiment);
+        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, options);
     });
-}
-
-function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack, aspectLabel, topicLabel, sentiment){
-    let paginationDiv = document.createElement("div")
-    paginationDiv.className = "row no-gutters"
-    let paginationHtml = `
-    <div class="col-12 col-md">
-        <div class="pagination-data">Showing ${firstElement} to ${lastElement} of ${totalElements} entries</div>
-    </div>
-    `;
-
-    paginationDiv.innerHTML = paginationHtml;
-
-    let paginationNumbers = document.createElement("div")
-    paginationNumbers.className = "col-12 col-md-auto";
-    let ulPagination = document.createElement("ul")
-    ulPagination.className="pagination"
-    paginationNumbers.append(ulPagination)
-    paginationDiv.append(paginationNumbers)
-    
-    if(totalPages < 7){
-        for(let i = 1; i <= totalPages; i++){
-            let li = createPageNumber(currentPage, i, callBack,  aspectLabel, topicLabel, sentiment)
-            ulPagination.append(li) 
-        }
-    } else {
-        let li = createPageNumber(currentPage, 1, callBack, aspectLabel, topicLabel, sentiment)
-        ulPagination.append(li) 
-
-        if(currentPage < 4){
-            for(let i = 2; i < 5; i++){
-                let li = createPageNumber(currentPage, i, callBack, aspectLabel, topicLabel, sentiment)
-                ulPagination.append(li) 
-            }
-            let li = document.createElement("li")
-            let a = document.createElement("a")
-            a.innerHTML = ".."
-            li.append(a);
-            ulPagination.append(li)
-            li = createPageNumber(currentPage, totalPages, callBack, aspectLabel, topicLabel, sentiment)
-            ulPagination.append(li) 
-        }
-
-        if(currentPage >= 4){
-            li = document.createElement("li")
-            let a = document.createElement("a")
-            a.innerHTML = ".."
-            li.append(a);
-            ulPagination.append(li)
-            if(currentPage < totalPages - 3){
-                for(let i = currentPage - 1; i < currentPage +2; i++){
-                    let li = createPageNumber(currentPage, i, callBack, aspectLabel, topicLabel, sentiment)
-                    ulPagination.append(li) 
-                }
-                li = document.createElement("li")
-                a = document.createElement("a")
-                a.innerHTML = ".."
-                li.append(a);
-                ulPagination.append(li)
-                li = createPageNumber(currentPage, totalPages, callBack, aspectLabel, topicLabel, sentiment)
-                ulPagination.append(li)
-            } else {
-                for(let i = currentPage - 1; i <= totalPages; i++){
-                    let li = createPageNumber(currentPage, i, callBack, aspectLabel, topicLabel, sentiment)
-                    ulPagination.append(li)  
-                }
-            }
- 
-        }
-    }
-
-    paginationContainer.append(paginationDiv);
-}
-
-function createPageNumber(currentPageNumber, pageNumber, callBack, aspectLabel, topicLabel, sentiment){
-    let li = document.createElement("li")
-    let a = document.createElement("a")
-    a.innerHTML = pageNumber
-    a.setAttribute("style", "cursor:pointer")
-    a.addEventListener("click", (e)=>{
-        callBack(pageNumber, aspectLabel, topicLabel, sentiment)
-    })
-    if(currentPageNumber == pageNumber){
-        li.className = "active"
-    }
-    li.append(a);
-    return li
 }

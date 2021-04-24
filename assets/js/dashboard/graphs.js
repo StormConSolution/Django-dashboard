@@ -9,4 +9,4 @@ export {createGraph as aspectBySentimentGraph} from "./graphs/aspect-by-sentimen
 export {createGraph as sentimentTrendGraph} from "./graphs/sentiment-trend";
 export {createGraph as aspectTopicTreeMap} from "./graphs/aspect-topic-tree-map";
 export {createGraph as emotionAspectCoOccurrence} from "./graphs/emotion-aspect-co-occurrence";
-import './graphs/word-cloud'
+//import './graphs/word-cloud'
