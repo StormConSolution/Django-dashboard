@@ -5,8 +5,8 @@ export default function word_cloud(url) {
     let wordsContainer = document.querySelector("#word-cloud-modal-container")
     wordsContainer.innerHTML = "Loading..."
     fetch(url).then(response => response.json()).then(data => {
-        let width = window.innerWidth * 0.7
-        let height = window.innerHeight * 0.5
+        let width = window.innerWidth * 0.8
+        let height = window.innerHeight * 0.7
   
         wordsContainer.innerHTML = ""
         if(data[0]){
@@ -38,7 +38,7 @@ export default function word_cloud(url) {
             var layout = cloud()
                 .size([width, height])
                 .words(data.map(function(d) {
-                return {text: d.keyword, size: 90*(d.keywordCount/maxCount), keyCount:d.keywordCount};
+                return {text: d.keyword, size: 180*(d.keywordCount/maxCount), keyCount:d.keywordCount};
                 }))
                 .padding(5)
                 .rotate(function() { return ~~(Math.random() * 2) * 90; })
