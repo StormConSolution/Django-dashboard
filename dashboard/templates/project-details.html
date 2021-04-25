@@ -25,11 +25,11 @@
                 <div class="form-row align-items-center">
                   <div class="col-auto" style="display:flex;flex-direction:row">
                     <label style="display:flex;justify-content:center;align-items:center;margin-right:0.5rem">From:</label>
-                    <input type="date" class="form-control" id="date-from">
+                    <input type="date" class="form-control" id="date-from" value="{{default_date_from}}">
                   </div>
                   <div class="col-auto" style="display:flex;flex-direction:row">
                     <label style="display:flex;justify-content:center;align-items:center;margin-right:.5rem">To:</label>
-                    <input type="date" class="form-control" id="date-to">
+                    <input type="date" class="form-control" id="date-to" value="{{default_date_to}}">
                   </div>
                   <div class="col-auto">
                     <div class="dropdown choose-languages">
@@ -72,10 +72,10 @@
 
                           </div>
                           <div class="choose" style="max-height:30vh;overflow-y:scroll">
-                            {% for sourceLabel in sourceLabels %}
+                            {% for source in sources %}
                             <div class="">
-                              <input type="checkbox" class="" value="{{sourceLabel}}" onclick="return true" checked>
-                              <label class="">{{sourceLabel}}</label>
+                              <input type="checkbox" class="" data-id="{{source.sourceID}}" value="{{source.sourceLabel}}" onclick="return true" checked>
+                              <label class="">{{source.sourceLabel}}</label>
                             </div>
                             {% endfor %}
                           </div>
@@ -118,9 +118,6 @@
               <li>
                 <a style="cursor:pointer;" id="sources-tab">Sources</a>
               </li>
-              <li>
-                <a style="cursor:pointer;" id="word-cloud-tab">Word Cloud</a>
-              </li>
               <li class="ml-auto">
                 <div class="dropdown ">
                   <a class="dropdown-toggle" href="#" id="projectdropdown" role="button" data-toggle="dropdown"
@@ -157,501 +154,20 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-8 project-card" data-role="graph-table-container" data-graph-table="sentiment-trend">
-          <div class="project-card-inner">
-            <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4 class="col p-0 sentiment-trend ">Sentiment
-                Trend <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-              <div class="col-auto ml-auto p-0">
-                <div class="row">
-                  <div class="col chart-total-data">
-                    <h2 id="sentiment-trend-total">0</h2>
-                    <span>Total positives and negatives </span>
-                  </div>
-                  <div class="col chart-positive-data">
-                    <h2 id="sentiment-trend-total-positives">0</h2>
-                    <span>Total positive</span>
-                  </div>
-                  <div class="col chart-negative-data">
-                    <h2 id="sentiment-trend-total-negatives">0</h2>
-                    <span>Total negative</span>
-                  </div>
-                </div>
-              </div>
+       {% include "includes/graphs/sentiment-trend.html" %} 
+       {% include "includes/graphs/overall-sentiment.html" %} 
+       {% include "includes/graphs/volume-by-source.html" %} 
+       {% include "includes/graphs/aspects-count.html" %} 
+       {% include "includes/graphs/emotion-aspect-co-occurrence.html" %} 
+       {% include "includes/graphs/aspect-co-occurrence.html" %} 
+       {% include "includes/graphs/aspect-by-sentiment.html" %} 
+       {% include "includes/graphs/aspect-topic-tree-map.html" %} 
 
-            </div>
-            <div class="chart-wrap">
-              <div id="sentiment-trend-graph" >
+       {% include "includes/tables/aspect-topic-breakdown.html" %} 
+       {% include "includes/tables/entities-table.html" %} 
+       {% include "includes/tables/top-entities-per-aspect.html" %} 
+       {% include "includes/tables/data-items.html" %} 
 
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-lg-4 project-card" id="overall-graph" data-role="graph-table-container" data-graph-table="overall-sentiment">
-          <div class="row">
-            <div class="col-12 pb-3 ">
-              <div class="project-card-inner">
-                <div class="chart-title pb-0 mb-3 border-0 ">
-                  <h4>Overall Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                      <i class="fe fe-help-circle"></i>
-                    </a> </h4>
-
-
-                </div>
-
-                <div id="overall-sentiment-chart"></div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="project-card-inner">
-                <div class="simple-data">
-                  <i class="fe fe-hash"></i>
-                  <h2 id="aspect-count"></h2>
-                  <span>Different Aspect </span>
-                </div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="project-card-inner">
-                <div class="simple-data">
-                  <i class="fe fe-command"></i>
-                  <h2 id="source-count"></h2>
-                  <span>Different Source </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="volume-by-source">
-          <div class="project-card-inner">
-            <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4>Volume By Source <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-
-
-            </div>
-
-            <div class="chart-wrap">
-              <div id="volume-by-source" >
-
-              </div>
-            </div>
-
-          </div>
-
-
-        </div>
-
-        <div class="col-12 project-card" id="aspect-graph" data-role="graph-table-container" data-graph-table="aspect-count">
-          <div class="project-card-inner">
-            <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4>Aspects <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-            </div>
-            <div class="aspects-list">
-              <ul class="flex-wrap" id="aspect-count-graphs">
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 project-card" id="aspect-graph" data-role="graph-table-container" data-graph-table="emotion-aspect-co-occurrence">
-            <div class="project-card-inner">
-              <div class="chart-title  align-items-center d-flex flex-wrap">
-                <h4>Emotion Aspect Co-Occurrence<a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                    <i class="fe fe-help-circle"></i>
-                  </a> </h4>
-                <div class="per-page align-items-center d-flex" style="margin-left:auto">
-                    Top Emotions <select class="custom-select" id="emotion-aspect-co-occurrence-max-emotions">
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="20">20</option>
-                    </select> 
-                </div>
-              </div>
-              <div class="aspects-list">
-                <ul class="flex-wrap" id="emotion-aspect-co-occurrence">
-                </ul>
-              </div>
-            </div>
-        </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-co-occurrence">
-          <div class="project-card-inner">
-            <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4>Aspect Co-Occurrence (last 30 days of data) <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-
-
-            </div>
-
-            <div class="chart-wrap">
-              <div id="co-occurrence-graph" >
-
-              </div>
-            </div>
-
-          </div>
-
-
-        </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-by-sentiment">
-          <div class="project-card-inner">
-            <div class="chart-title  align-items-center d-flex flex-wrap">
-              <h4>Aspect By Sentiment <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-
-
-            </div>
-
-            <div class="chart-wrap">
-              <div id="aspect-by-sentiment" >
-
-              </div>
-            </div>
-
-          </div>
-
-
-        </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-topic-tree-map">
-            <div class="project-card-inner">
-              <div class="chart-title align-items-center d-flex flex-wrap">
-                <h4 class="col p-0">Aspect Topic Tree Map <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                    <i class="fe fe-help-circle"></i>
-                  </a> </h4>
-                <div class="col-auto p-0 d-flex flex-wrap ">
-                <div class="per-page align-items-center d-flex">
-                  Aspect 
-                  <select class="custom-select" id="aspect-topic-tree-map-aspects" style="max-width: 100px;">
-                  </select>
-                </div>
-                <div class="per-page align-items-center d-flex">
-                    Sentiment 
-                    <select class="custom-select" id="aspect-topic-tree-map-sentiment" style="max-width: 100px;">
-                        <option value="all" selected>All</option>
-                        <option value="positive">Positive</option>
-                        <option value="negative">Negative</option>
-                    </select>
-                  </div>
-                <div class="per-page align-items-center d-flex">
-                    Max Topics <select class="custom-select" id="aspect-topic-tree-map-max-topics">
-                      <option value="10" selected>10</option>
-                      <option value="20">20</option>
-                      <option value="30">30</option>
-                      <option value="40">40</option>
-                    </select> 
-                </div>
- <!--                <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="aspect-topic-tree-map-csv" target="_blank">Download CSV</a> -->
-                </div>
-              </div>
-              <div class="data-table table-responsive" id="aspect-topic-tree-map-container">
-              </div>
-            </div>
-          </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-topic">
-          <div class="project-card-inner">
-            <div class="chart-title align-items-center d-flex flex-wrap">
-              <h4 class="col p-0">Aspect Topic Breakdown <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-              <div class="col-auto p-0 d-flex flex-wrap ">
-              <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="aspect-topic-table-page-size">
-                  <option value="10" selected>10</option>
-                  <option value="20">20</option>
-                  <option value="30">30</option>
-                  <option value="40">40</option>
-                </select> Entries
-              </div>
-              <div class="data-search">
-                <input type="text" class="form-control " placeholder="Search">
-              </div>
-              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="aspect-topic-table-csv" target="_blank">Download CSV</a>
-              </div>
-
-            </div>
-
-            <div class="data-table table-responsive">
-              <table class="table table-striped table-borderless">
-                <thead>
-                  <tr>
-                    <th scope="col">
-                      TOPIC <span class="data-short">
-                        <a href="#" class="active">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col">
-                      ASPECT <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="width-150 text-center">
-                      POSITIVES 
-                    </th>
-                    <th scope="col" class="width-150 text-center">
-                      NEGATIVES 
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="aspect-topic-table-content">
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-bottom" id="aspect-topic-table-pagination">
-            </div>
-
-          </div>
-
-
-        </div>
-        <div class="col-12 project-card" id="entity-table" data-role="graph-table-container" data-graph-table="entities-table">
-          <div class="project-card-inner">
-            <div class="chart-title align-items-center d-flex flex-wrap">
-              <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-              <div class="col-auto p-0 d-flex flex-wrap ">
-              <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="entity-table-page-size">
-                  <option value="10" selected>10</option>
-                  <option value="20">20</option>
-                  <option value="30">30</option>
-                  <option value="40">40</option>
-                </select> Entries
-              </div>
-              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="entities-table-csv" target="_blank">Download CSV</a>
-              </div>
-
-            </div>
-
-            <div class="data-table table-responsive">
-              <table class="table table-striped table-borderless">
-                <thead>
-                  <tr>
-                    <th scope="col">
-                      ENTITY <span class="data-short">
-                        <a href="#" class="active">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col">
-                      CLASSIFICATIONS <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="text-center" >
-                      FREQUENCY <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                   
-                  </tr>
-                </thead>
-                <tbody id="entity-table-content">
-                </tbody>
-              </table>
-            </div>
-            <div class="table-bottom" id="entity-table-pagination">
-            </div>
-          </div>
-        </div>
-        <div class="col-12 project-card" id="top-entities-per-aspect-table" data-role="graph-table-container" data-graph-table="top-entities-per-aspect-table">
-            <div class="project-card-inner">
-              <div class="chart-title align-items-center d-flex flex-wrap">
-                <h4 class="col p-0">Entities <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                    <i class="fe fe-help-circle"></i>
-                  </a> </h4>
-                <div class="col-auto p-0 d-flex flex-wrap ">
-                <div class="per-page align-items-center d-flex">
-                    Aspect <select class="custom-select" id="top-entities-per-aspect-table-aspect" style="min-width: 100px;">
-                    </select>
-                </div>
-                <div class="per-page align-items-center d-flex">
-                  Show <select class="custom-select" id="top-entities-per-aspect-table-page-size">
-                    <option value="10" selected>10</option>
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                    <option value="40">40</option>
-                  </select> Entries
-                </div>
-                <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="top-entities-per-aspect-table-csv" target="_blank">Download CSV</a>
-                </div>
-            </div>
-              <div class="data-table table-responsive">
-                <table class="table table-striped table-borderless">
-                  <thead>
-                    <tr>
-                      <th scope="col">
-                        ENTITY <span class="data-short">
-                          <a href="#" class="active">
-                            <i class="fe fe-chevron-up"></i>
-                          </a>
-                          <a href="#">
-                            <i class="fe fe-chevron-down"></i>
-                          </a>
-                        </span>
-                      </th>
-                      <th scope="col">
-                        CLASSIFICATIONS <span class="data-short">
-                          <a href="#">
-                            <i class="fe fe-chevron-up"></i>
-                          </a>
-                          <a href="#">
-                            <i class="fe fe-chevron-down"></i>
-                          </a>
-                        </span>
-                      </th>
-                      <th scope="col" class="text-center" >
-                        FREQUENCY <span class="data-short">
-                          <a href="#">
-                            <i class="fe fe-chevron-up"></i>
-                          </a>
-                          <a href="#">
-                            <i class="fe fe-chevron-down"></i>
-                          </a>
-                        </span>
-                      </th>
-                     
-                    </tr>
-                  </thead>
-                  <tbody id="top-entities-per-aspect-table-content">
-                  </tbody>
-                </table>
-              </div>
-              <div class="table-bottom" id="top-entities-per-aspect-table-pagination">
-              </div>
-            </div>
-        </div>
-        <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="data-table">
-          <div class="project-card-inner">
-            <div class="chart-title align-items-center d-flex flex-wrap">
-              <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                  <i class="fe fe-help-circle"></i>
-                </a> </h4>
-              <div class="col-auto p-0 d-flex flex-wrap ">
-              <div class="per-page align-items-center d-flex">
-                Show <select class="custom-select" id="data-table-page-size">
-                  <option value="10" selected>10</option>
-                  <option value="20">20</option>
-                  <option value="30">30</option>
-                  <option value="40">40</option>
-                </select> Entries
-              </div>
-              <div class="data-search">
-                <input type="text" class="form-control " placeholder="Search">
-              </div>
-              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="data-items-table-csv" target="_blank">Download CSV</a>
-              </div>
-
-            </div>
-
-            <div class="data-table table-responsive">
-              <table class="table table-striped table-borderless">
-                <thead>
-                  <tr>
-                    <th scope="col">
-                      DATE <span class="data-short">
-                        <a href="#" class="active">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="twitter-col">
-                      TEXT <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col"  >
-                      SOURCE <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="text-center">
-                      WEIGHTED <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="text-center" >
-                      RAW <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th scope="col" class="text-center" >
-                      LANGUAGE <span class="data-short">
-                        <a href="#">
-                          <i class="fe fe-chevron-up"></i>
-                        </a>
-                        <a href="#">
-                          <i class="fe fe-chevron-down"></i>
-                        </a>
-                      </span>
-                    </th>
-                   
-                  </tr>
-                </thead>
-                <tbody id="data-table-content">
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-bottom" id="data-table-pagination">
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -976,6 +492,7 @@
                   <option value="40">40</option>
                 </select> Entries
               </div>
+              <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="show-word-cloud-modal" target="_blank">Show Word Cloud</a>
               <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="data-modal-table-csv" target="_blank">Download CSV</a>
             <button type="button" class="close" aria-label="Close" id="close-data-table-modal">
                 <span aria-hidden="true" style="color:black;margin-left:1rem;">X</span>
@@ -1063,25 +580,20 @@
         </div>
 </div>
 </div>
-<div style="position:fixed;top:0;right:0;left:0;padding:40px;bottom:0;z-index:1000;overflow:auto;display:none;background-color: rgba(220,220,220,0.5);" class="row" id="tag-cloud-modal">
+<div style="position:fixed;top:0;right:0;left:0;padding:40px;bottom:0;z-index:1000;overflow:auto;display:none;background-color: rgba(220,220,220,0.5);" class="row" id="word-cloud-modal">
     <div class="col-12 project-card" style="overflow:auto;">
         <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
-                <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Need help?">
+                <h4 class="col p-0">Word Cloud<a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Need help?">
                     <i class="fe fe-help-circle"></i>
                 </a> </h4>
                 <div class="col-auto p-0 d-flex flex-wrap ">
-                <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="" target="_blank">Download CSV</a>
-            <button type="button" class="close" aria-label="Close" id="close-data-table-modal">
+            <button type="button" class="close" aria-label="Close" id="close-word-cloud-modal">
                 <span aria-hidden="true" style="color:black;margin-left:1rem;">X</span>
             </button>
                 </div>
             </div>
-            <div class="data-table table-responsive" id="data-items">
-            </div>
-            <div class="table-bottom" id="data-table-modal-pagination">
-                <div class="row no-gutters">
-                </div>
+            <div class="" id="word-cloud-modal-container" style="display:flex;flex-direction:row;justify-content:center">
             </div>
         </div>
     </div>
@@ -1091,6 +603,7 @@ let dataTableModalContainer = document.querySelector("#data-table-modal")
 let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
 dataTableModalCloseButton.addEventListener("click", (e) => {
     dataTableModalContainer.style.display = 'none'
+    document.querySelector("#word-cloud-modal-container").innerHTML = ""
 })
 </script>
 <script src="/static/assets/js/bundle.js"></script>

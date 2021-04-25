@@ -2,6 +2,7 @@ import config from "../config";
 import { getFilters } from "../helpers/filters";
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/data_table_modal_aspect_by_sentiment"
+import wordCloud from './word-cloud-modal'
 let chart 
 export function createGraph() {
     update.startUpdate()
@@ -28,7 +29,18 @@ export function createGraph() {
                     options.aspect = aspect
                     console.log(aspect)
                     console.log(count)
+                    let filtersValues = getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
+                    let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "aspect-label": encodeURIComponent(options.aspect),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": filtersValues.sources,
+                        "sourcesID": filtersValues.sourcesID,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo
+                    })
+                    wordCloud(wordCloudURL)
                     dataTableModalDataPerAspectAndSentiment(1, options)
                 }            
             }
@@ -94,7 +106,8 @@ export function createGraph() {
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID
     })
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())

@@ -20,6 +20,7 @@ export function createGraph(){
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
         "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID,
         "default": def
     })
     fetch(`/api/sentiment-trend/${projectId}/?` + urlParams)

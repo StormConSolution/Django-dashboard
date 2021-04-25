@@ -2,6 +2,7 @@ import config from "../config";
 import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
+import wordlCloud from './word-cloud-modal'
 let chart
 let div = document.querySelector("#overall-sentiment-chart")
 function overallSentiment(data){
@@ -15,7 +16,16 @@ function overallSentiment(data){
                     let sentiment = config.w.config.labels[config.dataPointIndex].toLowerCase()
                     let options = {}
                     options.sentiment = sentiment
+                    let filtersValues = filters.getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
+                    wordlCloud(`/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    }))
                     dataTableModalPerSentiment(1, options)
                 }            
             }
@@ -69,7 +79,8 @@ export function createGraph(){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
+        "sources": encodeURIComponent(filtersValues.sources),
+        "sourcesId": filtersValues.sourcesId
     })
     if(chart){
         chart.destroy()

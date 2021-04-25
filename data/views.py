@@ -23,6 +23,7 @@ from django.utils.decorators import method_decorator
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http.multipartparser import MultiPartParser
+from datetime import datetime, timedelta
 
 LOGIN_URL = '/login/'
 
@@ -307,9 +308,7 @@ class Projects(View):
             positive_count=Coalesce(Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0), 
             negative_count=Coalesce(Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()),0),
             neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
-            #print(data)
             project.update(data)
-            #print(project)
         context={}
         context["projects_data"] = projects
         context["projects_count"] = len(projects)
@@ -350,24 +349,31 @@ def new_project_details(request, project_id):
     context["project_id"] = project_id
     context["project_name"] = this_project.name
     context["user"] = user
-    context["sourceLabels"] = []
+    context["sources"] = []
+    context["sourceID"] = []
     context["languages"] = []
     context["all_aspects"] = []
     all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
     for aspect in all_aspects:
         context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
-    source_query = """select distinct (ds.id) , ds."label", count(ds.id) from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
         rows = cursor.fetchall()
     for row in rows:
-        context["sourceLabels"].append(row[1])
+        context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
     with connection.cursor() as cursor:
         cursor.execute(language_query, [project_id])
         rows = cursor.fetchall()
     for row in rows:
         context["languages"].append(row[0])
+
+    data = data_models.Data.objects.filter(project=project_id).latest('date_created')
+    context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
+    #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
+    context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+
     return render(request, "project-details.html", context)
 
 def entities(request, project_id):
@@ -492,7 +498,6 @@ def data_per_aspect(request, project_id):
 
     aspect_label = request.GET.get('aspect', '')
     sentiment = request.GET.get('sentiment', '')
-    print(sentiment, aspect_label)
     with connection.cursor() as cursor:
         if sentiment == 'neutral':
             cursor.execute("""
@@ -504,7 +509,6 @@ def data_per_aspect(request, project_id):
             cursor.execute("""
                 select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment > 0 and da."label" = %s""", [this_project.id, aspect_label])
         rows = cursor.fetchall()
-        print(rows)
     return JsonResponse(rows, safe=False)
 
 @login_required(login_url=LOGIN_URL)
@@ -543,7 +547,6 @@ def topics_per_aspect(request, project_id):
         cursor.execute("""
             select da."label" ,da.topic, count(*) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label") order by  da."label" ,count(*) desc;""", [project_id])
         rows = cursor.fetchall()
-        #print(rows)
     for row in rows:
         if row[0] not in response_data['aspects']:
             response_data['aspects'][row[0]] = {}
@@ -608,7 +611,6 @@ class AspectsList(View):
             aspect_definition.save()
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
         
-        #print(aspect_name, rule_name, rule_definition)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')

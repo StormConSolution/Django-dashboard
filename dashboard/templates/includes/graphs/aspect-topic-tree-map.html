@@ -1,0 +1,35 @@
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="aspect-topic-tree-map">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+        <h4 class="col p-0">Aspect Topic Tree Map <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
+            <i class="fe fe-help-circle"></i>
+          </a> </h4>
+        <div class="col-auto p-0 d-flex flex-wrap ">
+        <div class="per-page align-items-center d-flex">
+          Aspect 
+          <select class="custom-select" id="aspect-topic-tree-map-aspects" style="max-width: 100px;">
+          </select>
+        </div>
+        <div class="per-page align-items-center d-flex">
+            Sentiment 
+            <select class="custom-select" id="aspect-topic-tree-map-sentiment" style="max-width: 100px;">
+                <option value="all" selected>All</option>
+                <option value="positive">Positive</option>
+                <option value="negative">Negative</option>
+            </select>
+          </div>
+        <div class="per-page align-items-center d-flex">
+            Max Topics <select class="custom-select" id="aspect-topic-tree-map-max-topics">
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+            </select> 
+        </div>
+<!--                <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="aspect-topic-tree-map-csv" target="_blank">Download CSV</a> -->
+        </div>
+      </div>
+      <div class="data-table table-responsive" id="aspect-topic-tree-map-container">
+      </div>
+    </div>
+</div>

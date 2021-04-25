@@ -2,6 +2,7 @@ import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal_top_entities_per_aspect'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
+import wordCloud from '../graphs/word-cloud-modal'
 let content = document.getElementById("top-entities-per-aspect-table-content");
 let firstRun = true
 let aspectLabel = ""
@@ -14,7 +15,8 @@ export function createTable(page){
             "date-from": filtersValues.dateFrom,
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
-            "sources": filtersValues.sources
+            "sources": encodeURIComponent(filtersValues.sources),
+            "sourcesID": filtersValues.sourcesID
         })
         fetch(`/api/aspect-count/${window.project_id}/?` + urlParams).then(response => response.json()).then(data => {
             let first = true
@@ -73,7 +75,17 @@ export function createTable(page){
                     let entityID = e.target.getAttribute("data-entity-id")
                     let classificationID = e.target.getAttribute("data-classification-id")
                     document.querySelector("#data-table-modal").style.display = "block"
-                    dataEntityClassificationTable(1, classificationID, entityID)
+                    let filtersValues = getFilters() 
+                    let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect").value
+                    let wordCloudURL = `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&aspect-label=${selectAspect}&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    wordCloud(wordCloudURL)
+                    dataEntityClassificationTable(1, {classification: classificationID, entity: entityID})
                 })
                 content.append(tr);
             }

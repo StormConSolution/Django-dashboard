@@ -27,7 +27,6 @@
     "apexcharts": "^3.26.0",
     "d3": "^6.7.0",
     "d3-cloud": "^1.2.5",
-    "d3-dispatch": "^1.0.6",
-    "wordcloud": "^1.2.1"
+    "d3-dispatch": "^1.0.6"
   }
 }

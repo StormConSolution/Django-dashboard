@@ -1,4 +1,5 @@
 import {update} from '../helpers/helpers'
+import {getFilters} from '../helpers/filters'
 let div = document.querySelector("#emotion-aspect-co-occurrence")
 let chart
 export function createGraph(){
@@ -87,7 +88,14 @@ export function createGraph(){
     let currentEntity = ""
     let maxEmotions = document.querySelector("#emotion-aspect-co-occurrence-max-emotions").value
     let countEmotions = 0
-    fetch(`/api/entity-aspect-for-emotion/${project_id}/`)
+    let filtersValues = getFilters()
+    let urlParams = new URLSearchParams({
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+        "languages": filtersValues.languages,
+        "sourcesID": filtersValues.sourcesID
+    })
+    fetch(`/api/entity-aspect-for-emotion/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
             let series = []

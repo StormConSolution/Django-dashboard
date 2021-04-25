@@ -2,6 +2,7 @@ import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataPerAspectTable} from '../tables/data_table_modal_per_aspect'
+import wordCloud from './word-cloud-modal'
 let chart
 export function createGraph(){
     update.startUpdate()
@@ -18,7 +19,8 @@ export function createGraph(){
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
-        "sources": filtersValues.sources
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID
     })
     let project_id = window.project_id;
     fetch(`/api/aspect-count/${project_id}/?` + urlParams)
@@ -97,6 +99,15 @@ export function createGraph(){
                     let options = {}
                     document.querySelector("#data-table-modal").style.display = "block"
                     options.aspectLabel = aspectLabel
+                    let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "aspect-label": encodeURIComponent(options.aspectLabel),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    wordCloud(wordCloudURL)
                     dataPerAspectTable(1, options)
                 })
             }
