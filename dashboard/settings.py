@@ -173,7 +173,7 @@ SQL_USER = 'postgres'
 DEBUG = True
 
 API_HOST = 'http://localhost:9000'
-APIKEY = ''
+APIKEY = 'repustatedemopage'
 SQL_HOST = 'localhost'
 SQL_DATABASE = "dashboard"
 SQL_USER = ""

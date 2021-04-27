@@ -2,6 +2,8 @@ import collections
 import datetime
 import json
 import time
+import requests
+from typing import Dict, List
 
 from django import template
 from django.db import connection
@@ -24,6 +26,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http.multipartparser import MultiPartParser
 from datetime import datetime, timedelta
+from django.conf import settings
 
 LOGIN_URL = '/login/'
 
@@ -693,3 +696,56 @@ class Aspect(View):
                 rule_to_change.save()
             count = count + 1
         return HttpResponse(status=200)
+
+class SentimentList(View):
+    #@login_required(login_url=LOGIN_URL)
+
+    @method_decorator(login_required)
+    def get(self, request):
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        user = request.user
+        sentiment_list = data_models.Sentiment.objects.filter(users=user)
+        context = {}
+        context['sentiments'] = []
+        p = Paginator(sentiment_list, page_size)
+        page = p.page(page_number)
+        for sentiment in page.object_list:
+            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment})
+        p = Paginator(sentiment_list, page_size)
+
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        return render(request, "sentiment-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        sentiment_label = request.POST.get("sentiment-label", "")
+        text_definition = request.POST.get("sentiment-definition", "")
+        sentiment = request.POST.get("sentiment", "")
+        sentiment_language = request.POST.get("sentiment-language", "")
+
+        if sentiment == "positive":
+            sentiment_value = "pos"
+        elif sentiment == "negative":
+            sentiment_value = "neg"
+        elif sentiment == "neutral":
+            sentiment_value = "neu"
+        data = {
+            "text":text_definition,
+            "sentiment":sentiment_value,
+            "lang": sentiment_language
+        }
+        #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
+        req = requests.post('https://api.repustate.com/v4/%s/sentiment-rules.json' % settings.APIKEY, data=data)
+        json_data = json.loads(req.text)
+        sentiment_model = data_models.Sentiment(label=sentiment_label, definition=text_definition, sentiment=sentiment, language=sentiment_language, repustate_id = json_data["rule_id"])
+        sentiment_model.save() 
+        sentiment_model.users.add(user)
+        
+        return redirect("sentiment")
