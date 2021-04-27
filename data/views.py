@@ -711,7 +711,7 @@ class SentimentList(View):
         p = Paginator(sentiment_list, page_size)
         page = p.page(page_number)
         for sentiment in page.object_list:
-            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment})
+            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment, "rule_id": sentiment.repustate_id})
         p = Paginator(sentiment_list, page_size)
 
         context["projects_data"] = projects

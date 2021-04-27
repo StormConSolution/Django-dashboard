@@ -32,7 +32,7 @@ LANGUAGES = (
 class Sentiment(models.Model):
     label = models.CharField(max_length=80) 
     definition = models.TextField()
-    repustate_id = models.TextField()
+    rule_id = models.TextField()
     language = models.CharField(max_length=2, default='en')
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
