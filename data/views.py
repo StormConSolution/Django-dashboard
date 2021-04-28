@@ -622,10 +622,6 @@ class Aspect(View):
     @method_decorator(login_required)
     def delete(self, request, aspect_id):
         user = request.user
-        aspect_label = request.POST.get("aspect-label", "")
-        rule_names = request.POST.getlist("rule-name")
-        rule_definitions = request.POST.getlist("rule-definition")
-
         aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
         if aspect.count() == 0:
             return HttpResponse(status=403)
@@ -711,7 +707,7 @@ class SentimentList(View):
         p = Paginator(sentiment_list, page_size)
         page = p.page(page_number)
         for sentiment in page.object_list:
-            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment, "rule_id": sentiment.rule_id})
+            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment, "rule_id": sentiment.rule_id, "id":sentiment.id})
         p = Paginator(sentiment_list, page_size)
 
         context["projects_data"] = projects
@@ -729,7 +725,11 @@ class SentimentList(View):
         text_definition = request.POST.get("sentiment-definition", "")
         sentiment = request.POST.get("sentiment", "")
         sentiment_language = request.POST.get("sentiment-language", "")
-
+        if sentiment_label == "":
+            return HttpResponse("Sentiment Name is empty", status = 400)
+        text_definition_count = len(text_definition.split())
+        if text_definition_count < 1 or text_definition_count > 3:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
         if sentiment == "positive":
             sentiment_value = "pos"
         elif sentiment == "negative":
@@ -744,8 +744,50 @@ class SentimentList(View):
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
         req = requests.post('https://api.repustate.com/v4/%s/sentiment-rules.json' % settings.APIKEY, data=data)
         json_data = json.loads(req.text)
-        sentiment_model = data_models.Sentiment(label=sentiment_label, definition=text_definition, sentiment=sentiment, language=sentiment_language, repustate_id = json_data["rule_id"])
+        sentiment_model = data_models.Sentiment(label=sentiment_label, definition=text_definition, sentiment=sentiment, language=sentiment_language, rule_id = json_data["rule_id"])
         sentiment_model.save() 
         sentiment_model.users.add(user)
-        
+
         return redirect("sentiment")
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Sentiment(View):
+    @method_decorator(login_required)
+    def delete(self, request, sentiment_id):
+        user = request.user
+
+        sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
+       
+        requests.delete("https://api.repustate.com/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.APIKEY, sentiment.rule_id))
+        sentiment.delete()
+        return HttpResponse(status=200)
+
+    @method_decorator(login_required)
+    def post(self, request, sentiment_id):
+        user = request.user
+        sentiment_label = request.POST.get("sentiment-label", "")
+        text_definition = request.POST.get("sentiment-definition", "")
+        sentiment_value = request.POST.get("sentiment", "")
+        sentiment_language = request.POST.get("sentiment-language", "")
+        sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
+        if sentiment_label == "":
+            return HttpResponse("Sentiment Name is empty", status = 400)
+        text_definition_count = len(text_definition.split())
+        if text_definition_count < 1 or text_definition_count > 3:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
+        requests.delete("https://api.repustate.com/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.APIKEY, sentiment.rule_id))
+        data = {
+            "text":text_definition,
+            "sentiment":sentiment_value,
+            "lang": sentiment_language
+        }
+        req = requests.post('https://api.repustate.com/v4/%s/sentiment-rules.json' % settings.APIKEY, data=data)
+        json_data = json.loads(req.text)
+        sentiment.label = sentiment_label
+        sentiment.definition = text_definition
+        sentiment.sentiment = sentiment_value
+        sentiment.language = sentiment_language
+        sentiment.rule_id = json_data["rule_id"]
+
+        sentiment.save()
+        return HttpResponse(status=200)

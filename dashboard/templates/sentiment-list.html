@@ -86,7 +86,7 @@
                                         </span>
                                     </th>
                                     <th scope="col">
-                                        Projects using
+                                        Action
                                         <span class="data-short">
                                             <a href="#">
                                                 <i class="fe fe-chevron-up"></i>
@@ -128,7 +128,11 @@
                                             data-role="edit-sentiment-button"
                                             data-placement="bottom"
                                             title="Edit Sentiment"
-                                            data-aspect-id="{{rule.rule_id}}"
+                                            data-sentiment-text="{{sentiment.text}}"
+                                            data-sentiment-label="{{sentiment.label}}"
+                                            data-sentiment-sentiment="{{sentiment.sentiment}}"
+                                            data-sentiment-language="{{sentiment.language}}"
+                                            data-sentiment-id="{{sentiment.id}}"
                                         >
                                             <i class="fe fe-edit"></i>
                                         </a>
@@ -139,7 +143,7 @@
                                             data-toggle="tooltip"
                                             data-role="delete-sentiment"
                                             data-placement="bottom"
-                                            data-aspect-id="{{rule.rule_id}}"
+                                            data-sentiment-id="{{sentiment.id}}"
                                             title="Delete Sentiment"
                                         >
                                             <i class="fe fe-trash-2"></i>
@@ -156,7 +160,7 @@
                             <div class="col-12 col-md">
                                 <div class="pagination-data">
                                     Showing {{meta.page_items_from}} to
-                                    {{meta.page_items_to}} of {{aspects |length}} entries
+                                    {{meta.page_items_to}} of {{sentiments |length}} entries
                                 </div>
                             </div>
 
@@ -251,7 +255,7 @@
             </div>
             <div class="modal-body" style="overflow-y:visible;position:relative">
                 <div class="modal-data">
-                    <form method="POST" action="/sentiment/" data-aspect-id="NaN">
+                    <form method="POST" action="/sentiment/" id="create-sentiment-form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="aspect-name" class="form-label">Sentiment Name</label>
@@ -318,66 +322,109 @@
         </div>
     </div>
 </div>
-<script>
-/* let edit_aspect_rule_count = 1 */
-/* function resetEditAspectForm(){
-    document.querySelector('#edit-aspect').style.display='none'
-    document.querySelectorAll("[data-role='edit-aspect-group']").forEach(element=>{
-        element.remove()
-    })
-    edit_aspect_rule_count = 1
-}
-document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
-    let currentElement = e.currentTarget
-        let parent = currentElement.parentNode
-        let div = document.createElement("div")
-        div.setAttribute("data-role", "edit-aspect-group")
-        div.className = "aspect-group"
-        div.style.position = "relative"
-        let element =
-            `
-        <div class="form-group">
-            <p style="position:absolute; top:1rem;right:1rem;cursor:pointer;" data-role="delete-aspect-rule">X</p>
-            <label for="Rule-name" class="form-label">Rule ${edit_aspect_rule_count} Name</label>
-            <input name="rule-name"type="text" class="form-control" id="Rule-name" value="" placeholder="Enter Rule Name">
-        </div>
-        <div class="form-group">
-            <label for="Rule-name" class="form-label">Rule ${edit_aspect_rule_count} Definition</label>
-            <input name='rule-definition' class="tagify" value='' autofocus>
-        </div>
-    `
-        div.innerHTML = element
-        console.log(div)
-        div.querySelector("[data-role='delete-aspect-rule']").addEventListener("click", (e) => {
-            e.currentTarget.parentNode.parentNode.remove()
-            edit_aspect_rule_count--
-        })
-        new Tagify(div.querySelector(".tagify"), {
-            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-        })
-        parent.insertBefore(div, currentElement)
-        edit_aspect_rule_count++
-})
-document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
-    e.preventDefault()
-    let form = document.querySelector("#edit-aspect-form")
-    let formData = new FormData(form)
-    let id = form.getAttribute("data-aspect-id")
-    fetch(`/aspect/${id}/`, {
-        method:"POST",
-        body:formData
-    }).then(response =>{
-        if(response.status===200){
-            location.reload()
-        } else {
-            alert("Error editing aspect")
-        }
-    })
-}) */
 
+<div
+    class="modal fade show"
+    id="edit-sentiment-modal"
+    tabindex="-1"
+    aria-label="createaspectLabel"
+    style="z-index: 100;overflow-y:scroll;"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Sentiment</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i
+                        class="fe fe-x-circle"
+                        onclick="closeEditSentimentModal()"
+                    ></i>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y:visible;position:relative">
+                <div class="modal-data">
+                    <form method="POST" action="/sentiment/" id="edit-sentiment-form">
+                        {% csrf_token %}
+                        <input type="hidden" id="edit-sentiment-id"/>
+                        <div class="form-group">
+                            <label for="aspect-name" class="form-label">Sentiment Name</label>
+                            <input
+                                name="sentiment-label"
+                                type="text"
+                                class="form-control"
+                                id="edit-sentiment-label"
+                                placeholder="Enter Sentiment Name"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Text Definition (max 3 words)</label>
+                            <input
+                                name="sentiment-definition"
+                                type="text"
+                                class="form-control"
+                                id="edit-sentiment-text"
+                                placeholder="Text Definition"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sentiment</label>
+                            <select class="custom-select" name="sentiment" id="edit-sentiment-value">
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="neutral">Neutral</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="custom-select" id="edit-sentiment-language" name="sentiment-language">
+                                <option value="en">English</option>
+                                <option value="ar">Arabic (العربية)</option>
+                                <option value="zh">Chinese (中文)</option>
+                                <option value="da">Danish (Dansk)</option>
+                                <option value="nl">Dutch (Nederlands)</option>
+                                <option value="en">English</option>
+                                <option value="fi">Finnish (Suomi)</option>
+                                <option value="fr">French (Français)</option>
+                                <option value="de">German (Deutsch)</option>
+                                <option value="he">Hebrew (עִברִית)</option>
+                                <option value="it">Italian (Italiano)</option>
+                                <option value="id">Indonesian (Bahasa Indonesia)</option>
+                                <option value="ja">Japanese (日本語)</option>
+                                <option value="ko">Korean (한국어)</option>
+                                <option value="no">Norwegian (Norsk)</option>
+                                <option value="pl">Polish (Polski)</option>
+                                <option value="pt">Portuguese (Português)</option>
+                                <option value="ru">Russian (русский)</option>
+                                <option value="es">Spanish (Español)</option>
+                                <option value="sv">Swedish (Svenska)</option>
+                                <option value="tr">Turkish (Türk)</option>
+                                <option value="th">Thai (ไทย)</option>
+                                <option value="vi">Vietnamese (Tiếng Việt)</option>
+                                <option value="ur">Urdu (اردو)</option>
+                            </select>
+                        </div>
+<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
+                        <button type="submit" class="btn btn-primary mt-2">
+                            Edit Sentiment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
 function closeCreateSentimentModal(){
-    console.log("close modal")
     let modal = document.querySelector("#create-sentiment-modal")
+    modal.style.display = "none"
+}
+function closeEditSentimentModal(){
+    let modal = document.querySelector("#edit-sentiment-modal")
     modal.style.display = "none"
 }
 document.querySelector("#create-sentiment-button").addEventListener("click", (e)=>{
@@ -385,7 +432,85 @@ document.querySelector("#create-sentiment-button").addEventListener("click", (e)
     modal.style.display = "block"
 })
 
+document.querySelectorAll("[data-role='delete-sentiment']").forEach((element) => {
+    element.addEventListener("click", (e) => {
+        sentimentID = e.currentTarget.getAttribute("data-sentiment-id")
+        fetch("/sentiment/" + sentimentID + "/", {
+            method:'delete'
+        }).then((response) => {
+            if(response.status == 200){
+                location.reload()
+            } else {
+                alert("Error deleting sentiment")
+            }
+        })
+    })
+})
+document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((element) => {
+    element.addEventListener("click", (e) => {
+        document.querySelector("#edit-sentiment-modal").style.display = "block"
+        let element = e.currentTarget
+        sentimentID = element.getAttribute("data-sentiment-id")
+        sentimentValue = element.getAttribute("data-sentiment-sentiment")
+        sentimentLanguage = element.getAttribute("data-sentiment-language")
+        sentimentText = element.getAttribute("data-sentiment-text")
+        sentimentLabel = element.getAttribute("data-sentiment-label")
+        document.querySelector("#edit-sentiment-label").value = sentimentLabel
+        document.querySelector("#edit-sentiment-text").value = sentimentText
+        document.querySelector("#edit-sentiment-value").value = sentimentValue
+        document.querySelector("#edit-sentiment-language").value = sentimentLanguage
+        document.querySelector("#edit-sentiment-id").value = sentimentID
+/*         fetch("/sentiment/" + ruleID + "/", {
+            method:'delete'
+        }).then((response) => {
+            if(response.status == 200){
+                location.reload()
+            } else {
+                alert("Error deleting sentiment")
+            }
+        }) */
+    })
+})
+document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=>{
+    e.preventDefault()
+    let formData = new FormData(e.currentTarget)
+    fetch("/sentiment/", {
+        method: 'post',
+        body: formData
+    }).then(response => {
+        if(response.status == 200){
+            location.reload()
+        } else if(response.status == 400){
+            response.text().then(data =>{
+                console.log("test")
+                alert("Error creating sentiment: " + data)
+            })
+        } else {
+            alert("Error creating sentiment")
+        }
+    })
+})
 
+document.querySelector("#edit-sentiment-form").addEventListener("submit", (e)=>{
+    e.preventDefault()
+    let formData = new FormData(e.currentTarget)
+    let sentimentID = document.querySelector("#edit-sentiment-id").value
+    fetch("/sentiment/" + sentimentID + "/", {
+        method: 'post',
+        body: formData
+    }).then(response => {
+        if(response.status == 200){
+            location.reload()
+        } else if(response.status == 400){
+            response.text().then(data =>{
+                console.log("test")
+                alert("Error creating sentiment: " + data)
+            })
+        } else {
+            alert("Error creating sentiment")
+        }
+    })
+})
 </script>
 <!--<script src="/static/assets/js/bundle.js"></script>-->
 {% endblock %}
