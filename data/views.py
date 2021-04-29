@@ -709,7 +709,8 @@ class SentimentList(View):
         for sentiment in page.object_list:
             context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment, "rule_id": sentiment.rule_id, "id":sentiment.id})
         p = Paginator(sentiment_list, page_size)
-
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
         context["projects_data"] = projects
         context["page"] = p.get_page(page_number)
         context["paginator"] = p
