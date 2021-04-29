@@ -29,6 +29,13 @@ LANGUAGES = (
     ('ur', 'Urdu (اردو)'),
 )
 
+class Sentiment(models.Model):
+    label = models.CharField(max_length=80) 
+    definition = models.TextField()
+    rule_id = models.TextField()
+    language = models.CharField(max_length=2, default='en')
+    sentiment = models.CharField(max_length=80)
+    users = models.ManyToManyField(User)
 
 class ChartType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
@@ -56,6 +63,7 @@ class Project(models.Model):
     users = models.ManyToManyField(User)
     charts = models.ManyToManyField(ChartType, blank=True)
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
+    sentiment = models.ManyToManyField(Sentiment)
 
     def __str__(self):
         return self.name

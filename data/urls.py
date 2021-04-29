@@ -30,6 +30,8 @@ urlpatterns = [
     path('new-projects/<int:project_id>/', views.new_project_details, name='new-project-details'),
     path('aspect/', views.AspectsList.as_view(), name='aspects'),
     path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),
+    path('sentiment/', views.SentimentList.as_view(), name='sentiment'),
+    path('sentiment/<int:sentiment_id>/', views.Sentiment.as_view(), name='sentiment'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
 
     path('projects/<int:project_id>/',

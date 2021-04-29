@@ -2,6 +2,8 @@ import collections
 import datetime
 import json
 import time
+import requests
+from typing import Dict, List
 
 from django import template
 from django.db import connection
@@ -24,6 +26,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http.multipartparser import MultiPartParser
 from datetime import datetime, timedelta
+from django.conf import settings
 
 LOGIN_URL = '/login/'
 
@@ -619,10 +622,6 @@ class Aspect(View):
     @method_decorator(login_required)
     def delete(self, request, aspect_id):
         user = request.user
-        aspect_label = request.POST.get("aspect-label", "")
-        rule_names = request.POST.getlist("rule-name")
-        rule_definitions = request.POST.getlist("rule-definition")
-
         aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
         if aspect.count() == 0:
             return HttpResponse(status=403)
@@ -692,4 +691,104 @@ class Aspect(View):
                 rule_to_change.label = rule_names[count]
                 rule_to_change.save()
             count = count + 1
+        return HttpResponse(status=200)
+
+class SentimentList(View):
+    #@login_required(login_url=LOGIN_URL)
+
+    @method_decorator(login_required)
+    def get(self, request):
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        user = request.user
+        sentiment_list = data_models.Sentiment.objects.filter(users=user)
+        context = {}
+        context['sentiments'] = []
+        p = Paginator(sentiment_list, page_size)
+        page = p.page(page_number)
+        for sentiment in page.object_list:
+            context['sentiments'].append({"label":sentiment.label, "text": sentiment.definition, "language": sentiment.language, "sentiment":sentiment.sentiment, "rule_id": sentiment.rule_id, "id":sentiment.id})
+        p = Paginator(sentiment_list, page_size)
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        return render(request, "sentiment-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        sentiment_label = request.POST.get("sentiment-label", "")
+        text_definition = request.POST.get("sentiment-definition", "")
+        sentiment = request.POST.get("sentiment", "")
+        sentiment_language = request.POST.get("sentiment-language", "")
+        if sentiment_label == "":
+            return HttpResponse("Sentiment Name is empty", status = 400)
+        text_definition_count = len(text_definition.split())
+        if text_definition_count < 1 or text_definition_count > 3:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
+        if sentiment == "positive":
+            sentiment_value = "pos"
+        elif sentiment == "negative":
+            sentiment_value = "neg"
+        elif sentiment == "neutral":
+            sentiment_value = "neu"
+        data = {
+            "text":text_definition,
+            "sentiment":sentiment_value,
+            "lang": sentiment_language
+        }
+        #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
+        json_data = json.loads(req.text)
+        sentiment_model = data_models.Sentiment(label=sentiment_label, definition=text_definition, sentiment=sentiment, language=sentiment_language, rule_id = json_data["rule_id"])
+        sentiment_model.save() 
+        sentiment_model.users.add(user)
+
+        return redirect("sentiment")
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Sentiment(View):
+    @method_decorator(login_required)
+    def delete(self, request, sentiment_id):
+        user = request.user
+
+        sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
+       
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
+        sentiment.delete()
+        return HttpResponse(status=200)
+
+    @method_decorator(login_required)
+    def post(self, request, sentiment_id):
+        user = request.user
+        sentiment_label = request.POST.get("sentiment-label", "")
+        text_definition = request.POST.get("sentiment-definition", "")
+        sentiment_value = request.POST.get("sentiment", "")
+        sentiment_language = request.POST.get("sentiment-language", "")
+        sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
+        if sentiment_label == "":
+            return HttpResponse("Sentiment Name is empty", status = 400)
+        text_definition_count = len(text_definition.split())
+        if text_definition_count < 1 or text_definition_count > 3:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
+        data = {
+            "text":text_definition,
+            "sentiment":sentiment_value,
+            "lang": sentiment_language
+        }
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
+        json_data = json.loads(req.text)
+        sentiment.label = sentiment_label
+        sentiment.definition = text_definition
+        sentiment.sentiment = sentiment_value
+        sentiment.language = sentiment_language
+        sentiment.rule_id = json_data["rule_id"]
+
+        sentiment.save()
         return HttpResponse(status=200)
