@@ -372,10 +372,11 @@ def new_project_details(request, project_id):
     for row in rows:
         context["languages"].append(row[0])
 
-    data = data_models.Data.objects.filter(project=project_id).latest('date_created')
-    context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
-    #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
-    context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+    if data_models.Data.objects.filter(project=project_id).count() != 0:
+        data = data_models.Data.objects.filter(project=project_id).latest('date_created')
+        context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
+        #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
+        context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
 
     return render(request, "project-details.html", context)
 
