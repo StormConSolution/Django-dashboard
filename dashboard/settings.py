@@ -172,12 +172,13 @@ SQL_USER = 'postgres'
 
 DEBUG = True
 
-API_HOST = 'http://localhost:9000'
+API_HOST = 'https://api.repustate.com'
 APIKEY = 'repustatedemopage'
 SQL_HOST = 'localhost'
 SQL_DATABASE = "dashboard"
 SQL_USER = ""
 SQL_PASSWORD = ""
+
 
 try:
     from .settings_local import *

@@ -743,7 +743,7 @@ class SentimentList(View):
             "lang": sentiment_language
         }
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        req = requests.post('https://api.repustate.com/v4/%s/sentiment-rules.json' % settings.APIKEY, data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
         json_data = json.loads(req.text)
         sentiment_model = data_models.Sentiment(label=sentiment_label, definition=text_definition, sentiment=sentiment, language=sentiment_language, rule_id = json_data["rule_id"])
         sentiment_model.save() 
@@ -759,7 +759,7 @@ class Sentiment(View):
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
        
-        requests.delete("https://api.repustate.com/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.APIKEY, sentiment.rule_id))
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
         sentiment.delete()
         return HttpResponse(status=200)
 
@@ -776,13 +776,13 @@ class Sentiment(View):
         text_definition_count = len(text_definition.split())
         if text_definition_count < 1 or text_definition_count > 3:
             return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
-        requests.delete("https://api.repustate.com/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.APIKEY, sentiment.rule_id))
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        req = requests.post('https://api.repustate.com/v4/%s/sentiment-rules.json' % settings.APIKEY, data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
         json_data = json.loads(req.text)
         sentiment.label = sentiment_label
         sentiment.definition = text_definition

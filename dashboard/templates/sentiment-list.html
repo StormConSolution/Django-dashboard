@@ -17,7 +17,7 @@
                                         class="btn btn-outline-primary btn-outline-1"
                                         data-toggle="modal"
                                         data-target="create-sentiment-button"
-                                        > Add New Sentiment</a
+                                        > Add New Sentiment Rule</a
                                     >
                                 </div>
                             </div>
@@ -240,7 +240,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Sentiment</h5>
+                <h5 class="modal-title">Create Sentiment Rule</h5>
                 <button
                     type="button"
                     class="close"
@@ -258,12 +258,12 @@
                     <form method="POST" action="/sentiment/" id="create-sentiment-form">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Sentiment Name</label>
+                            <label for="aspect-name" class="form-label">Rule Name</label>
                             <input
                                 name="sentiment-label"
                                 type="text"
                                 class="form-control"
-                                placeholder="Enter Sentiment Name"
+                                placeholder="Enter Rule Name"
                             />
                         </div>
                         <div class="form-group">
@@ -314,7 +314,7 @@
                         </div>
 <!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
                         <button type="submit" class="btn btn-primary mt-2">
-                            Create Sentiment
+                            Create Sentiment Rule
                         </button>
                     </form>
                 </div>
@@ -333,7 +333,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Sentiment</h5>
+                <h5 class="modal-title">Edit Sentiment Rule</h5>
                 <button
                     type="button"
                     class="close"
@@ -352,13 +352,13 @@
                         {% csrf_token %}
                         <input type="hidden" id="edit-sentiment-id"/>
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Sentiment Name</label>
+                            <label for="aspect-name" class="form-label">Sentiment Rule</label>
                             <input
                                 name="sentiment-label"
                                 type="text"
                                 class="form-control"
                                 id="edit-sentiment-label"
-                                placeholder="Enter Sentiment Name"
+                                placeholder="Enter Rule Name"
                             />
                         </div>
                         <div class="form-group">
