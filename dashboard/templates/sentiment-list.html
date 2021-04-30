@@ -228,8 +228,99 @@
             Create aspect modal
         </a>
         {% endcomment %}
+        <a href="#" class="btn btn-primary mr-2" data-toggle="modal" id="show-test-sentiment-modal">
+            Test sentiment
+          </a>
+    </div>
+
+</div>
+<div
+    class="modal fade show"
+    id="test-sentiment-modal"
+    tabindex="-1"
+    aria-label="createaspectLabel"
+    style="z-index: 100;overflow-y:scroll;"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Sentiment</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i
+                        class="fe fe-x-circle"
+                        onclick="closeTestSentimentModal()"
+                    ></i>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y:visible;position:relative">
+                <div class="modal-data">
+                    <form method="POST" action="/sentiment/" id="test-sentiment-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="aspect-name" class="form-label">Text</label>
+                            <input
+                                name="test-sentiment-text"
+                                type="text"
+                                class="form-control"
+                                placeholder="Text"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="custom-select" name="text-language">
+                                <option value="en">English</option>
+                                <option value="ar">Arabic (العربية)</option>
+                                <option value="zh">Chinese (中文)</option>
+                                <option value="da">Danish (Dansk)</option>
+                                <option value="nl">Dutch (Nederlands)</option>
+                                <option value="en">English</option>
+                                <option value="fi">Finnish (Suomi)</option>
+                                <option value="fr">French (Français)</option>
+                                <option value="de">German (Deutsch)</option>
+                                <option value="he">Hebrew (עִברִית)</option>
+                                <option value="it">Italian (Italiano)</option>
+                                <option value="id">Indonesian (Bahasa Indonesia)</option>
+                                <option value="ja">Japanese (日本語)</option>
+                                <option value="ko">Korean (한국어)</option>
+                                <option value="no">Norwegian (Norsk)</option>
+                                <option value="pl">Polish (Polski)</option>
+                                <option value="pt">Portuguese (Português)</option>
+                                <option value="ru">Russian (русский)</option>
+                                <option value="es">Spanish (Español)</option>
+                                <option value="sv">Swedish (Svenska)</option>
+                                <option value="tr">Turkish (Türk)</option>
+                                <option value="th">Thai (ไทย)</option>
+                                <option value="vi">Vietnamese (Tiếng Việt)</option>
+                                <option value="ur">Urdu (اردو)</option>
+                            </select>
+                        </div>
+                        <div id="test-sentiment-score">
+                            Score
+                        </div>
+<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
+                        <button type="submit" class="btn btn-primary mt-2">
+                            Test Sentiment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<script>
+    function closeTestSentimentModal(){
+        document.querySelector("#test-sentiment-modal").style.display="none"
+    }
+
+    document.querySelector("#show-test-sentiment-modal").addEventListener("click", (e)=>{
+        document.querySelector("#test-sentiment-modal").style.display="block"
+    })
+</script>
 <div
     class="modal fade show"
     id="create-sentiment-modal"
@@ -490,7 +581,25 @@ document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=
         }
     })
 })
-
+document.querySelector("#test-sentiment-form").addEventListener("submit", (e)=>{
+    e.preventDefault()
+    let formData = new FormData(e.currentTarget)
+    let scoreDiv = document.querySelector("#test-sentiment-score")
+    scoreDiv.innerHTML = "Loading..."
+    fetch("/api/test-sentiment/", {
+        method: 'post',
+        body: formData
+    }).then(response => {
+        if(response.status == 200){
+            response.json().then(data=>{
+                console.log(data)
+                scoreDiv.innerHTML = "Score: " + data.score
+            })
+        } else {
+            alert("Error testing sentiment")
+        }
+    })
+})
 document.querySelector("#edit-sentiment-form").addEventListener("submit", (e)=>{
     e.preventDefault()
     let formData = new FormData(e.currentTarget)
