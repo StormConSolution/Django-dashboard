@@ -14,7 +14,7 @@ import json
 LOGIN_URL = '/login/'
 
 @login_required(login_url=LOGIN_URL)
-def test_sentiment(request):
+def sentiment_test(request):
 
     text = request.POST.get("test-sentiment-text", "")
     language = request.POST.get("language", "")

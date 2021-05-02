@@ -718,6 +718,7 @@ class SentimentList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
+        context["languages"] = data_models.LANGUAGES
         return render(request, "sentiment-list.html", context)
     
     @method_decorator(login_required)

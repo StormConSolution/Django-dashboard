@@ -11,14 +11,6 @@
                         <form>
                             <div class="form-row align-items-center">
                                 <div class="col-auto">
-                                    <a
-                                        href="#modal"
-                                        id="create-sentiment-button"
-                                        class="btn btn-outline-primary btn-outline-1"
-                                        data-toggle="modal"
-                                        data-target="create-sentiment-button"
-                                        > Add New Sentiment Rule</a
-                                    >
                                 </div>
                             </div>
                         </form>
@@ -230,7 +222,14 @@
         {% endcomment %}
         <a href="#" class="btn btn-primary mr-2" data-toggle="modal" id="show-test-sentiment-modal">
             Test sentiment
-          </a>
+        </a>
+        <a
+            href="#modal"
+            id="create-sentiment-button"
+            class="btn btn-primary mr-2"
+            data-toggle="modal"
+            data-target="create-sentiment-button"
+            > Add New Sentiment Rule</a>
     </div>
 
 </div>
@@ -262,12 +261,12 @@
                     <form method="POST" action="/sentiment/" id="test-sentiment-form">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Text</label>
+                            <label for="aspect-name" class="form-label">Sample Text</label>
                             <input
                                 name="test-sentiment-text"
                                 type="text"
                                 class="form-control"
-                                placeholder="Text"
+                                placeholder="Enter some sample text to test your sentiment rules"
                             />
                         </div>
                         <div class="form-group">
@@ -377,30 +376,9 @@
                         <div class="form-group">
                             <label class="form-label">Language</label>
                             <select class="custom-select" id="selectaspect" name="sentiment-language">
-                                <option value="en">English</option>
-                                <option value="ar">Arabic (العربية)</option>
-                                <option value="zh">Chinese (中文)</option>
-                                <option value="da">Danish (Dansk)</option>
-                                <option value="nl">Dutch (Nederlands)</option>
-                                <option value="en">English</option>
-                                <option value="fi">Finnish (Suomi)</option>
-                                <option value="fr">French (Français)</option>
-                                <option value="de">German (Deutsch)</option>
-                                <option value="he">Hebrew (עִברִית)</option>
-                                <option value="it">Italian (Italiano)</option>
-                                <option value="id">Indonesian (Bahasa Indonesia)</option>
-                                <option value="ja">Japanese (日本語)</option>
-                                <option value="ko">Korean (한국어)</option>
-                                <option value="no">Norwegian (Norsk)</option>
-                                <option value="pl">Polish (Polski)</option>
-                                <option value="pt">Portuguese (Português)</option>
-                                <option value="ru">Russian (русский)</option>
-                                <option value="es">Spanish (Español)</option>
-                                <option value="sv">Swedish (Svenska)</option>
-                                <option value="tr">Turkish (Türk)</option>
-                                <option value="th">Thai (ไทย)</option>
-                                <option value="vi">Vietnamese (Tiếng Việt)</option>
-                                <option value="ur">Urdu (اردو)</option>
+                                {% for language in languages %}
+                                <option value="{{language.0}}">{{language.1}}</option>
+                                {% endfor %}
                             </select>
                         </div>
 <!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
@@ -473,30 +451,9 @@
                         <div class="form-group">
                             <label class="form-label">Language</label>
                             <select class="custom-select" id="edit-sentiment-language" name="sentiment-language">
-                                <option value="en">English</option>
-                                <option value="ar">Arabic (العربية)</option>
-                                <option value="zh">Chinese (中文)</option>
-                                <option value="da">Danish (Dansk)</option>
-                                <option value="nl">Dutch (Nederlands)</option>
-                                <option value="en">English</option>
-                                <option value="fi">Finnish (Suomi)</option>
-                                <option value="fr">French (Français)</option>
-                                <option value="de">German (Deutsch)</option>
-                                <option value="he">Hebrew (עִברִית)</option>
-                                <option value="it">Italian (Italiano)</option>
-                                <option value="id">Indonesian (Bahasa Indonesia)</option>
-                                <option value="ja">Japanese (日本語)</option>
-                                <option value="ko">Korean (한국어)</option>
-                                <option value="no">Norwegian (Norsk)</option>
-                                <option value="pl">Polish (Polski)</option>
-                                <option value="pt">Portuguese (Português)</option>
-                                <option value="ru">Russian (русский)</option>
-                                <option value="es">Spanish (Español)</option>
-                                <option value="sv">Swedish (Svenska)</option>
-                                <option value="tr">Turkish (Türk)</option>
-                                <option value="th">Thai (ไทย)</option>
-                                <option value="vi">Vietnamese (Tiếng Việt)</option>
-                                <option value="ur">Urdu (اردو)</option>
+                                {% for language in languages %}
+                                <option value="{{language.0}}">{{language.1}}</option>
+                                {% endfor %}
                             </select>
                         </div>
 <!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
@@ -573,7 +530,6 @@ document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=
             location.reload()
         } else if(response.status == 400){
             response.text().then(data =>{
-                console.log("test")
                 alert("Error creating sentiment: " + data)
             })
         } else {
@@ -592,10 +548,10 @@ document.querySelector("#test-sentiment-form").addEventListener("submit", (e)=>{
     }).then(response => {
         if(response.status == 200){
             response.json().then(data=>{
-                console.log(data)
                 scoreDiv.innerHTML = "Score: " + data.score
             })
         } else {
+            scoreDiv.innerHTML = ""
             alert("Error testing sentiment")
         }
     })
@@ -612,7 +568,6 @@ document.querySelector("#edit-sentiment-form").addEventListener("submit", (e)=>{
             location.reload()
         } else if(response.status == 400){
             response.text().then(data =>{
-                console.log("test")
                 alert("Error creating sentiment: " + data)
             })
         } else {
