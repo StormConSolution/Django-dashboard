@@ -1,11 +1,13 @@
-  {% extends 'layouts/new-base.html' %}
-  {% block title%}
-  <title>Repustate Insights | {{project_name}}</title>
-  {% endblock%}
-  {% block content %}
-  <script>
-      window.project_id = {{project_id | safe}}
-  </script>
+{% extends 'layouts/new-base.html' %}
+
+{% block title %}
+<title>Repustate Insights | {{project_name}}</title>
+{% endblock %}
+
+{% block content %}
+	<script>
+	  window.project_id = {{project_id | safe}}
+	</script>
 <!--   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script> -->
 
