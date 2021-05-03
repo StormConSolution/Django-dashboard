@@ -7,4 +7,16 @@ from .data_per_classification_and_entity import data_per_classification_and_enti
 from .data import data
 from .sentiment_trend import sentiment_trend
 from .sentiment_test import sentiment_test
-__all__ = ['entity_aspect_for_emotion', 'topics_per_aspect', 'keywords_count', 'data_per_aspect', 'data_per_aspect_topic', 'data_per_classification_and_entity', 'data', 'sentiment_trend', 'sentiment_test']
+from .sentiment_per_aspect import sentiment_per_aspect
+__all__ = [
+    'entity_aspect_for_emotion', 
+    'topics_per_aspect', 
+    'keywords_count', 
+    'data_per_aspect', 
+    'data_per_aspect_topic', 
+    'data_per_classification_and_entity', 
+    'data',
+    'sentiment_trend',
+    'sentiment_test',
+    'sentiment_per_aspect'
+]
