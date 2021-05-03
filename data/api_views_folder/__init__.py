@@ -8,6 +8,7 @@ from .data import data
 from .sentiment_trend import sentiment_trend
 from .sentiment_test import sentiment_test
 from .sentiment_per_aspect import sentiment_per_aspect
+from .source_by_sentiment import source_by_sentiment
 __all__ = [
     'entity_aspect_for_emotion', 
     'topics_per_aspect', 
@@ -18,5 +19,6 @@ __all__ = [
     'data',
     'sentiment_trend',
     'sentiment_test',
-    'sentiment_per_aspect'
+    'sentiment_per_aspect',
+    'source_by_sentiment'
 ]

@@ -9,6 +9,7 @@ urlpatterns = [
     path('data/project/<int:project_id>/', views.ProjectDataListView.as_view(), name='project-data-list'),
     path('project-overview/<int:project_id>/', views.project_overview),
     path('volume-by-source/<int:project_id>/', views.volume_by_source),
+    path('source-by-sentiment/<int:project_id>/', data_api_views.source_by_sentiment),
     path('co-occurence/<int:project_id>/', views.co_occurence),
     path('sentiment-per-aspect/<int:project_id>/', data_api_views.sentiment_per_aspect),
     path('new-data/project/<int:project_id>/', data_api_views.data),

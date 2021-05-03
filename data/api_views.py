@@ -326,6 +326,7 @@ def volume_by_source(request, project_id):
     response = []
     for row in rows:
         aux = {}
+        aux["sourceID"] = row[0]
         aux["sourceName"] = row[1]
         aux["sourceCount"] = row[2]
         response.append(aux)

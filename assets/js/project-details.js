@@ -20,6 +20,7 @@ function updateGraphs(){
     graphs.volumeBySourceGraph()
     graphs.aspectTopicTreeMap()
     graphs.emotionAspectCoOccurrence()
+    graphs.sourceBySentimentGraph()
 }
 
 function updateProjectDetailsPageWithDelay(){
@@ -110,6 +111,7 @@ function showHideGraphsTables(){
         case "sources-tab":
             showGraphTable("volume-by-source")
             showGraphTable("data-table")
+            showGraphTable("source-by-sentiment")
             break
     }
 }

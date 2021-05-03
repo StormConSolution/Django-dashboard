@@ -12,7 +12,8 @@ export function createTable(page, options){
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
+        "sourcesID": options.sourceID,
+        "sentiment": options.sentiment
     })
     fetch(`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
         "page": page,
@@ -21,7 +22,8 @@ export function createTable(page, options){
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
+        "sourcesID": options.sourceID,
+        "sentiment": options.sentiment
     }))
     .then((response) => response.json())
     .then((data) => {

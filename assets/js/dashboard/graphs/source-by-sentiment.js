@@ -1,15 +1,18 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
-import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal_aspect_by_sentiment";
+import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal_volume_by_source'
 import wordCloud from "./word-cloud-modal";
 let chart;
+let container = document.querySelector("#source-by-sentiment-graph")
+let maxSources = document.querySelector("#source-by-sentiment-max-sources")
+let mapSourceAndID = {}
 export function createGraph() {
     update.startUpdate();
     if (chart) {
         chart.destroy();
     }
-    document.querySelector("#aspect-by-sentiment").innerHTML = "Loading...";
+    container.innerHTML = "Loading...";
     let options = {
         series: [],
         chart: {
@@ -19,14 +22,14 @@ export function createGraph() {
             stackType: "100%",
             events: {
                 dataPointSelection: function(event, chartContext, config) {
-                    let aspect = config.w.config.xaxis.categories[config.dataPointIndex]
+                    let source = config.w.config.xaxis.categories[config.dataPointIndex]
                     let sentiment = config.w.config.series[config.seriesIndex].name
                     let options = {}
-                    options.aspect = aspect
+                    options.sourceID = mapSourceAndID[source]
                     options.sentiment = sentiment.toLowerCase()
                     let filtersValues = getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
-                    let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+/*                     let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
                         "aspect-label": encodeURIComponent(options.aspect),
                         "languages": encodeURIComponent(filtersValues.languages),
@@ -34,9 +37,9 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
-                    })
-                    wordCloud(wordCloudURL)
-                    dataTableModalDataPerAspectAndSentiment(1, options)
+                    }) */
+                    //wordCloud(wordCloudURL)
+                    dataTableModalVolumeBySource(1, options)
                 }            
             },
         },
@@ -73,9 +76,10 @@ export function createGraph() {
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
         "sources": filtersValues.sources,
-        "sourcesID": filtersValues.sourcesID
+        "sourcesID": filtersValues.sourcesID,
+        'limit':maxSources.value
     })
-    fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
+    fetch(`/api/source-by-sentiment/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         let series = []
@@ -96,13 +100,20 @@ export function createGraph() {
             positiveCount.data.push(element.positiveCount)    
             negativeCount.data.push(element.negativeCount)    
             neutralCount.data.push(element.neutralCount)    
-            categories.push(element.aspectLabel)
+            categories.push(element.sourceLabel)
+            mapSourceAndID[element.sourceLabel] = element.sourceID
         }
+        console.log(series)
         options.series.push(positiveCount, neutralCount, negativeCount)
         options.xaxis.categories = categories
-        document.querySelector("#aspect-by-sentiment").innerHTML = "";
-        chart = new ApexCharts(document.querySelector("#aspect-by-sentiment"), options);
+        container.innerHTML = ""
+        chart = new ApexCharts(container, options);
         chart.render();
         update.finishUpdate()
     });
 }
+
+
+maxSources.addEventListener("change", (e)=>{
+    createGraph()
+})
