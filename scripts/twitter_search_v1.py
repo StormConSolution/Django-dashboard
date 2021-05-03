@@ -40,19 +40,15 @@ def run():
 
             try:
                 tweets = collect_results(rule, max_results=MAX_RESULTS, result_stream_args=premium_search_args)
-                resp = requests.post('https://dashboard.repustate.com/create-project/', 
-                        {'name':ts.project_name, 'username':ts.created_by.username})
+                post_data = {
+                    'name':ts.project_name,
+                    'username':ts.created_by.username,
+                    'aspect_model':ts.aspect,
+                }
+                if ts.aspect_id:
+                    post_data['aspect_model'] = ts.aspect.label
+                resp = requests.post('https://dashboard.repustate.com/create-project/', post_data)
                 project_id = resp.json()['project_id']
-
-                # Add the necessary chart types automatically.
-                project = Project.objects.get(pk=project_id)
-                for ct in ChartType.objects.all():
-                    if ts.entities and ct.label in ('entity_table', 'emotional_entities'):
-                        project.charts.add(ct)
-                    elif ts.aspect_id and ct.label.startswith('aspect'):
-                        project.charts.add(ct)
-                    else:
-                        project.charts.add(ct)
             except Exception as e:
                 print(e)
                 ts.status = TwitterSearch.ERROR
@@ -61,22 +57,20 @@ def run():
                 continue
 
             for tweet in tweets:
-                post_data = dict(
-                    source='Twitter',
-                    text=tweet.text,
-                    date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
-                )
-                
                 # Twitter does a bad job of detecting language.
                 lang = tweet.lang
                 if lang not in VALID_LANGS:
                     lang = 'en'
+
+                post_data = dict(
+                    source='Twitter',
+                    text=tweet.text,
+                    date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
+                    lang=lang,
+                )
                 
                 if ts.entities:
                     post_data['with_entities'] = 1
-                
-                if ts.aspect_id:
-                    post_data['aspect_model'] = ts.aspect.label
 
                 try:
                     requests.post('https://dashboard.repustate.com/add-data/{}/'.format(project_id), data=post_data)
