@@ -29,16 +29,15 @@ export function createGraph() {
                     options.sentiment = sentiment.toLowerCase()
                     let filtersValues = getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
-/*                     let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                    let wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
-                        "aspect-label": encodeURIComponent(options.aspect),
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": filtersValues.sources,
-                        "sourcesID": filtersValues.sourcesID,
+                        "sourcesID": mapSourceAndID[source],
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
-                    }) */
-                    //wordCloud(wordCloudURL)
+                    })
+                    wordCloud(wordCloudURL)
                     dataTableModalVolumeBySource(1, options)
                 }            
             },
@@ -68,7 +67,7 @@ export function createGraph() {
             opacity: 1,
         },
         legend: { show: false },
-        colors: [config.positive, config.negative, config.neutral]
+        colors: [config.positive, config.neutral, config.negative]
     };
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
@@ -103,7 +102,6 @@ export function createGraph() {
             categories.push(element.sourceLabel)
             mapSourceAndID[element.sourceLabel] = element.sourceID
         }
-        console.log(series)
         options.series.push(positiveCount, neutralCount, negativeCount)
         options.xaxis.categories = categories
         container.innerHTML = ""

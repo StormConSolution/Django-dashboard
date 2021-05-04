@@ -16,7 +16,7 @@ export function getFilters(){
     return {
         dateFrom: dateFrom,
         dateTo: dateTo,
-        sources: sources.join(","),
+        sources: "",
         sourcesID: sourcesID.join(","),
         languages: languages.join(",")
     }

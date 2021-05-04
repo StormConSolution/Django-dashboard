@@ -18,13 +18,12 @@ def source_by_sentiment(request, project_id):
         raise PermissionDenied
     where_clause = [
         'dd.source_id = ds.id ',
-        'da.data_id = dd.id',
         'dd.project_id = %s',
     ]
     response = []
     limit = request.GET.get("limit", "5")
     with connection.cursor() as cursor:
-        cursor.execute("""select ds."label", count(ds.id),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) as NeutCount, ds.id from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by (ds.id) order by count(ds.id) desc limit %s""" , [project_id, limit])
+        cursor.execute("""select ds.id , count(ds.id),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) as NeutCount, ds.id from data_data dd inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """ group by (ds.id) order by count(ds.id) desc limit %s""" , [project_id, limit])
         rows = cursor.fetchall()
     
     for row in rows:

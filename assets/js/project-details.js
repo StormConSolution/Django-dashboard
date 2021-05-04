@@ -12,7 +12,8 @@ function updateProjectTables(){
     tables.topEntitiesPerAspectTable(1)
 }
 function updateGraphs(){
-    graphs.aspectBySentimentGraph()
+    graphs.aspectBySentimentPercentageGraph()
+    graphs.aspectBySentimentAbsoluteGraph()
     graphs.aspectCountGraph()
     graphs.coOccurrenceGraph()
     graphs.overallSentimentGraph()
@@ -98,7 +99,8 @@ function showHideGraphsTables(){
             break
         case "aspect-tab":
             showGraphTable("aspect-count")
-            showGraphTable("aspect-by-sentiment")
+            showGraphTable("aspect-by-sentiment-percentage")
+            showGraphTable("aspect-by-sentiment-absolute")
             showGraphTable("aspect-co-occurrence")
             showGraphTable("aspect-topic")
             showGraphTable("aspect-topic-tree-map")

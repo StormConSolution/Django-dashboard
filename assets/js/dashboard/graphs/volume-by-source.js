@@ -2,6 +2,7 @@ import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal_volume_by_source'
+import wordCloud from "./word-cloud-modal";
 let chart
 let div = document.querySelector("#volume-by-source")
 let mapSourceAndID = {}
@@ -23,7 +24,15 @@ export function createGraph(){
                     let source = config.w.config.xaxis.categories[config.dataPointIndex]
                     let options = {}
                     options.sourceID = mapSourceAndID[source]
-                    
+                    let wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": filtersValues.sources,
+                        "sourcesID": options.sourceID,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo
+                    })
+                    wordCloud(wordCloudURL) 
                     document.querySelector("#data-table-modal").style.display = "block"
                     dataTableModalVolumeBySource(1, options)
                 }            
