@@ -11,4 +11,5 @@ export {createGraph as sentimentTrendGraph} from "./graphs/sentiment-trend";
 export {createGraph as aspectTopicTreeMap} from "./graphs/aspect-topic-tree-map";
 export {createGraph as emotionAspectCoOccurrence} from "./graphs/emotion-aspect-co-occurrence";
 export {createGraph as sourceBySentimentGraph} from "./graphs/source-by-sentiment";
+export {createGraph as entityBySentimentGraph} from "./graphs/entity-by-sentiment";
 //import './graphs/word-cloud'

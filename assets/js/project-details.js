@@ -22,6 +22,7 @@ function updateGraphs(){
     graphs.aspectTopicTreeMap()
     graphs.emotionAspectCoOccurrence()
     graphs.sourceBySentimentGraph()
+    graphs.entityBySentimentGraph()
 }
 
 function updateProjectDetailsPageWithDelay(){
@@ -109,6 +110,7 @@ function showHideGraphsTables(){
         case "entity-tab":
             showGraphTable("entities-table")
             showGraphTable("top-entities-per-aspect-table")
+            showGraphTable("entity-by-sentiment")
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
