@@ -29,7 +29,6 @@ export function createTable(page, options){
     }))
     .then((response) => response.json())
     .then((data) => {
-        console.log(data)
         for (let element of data.data) {
             let tr = document.createElement("tr");
             var length = 150;
