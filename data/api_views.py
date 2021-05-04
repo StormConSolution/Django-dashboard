@@ -401,30 +401,6 @@ def co_occurence(request, project_id):
     return JsonResponse(chart_data["aspect_cooccurrence_data"], safe=False)
 
 @login_required(login_url=LOGIN_URL)
-def sentiment_per_aspect(request, project_id):
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        raise PermissionDenied
-    where_clause = [
-        'dd.source_id = ds.id ',
-        'da.data_id = dd.id',
-        'dd.project_id = %s',
-    ]
-    response = []
-    with connection.cursor() as cursor:
-        cursor.execute("""select da."label", count( da."label"),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by (da."label") """ , [project_id])
-        rows = cursor.fetchall()
-    
-    for row in rows:
-        response.append({
-            'aspectLabel':row[0],
-            'count':row[1],
-            'positiveCount': row[2],
-            'negativeCount': row[3],
-        })
-    return JsonResponse(response, safe=False)
-
-@login_required(login_url=LOGIN_URL)
 def entity_classification_count(request, project_id):
     user = request.user
     page_size = int(request.GET.get("page-size", 10))
