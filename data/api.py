@@ -13,6 +13,7 @@ urlpatterns = [
     path('co-occurence/<int:project_id>/', views.co_occurence),
     path('sentiment-per-aspect/<int:project_id>/', data_api_views.sentiment_per_aspect),
     path('new-data/project/<int:project_id>/', data_api_views.data),
+    path('export-data/', data_api_views.export_data),
     path('entity-classification-count/<int:project_id>/', views.entity_classification_count),
     path('entity-by-sentiment/<int:project_id>/', data_api_views.entity_by_sentiment),
     path('aspect-topic/project/<int:project_id>/', views.aspect_topic),
