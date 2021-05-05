@@ -379,7 +379,7 @@
                    {% for project in projects_data %}
                         {% if forloop.first %}
                             <option value="{{project.id}}" selected>{{project.name}}</option>
-                        {% else %}}
+                        {% else %}
                             <option value="{{project.id}}">{{project.name}}</option>
                         {% endif %}
                    {% endfor %}
@@ -558,7 +558,7 @@
             $("body").toggleClass("menu-close");
         });
     </script>
-      <script data-name="basic">
+<!--       <script data-name="basic">
         (function () {
             // The DOM element you wish to replace with Tagify
             var input = document.querySelector(".tagify");
@@ -568,7 +568,7 @@
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
             });
         })();
-    </script>
+    </script> -->
 
     <script>
         document.querySelectorAll(".check-all-without-reload").forEach((element) => {

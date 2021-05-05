@@ -606,6 +606,8 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
+        context["classifications"] = json.loads(req.text)
         return render(request, "aspect-list.html", context)
     
     @method_decorator(login_required)

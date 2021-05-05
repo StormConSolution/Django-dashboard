@@ -431,7 +431,7 @@
                                 >
                                 <input
                                     name="rule-definition"
-                                    class="tagify"
+                                    class="tagify-classification"
                                     value="Keyword 1"
                                     autofocus
                                 />
@@ -543,7 +543,20 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
             edit_aspect_rule_count--
         })
         new Tagify(div.querySelector(".tagify"), {
-            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+        whitelist:[
+                    {% for classification in classifications %}
+                        '{{classification.classification}}',
+                    {% endfor %}
+                ],
+                dropdown : {
+                    classname     : "color-blue",
+                    enabled       : 1,              // show the dropdown immediately on focus
+                    maxItems      : 10,
+                    position      : "text",         // place the dropdown near the typed text
+                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+                    highlightFirst: true
+                }
         })
         parent.insertBefore(div, currentElement)
         edit_aspect_rule_count++
@@ -596,7 +609,20 @@ function createAspectEditModal(id){
                 edit_aspect_rule_count--
             })
             new Tagify(div.querySelector(".tagify"), {
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+                whitelist:[
+                    {% for classification in classifications %}
+                    '{{classification.classification}}',
+                    {% endfor %}
+                ],
+                dropdown : {
+                    classname     : "color-blue",
+                    enabled       : 1,              // show the dropdown immediately on focus
+                    maxItems      : 10,
+                    position      : "text",         // place the dropdown near the typed text
+                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+                    highlightFirst: true
+                }
             })
             let editButton = document.querySelector("#edit-add-aspect-rule")
             editButton.parentNode.insertBefore(div, editButton)
@@ -657,18 +683,48 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
         e.currentTarget.parentNode.parentNode.remove()
         count_rules--
     })
-    new Tagify(div.querySelector(".tagify"), {
-        originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-    })
+
 
 
     parent.insertBefore(div, currentElement)
+    new Tagify(div.querySelector(".tagify"), {
+        originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+        whitelist:[
+                    {% for classification in classifications %}
+                        '{{classification.classification}}',
+                    {% endfor %}
+                ],
+        dropdown : {
+            classname     : "color-blue",
+            enabled       : 1,              // show the dropdown immediately on focus
+            maxItems      : 10,
+            position      : "text",         // place the dropdown near the typed text
+            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+            highlightFirst: true
+        }
+    })
 })
     {% comment %} let dataTableModalContainer = document.querySelector("#data-table-modal")
     let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
     dataTableModalCloseButton.addEventListener("click", (e) => {
         dataTableModalContainer.style.display = 'none'
     }) {% endcomment %}
+    new Tagify(document.querySelector(".tagify-classification"),{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+        whitelist:[
+                    {% for classification in classifications %}
+                        '{{classification.classification}}',
+                    {% endfor %}
+                ],
+        dropdown : {
+            classname     : "color-blue",
+            enabled       : 1,              // show the dropdown immediately on focus
+            maxItems      : 10,
+            position      : "text",         // place the dropdown near the typed text
+            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+            highlightFirst: true
+        }
+            });
 </script>
 <!--<script src="/static/assets/js/bundle.js"></script>-->
 {% endblock %}
