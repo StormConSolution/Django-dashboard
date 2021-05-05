@@ -12,7 +12,8 @@ function updateProjectTables(){
     tables.topEntitiesPerAspectTable(1)
 }
 function updateGraphs(){
-    graphs.aspectBySentimentGraph()
+    graphs.aspectBySentimentPercentageGraph()
+    graphs.aspectBySentimentAbsoluteGraph()
     graphs.aspectCountGraph()
     graphs.coOccurrenceGraph()
     graphs.overallSentimentGraph()
@@ -20,6 +21,8 @@ function updateGraphs(){
     graphs.volumeBySourceGraph()
     graphs.aspectTopicTreeMap()
     graphs.emotionAspectCoOccurrence()
+    graphs.sourceBySentimentGraph()
+    graphs.entityBySentimentGraph()
 }
 
 function updateProjectDetailsPageWithDelay(){
@@ -97,7 +100,8 @@ function showHideGraphsTables(){
             break
         case "aspect-tab":
             showGraphTable("aspect-count")
-            showGraphTable("aspect-by-sentiment")
+            showGraphTable("aspect-by-sentiment-percentage")
+            showGraphTable("aspect-by-sentiment-absolute")
             showGraphTable("aspect-co-occurrence")
             showGraphTable("aspect-topic")
             showGraphTable("aspect-topic-tree-map")
@@ -106,10 +110,12 @@ function showHideGraphsTables(){
         case "entity-tab":
             showGraphTable("entities-table")
             showGraphTable("top-entities-per-aspect-table")
+            showGraphTable("entity-by-sentiment")
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
             showGraphTable("data-table")
+            showGraphTable("source-by-sentiment")
             break
     }
 }
