@@ -313,7 +313,7 @@ class Projects(View):
             neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
             project.update(data)
         context={}
-        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").order_by('language').distinct().values("language"))
         context["all_languages"] = []
         for element in languages:
             context["all_languages"].append(element["language"])
@@ -379,7 +379,7 @@ def new_project_details(request, project_id):
         rows = cursor.fetchall()
     for row in rows:
         context["languages"].append(row[0])
-    languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+    languages = list(data_models.Data.objects.filter(project__users=user).values("language").order_by('language').distinct().values("language"))
     context["all_languages"] = []
     for element in languages:
         context["all_languages"].append(element["language"])
