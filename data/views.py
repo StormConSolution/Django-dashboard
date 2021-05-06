@@ -313,6 +313,14 @@ class Projects(View):
             neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
             project.update(data)
         context={}
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+        context["all_languages"] = []
+        for element in languages:
+            context["all_languages"].append(element["language"])
+        context["all_sources"] = []
+        sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
+        for element in sources:
+            context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
         context["projects_data"] = projects
         context["projects_count"] = len(projects)
         context["user"] = user
@@ -371,7 +379,14 @@ def new_project_details(request, project_id):
         rows = cursor.fetchall()
     for row in rows:
         context["languages"].append(row[0])
-
+    languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+    context["all_languages"] = []
+    for element in languages:
+        context["all_languages"].append(element["language"])
+    context["all_sources"] = []
+    sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
+    for element in sources:
+        context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
     if data_models.Data.objects.filter(project=project_id).count() != 0:
         data = data_models.Data.objects.filter(project=project_id).latest('date_created')
         context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")

@@ -11,6 +11,7 @@ from .sentiment_per_aspect import sentiment_per_aspect
 from .source_by_sentiment import source_by_sentiment
 from .entity_by_sentiment import entity_by_sentiment
 from .data_per_entity import data_per_entity
+from .export_data import export_data
 __all__ = [
     'entity_aspect_for_emotion', 
     'topics_per_aspect', 
@@ -24,5 +25,6 @@ __all__ = [
     'sentiment_per_aspect',
     'source_by_sentiment',
     'entity_by_sentiment',
-    'data_per_entity'
+    'data_per_entity',
+    'export_data'
 ]

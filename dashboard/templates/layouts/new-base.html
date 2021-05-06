@@ -360,6 +360,108 @@
         </div>
     </div>
 </div>
+<div class="modal fade show" id="exportdata" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportdataLabel">Export Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="fe fe-x-circle"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="modal-data">
+              <form method="GET" action="/api/export-data/", target="_blank">
+                <div class="form-group">
+                  <label for="project" class="form-label">Project</label>
+                  <select class="custom-select" name="project-id">
+                   {% for project in projects_data %}
+                        {% if forloop.first %}
+                            <option value="{{project.id}}" selected>{{project.name}}</option>
+                        {% else %}}
+                            <option value="{{project.id}}">{{project.name}}</option>
+                        {% endif %}
+                   {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="chosedate" class="form-label">From</label>
+                  <div >  
+                    <input type="date" class="form-control" name="date-from" placeholder="Choose Date">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="chosedate" class="form-label">To</label>
+                  <div >  
+                    <input type="date" class="form-control" name="date-to" placeholder="Choose Date">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Languages</label>
+                  <div class="dropdown choose-languages">
+                    <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Choose Languages
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
+                        <div class="choose-lang">
+                          <div class="d-flex checkuncheck">
+                          
+                            <span class="check-all-without-reload">Check All</span>
+                            <span class="uncheck-all-without-reload">UnCheck All</span>
+                           
+                          </div>
+                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
+                            {% for language in all_languages %}
+                                {% ifnotequal language "" %}
+                                <div class=" ">
+                                    <input type="checkbox" class="" name="languages[]" value="{{language}}" checked onclick="return true">
+                                    <label class="">{{language}}</label>
+                                </div>
+                                {% endifnotequal %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Sources</label>
+                  
+                  <div class="dropdown choose-sources">
+                    <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Choose Sources
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="choose-languages">
+                        <div class="choose-lang">
+                          <div class="d-flex checkuncheck">
+                            <span>Check All</span>
+                            <span>UnCheck All</span>
+                          </div>
+                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
+                              {% for source in all_sources %}
+                              <div class="">
+                                <input type="checkbox" name="sources[]" class="" value="{{source.id}}" checked>
+                                <label class="">{{source.label}}</label>
+                              </div>
+                              {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+<!--                 <div class="form-group">
+                  <label for="email" class="form-label">Email to send results to</label>
+                  <input type="email" class="form-control email-icon" id="email" aria-describedby="emailHelp">
+                </div> -->
+                <button type="submit" class="btn btn-primary">Download Raw Data <!-- <i class="fe fe-send"></i> --> </button>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 <!-- create-project modal End -->
 
 
@@ -466,6 +568,28 @@
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
             });
         })();
+    </script>
+
+    <script>
+        document.querySelectorAll(".check-all-without-reload").forEach((element) => {
+            element.addEventListener("click", (e)=> {
+                
+                let parent = e.target.parentNode.parentNode
+                
+                parent.querySelectorAll("input").forEach((input) => {
+                    input.checked = true
+                })
+            })
+        })
+
+        document.querySelectorAll(".uncheck-all-without-reload").forEach((element) => {
+            element.addEventListener("click", (e)=> {
+                let parent = e.target.parentNode.parentNode
+                parent.querySelectorAll("input").forEach((input) => {
+                    input.checked = false
+                })
+            })
+        })
     </script>
 
 </body>
