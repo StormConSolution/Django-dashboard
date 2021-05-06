@@ -17,8 +17,8 @@ def export_data(request):
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    date_from = request.GET.get("date_from")
-    date_to = request.GET.get("date_to")
+    date_from = request.GET.get("date-from")
+    date_to = request.GET.get("date-to")
     languages = request.GET.getlist("languages[]")
     sources = request.GET.getlist("sources[]")
     where_clauses = ['dd.project_id=%s'%(project_id)]
