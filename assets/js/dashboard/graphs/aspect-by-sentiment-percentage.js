@@ -4,12 +4,13 @@ import { update } from "../helpers/helpers";
 import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal_aspect_by_sentiment";
 import wordCloud from "./word-cloud-modal";
 let chart;
+let graphContainer = document.querySelector("#aspect-by-sentiment-percentage")
 export function createGraph() {
     update.startUpdate();
     if (chart) {
         chart.destroy();
     }
-    document.querySelector("#aspect-by-sentiment").innerHTML = "Loading...";
+    graphContainer.innerHTML = "Loading...";
     let options = {
         series: [],
         chart: {
@@ -65,7 +66,7 @@ export function createGraph() {
             opacity: 1,
         },
         legend: { show: false },
-        colors: [config.positive, config.negative, config.neutral]
+        colors: [config.positive, config.neutral, config.negative]
     };
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
@@ -78,7 +79,6 @@ export function createGraph() {
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {
-        console.log(data)
         let series = []
         let positiveCount = {
             name: 'Positive',
@@ -99,12 +99,11 @@ export function createGraph() {
             neutralCount.data.push(element.neutralCount)    
             categories.push(element.aspectLabel)
         }
-        console.log(series)
         options.series.push(positiveCount, neutralCount, negativeCount)
         options.xaxis.categories = categories
-        chart = new ApexCharts(document.querySelector("#aspect-by-sentiment"), options);
+        graphContainer.innerHTML = "";
+        chart = new ApexCharts(graphContainer, options);
         chart.render();
         update.finishUpdate()
     });
-    update.finishUpdate();
 }

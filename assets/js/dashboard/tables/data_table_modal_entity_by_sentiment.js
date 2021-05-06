@@ -7,23 +7,25 @@ export function createTable(page, options){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
-    document.getElementById("data-modal-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
+    document.getElementById("data-modal-table-csv").href = `/api/data-per-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": options.sourceID,
-        "sentiment": options.sentiment
+        "sourcesID": filtersValues.sourcesID,
+        "sentiment": options.sentiment,
+        "entityID": options.entityID
     })
-    fetch(`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
+    fetch(`/api/data-per-entity/${window.project_id}/?` + new URLSearchParams({
         "page": page,
         "page-size": pageSize,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": options.sourceID,
-        "sentiment": options.sentiment
+        "sourcesID": filtersValues.sourcesID,
+        "sentiment": options.sentiment,
+        "entityID": options.entityID
     }))
     .then((response) => response.json())
     .then((data) => {
