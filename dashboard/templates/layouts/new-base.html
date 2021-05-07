@@ -79,7 +79,7 @@
     <link rel="stylesheet" href="/static/assets/css/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="/static/assets/css/tagify.css" />
 
-    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/style.min.css" />
     <link rel="stylesheet" href="/static/assets/css/apexcharts.css" />
 
     <script>
@@ -209,12 +209,12 @@
                 <div class="modal-data">
                     <form>
                         <div class="form-group">
-                            <label for="selectaspect" class="form-label"
+                            <label for="selectaspect1" class="form-label"
                                 >Select Project</label
                             >
                             <select
                                 class="custom-select"
-                                id="selectaspect"
+                                id="selectaspect1"
                                 aria-placeholder="Choose From Existing Aspects"
                             >
                                 <option>Choose From Existing Project</option>
@@ -496,42 +496,6 @@
         }
     }(document)
 </script>
-
-<script data-name="basic">
-  (function(){
-  // The DOM element you wish to replace with Tagify
-  var input = document.querySelector('input[name=basic]');
-  
-  // initialize Tagify on the above input node reference
-  new Tagify(input,{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-            })
-  })()
-  </script>
-
-<script data-name="basic1">
-  (function(){
-  // The DOM element you wish to replace with Tagify
-  var input = document.querySelector('input[name=basic1]');
-  
-  // initialize Tagify on the above input node reference
-  new Tagify(input,{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-            })
-  })()
-  </script>
-
-    <script data-name="basic1">
-        (function () {
-            // The DOM element you wish to replace with Tagify
-            var input = document.querySelector("input[name=basic1]");
-
-            // initialize Tagify on the above input node reference
-            new Tagify(input,{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-            });
-        })();
-    </script>
 
     <script>
         $(function () {

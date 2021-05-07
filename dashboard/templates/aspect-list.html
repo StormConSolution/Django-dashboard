@@ -335,13 +335,13 @@
                     <div class="modal-data">
                         <form>
                             <div class="form-group">
-                                <label for="aspect-name" class="form-label"
+                                <label for="aspect-name1" class="form-label"
                                     >Test your Data</label
                                 >
                                 <textarea
                                     type="text"
                                     class="form-control"
-                                    id="aspect-name"
+                                    id="aspect-name1"
                                     placeholder="Enter Your Data Here"
                                 >
                                 </textarea>
@@ -399,7 +399,12 @@
                                 placeholder="Enter Aspect Name"
                             />
                         </div>
-
+                        <div class="form-group">
+                        <div class="aspect-group" style="position: relative">
+                            <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
+                            <input type="text" id="aspect-classifications" class="tagify-classifications" name="aspect-classifications" placeholder="Enter Classifications">
+                        </div>
+                        </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
                                 <p
@@ -413,9 +418,7 @@
                                 >
                                     X
                                 </p>
-                                <label for="Rule-name" class="form-label"
-                                    >Rule 1 Name</label
-                                >
+                                <label for="Rule-name" class="form-label">Rule 1 Name</label>
                                 <input
                                     name="rule-name"
                                     type="text"
@@ -431,7 +434,7 @@
                                 >
                                 <input
                                     name="rule-definition"
-                                    class="tagify-classification"
+                                    class="tagify"
                                     value="Keyword 1"
                                     autofocus
                                 />
@@ -544,19 +547,6 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
         })
         new Tagify(div.querySelector(".tagify"), {
             originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-        whitelist:[
-                    {% for classification in classifications %}
-                        '{{classification.classification}}',
-                    {% endfor %}
-                ],
-                dropdown : {
-                    classname     : "color-blue",
-                    enabled       : 1,              // show the dropdown immediately on focus
-                    maxItems      : 10,
-                    position      : "text",         // place the dropdown near the typed text
-                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-                    highlightFirst: true
-                }
         })
         parent.insertBefore(div, currentElement)
         edit_aspect_rule_count++
@@ -610,19 +600,6 @@ function createAspectEditModal(id){
             })
             new Tagify(div.querySelector(".tagify"), {
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-                whitelist:[
-                    {% for classification in classifications %}
-                    '{{classification.classification}}',
-                    {% endfor %}
-                ],
-                dropdown : {
-                    classname     : "color-blue",
-                    enabled       : 1,              // show the dropdown immediately on focus
-                    maxItems      : 10,
-                    position      : "text",         // place the dropdown near the typed text
-                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-                    highlightFirst: true
-                }
             })
             let editButton = document.querySelector("#edit-add-aspect-rule")
             editButton.parentNode.insertBefore(div, editButton)
@@ -689,19 +666,6 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
     parent.insertBefore(div, currentElement)
     new Tagify(div.querySelector(".tagify"), {
         originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-        whitelist:[
-                    {% for classification in classifications %}
-                        '{{classification.classification}}',
-                    {% endfor %}
-                ],
-        dropdown : {
-            classname     : "color-blue",
-            enabled       : 1,              // show the dropdown immediately on focus
-            maxItems      : 10,
-            position      : "text",         // place the dropdown near the typed text
-            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-            highlightFirst: true
-        }
     })
 })
     {% comment %} let dataTableModalContainer = document.querySelector("#data-table-modal")
@@ -709,7 +673,7 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
     dataTableModalCloseButton.addEventListener("click", (e) => {
         dataTableModalContainer.style.display = 'none'
     }) {% endcomment %}
-    new Tagify(document.querySelector(".tagify-classification"),{
+    new Tagify(document.querySelector(".tagify-classifications"),{
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
         whitelist:[
                     {% for classification in classifications %}
@@ -724,7 +688,10 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
             closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
             highlightFirst: true
         }
-            });
+    });
+    new Tagify(document.querySelector(".tagify"),{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+    });
 </script>
 <!--<script src="/static/assets/js/bundle.js"></script>-->
 {% endblock %}

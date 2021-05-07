@@ -616,12 +616,12 @@ class AspectsList(View):
         aspect_label = request.POST.get("aspect-label", "")
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition")
+        aspect_classifications = request.POST.get("aspect-classifications", "")
 
-
-        if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
-            return HttpResponse(status=409)
+            #if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
+            #    return HttpResponse(status=409)
          
-        aspect_model = data_models.AspectModel(label=aspect_label)
+        aspect_model = data_models.AspectModel(label=aspect_label, classifications=aspect_classifications)
         aspect_model.save() 
         aspect_model.users.add(user)
 
