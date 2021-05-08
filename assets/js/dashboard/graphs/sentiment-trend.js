@@ -26,6 +26,7 @@ export function createGraph(){
     fetch(`/api/sentiment-trend/${projectId}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
+            console.log(data)
             def = 0
             let chartOptions = {
                 series: [],

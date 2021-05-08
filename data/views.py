@@ -606,6 +606,8 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
+        context["classifications"] = json.loads(req.text)
         return render(request, "aspect-list.html", context)
     
     @method_decorator(login_required)
@@ -614,12 +616,12 @@ class AspectsList(View):
         aspect_label = request.POST.get("aspect-label", "")
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition")
+        aspect_classifications = request.POST.get("aspect-classifications", "")
 
-
-        if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
-            return HttpResponse(status=409)
+            #if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
+            #    return HttpResponse(status=409)
          
-        aspect_model = data_models.AspectModel(label=aspect_label)
+        aspect_model = data_models.AspectModel(label=aspect_label, classifications=aspect_classifications)
         aspect_model.save() 
         aspect_model.users.add(user)
 

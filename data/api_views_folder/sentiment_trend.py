@@ -48,6 +48,7 @@ def sentiment_trend(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + " and ".join(where_clause) + """ order by date desc """ + limit_clause + """ ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + " and ".join(where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
+        print(cursor.query)
         rows = cursor.fetchall()
     
     response=[]

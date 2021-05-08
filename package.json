@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack-dev": "webpack -w",
-    "webpack": "webpack --mode='production'"
+    "webpack": "webpack --mode='production'",
+    "sass": "sass ./assets/css/style.scss ./assets/css/style.css",
+    "postcss": "postcss ./assets/css/style.css -u autoprefixer -u cssnano --no-map --output ./dashboard/static/assets/css/style.min.css"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,9 @@
   },
   "homepage": "https://github.com/mywork-dragon/dashboard#readme",
   "devDependencies": {
+    "autoprefixer": "^10.2.5",
+    "cssnano": "^5.0.2",
+    "postcss-cli": "^8.3.1",
     "sass": "^1.32.8",
     "webpack": "^5.27.2",
     "webpack-cli": "^4.5.0"
@@ -28,5 +33,15 @@
     "d3": "^6.7.0",
     "d3-cloud": "^1.2.5",
     "d3-dispatch": "^1.0.6"
-  }
+  },
+  "browserslist": [
+    "Android 2.3",
+    "Android >= 4",
+    "Chrome >= 20",
+    "Firefox >= 24",
+    "Explorer >= 8",
+    "iOS >= 6",
+    "Opera >= 12",
+    "Safari >= 6"
+  ]
 }
