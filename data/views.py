@@ -373,16 +373,20 @@ def new_project_details(request, project_id):
         rows = cursor.fetchall()
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
-    language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
-    with connection.cursor() as cursor:
-        cursor.execute(language_query, [project_id])
-        rows = cursor.fetchall()
-    for row in rows:
-        context["languages"].append(row[0])
-    languages = list(data_models.Data.objects.filter(project__users=user).values("language").order_by('language').distinct().values("language"))
-    context["all_languages"] = []
+    #language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
+    #with connection.cursor() as cursor:
+    #    cursor.execute(language_query, [project_id])
+    #    rows = cursor.fetchall()
+    #for row in rows:
+    #    context["languages"].append(row[0])
+    languages = list(data_models.Data.objects.filter(project__users=user, project=project_id).values("language").distinct().values("language"))
+    context["languages"] = []
+    print(languages)
     for element in languages:
-        context["all_languages"].append(element["language"])
+        for language_tuple in data_models.LANGUAGES:
+            if element["language"] == language_tuple[0]:
+                context["languages"].append(language_tuple)
+        #context["all_languages"].append(element["language"])
     context["all_sources"] = []
     sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
     for element in sources:
@@ -608,6 +612,7 @@ class AspectsList(View):
         context["meta"]["page_items_to"] = page_number * 10
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
         context["classifications"] = json.loads(req.text)
+        context["languages"] = data_models.LANGUAGES
         return render(request, "aspect-list.html", context)
     
     @method_decorator(login_required)
@@ -615,21 +620,21 @@ class AspectsList(View):
         user = request.user
         aspect_label = request.POST.get("aspect-label", "")
         rule_names = request.POST.getlist("rule-name")
-        rule_definitions = request.POST.getlist("rule-definition")
-        aspect_classifications = request.POST.get("aspect-classifications", "")
-
+        rule_definitions = request.POST.getlist("rule-definition", "")
+        rule_classifications = request.POST.getlist("rule-classification", "")
             #if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
             #    return HttpResponse(status=409)
          
-        aspect_model = data_models.AspectModel(label=aspect_label, classifications=aspect_classifications)
+        aspect_model = data_models.AspectModel(label=aspect_label)
         aspect_model.save() 
         aspect_model.users.add(user)
-
+        print(rule_classifications)
         
         count = 0
         for rule_name in rule_names:
-            aspect_definition = data_models.AspectRule(rule_name=rule_name, definition=rule_definitions[count], aspect_model=aspect_model) 
+            aspect_definition = data_models.AspectRule(rule_name=rule_name, definition=rule_definitions[count], aspect_model=aspect_model, classifications=rule_classifications[count]) 
             aspect_definition.save()
+            count += 1
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
         
         return redirect("aspects")
@@ -662,7 +667,7 @@ class Aspect(View):
         response["aspect_label"] = aspect.label
         response["rules"] = []
         for rule in rules:
-            response["rules"].append({"rule_label":rule.rule_name, "rule_definitions":rule.definition, "rule_id":rule.id})
+            response["rules"].append({"rule_label":rule.rule_name, "rule_definitions":rule.definition, "rule_id":rule.id, "rule_classifications": rule.classifications})
         return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)
@@ -679,6 +684,7 @@ class Aspect(View):
         aspect_label = request.POST.get("aspect-label", "")
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition")
+        rule_classifications = request.POST.getlist("rule-classification", "")
         rules_id = request.POST.getlist("rule-id", "")
 
         if aspect.count() == 0:
@@ -698,7 +704,7 @@ class Aspect(View):
         count = 0
         for rule_name in rule_names:
             if count >= rules_len:
-                new_rule = data_models.AspectRule(rule_name=rule_names[count], definition=rule_definitions[count], aspect_model=aspect)
+                new_rule = data_models.AspectRule(rule_name=rule_names[count], definition=rule_definitions[count], aspect_model=aspect, classifications=rule_classifications[count])
                 new_rule.save()
                 continue
             rule_id = rules_id[count]
@@ -707,6 +713,7 @@ class Aspect(View):
                 rule_to_change = rule_to_change.get()
                 rule_to_change.definition = rule_definitions[count]
                 rule_to_change.label = rule_names[count]
+                rule_to_change.classifications = rule_classifications[count]
                 rule_to_change.save()
             count = count + 1
         return HttpResponse(status=200)

@@ -39,15 +39,7 @@
                                     </div>
                                 </div>
                                 {% endcomment %}
-                                <div class="col-auto">
-                                    <a
-                                        href="#"
-                                        class="btn btn-outline-primary btn-outline-1"
-                                        data-toggle="modal"
-                                        data-target="#createaspect"
-                                        >Add New Aspect</a
-                                    >
-                                </div>
+
                             </div>
                         </form>
                     </div>
@@ -231,7 +223,19 @@
                 </div>
             </div>
         </div>
-
+            <a
+                href="#"
+                class="btn btn-primary mr-2"
+                id="test-aspect-button"
+                >Test Aspect</a
+            >
+            <a
+                href="#"
+                class="btn btn-primary mr-2"
+                data-toggle="modal"
+                data-target="#createaspect"
+                >Add New Aspect</a
+            >
         <!--<a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#testaspect" >
         Test aspect modal
       </a>-->
@@ -399,12 +403,6 @@
                                 placeholder="Enter aspect model name"
                             />
                         </div>
-                        <div class="form-group">
-                        <div class="aspect-group" style="position: relative">
-                            <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
-                            <input type="text" id="aspect-classifications" class="tagify-classifications" name="aspect-classifications" placeholder="Enter Classifications">
-                        </div>
-                        </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
                                 <p
@@ -438,6 +436,10 @@
                                     value="Keyword 1"
                                     autofocus
                                 />
+                            </div>
+                            <div class="form-group" style="position: relative">
+                                <label for="aspect-classifications" class="form-label">Rule 1 Classifications</label>
+                                <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
                             </div>
                         </div>
                         <button
@@ -511,7 +513,79 @@
         </div>
     </div>
 </div>
+<div
+    class="modal fade show"
+    id="test-aspect-modal"
+    tabindex="-1"
+    aria-label="createaspectLabel"
+    style="z-index: 100;overflow-y:scroll;"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Sentiment</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i
+                        class="fe fe-x-circle"
+                        onclick="closeTestAspectModal()"
+                    ></i>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y:visible;position:relative">
+                <div class="modal-data">
+                    <form method="POST" action="/sentiment/" id="test-sentiment-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label">Aspect Model</label>
+                            <select class="custom-select" name="aspect-model">
+                                {% for aspect in all_aspects %}
+                                <option value="{{aspect.id}}">{{aspect.label}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="custom-select" name="text-language">
+                                {% for language in languages %}
+                                <option value="{{language.0}}">{{language.1}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aspect-name" class="form-label">Sample Text</label>
+                            <input
+                                name="test-sentiment-text"
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter some sample text to test your sentiment rules"
+                            />
+                        </div>
+                        <div id="test-sentiment-score">
+                            Score
+                        </div>
+<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
+                        <button type="submit" class="btn btn-primary mt-2">
+                            Test Sentiment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
+function closeTestAspectModal(){
+    document.querySelector("#test-aspect-modal").style.display="none"
+}
+
+document.querySelector("#test-aspect-button").addEventListener("click", ()=>{
+    document.querySelector("#test-aspect-modal").style.display="block"
+})
 let edit_aspect_rule_count = 1
 function resetEditAspectForm(){
     document.querySelector('#edit-aspect').style.display='none'
@@ -538,6 +612,10 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
             <label for="Rule-name" class="form-label">Rule ${edit_aspect_rule_count} Definition</label>
             <input name='rule-definition' class="tagify" value='' autofocus>
         </div>
+        <div class="form-group" style="position: relative">
+            <label for="aspect-classifications" class="form-label">Rule ${edit_aspect_rule_count} Classifications</label>
+            <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
+        </div>
     `
         div.innerHTML = element
         console.log(div)
@@ -548,6 +626,22 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
         new Tagify(div.querySelector(".tagify"), {
             originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
         })
+        new Tagify(div.querySelector(".tagify-classifications"),{
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+            whitelist:[
+                        {% for classification in classifications %}
+                            '{{classification.classification}}',
+                        {% endfor %}
+                    ],
+            dropdown : {
+                classname     : "color-blue",
+                enabled       : 1,              // show the dropdown immediately on focus
+                maxItems      : 10,
+                position      : "text",         // place the dropdown near the typed text
+                closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+                highlightFirst: true
+            }
+        });
         parent.insertBefore(div, currentElement)
         edit_aspect_rule_count++
 })
@@ -590,6 +684,10 @@ function createAspectEditModal(id){
                     <label for="Rule-name" class="form-label">Rule ${edit_aspect_rule_count} Definition</label>
                     <input name='rule-definition' class="tagify" value='${rule.rule_definitions}' autofocus>
                 </div>
+                <div class="form-group" style="position: relative">
+                    <label for="aspect-classifications" class="form-label">Rule ${edit_aspect_rule_count} Classifications</label>
+                    <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications" value='${rule.rule_classifications}'>
+                </div>
                 <input type="hidden" name="rule-id" value="${rule.rule_id}"></input>
             `
             div.innerHTML = element
@@ -600,6 +698,22 @@ function createAspectEditModal(id){
             })
             new Tagify(div.querySelector(".tagify"), {
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+            })
+            new Tagify(div.querySelector(".tagify-classifications"),{
+                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+                whitelist:[
+                            {% for classification in classifications %}
+                                '{{classification.classification}}',
+                            {% endfor %}
+                        ],
+                dropdown : {
+                    classname     : "color-blue",
+                    enabled       : 1,              // show the dropdown immediately on focus
+                    maxItems      : 10,
+                    position      : "text",         // place the dropdown near the typed text
+                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+                    highlightFirst: true
+                }
             })
             let editButton = document.querySelector("#edit-add-aspect-rule")
             editButton.parentNode.insertBefore(div, editButton)
@@ -653,6 +767,10 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
         <label for="Rule-name" class="form-label">Rule ${count_rules} Definition</label>
         <input name='rule-definition' class="tagify" value='' autofocus>
     </div>
+    <div class="form-group" style="position: relative">
+        <label for="aspect-classifications" class="form-label">Rule ${count_rules} Classifications</label>
+        <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
+    </div>
 `
     div.innerHTML = element
     console.log(div)
@@ -667,6 +785,22 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
     new Tagify(div.querySelector(".tagify"), {
         originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     })
+    new Tagify(div.querySelector(".tagify-classifications"),{
+        originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+        whitelist:[
+                    {% for classification in classifications %}
+                        '{{classification.classification}}',
+                    {% endfor %}
+                ],
+        dropdown : {
+            classname     : "color-blue",
+            enabled       : 1,              // show the dropdown immediately on focus
+            maxItems      : 10,
+            position      : "text",         // place the dropdown near the typed text
+            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+            highlightFirst: true
+        }
+    });
 })
     {% comment %} let dataTableModalContainer = document.querySelector("#data-table-modal")
     let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")

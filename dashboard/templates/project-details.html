@@ -50,8 +50,8 @@
                           <div class="choose" style="max-height:30vh;overflow-y:scroll">
                             {% for language in languages %}
                             <div class=" ">
-                              <input type="checkbox" class="" value="{{language}}" checked onclick="return true">
-                              <label class="">{{language}}</label>
+                              <input type="checkbox" class="" value="{{language.0}}" checked onclick="return true">
+                              <label class="">{{language.1}}</label>
                             </div>
                             {% endfor %}
                           </div>

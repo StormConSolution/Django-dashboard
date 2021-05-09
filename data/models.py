@@ -47,7 +47,6 @@ class ChartType(models.Model):
 class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User, blank=True)
-    classifications = models.TextField()
     def __str__(self):
         return self.label
 
@@ -55,6 +54,7 @@ class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
     definition = models.TextField()
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
+    classifications = models.TextField()
     class Meta:
         unique_together=('rule_name', 'aspect_model')
 
