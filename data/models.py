@@ -47,6 +47,7 @@ class ChartType(models.Model):
 class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User, blank=True)
+    standard = models.BooleanField(default=True)
     def __str__(self):
         return self.label
 

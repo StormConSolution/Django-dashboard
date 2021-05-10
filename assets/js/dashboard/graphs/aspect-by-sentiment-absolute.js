@@ -28,8 +28,6 @@ export function createGraph() {
                         options.sentiment = "negative"
                     }
                     options.aspect = aspect
-                    console.log(aspect)
-                    console.log(count)
                     let filtersValues = getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
                     let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({

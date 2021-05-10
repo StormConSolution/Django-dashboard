@@ -54,7 +54,6 @@ export function createGraph(){
     };
     let project_id = window.project_id;
     let filtersValues = getFilters()
-    console.log(filtersValues.sources)
     let urlParams = new URLSearchParams({
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,

@@ -55,7 +55,6 @@ function makeTable(page){
                     let sentiment = e.target.getAttribute("data-sentiment")
                     document.querySelector("#data-table-modal").style.display = "block"
                     let filtersValues = getFilters()
-                    console.log("test")
                     let wordCloudURL = `/api/data-per-aspect-topic/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
                         "aspect-label": encodeURIComponent(dataAspectLabel),
                         "topic-label": encodeURIComponent(dataTopicLabel),

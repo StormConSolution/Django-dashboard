@@ -313,10 +313,12 @@ class Projects(View):
             neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
             project.update(data)
         context={}
-        languages = list(data_models.Data.objects.filter(project__users=user).values("language").order_by('language').distinct().values("language"))
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
         for element in languages:
-            context["all_languages"].append(element["language"])
+            for language_tuple in data_models.LANGUAGES:
+                if element["language"] == language_tuple[0]:
+                    context["all_languages"].append(language_tuple)
         context["all_sources"] = []
         sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
         for element in sources:
@@ -379,14 +381,19 @@ def new_project_details(request, project_id):
     #    rows = cursor.fetchall()
     #for row in rows:
     #    context["languages"].append(row[0])
-    languages = list(data_models.Data.objects.filter(project__users=user, project=project_id).values("language").distinct().values("language"))
+    languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+    context["all_languages"] = []
+    for element in languages:
+        for language_tuple in data_models.LANGUAGES:
+            if element["language"] == language_tuple[0]:
+                context["all_languages"].append(language_tuple)
+        #context["all_languages"].append(element["language"])
+    languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).values("language").distinct().values("language"))
     context["languages"] = []
-    print(languages)
     for element in languages:
         for language_tuple in data_models.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["languages"].append(language_tuple)
-        #context["all_languages"].append(element["language"])
     context["all_sources"] = []
     sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
     for element in sources:
@@ -596,6 +603,9 @@ class AspectsList(View):
         all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
         for aspect in all_aspects:
             context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+        standard_aspect_models = data_models.AspectModel.objects.filter(standard=True).order_by("label")
+        for aspect in standard_aspect_models:
+            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
         for aspect in page.object_list:
             rules_list = []
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
@@ -613,6 +623,12 @@ class AspectsList(View):
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
         context["classifications"] = json.loads(req.text)
         context["languages"] = data_models.LANGUAGES
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+        context["all_languages"] = []
+        for element in languages:
+            for language_tuple in data_models.LANGUAGES:
+                if element["language"] == language_tuple[0]:
+                    context["all_languages"].append(language_tuple)
         return render(request, "aspect-list.html", context)
     
     @method_decorator(login_required)
@@ -625,11 +641,9 @@ class AspectsList(View):
             #if data_models.AspectModel.objects.filter(users=user, label=aspect_label).count() != 0:
             #    return HttpResponse(status=409)
          
-        aspect_model = data_models.AspectModel(label=aspect_label)
+        aspect_model = data_models.AspectModel(label=aspect_label, standard=False)
         aspect_model.save() 
         aspect_model.users.add(user)
-        print(rule_classifications)
-        
         count = 0
         for rule_name in rule_names:
             aspect_definition = data_models.AspectRule(rule_name=rule_name, definition=rule_definitions[count], aspect_model=aspect_model, classifications=rule_classifications[count]) 
@@ -743,6 +757,12 @@ class SentimentList(View):
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
         context["languages"] = data_models.LANGUAGES
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+        context["all_languages"] = []
+        for element in languages:
+            for language_tuple in data_models.LANGUAGES:
+                if element["language"] == language_tuple[0]:
+                    context["all_languages"].append(language_tuple)
         return render(request, "sentiment-list.html", context)
     
     @method_decorator(login_required)
