@@ -1,6 +1,9 @@
 export function createPagination(firstElement, lastElement, totalElements, currentPage, totalPages, paginationContainer, callBack, options){
     let paginationDiv = document.createElement("div")
     paginationDiv.className = "row no-gutters"
+    if(totalElements < lastElement){
+        lastElement = totalElements
+    }
     let paginationHtml = `
     <div class="col-12 col-md">
         <div class="pagination-data">Showing ${firstElement} to ${lastElement} of ${totalElements} entries</div>
@@ -17,7 +20,7 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     paginationDiv.append(paginationNumbers)
     
     if(totalPages < 7){
-        for(let i = 1; i <= totalPages + 1; i++){
+        for(let i = 1; i <= totalPages; i++){
             let li = createPageNumber(currentPage, i, callBack, options)
             ulPagination.append(li) 
         }

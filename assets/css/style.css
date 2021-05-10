@@ -636,6 +636,9 @@ header h3 {
 .project-menu ul li a:hover::before {
   width: 100%;
 }
+.project-menu ul li a.active::before {
+  width: 100%;
+}
 
 .chart-title {
   border-bottom: solid 1px #EDF2F7;

@@ -106,11 +106,11 @@
           <div class="project-menu">
             <ul class="d-flex flex-wrap">
               <li>
-                <a style="cursor:pointer;" id="overview-tab">Overview</a>
+                <a style="cursor:pointer;" class="active" id="overview-tab">Overview</a>
               </li>
-              <li>
+<!--               <li>
                 <a style="cursor:pointer;" id="sentiment-tab">Sentiment</a>
-              </li>
+              </li> -->
               <li>
                 <a style="cursor:pointer;" id="aspect-tab">Aspects</a>
               </li>
@@ -171,12 +171,11 @@
        {% include "includes/tables/aspect-topic-breakdown.html" %} 
        {% include "includes/tables/entities-table.html" %} 
        {% include "includes/tables/top-entities-per-aspect.html" %} 
-       {% include "includes/tables/data-items.html" %} 
 
       </div>
     </div>
   </div>
-    <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="data-table">
+<!--     <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="data-table">
         <div class="project-card-inner">
         <div class="chart-title align-items-center d-flex flex-wrap">
             <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
@@ -274,7 +273,7 @@
         <div class="table-bottom" id="data-table-pagination">
         </div>
         </div>
-    </div>
+    </div> -->
 
   <!-- modal start -->
 
