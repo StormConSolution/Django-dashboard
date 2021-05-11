@@ -14,12 +14,13 @@ import json
 LOGIN_URL = '/login/'
 
 @login_required(login_url=LOGIN_URL)
-def sentiment_test(request):
+def aspect_model_test(request):
 
-    text = request.POST.get("test-sentiment-text", "")
+    text = request.POST.get("test-aspect-model-text", "")
     language = request.POST.get("language", "")
+    aspect_model_id = request.POST.get("aspect-model")
+    aspect_model = models.AspectModel.objects.get(pk=aspect_model_id)
 
-    req = requests.post("%s/v4/%s/score.json" % (settings.API_HOST, settings.APIKEY), data={"text": text, "lang": language})
-    print(req.url)
+    req = requests.post("%s/v4/%s/aspect.json" % (settings.API_HOST, settings.APIKEY), data={"text": text, "lang": language, "model":aspect_model.label}, params={"text": "food is good", "lang": "en", "model":"hotel"})
     response = json.loads(req.text)
     return JsonResponse(response, safe=False, status=req.status_code)
