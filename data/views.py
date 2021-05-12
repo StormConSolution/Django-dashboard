@@ -597,15 +597,16 @@ class AspectsList(View):
         aspect_list = data_models.AspectModel.objects.filter(users=user).order_by("label", "id")
         context = {}
         context["aspects"] = []
-        context["all_aspects"] = []
+        context["standard_aspect_models"] = []
+        context["custom_aspect_models"] = []
         p = Paginator(aspect_list, page_size)
         page = p.page(page_number)
         all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
         for aspect in all_aspects:
-            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+            context["custom_aspect_models"].append({"id":aspect.id, "label": aspect.label}) 
         standard_aspect_models = data_models.AspectModel.objects.filter(standard=True).order_by("label")
         for aspect in standard_aspect_models:
-            context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+            context["standard_aspect_models"].append({"id":aspect.id, "label": aspect.label}) 
         for aspect in page.object_list:
             rules_list = []
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)

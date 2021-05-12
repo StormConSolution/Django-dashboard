@@ -10,7 +10,9 @@ export function createPagination(firstElement, lastElement, totalElements, curre
     </div>
     `;
 
-    paginationDiv.innerHTML = paginationHtml;
+    if(totalElements > 0){
+        paginationDiv.innerHTML = paginationHtml;
+    }
 
     let paginationNumbers = document.createElement("div")
     paginationNumbers.className = "col-12 col-md-auto";
@@ -69,7 +71,6 @@ export function createPagination(firstElement, lastElement, totalElements, curre
  
         }
     }
-
     paginationContainer.append(paginationDiv);
 }
 
