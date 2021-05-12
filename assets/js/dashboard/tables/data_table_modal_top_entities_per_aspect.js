@@ -2,7 +2,6 @@ import {getFilters} from "../helpers/filters"
 import {createPagination} from './utils/utils'
 export function createTable(page, options){
     let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect").value
-    console.log(selectAspect)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");

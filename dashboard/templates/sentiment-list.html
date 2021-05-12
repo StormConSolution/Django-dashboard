@@ -214,16 +214,6 @@
         <!--<a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#testaspect" >
         Test aspect modal
       </a>-->
-        {% comment %}
-        <a
-            href="#"
-            class="btn btn-primary mr-2"
-            data-toggle="modal"
-            data-target="#create-sentiment"
-        >
-            Create aspect modal
-        </a>
-        {% endcomment %}
         <a href="#" class="btn btn-primary mr-2" data-toggle="modal" id="show-test-sentiment-modal">
             Test sentiment
         </a>
@@ -276,30 +266,9 @@
                         <div class="form-group">
                             <label class="form-label">Language</label>
                             <select class="custom-select" name="text-language">
-                                <option value="en">English</option>
-                                <option value="ar">Arabic (العربية)</option>
-                                <option value="zh">Chinese (中文)</option>
-                                <option value="da">Danish (Dansk)</option>
-                                <option value="nl">Dutch (Nederlands)</option>
-                                <option value="en">English</option>
-                                <option value="fi">Finnish (Suomi)</option>
-                                <option value="fr">French (Français)</option>
-                                <option value="de">German (Deutsch)</option>
-                                <option value="he">Hebrew (עִברִית)</option>
-                                <option value="it">Italian (Italiano)</option>
-                                <option value="id">Indonesian (Bahasa Indonesia)</option>
-                                <option value="ja">Japanese (日本語)</option>
-                                <option value="ko">Korean (한국어)</option>
-                                <option value="no">Norwegian (Norsk)</option>
-                                <option value="pl">Polish (Polski)</option>
-                                <option value="pt">Portuguese (Português)</option>
-                                <option value="ru">Russian (русский)</option>
-                                <option value="es">Spanish (Español)</option>
-                                <option value="sv">Swedish (Svenska)</option>
-                                <option value="tr">Turkish (Türk)</option>
-                                <option value="th">Thai (ไทย)</option>
-                                <option value="vi">Vietnamese (Tiếng Việt)</option>
-                                <option value="ur">Urdu (اردو)</option>
+                                {% for language in languages %}
+                                <option value="{{language.0}}">{{language.1}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div id="test-sentiment-score">

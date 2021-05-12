@@ -24,7 +24,7 @@ def sentiment_trend(request, project_id):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     languages = request.GET.get("languages").split(",")
-    sources = parse.unquote(request.GET.get("sources")).split(",")
+    sources = parse.unquote(request.GET.get("sourcesID")).split(",")
     default = request.GET.get("default", "0")
     limit_clause = ""
     if default == "0":
@@ -41,14 +41,13 @@ def sentiment_trend(request, project_id):
     map(lambda x: "''%s''" % x, sources)
     map(lambda x: "''%s''" % x, languages)
     where_clause.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))
-    where_clause.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
+    where_clause.append('ds."id" in (%s)' % ("'" + "','".join(sources) + "'"))
     
     where_clause.append("dd.project_id = %s")
 
     with connection.cursor() as cursor:
         cursor.execute("""
             select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + " and ".join(where_clause) + """ order by date desc """ + limit_clause + """ ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + " and ".join(where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
-        print(cursor.query)
         rows = cursor.fetchall()
     
     response=[]

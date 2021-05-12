@@ -406,10 +406,10 @@
                           </div>
                           <div class="choose" style="max-height:30vh;overflow-y:scroll">
                             {% for language in all_languages %}
-                                {% ifnotequal language "" %}
+                                {% ifnotequal language.1 "" %}
                                 <div class=" ">
-                                    <input type="checkbox" class="" name="languages[]" value="{{language}}" checked onclick="return true">
-                                    <label class="">{{language}}</label>
+                                    <input type="checkbox" class="" name="languages[]" value="{{language.0}}" checked onclick="return true">
+                                    <label class="">{{language.1}}</label>
                                 </div>
                                 {% endifnotequal %}
                             {% endfor %}
