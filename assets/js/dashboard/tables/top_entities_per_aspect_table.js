@@ -89,8 +89,8 @@ export function createTable(page){
                 })
                 content.append(tr);
             }
-            let firstElement = data.pageSize * (data.currentPage - 1);
-            let lastElement = firstElement + data.pageSize;
+            let firstElement = data.pageSize * (data.currentPage - 1) + 1;
+            let lastElement = firstElement + data.pageSize - 1;
             createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
             update.finishUpdate()
         });

@@ -165,11 +165,17 @@
                     </div>
 
                     <div class="table-bottom">
+                        {% if aspects|length > 0 %}
                         <div class="row no-gutters">
                             <div class="col-12 col-md">
                                 <div class="pagination-data">
-                                    Showing {{meta.page_items_from}} to
-                                    {{meta.page_items_to}} of {{aspects |length}} entries
+                                    {% if aspects|length > meta.page_items_to %}
+                                        Showing {{meta.page_items_from}} to
+                                        {{meta.page_items_to}} of {{aspects |length}} entries
+                                    {% else %}
+                                        Showing {{meta.page_items_from}} to
+                                        {{aspects|length}} of {{aspects |length}} entries
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -219,6 +225,7 @@
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -410,71 +417,7 @@
         </div>
     </div>
 </div>
-<div
-    class="modal fade show"
-    id="test-aspect-modal"
-    tabindex="-1"
-    aria-label="createaspectLabel"
-    style="z-index: 100;overflow-y:scroll;"
->
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Test Aspect</h5>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
-                    <i
-                        class="fe fe-x-circle"
-                        onclick="closeTestAspectModal()"
-                    ></i>
-                </button>
-            </div>
-            <div class="modal-body" style="overflow-y:visible;position:relative">
-                <div class="modal-data">
-                    <form method="POST" action="/sentiment/" id="test-sentiment-form">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="form-label">Aspect Model</label>
-                            <select class="custom-select" name="aspect-model">
-                                {% for aspect in all_aspects %}
-                                <option value="{{aspect.id}}">{{aspect.label}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Language</label>
-                            <select class="custom-select" name="text-language">
-                                {% for language in languages %}
-                                <option value="{{language.0}}">{{language.1}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="aspect-name" class="form-label">Sample Text</label>
-                            <input
-                                name="test-sentiment-text"
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter some sample text to test your sentiment rules"
-                            />
-                        </div>
-                        <div id="test-sentiment-score">
-                            Score
-                        </div>
-<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
-                        <button type="submit" class="btn btn-primary mt-2">
-                            Test Aspect
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "includes/aspect-list/aspect-model-test.html" %}
 <script>
 function closeTestAspectModal(){
     document.querySelector("#test-aspect-modal").style.display="none"

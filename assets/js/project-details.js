@@ -7,7 +7,7 @@ let timeOutUpdateDelay
 let currentTab = "overview-tab"
 function updateProjectTables(){
     tables.aspectTopicTable(1)
-    tables.dataTable(1)
+    //tables.dataTable(1)
     tables.entityTable(1)
     tables.topEntitiesPerAspectTable(1)
 }
@@ -89,15 +89,21 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
     })
 })
 
+function activeProjectDetailsTab(id){
+    document.querySelector(`#${id}`).className="active"
+}
 function showHideGraphsTables(){
     hideAllGraphsTables()
+    document.querySelectorAll(".project-menu ul li a").forEach(element=>{
+        element.className = ""
+    })
     switch(currentTab){
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
             break
-        case "sentiment-tab":
-            break
+/*         case "sentiment-tab":
+            break */
         case "aspect-tab":
             showGraphTable("aspect-count")
             showGraphTable("aspect-by-sentiment-percentage")
@@ -114,10 +120,12 @@ function showHideGraphsTables(){
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
-            showGraphTable("data-table")
+            //showGraphTable("data-table")
             showGraphTable("source-by-sentiment")
             break
     }
+
+    activeProjectDetailsTab(currentTab)
 }
 
 showHideGraphsTables()
@@ -125,10 +133,10 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
     showHideGraphsTables()
 })
-document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
+/* document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
     currentTab = "sentiment-tab"
     showHideGraphsTables()
-})
+}) */
 document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
     currentTab = "aspect-tab"
     showHideGraphsTables()

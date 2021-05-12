@@ -152,11 +152,17 @@
                     </div>
 
                     <div class="table-bottom">
+                        {% if sentiments|length > 0 %}
                         <div class="row no-gutters">
                             <div class="col-12 col-md">
                                 <div class="pagination-data">
-                                    Showing {{meta.page_items_from}} to
-                                    {{meta.page_items_to}} of {{sentiments |length}} entries
+                                    {% if sentiments|length > meta.page_items_to %}
+                                        Showing {{meta.page_items_from}} to
+                                        {{meta.page_items_to}} of {{sentiments |length}} entries
+                                    {% else %}
+                                        Showing {{meta.page_items_from}} to
+                                        {{sentiments|length}} of {{sentiments |length}} entries
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -206,6 +212,7 @@
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
