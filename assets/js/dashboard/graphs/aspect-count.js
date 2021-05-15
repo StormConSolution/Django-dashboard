@@ -1,7 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
-import {createTable as dataPerAspectTable} from '../tables/data_table_modal_per_aspect'
+import {createTable as dataPerAspectTable} from '../tables/data_table_modal'
 import wordCloud from './word-cloud-modal'
 let chart
 export function createGraph(){
@@ -103,6 +103,22 @@ export function createGraph(){
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
                         "aspect-label": encodeURIComponent(options.aspectLabel),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    options.csvURL = `/api/data-per-aspect/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "aspect-label": encodeURIComponent(options.aspectLabel),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    options.dataURL = `/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
+                        "aspect-label": encodeURIComponent(options.aspectLabel),
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID

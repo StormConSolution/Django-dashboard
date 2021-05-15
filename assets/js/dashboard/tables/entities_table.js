@@ -1,5 +1,5 @@
 import {createPagination} from './utils/utils'
-import {createTable as dataEntityClassificationTable} from './data_table_modal_classification_entity'
+import {createTable as dataEntityClassificationTable} from './data_table_modal'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
@@ -51,8 +51,27 @@ export function createTable(page){
                     "sources": encodeURIComponent(filtersValues.sources),
                     "sourcesID": filtersValues.sourcesID
                 })
+                let options = {}
+                options.csvURL =`/api/data-per-classification-and-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
+                    "entity": entityID,
+                    "classification": classificationID,
+                    "date-from": filtersValues.dateFrom,
+                    "date-to": filtersValues.dateTo,
+                    "languages": encodeURIComponent(filtersValues.languages),
+                    "sources": encodeURIComponent(filtersValues.sources),
+                    "sourcesID": filtersValues.sourcesID
+                }) 
+                options.dataURL = `/api/data-per-classification-and-entity/${window.project_id}/?` + new URLSearchParams({
+                    "entity": entityID,
+                    "classification": classificationID, 
+                    "date-from": filtersValues.dateFrom,
+                    "date-to": filtersValues.dateTo,
+                    "languages": encodeURIComponent(filtersValues.languages),
+                    "sources": encodeURIComponent(filtersValues.sources),
+                    "sourcesID": filtersValues.sourcesID
+                })
                 wordCloud(wordCloudURL)
-                dataEntityClassificationTable(1, {classification: classificationID, entity: entityID})
+                dataEntityClassificationTable(1, options)
             })
             content.append(tr);
         }

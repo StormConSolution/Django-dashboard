@@ -1,5 +1,5 @@
 import {createPagination} from './utils/utils'
-import {createTable as dataModalTable} from './data_table_modal_aspect_topic'
+import {createTable as dataModalTable} from './data_table_modal'
 import {getFilters} from '../helpers/filters'
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
@@ -65,8 +65,29 @@ function makeTable(page){
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
                     })
+                    let options = {}
+                    options.csvURL = `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "aspect-label": encodeURIComponent(dataAspectLabel),
+                        "topic-label": encodeURIComponent(dataTopicLabel),
+                        "sentiment": sentiment,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
+                    options.dataURL = `/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
+                        "aspect-label": encodeURIComponent(dataAspectLabel),
+                        "topic-label": encodeURIComponent(dataTopicLabel),
+                        "sentiment": sentiment,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
                     wordCloud(wordCloudURL)
-                    dataModalTable(1, {aspectLabel: dataAspectLabel, topicLabel: dataTopicLabel, sentiment: sentiment})
+                    dataModalTable(1, options)
                 })
             }
             let firstElement = data.pageSize * (data.currentPage - 1) + 1;
@@ -75,58 +96,3 @@ function makeTable(page){
             update.finishUpdate()
     });
 }
-
-/* document.getElementById("aspect-topic-table-csv").addEventListener("click", ()=>{
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources)
-    })
-    fetch(`/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams)
-    .then(response => response.blob())
-    .then(blob => {
-        let url = window.URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = "aspect_topic_breakdown.csv"
-        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-        a.click();    
-        a.remove();
-    })
-}) */
-//createTable(1);
-/*
-<div class="col-12 col-md-auto">
-        <ul class="pagination">
-        <li>
-            <a href="#">
-            <i class="fe fe-chevron-left"></i>
-            </a>
-        </li>
-        <li class="active">
-            <a href="#">01</a>
-        </li>
-        <li>
-            <a href="#">02</a>
-        </li>
-        <li>
-            <a href="#">03</a>
-        </li>
-        <li>
-            <a href="#">04</a>
-        </li>
-        <li>
-            <a href="#">..</a>
-        </li>
-        <li>
-            <a href="#">25</a>
-        </li>
-        <li>
-            <a href="#"> <i class="fe fe-chevron-right"></i></a>
-        </li>
-        
-        </ul>
-    </div>
-*/
