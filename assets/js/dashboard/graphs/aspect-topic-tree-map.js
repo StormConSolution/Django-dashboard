@@ -1,7 +1,7 @@
 import config from "../config";
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
-import {createTable} from '../tables/data_table_modal_aspect_topic_tree_map'
+import {createTable} from '../tables/data_table_modal'
 import wordCloud from './word-cloud-modal'
 let chart
 let project_id = window.project_id;
@@ -64,15 +64,35 @@ export function createGraph(){
                             let wordCloudURL = `/api/data-per-aspect-topic/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
                                 "aspect-label": encodeURIComponent(aspectLabel),
                                 "topic-label": encodeURIComponent(topicLabel),
-                                "sentiment": options.sentiment,
+                                "sentiment": sentiment,
                                 "date-from": filtersValues.dateFrom,
                                 "date-to": filtersValues.dateTo,
                                 "languages": encodeURIComponent(filtersValues.languages),
                                 "sources": filtersValues.sources,
                                 "sourcesID": filtersValues.sourcesID
                             })
+                            options.csvURL =`/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
+                                "aspect-label": encodeURIComponent(aspectLabel),
+                                "topic-label": encodeURIComponent(topicLabel),
+                                "sentiment": sentiment,
+                                "date-from": filtersValues.dateFrom,
+                                "date-to": filtersValues.dateTo,
+                                "languages": encodeURIComponent(filtersValues.languages),
+                                "sources": filtersValues.sources,
+                                "sourcesID": filtersValues.sourcesID
+                            }) 
+                            options.dataURL =`/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
+                                "aspect-label": encodeURIComponent(aspectLabel),
+                                "topic-label": encodeURIComponent(topicLabel),
+                                "sentiment": sentiment,
+                                "date-from": filtersValues.dateFrom,
+                                "date-to": filtersValues.dateTo,
+                                "languages": encodeURIComponent(filtersValues.languages),
+                                "sources": filtersValues.sources,
+                                "sourcesID": filtersValues.sourcesID
+                            }) 
                             wordCloud(wordCloudURL)
-                            createTable(1, {topicLabel:topicLabel, sentiment: sentiment, aspectLabel: aspectLabel})
+                            createTable(1, options)
                         }            
                     }
                 }

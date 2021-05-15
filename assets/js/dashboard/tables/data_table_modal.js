@@ -1,28 +1,14 @@
 import {getFilters} from "../helpers/filters"
 import {createPagination} from './utils/utils'
 export function createTable(page, options){
-    let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect").value
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     let filtersValues = getFilters() 
-    document.getElementById("data-modal-table-csv").href = `/api/data-per-classification-and-entity/${window.project_id}/?format=csv&&classification=${options.classification}&entity=${options.entity}&aspect-label=${selectAspect}&` + new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
-    })
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
-    })
-    fetch(`/api/data-per-classification-and-entity/${window.project_id}/?page=${page}&page-size=${pageSize}&classification=${options.classification}&entity=${options.entity}&aspect-label=${selectAspect}&` + urlParams)
+    document.getElementById("data-modal-table-csv").href = options.wordCloudURL
+    fetch(options.dataURL + `&page-size=${pageSize}&page=${page}`)
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {

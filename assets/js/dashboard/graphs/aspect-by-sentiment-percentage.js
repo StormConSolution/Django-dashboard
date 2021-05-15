@@ -1,7 +1,7 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
-import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal_aspect_by_sentiment";
+import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#aspect-by-sentiment-percentage")
@@ -35,6 +35,24 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
+                    })
+                    options.csvURL = `/api/data-per-aspect/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "aspect-label": encodeURIComponent(options.aspect),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": filtersValues.sources,
+                        "sourcesID": filtersValues.sourcesID,
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo
+                    })
+                    options.dataURL = `/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "aspect-label": encodeURIComponent(options.aspect), 
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": filtersValues.sources,
+                        "sourcesID": filtersValues.sourcesID
                     })
                     wordCloud(wordCloudURL)
                     dataTableModalDataPerAspectAndSentiment(1, options)

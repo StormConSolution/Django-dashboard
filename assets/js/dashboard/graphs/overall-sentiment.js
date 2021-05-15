@@ -1,7 +1,7 @@
 import config from "../config";
 import * as filters from "../helpers/filters"
 import {update} from '../helpers/helpers'
-import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal_data_per_sentiment"
+import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal"
 import wordlCloud from './word-cloud-modal'
 let chart
 let div = document.querySelector("#overall-sentiment-chart")
@@ -26,6 +26,22 @@ function overallSentiment(data){
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
                     }))
+                    options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    }) 
+                    options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
+                        "sentiment": encodeURIComponent(options.sentiment),
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID
+                    })
                     dataTableModalPerSentiment(1, options)
                 }            
             }

@@ -1,7 +1,7 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
-import { createTable as dataTableModalEntityBySentiment} from "../tables/data_table_modal_classification_by_sentiment";
+import { createTable as dataTableModalEntityBySentiment} from "../tables/data_table_modal";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#classification-by-sentiment")
@@ -37,6 +37,24 @@ export function createGraph() {
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
                         "classificationID": mapClassificationAndID[classification]
+                    })
+                    options.csvURL = `/api/data-per-classification/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID,
+                        "sentiment": options.sentiment,
+                        "classificationID": options.classificationID
+                    })
+                    options.dataURL = `/api/data-per-classification/${window.project_id}/?` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": filtersValues.sourcesID,
+                        "sentiment": options.sentiment,
+                        "classificationID": options.classificationID
                     })
                     wordCloud(wordCloudURL)
                     dataTableModalEntityBySentiment(1, options)

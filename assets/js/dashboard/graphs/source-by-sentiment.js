@@ -1,7 +1,7 @@
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
-import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal_volume_by_source'
+import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal'
 import wordCloud from "./word-cloud-modal";
 let chart;
 let container = document.querySelector("#source-by-sentiment-graph")
@@ -37,6 +37,22 @@ export function createGraph() {
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
                     })
+                    options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": options.sourceID,
+                        "sentiment": options.sentiment
+                    }) 
+                    options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
+                        "date-from": filtersValues.dateFrom,
+                        "date-to": filtersValues.dateTo,
+                        "languages": encodeURIComponent(filtersValues.languages),
+                        "sources": encodeURIComponent(filtersValues.sources),
+                        "sourcesID": options.sourceID,
+                        "sentiment": options.sentiment
+                    }) 
                     wordCloud(wordCloudURL)
                     dataTableModalVolumeBySource(1, options)
                 }            
