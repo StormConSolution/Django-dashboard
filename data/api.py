@@ -16,6 +16,8 @@ urlpatterns = [
     path('export-data/', data_api_views.export_data),
     path('entity-classification-count/<int:project_id>/', views.entity_classification_count),
     path('entity-by-sentiment/<int:project_id>/', data_api_views.entity_by_sentiment),
+    path('classification-by-sentiment/<int:project_id>/', data_api_views.classification_by_sentiment),
+    path('data-per-classification/<int:project_id>/', data_api_views.data_per_classification),
     path('aspect-topic/project/<int:project_id>/', views.aspect_topic),
     path('sentiment-trend/<int:project_id>/', data_api_views.sentiment_trend),
     path('data-per-classification-and-entity/<int:project_id>/', data_api_views.data_per_classification_and_entity),

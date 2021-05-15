@@ -13,6 +13,8 @@ from .entity_by_sentiment import entity_by_sentiment
 from .data_per_entity import data_per_entity
 from .export_data import export_data
 from .aspect_model_test import aspect_model_test
+from .classification_by_sentiment import classification_by_sentiment
+from .data_per_classification import data_per_classification
 __all__ = [
     'entity_aspect_for_emotion', 
     'topics_per_aspect', 
@@ -29,4 +31,6 @@ __all__ = [
     'data_per_entity',
     'export_data',
     'aspect_model_test',
+    'classification_by_sentiment',
+    'data_per_classification',
 ]

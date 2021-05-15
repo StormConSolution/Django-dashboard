@@ -23,6 +23,7 @@ function updateGraphs(){
     graphs.emotionAspectCoOccurrence()
     graphs.sourceBySentimentGraph()
     graphs.entityBySentimentGraph()
+    graphs.classificationBySentimentGraph()
 }
 
 function updateProjectDetailsPageWithDelay(){
@@ -117,6 +118,7 @@ function showHideGraphsTables(){
             showGraphTable("entities-table")
             showGraphTable("top-entities-per-aspect-table")
             showGraphTable("entity-by-sentiment")
+            showGraphTable("classification-by-sentiment")
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
