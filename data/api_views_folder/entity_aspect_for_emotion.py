@@ -16,6 +16,8 @@ def entity_aspect_for_emotion(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    if models.Data.objects.filter(project_id=project_id).count() == 0:
+        return JsonResponse({}, safe=False)
     languages =parse.unquote(request.GET.get("languages", "")).split(",")
     sources = parse.unquote(request.GET.get("sources", "")).split(",")
     function_arguments = ""

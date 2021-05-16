@@ -100,25 +100,29 @@ export function createGraph(){
         .then((data) => {
             let series = []
             let seriesData = []
-            for(let element of data){
-                    if(currentEntity != "" && currentEntity != element.entityLabel){
-                        series.push({name: currentEntity, data: seriesData})
-                        seriesData = []
-                        countEmotions++
-                        if(countEmotions==maxEmotions){
-                            break
+            if(Object.keys(data).length !== 0){
+                for(let element of data){
+                        if(currentEntity != "" && currentEntity != element.entityLabel){
+                            series.push({name: currentEntity, data: seriesData})
+                            seriesData = []
+                            countEmotions++
+                            if(countEmotions==maxEmotions){
+                                break
+                            }
                         }
-                    }
-                    seriesData.push({x: element.aspectLabel, y:(element.aspectCount/element.entityCount * 100).toFixed(2)})
-                    currentEntity = element.entityLabel
+                        seriesData.push({x: element.aspectLabel, y:(element.aspectCount/element.entityCount * 100).toFixed(2)})
+                        currentEntity = element.entityLabel
+                }
+                chartOptions.series = series
+                chart = new ApexCharts(
+                    div,
+                    chartOptions
+                );
+                chart.render();
+            } else {
+
+                div.innerHTML = ""
             }
-            chartOptions.series = series
-            div.innerHTML = ""
-            chart = new ApexCharts(
-                div,
-                chartOptions
-            );
-            chart.render();
             update.finishUpdate()
         });     
 }

@@ -159,11 +159,14 @@ export function createGraph() {
                 -maxNegative - Math.round(maxNegative * 0.1);
             chartOptions.xaxis.categories = aspects;
             graphContainer.innerHTML = ""
-                chart = new ApexCharts(
+
+            if(Object.keys(data).length !== 0){
+            chart = new ApexCharts(
                 graphContainer,
                 chartOptions
             );
             chart.render();
+            }
             update.finishUpdate()
         });
 }
