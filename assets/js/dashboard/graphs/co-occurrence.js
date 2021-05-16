@@ -88,11 +88,13 @@ export function createGraph(){
         .then((data) => {
             chartOptions.series = data
             div.innerHTML = ""
+            if(Object.keys(data).length !== 0){
             let chart = new ApexCharts(
                 div,
                 chartOptions
             );
             chart.render();
+            }
             update.finishUpdate()
         });     
 }

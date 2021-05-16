@@ -360,6 +360,8 @@ def co_occurence(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
+    if data_models.Data.objects.filter(project_id=project_id).count() == 0:
+        return JsonResponse({}, safe=False)
     end = this_project.data_set.latest().date_created
     start = end - datetime.timedelta(days=30)
 

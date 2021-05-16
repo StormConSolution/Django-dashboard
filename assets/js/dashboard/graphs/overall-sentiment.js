@@ -82,6 +82,16 @@ function aspectAndSourceCount(data){
     let sourceCount = document.getElementById("source-count")
     aspectCount.innerHTML = data.aspectCount
     sourceCount.innerHTML = data.sourceCount
+    if(data.aspectCount>1){
+        document.querySelector("#overall-sentiment-different-aspects").innerHTML = "Different Aspects"
+    } else {
+        document.querySelector("#overall-sentiment-different-aspects").innerHTML = "Different Aspect"
+    }
+    if(data.sourceCount>1){
+        document.querySelector("#overall-sentiment-different-sources").innerHTML = "Different Sources"
+    } else {
+        document.querySelector("#overall-sentiment-different-sources").innerHTML = "Different Source"
+    }
 }
 function seeAllTotalItems(data){
     //document.getElementById("see-all-total-items").innerHTML = `See all ${data.positive_count + data.negative_count + data.neutral_count} data items`
