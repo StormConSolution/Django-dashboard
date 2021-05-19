@@ -10,10 +10,10 @@ def getFiltersSQL(request):
     filters = []
     if dateFrom != "" :
         filters.append("dd.date_created > '" + dateFrom + "'")
-        where_clauses.append("dd.date_created > '" + dateFrom + "'")
+        where_clauses.append("dd.date_created >= '" + dateFrom + "'")
     if dateTo != "":
-        filters.append("dd.date_created < '" + dateTo + "'")
-        where_clauses.append("dd.date_created < '" + dateTo + "'")
+        filters.append("dd.date_created <= '" + dateTo + "'")
+        where_clauses.append("dd.date_created <= '" + dateTo + "'")
     filtersSQL = " and ".join(filters)
     if filtersSQL != "":
         filtersSQL = " and " + filtersSQL
@@ -34,9 +34,9 @@ def getFiltersSQL2(request):
     if not dateTo:
         dateTo = ""
     if dateFrom != "" :
-        where_clauses.append("dd.date_created > '" + dateFrom + "'")
+        where_clauses.append("dd.date_created >= '" + dateFrom + "'")
     if dateTo != "":
-        where_clauses.append("dd.date_created < '" + dateTo + "'")
+        where_clauses.append("dd.date_created <= '" + dateTo + "'")
     if languages != ['']:
         map(lambda x: "''%s''" % x, languages)
         where_clauses.append("dd.language in (%s)" % ("'" + "','".join(languages) + "'"))

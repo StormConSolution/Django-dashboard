@@ -164,7 +164,7 @@ STATICFILES_DIRS = (
 # Variables expected from settings_local. Docker overrides these with the
 # values from .env.prod but when testing locally outside a container, these
 # values can be overriden.
-SQL_DATABASE = 'dashboard'
+SQL_DATABASE = 'rdv2'
 SQL_HOST = 'localhost'
 SQL_PASSWORD = ''
 SQL_PORT = 5432
@@ -175,7 +175,7 @@ DEBUG = True
 API_HOST = 'https://api.repustate.com'
 APIKEY = 'repustatedemopage'
 SQL_HOST = 'localhost'
-SQL_DATABASE = "dashboard"
+SQL_DATABASE = "dashboardv2"
 SQL_USER = ""
 SQL_PASSWORD = ""
 
