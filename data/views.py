@@ -93,7 +93,7 @@ def index(request):
     proj = data_models.Project.objects.filter(users=request.user)
     if proj:
         proj = proj.latest()
-        return redirect(reverse('projects', kwargs={'project_id': proj.id}))
+        return redirect(reverse('project'))
     else:
         # return forbiden if no projects, so that there is no crash
         return HttpResponseForbidden()
