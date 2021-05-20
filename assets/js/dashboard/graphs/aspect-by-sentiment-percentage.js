@@ -5,6 +5,7 @@ import { createTable as dataTableModalDataPerAspectAndSentiment } from "../table
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#aspect-by-sentiment-percentage");
+let limitDiv = document.querySelector("#aspect-by-sentiment-percentage-limit")
 export function createGraph() {
     update.startUpdate();
     if (chart) {
@@ -108,6 +109,7 @@ export function createGraph() {
         languages: filtersValues.languages,
         sources: filtersValues.sources,
         sourcesID: filtersValues.sourcesID,
+        "limit": limitDiv.value
     });
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
@@ -143,3 +145,7 @@ export function createGraph() {
             update.finishUpdate();
         });
 }
+
+limitDiv.addEventListener("change", (e)=>{
+    createGraph()
+})

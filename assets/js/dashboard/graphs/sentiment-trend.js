@@ -32,7 +32,7 @@ export function createGraph() {
                 colors: ["#28C76F", "#EA5455"],
                 chart: {
                     height: 320,
-                    type: "line",
+                    type: data.length === 1 ? "scatter":"line",
                     toolbar: {
                         show: false,
                     },

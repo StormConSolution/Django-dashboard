@@ -1,3 +1,4 @@
+import { create } from "d3-selection";
 import config from "../config";
 import { getFilters } from "../helpers/filters";
 import {update} from '../helpers/helpers'
@@ -5,7 +6,9 @@ import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/
 import wordCloud from './word-cloud-modal'
 let chart 
 let graphContainer = document.querySelector("#aspect-by-sentiment-absolute")
+let limitDiv = document.querySelector("#aspect-by-sentiment-absolute-limit")
 export function createGraph() {
+
     update.startUpdate()
     if(chart){
         chart.destroy()
@@ -124,7 +127,8 @@ export function createGraph() {
         "date-to": filtersValues.dateTo,
         "languages": filtersValues.languages,
         "sources": filtersValues.sources,
-        "sourcesID": filtersValues.sourcesID
+        "sourcesID": filtersValues.sourcesID,
+        "limit": limitDiv.value
     })
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
@@ -170,3 +174,7 @@ export function createGraph() {
             update.finishUpdate()
         });
 }
+
+limitDiv.addEventListener("change", (e)=>{
+    createGraph()
+})

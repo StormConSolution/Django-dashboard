@@ -159,7 +159,7 @@
                         <button class="btn btn-outline btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</button>
                         <div class="dropdown-menu pre-scrollable" aria-labelledby="dropdownMenuButton">
                             {% for project in project_list %}
-                            <a class="dropdown-item align-items-center" href="{% url 'projects' project_id=project.id %}"><i class="bx bx-right-arrow-alt"></i>{{project.name}}</a>
+                            <a class="dropdown-item align-items-center" href="{% url 'project' project_id=project.id %}"><i class="bx bx-right-arrow-alt"></i>{{project.name}}</a>
                             {% endfor %}
                         </div>
                     </li>
@@ -211,11 +211,11 @@
                     <div class="row">
 						<div class="col-10">
 							<h1>{{ project.name }}
-								<a class="text-white" href="{% url 'projects' project_id=project.id %}?from={{ earliest }}&to={{ latest }}">
+								<a class="text-white" href="{% url 'project' project_id=project.id %}?from={{ earliest }}&to={{ latest }}">
 									<small style="font-size:18px;" class="text-muted">See all {{ total|intcomma }} data items &rarr;</small></a>
 							</h1>
 						</div>
-						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'projects' project_id=project.id %}">Reset filters</a></h5></div>
+						<div class="col-2 text-right"><h5><a class="text-white" href="{% url 'project' project_id=project.id %}">Reset filters</a></h5></div>
                     </div>
                 </div>
 				{% for alert in project.alert_set.all %}

@@ -20,6 +20,5 @@ def sentiment_test(request):
     language = request.POST.get("language", "")
 
     req = requests.post("%s/v4/%s/score.json" % (settings.API_HOST, settings.APIKEY), data={"text": text, "lang": language})
-    print(req.url)
     response = json.loads(req.text)
     return JsonResponse(response, safe=False, status=req.status_code)

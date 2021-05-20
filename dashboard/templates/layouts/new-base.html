@@ -112,7 +112,7 @@
 <body style="position:relative">
     <header>
         <nav class="navbar navbar-expand-lg navbar-main navbar-light ">
-            <a class="navbar-brand" href="{% url 'new-projects' %}">
+            <a class="navbar-brand" href="{% url 'project' %}">
               <img src="/static/assets/images/logo-repustate-dark.svg">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -175,9 +175,9 @@
             {% for project in projects_data %}
             <li>
                 {% if project.name == project_name %}
-                    <a href="/new-projects/{{project.id}}/" class="active"> {{project.name}} </a>
+                    <a href="{% url 'project' project.id %}" class="active"> {{project.name}} </a>
                 {% else %}
-                    <a href="/new-projects/{{project.id}}/" > {{project.name}} </a>
+                    <a href="{% url 'project' project.id %}" > {{project.name}} </a>
                 {% endif %}
             </li>
             {% endfor %}
@@ -283,7 +283,7 @@
 
             <div class="modal-body">
                 <div class="modal-data">
-                    <form method="POST" action="{% url 'new-projects' %}">
+                    <form method="POST" action="{% url 'project' %}">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="projectname" class="form-label"

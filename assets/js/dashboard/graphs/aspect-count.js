@@ -36,6 +36,7 @@ export function createGraph() {
                     100
                 ).toFixed(2);
                 let id = `aspect-count-${element.aspectLabel}`;
+                id = id.replace(/\W/g, '')
                 let li = document.createElement("li");
 
                 let domElement = `
