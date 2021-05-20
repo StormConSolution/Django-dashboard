@@ -1,7 +1,7 @@
 export function getFilters(){
     let dateFrom = document.getElementById("date-from").value
     let dateTo = document.getElementById("date-to").value
-    let languagesCheckbox = document.querySelectorAll("#dropdown-languages .choose input:checked")
+    let languagesCheckbox = document.querySelectorAll("#dropdown-languages-project-details .choose input:checked")
     let sources = []
     let languages = []
     let sourcesID = []

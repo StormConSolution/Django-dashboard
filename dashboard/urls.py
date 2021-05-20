@@ -24,14 +24,12 @@ schema_view = get_schema_view(
     generator_class=SchemaGenerator,
 )
 
-from data import views
-
 admin.site.site_header = "Repustate Admin"
 admin.site.site_title = "Repustate Admin"
 admin.site.index_title = "Welcome to Repustate"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # Django admin route
+    path('admin/', admin.site.urls, name="admin"),  # Django admin route
     # path('api/', include(router.urls)),
     path("", include("authentication.urls")),  # Auth routes - login / register
 

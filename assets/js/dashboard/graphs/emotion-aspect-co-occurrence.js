@@ -27,27 +27,27 @@ export function createGraph(){
                             color: "#E2E0FB",
                         },
                         {
-                            from: 21,
+                            from: 20,
                             to: 40,
-                            name: "21-40",
+                            name: "20-40",
                             color: "#D4D0FA",
                         },
                         {
-                            from: 41,
+                            from: 40,
                             to: 60,
-                            name: "41-60 ",
+                            name: "40-60 ",
                             color: "#C6C1F8",
                         },
                         {
-                            from: 61,
+                            from: 60,
                             to: 80,
-                            name: "61-80",
+                            name: "60-80",
                             color: "#968DF3",
                         },
                         {
-                            from: 81,
+                            from: 80,
                             to: 99,
-                            name: "81-99",
+                            name: "80-99",
                             color: "#8075F1",
                         },
                         {
@@ -118,6 +118,7 @@ export function createGraph(){
                     div,
                     chartOptions
                 );
+                div.innerHTML = ""
                 chart.render();
             } else {
 

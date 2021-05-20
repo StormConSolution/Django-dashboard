@@ -381,14 +381,14 @@ def new_project_details(request, project_id):
     #    rows = cursor.fetchall()
     #for row in rows:
     #    context["languages"].append(row[0])
-    languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+    languages = list(data_models.Data.objects.filter(project__users=user).distinct().values("language"))
     context["all_languages"] = []
     for element in languages:
         for language_tuple in data_models.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["all_languages"].append(language_tuple)
         #context["all_languages"].append(element["language"])
-    languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).values("language").distinct().values("language"))
+    languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).distinct().values("language"))
     context["languages"] = []
     for element in languages:
         for language_tuple in data_models.LANGUAGES:

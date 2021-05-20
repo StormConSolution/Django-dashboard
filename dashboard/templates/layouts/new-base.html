@@ -152,6 +152,9 @@
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="https://repustate.com/payment/myaccount/"><i class="fe fe-user"></i> My Account</a>
+                    {% if user.is_staff %}
+                    <a class="dropdown-item" href="/admin/"><i class="fe fe-user"></i>Admin</a>
+                    {% endif %}
                     <a class="dropdown-item" href="/logout/"><i class="fe fe-log-out"></i> Logout</a>
                   </div>
                 </div>
