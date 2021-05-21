@@ -1,10 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS btree_gin;
 
-/*
 
-SELECT refresh_cached_entity_aspect_data()
-
-*/
 
 CREATE OR REPLACE FUNCTION refresh_cached_entity_aspect_data() RETURNS VOID
 LANGUAGE plpgsql
@@ -47,14 +43,6 @@ BEGIN
 END
 $$;
 
-/*
-
-SELECT * FROM get_entity_aspect_counts(13, 3155) ORDER BY entity, aspect;
-SELECT * FROM get_entity_aspect_counts(13, 3155, sql_filter := $SQL$date_created > '2020-01-01'$SQL$) ORDER BY entity, aspect;
-SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en'], source_ids := ARRAY[17], sql_filter := $SQL$date_created > '2019-01-01'$SQL$) ORDER BY entity, aspect;
-SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en', 'zh']) ORDER BY entity, aspect;
-
-*/
 
 drop function if exists get_entity_aspect_counts(integer, integer, varchar, integer, text);
 drop function if exists get_entity_aspect_counts(integer, integer, character varying[], integer[], text);
@@ -112,3 +100,15 @@ BEGIN
     ' USING filters, languages_filter, sources_filter;
 END
 $$;
+
+
+SELECT refresh_cached_entity_aspect_data()
+
+/*
+
+SELECT * FROM get_entity_aspect_counts(13, 3155) ORDER BY entity, aspect;
+SELECT * FROM get_entity_aspect_counts(13, 3155, sql_filter := $SQL$date_created > '2020-01-01'$SQL$) ORDER BY entity, aspect;
+SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en'], source_ids := ARRAY[17], sql_filter := $SQL$date_created > '2019-01-01'$SQL$) ORDER BY entity, aspect;
+SELECT * FROM get_entity_aspect_counts(13, 3155, languages := ARRAY['en', 'zh']) ORDER BY entity, aspect;
+
+*/
