@@ -81,7 +81,7 @@ class Project(models.Model):
         return self.charts.filter(label='aspect_s').count() > 0
 
     def get_absolute_url(self):
-        return reverse('projects', kwargs={'project_id': self.id})
+        return reverse('project', kwargs={'project_id': self.id})
     
     def most_recent_date(self):
         # Get the date of my most recent data item.
