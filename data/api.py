@@ -2,6 +2,7 @@
 from django.urls import path  # add this
 from data import api_views as views
 import data.data_views as data_api_views
+
 urlpatterns = [
     path('source/', views.SourceListAPI.as_view()),
     path('country/', views.CountryListAPI.as_view()),

@@ -50,12 +50,6 @@ def export_selected_objects(modeladmin, request, queryset):
 export_selected_objects.short_description = 'Export search results'
 admin.site.add_action(export_selected_objects)
 
-
-class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('date_created', 'name', 'aspect_model',)
-    search_fields = ('name',)
-
-
 class DataAdmin(admin.ModelAdmin):
     list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
     list_filter = ('project', 'source', 'language')
@@ -64,18 +58,26 @@ class DataAdmin(admin.ModelAdmin):
     readonly_fields = ('entities', 'language', 'text', 'source', 'country', 'metadata')
     date_hierarchy = 'date_created'
 
-
 class AspectAdmin(admin.ModelAdmin):
     list_display = ('label', 'chunk', 'sentiment', 'topic')
     list_filter = ('label', 'data__project')
     readonly_fields = ('data', 'chunk', 'topic', 'sentiment_text', 'label')
     search_fields = ('topic', 'chunk',)
 
+class AspectModelAdmin(admin.ModelAdmin):
+    list_display = ('label', 'standard',)
+    list_filter = ('standard',)
+    filter_horizontal = ('users',)
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', '_data_count', '_view')
-    filter_horizontal = ('users', 'charts')
+    list_display = ('name', 'aspect_model', '_data_count', '_view')
+    filter_horizontal = ('users',)
     search_fields = ('name', 'users__email')
+    fieldsets = (
+        (None, {
+            'fields':('name', 'aspect_model', 'users'),
+        }),
+    )
 
     def _view(self, obj):
         return mark_safe('<a href="{0}">{1}</a>'.format(
@@ -118,7 +120,7 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Entity, EntityAdmin)
 admin.site.register(ChartType)
 admin.site.register(TwitterSearch, TwitterSearchAdmin)
-admin.site.register(AspectModel)
+admin.site.register(AspectModel, AspectModelAdmin)
 admin.site.register(Keyword)
 admin.site.register(Country)
 admin.site.register(Source, SourceAdmin)

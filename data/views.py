@@ -346,7 +346,7 @@ class Projects(View):
         project.save()
         project.users.add(user)
         project.save()
-        return redirect("new-project-details", project.id)
+        return redirect("project", project.id)
 
 @login_required(login_url=LOGIN_URL)
 def new_project_details(request, project_id):

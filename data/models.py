@@ -48,6 +48,7 @@ class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False)
     users = models.ManyToManyField(User, blank=True)
     standard = models.BooleanField(default=True)
+    
     def __str__(self):
         return self.label
 
@@ -65,7 +66,7 @@ class Project(models.Model):
     users = models.ManyToManyField(User)
     charts = models.ManyToManyField(ChartType, blank=True)
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
-    sentiment = models.ManyToManyField(Sentiment)
+    sentiment = models.ManyToManyField(Sentiment, blank=True)
 
     def __str__(self):
         return self.name
