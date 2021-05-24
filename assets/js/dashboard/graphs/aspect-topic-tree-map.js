@@ -9,7 +9,7 @@ let firstRun = true;
 export function createGraph() {
     if (firstRun) {
         firstRun = false;
-        fetch(`/api/aspect-count/${project_id}/`)
+        fetch(`/api/aspect-count/${project_id}/?order-by=label`)
             .then((response) => response.json())
             .then((data) => {
                 let first = true;

@@ -48,14 +48,11 @@ def get_chart_data(this_project, start, end, entity_filter,
     }
 
     chart_classes = [
-        charts.SentimentDonutChart,
-        charts.SentimentTimeChart,
-        charts.VolumeBySourceChart,
+        
     ]
 
     if this_project.aspect_model:
         chart_classes.append(charts.AspectCooccurrence)
-
     for chart_class in chart_classes:
         instance = chart_class(
             this_project,
@@ -333,27 +330,6 @@ def volume_by_source(request, project_id):
     return JsonResponse(response, safe=False)
 
 @login_required(login_url=LOGIN_URL)
-def aspect_count(request, project_id):
-    project = get_object_or_404(data_models.Project, pk=project_id)
-    filtersSQL = getFiltersSQL(request)
-    if project.users.filter(pk=request.user.id).count() == 0:
-        raise PermissionDenied
-    where_clauses = [
-        "dd.project_id = %s"
-    ]
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            select distinct da."label", count(da."label") from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clauses) + """ group by da."label" order by count(da."label") desc ;""", [project.id])
-        rows = cursor.fetchall()
-    response = []
-    for row in rows:
-        aux = {}
-        aux["aspectLabel"] = row[0]
-        aux["aspectCount"] = row[1]
-        response.append(aux)
-    return JsonResponse(response, safe=False)
-
-@login_required(login_url=LOGIN_URL)
 def co_occurence(request, project_id):
     context = {}
     this_project = get_object_or_404(data_models.Project, pk=project_id)
@@ -362,8 +338,11 @@ def co_occurence(request, project_id):
 
     if data_models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
-    end = this_project.data_set.latest().date_created
-    start = end - datetime.timedelta(days=30)
+    start = request.GET.get("date-from")
+    end = request.GET.get("date-to")
+    
+    #end = this_project.data_set.latest().date_created
+    #start = end - datetime.timedelta(days=30)
 
     # list of languages in a given project
     lan_data = list(data_models.Data.objects.filter(
@@ -379,17 +358,21 @@ def co_occurence(request, project_id):
     else:
         lang_filter = None
 
-    src = request.GET.getlist('filter_source')
-    if src and src[0]:
-        source_filter = src[0].split(",")
-        context['selected_sources'] = source_filter
-    else:
-        source_filter = None
+    #src = request.GET.getlist('filter_source')
+    source_filter = request.GET.get('sourcesID', "").split(",")
+    lang_filter = request.GET.get("languages", "").split(",")
+    #if src and src[0]:
+    #    source_filter = src[0].split(",")
+    #    context['selected_sources'] = source_filter
+    #else:
+    #    source_filter = None
     
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
     aspect_name = request.GET.get('aspectname')
     
+    #source_filter = request.GET.get("sourcesID", "").split(",")
+    #lang_filter =parse.unquote(request.GET.get("languages", "")).split(",")
     chart_data = get_chart_data(
         this_project,
         start,

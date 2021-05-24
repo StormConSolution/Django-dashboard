@@ -7,6 +7,7 @@ let content = document.getElementById("top-entities-per-aspect-table-content");
 let firstRun = true
 let aspectLabel = ""
 let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect")
+let pageSizeDropdown = document.querySelector("#top-entities-per-aspect-table-page-size")
 export function createTable(page){
     if(firstRun){
         update.startUpdate()
@@ -16,7 +17,8 @@ export function createTable(page){
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
             "sources": encodeURIComponent(filtersValues.sources),
-            "sourcesID": filtersValues.sourcesID
+            "sourcesID": filtersValues.sourcesID,
+            "order-by":"label",
         })
         fetch(`/api/aspect-count/${window.project_id}/?` + urlParams).then(response => response.json()).then(data => {
             let first = true
@@ -41,7 +43,7 @@ export function createTable(page){
         content.innerHTML = "Loading...";
         let pagination = document.getElementById("top-entities-per-aspect-table-pagination");
         pagination.innerHTML = ""
-        let pageSize = document.getElementById("top-entities-per-aspect-table-page-size").value
+        let pageSize = pageSizeDropdown.value
     
         let filtersValues = getFilters() 
         let urlParams = new URLSearchParams({
@@ -118,6 +120,9 @@ export function createTable(page){
     }
 }
 selectAspect.addEventListener("change", () =>{
+    createTable(1)
+})
+pageSizeDropdown.addEventListener("change", () =>{
     createTable(1)
 })
 //createTable(1);
