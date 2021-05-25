@@ -1,8 +1,8 @@
-import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataPerAspectTable } from "../tables/data_table_modal";
 import wordCloud from "./word-cloud-modal";
+import config from "../config";
 let chart;
 let graphContainer = document.querySelector("#aspect-count-graphs")
 export function createGraph() {
@@ -29,18 +29,15 @@ export function createGraph() {
             for (let element of data) {
                 totalCount += element.aspectCount;
             }
-            let percentageData = [];
+            let chartdData = [];
             let aspects = [];
-            let maxPercentage = 0;
+            let maxNumber = 0;
             for (let element of data) {
-                let percentage = (
-                    (element.aspectCount / totalCount) *
-                    100
-                ).toFixed(2);
-                percentageData.push(percentage)
+
+                chartdData.push(element.aspectCount)
                 aspects.push(element.aspectLabel);
-                if (parseInt(percentage) > maxPercentage) {
-                    maxPercentage = parseInt(percentage)
+                if (element.aspectCount > maxNumber) {
+                    maxNumber = element.aspectCount
                 }
             }
             let chartOptions = {
@@ -104,7 +101,7 @@ export function createGraph() {
                     }
                 },
                 legend: { show: false },
-                colors: ["#28C76F", "#EA5455"],
+                colors: [config.neutral],
                 plotOptions: {
                     bar: {
                         horizontal: true,
@@ -159,12 +156,11 @@ export function createGraph() {
                 },
             };
             chartOptions.series.push({
-                name: "Percentage",
-                data: percentageData,
+                name: "Count",
+                data: chartdData,
             });
             chartOptions.yaxis = {}
-            chartOptions.yaxis.max =
-                maxPercentage + Math.round(maxPercentage * 0.1);
+            chartOptions.yaxis.max = maxNumber + Math.round(maxNumber * 0.1)
             chartOptions.xaxis = {}
             chartOptions.xaxis.categories = aspects;
             graphContainer.innerHTML = ""
