@@ -376,16 +376,16 @@ class VolumeBySourceChart(BaseChart):
 
         if self.lang_filter:
             lang_string = len(self.lang_filter) * '%s,'
-            where_clause.append('data_data.language IN ({})'.format(lang_string[:-1]))
-            query_args.extend(self.lang_filter)
+            where_clause.append("data_data.language IN ('{}')".format("','".join(self.lang_filter)))
+            #query_args.extend(self.lang_filter)
         
         if self.source_filter:
             source_string = len(self.source_filter) * '%s,'
-            where_clause.append('data_data.source_id IN ({})'.format(source_string[:-1]))
+            where_clause.append('data_data.source_id IN ({})'.format(",".join(self.source_filter)))
             # Get the raw IDs for our sources.
             source_ids = data_models.Source.objects.filter(
                     label__in=self.source_filter).values_list('id', flat=True)
-            query_args.extend(source_ids)
+            #query_args.extend(source_ids)
         
         if self.aspect_topic or self.aspect_name:
             tables.append('data_aspect')
@@ -416,7 +416,6 @@ class AspectCooccurrence(BaseChart):
     """
     Generate the data needed for a co-occurrence heat map.
     """
-
     def render_data(self):
 
         UNIQUE_ASPECTS_QUERY = """
@@ -446,17 +445,10 @@ class AspectCooccurrence(BaseChart):
         query_args = [self.project.id, self.start, self.end]
 
         if self.lang_filter:
-            lang_string = len(self.lang_filter) * '%s,'
-            where_clause.append('language IN ({})'.format(lang_string[:-1]))
-            query_args.extend(self.lang_filter)
+            where_clause.append("language IN ('{}')".format("','".join(self.lang_filter)))
         
         if self.source_filter:
-            source_string = len(self.source_filter) * '%s,'
-            where_clause.append('source_id IN ({})'.format(source_string[:-1]))
-            # Get the raw IDs for our sources.
-            source_ids = data_models.Source.objects.filter(
-                    label__in=self.source_filter).values_list('id', flat=True)
-            query_args.extend(source_ids)
+            where_clause.append('source_id IN ({})'.format(",".join(self.source_filter)))
 
         series_data = []
         s = {}

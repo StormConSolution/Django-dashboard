@@ -1,5 +1,4 @@
-import config from "../config";
-
+import { getFilters } from "../helpers/filters";
 import {update} from '../helpers/helpers'
 let div = document.querySelector("#co-occurrence-graph")
 export function createGraph(){
@@ -83,17 +82,26 @@ export function createGraph(){
         },
     };
     let project_id = window.project_id;
-    fetch(`/api/co-occurence/${project_id}/`)
+    let filtersValues = getFilters()
+    fetch(`/api/co-occurence/${project_id}/?` + new URLSearchParams({
+        "languages": encodeURIComponent(filtersValues.languages),
+        "sources": filtersValues.sources,
+        "sourcesID": filtersValues.sourcesID,
+        "date-from": filtersValues.dateFrom,
+        "date-to": filtersValues.dateTo,
+    }))
         .then((response) => response.json())
         .then((data) => {
             chartOptions.series = data
             div.innerHTML = ""
             if(Object.keys(data).length !== 0){
-            let chart = new ApexCharts(
-                div,
-                chartOptions
-            );
-            chart.render();
+                let height = 25 * data.length
+                chartOptions.chart.height = height
+                let chart = new ApexCharts(
+                    div,
+                    chartOptions
+                );
+                chart.render();
             }
             update.finishUpdate()
         });     

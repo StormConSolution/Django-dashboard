@@ -7,12 +7,12 @@ export function createTable(page){
     update.startUpdate()
     makeTable(page)
 }
-
+let pageSizeDropdown = document.querySelector("#aspect-topic-table-page-size")
 let content = document.getElementById("aspect-topic-table-content");
 function makeTable(page){
     content.innerHTML = "Loading...";
     let pagination = document.getElementById("aspect-topic-table-pagination");
-    let pageSize = document.getElementById("aspect-topic-table-page-size").value
+    let pageSize = pageSizeDropdown.value
     pagination.innerHTML = ""
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
@@ -96,3 +96,7 @@ function makeTable(page){
             update.finishUpdate()
     });
 }
+
+pageSizeDropdown.addEventListener("change", ()=>{
+    createTable(1)
+})

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+	<script type="text/javascript" src="https://js.csvbox.io/script.js"></script>
+    <button class="btn btn-primary" id="import-button">Import</button>
+    <script>
+    	let user = "123";
+        function callback(result) {        
+            if(result){            
+                console.log("Sheet uploaded successfully");        
+            }else{            
+                console.log("There was some problem uploading the sheet");
+            } 
+        }    
+		document.querySelector("#import-button").addEventListener("click", (e) => {
+            let importer = new CSVBoxImporter("I0v06L5FkBlK1LttliOhstWWwIRAgo",{ userId: "123" }, callback);
+
+            importer.openModal();
+        });
+    </script>
+</body>
+</html>
