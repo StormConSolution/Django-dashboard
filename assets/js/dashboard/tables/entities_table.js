@@ -3,13 +3,15 @@ import {createTable as dataEntityClassificationTable} from './data_table_modal'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
+import { createGraph } from '../graphs/aspect-topic-tree-map'
 let content = document.getElementById("entity-table-content");
+let pageSizeDropdown = document.getElementById("entity-table-page-size") 
 export function createTable(page){
     update.startUpdate()
     content.innerHTML = "Loading...";
     let pagination = document.getElementById("entity-table-pagination");
     pagination.innerHTML = ""
-    let pageSize = document.getElementById("aspect-topic-table-page-size").value
+    let pageSize = pageSizeDropdown.value
 
     let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
@@ -81,4 +83,8 @@ export function createTable(page){
         update.finishUpdate()
     });
 }
+pageSizeDropdown.addEventListener("change", ()=>{
+    console.log("test")
+    createTable(1)
+})
 //createTable(1);

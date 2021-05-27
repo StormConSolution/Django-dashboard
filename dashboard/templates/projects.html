@@ -29,18 +29,23 @@
                     project.positive_count +
                     project.neutral_count +
                     project.negative_count;
-                let positivePercentage = (
-                    (project.positive_count / total_data) *
-                    100
-                ).toFixed(2);
-                let negativePercentage = (
-                    (project.negative_count / total_data) *
-                    100
-                ).toFixed(2);
-                let neutralPercentage = (
-                    (project.neutral_count / total_data) *
-                    100
-                ).toFixed(2);
+                let positivePercentage = 0
+                let negativePercentage = 0
+                let neutralPercentage = 0
+                if(total_data != 0){
+                    positivePercentage = (
+                        (project.positive_count / total_data) *
+                        100
+                    ).toFixed(2);
+                    negativePercentage = (
+                        (project.negative_count / total_data) *
+                        100
+                    ).toFixed(2);
+                    neutralPercentage = (
+                        (project.neutral_count / total_data) *
+                        100
+                    ).toFixed(2);
+                }
                 let div = document.createElement("div");
                 div.className = "col-12 col-md-6 col-lg-4 project-card";
                 let project_card = `
