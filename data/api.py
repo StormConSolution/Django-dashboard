@@ -30,4 +30,5 @@ urlpatterns = [
     path('aspect-count/<int:project_id>/', data_api_views.aspect_count),
     path('test-sentiment/', data_api_views.sentiment_test),
     path('test-aspect-model/', data_api_views.aspect_model_test),
+    path('csv/', data_api_views.csv_upload),
 ]

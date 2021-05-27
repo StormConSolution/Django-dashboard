@@ -16,6 +16,7 @@ from .aspect_model_test import aspect_model_test
 from .classification_by_sentiment import classification_by_sentiment
 from .data_per_classification import data_per_classification
 from .aspect_count import aspect_count
+from .csv import csv_upload
 __all__ = [
     'entity_aspect_for_emotion', 
     'topics_per_aspect', 
@@ -35,4 +36,5 @@ __all__ = [
     'classification_by_sentiment',
     'data_per_classification',
     'aspect_count',
+    'csv_upload',
 ]

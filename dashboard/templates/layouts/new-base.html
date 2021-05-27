@@ -231,7 +231,7 @@
 
                     </form>
                         <div class="d-flex flex-wrap align-items-center mt-4">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="csvbox-button">
                                 Add Data <i class="fe fe-upload"></i>
                             </button>
                             
@@ -246,6 +246,39 @@
         </div>
     </div>
 </div>
+
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+
+<script>
+        const importer = new FlatfileImporter("3222aa69-54a8-456f-9f59-bcef4de83ab2", {
+            type: "imports",
+            fields: [
+                {key: "date", label: "Date"},
+                {key: "text", label: "Text"},
+                {key: "source", label: "Source"},
+                ],
+            managed: true,
+            devMode: true,
+        });
+
+    document.querySelector("#csvbox-button").addEventListener("click", () => {
+        let projectId = document.querySelector("#csv-upload-select-project").value
+        importer.setCustomer({userId: projectId});
+        importer.requestDataFromUser().then(function(results) { 
+            let data = results.allData
+            console.log(data)
+            importer.displaySuccess('Your data is being uploaded, please wait')
+            fetch("/api/csv/?project-id=" + projectId, {
+                method: "POST",
+                body: JSON.stringify(data),
+                credentials: "include"
+            }).then(response => {
+                location.reload()
+            })
+        })
+    })
+</script>
 <!-- upload-data modal End -->
 
 <!-- create-project modal start -->
