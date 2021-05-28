@@ -384,7 +384,7 @@ def co_occurence(request, project_id):
         source_filter,
         request,
     )
-    return JsonResponse(chart_data["aspect_cooccurrence_data"], safe=False)
+    return JsonResponse(chart_data.get("aspect_cooccurrence_data", []), safe=False)
 
 @login_required(login_url=LOGIN_URL)
 def entity_classification_count(request, project_id):
