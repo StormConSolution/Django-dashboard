@@ -243,6 +243,8 @@ def add_data(request, project_id):
         for ent in resp['entities']:
             entity_instance, created = data_models.Entity.objects.get_or_create(
                 label=ent['title']
+                language=lang,
+                english_label=ent['id'],
             )
 
             for clas in ent['classifications']:

@@ -99,6 +99,9 @@ class Classification(models.Model):
 
 class Entity(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
+    english_label = models.CharField(max_length=80, db_index=True, default='', 
+            help_text='Non-blank only when language is not english')
+    language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
     classifications = models.ManyToManyField(Classification)
 
     def __str__(self):
@@ -106,13 +109,6 @@ class Entity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Entities'
-
-
-class Emotion(models.Model):
-    label = models.CharField(max_length=80, unique=True, db_index=True)
-
-    def __str__(self):
-        return self.label
 
 
 class Source(models.Model):
