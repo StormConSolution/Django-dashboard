@@ -177,7 +177,7 @@ DEBUG = True
 API_HOST = 'https://api.repustate.com'
 APIKEY = 'repustatedemopage'
 SQL_HOST = 'localhost'
-SQL_DATABASE = "dashboardv2"
+SQL_DATABASE = "dashboardv3"
 SQL_USER = ""
 SQL_PASSWORD = ""
 

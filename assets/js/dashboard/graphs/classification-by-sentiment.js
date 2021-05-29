@@ -123,6 +123,7 @@ export function createGraph() {
         options.series.push(positiveCount, neutralCount, negativeCount)
         options.xaxis.categories = categories
         graphContainer.innerHTML = "";
+        options.chart.height = 50 * data.length
         chart = new ApexCharts(graphContainer, options);
         chart.render();
         update.finishUpdate()

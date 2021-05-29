@@ -4,7 +4,15 @@ import cloud from 'd3-cloud'
 let wordsContainer = document.querySelector("#word-cloud-container")
 let width = wordsContainer.offsetWidth
 let height = wordsContainer.offsetHeight
-fetch(`/api/keywords/${window.project_id}/`).then(response => response.json()).then(data => {
+fetch(`/api/keywords/${window.project_id}/`)
+    .then(response => {
+        if(response.status != 200){
+            document.querySelector("#word-cloud-container").innerHTML = "No keywords available"
+        } else {
+
+            response.json()
+        }
+    }).then(data => {
     wordsContainer.innerHTML = ""
     if(data[0]){
         let maxCount = data[0].keywordCount

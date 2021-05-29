@@ -351,17 +351,11 @@ def co_occurence(request, project_id):
     lang_list = []
     for lan in lan_data:
         lang_list.append(lan['language'])
-    
-    lang = request.GET.getlist('filter_language')
-    if lang and lang[0]:
-        lang_filter = lang[0].split(",")
-        context['selected_langs'] = lang_filter
-    else:
-        lang_filter = None
+
 
     #src = request.GET.getlist('filter_source')
     source_filter = request.GET.get('sourcesID', "").split(",")
-    lang_filter = request.GET.get("languages", "").split(",")
+    lang_filter = parse.unquote(request.GET.get("languages", "")).split(",")
     #if src and src[0]:
     #    source_filter = src[0].split(",")
     #    context['selected_sources'] = source_filter
@@ -385,7 +379,11 @@ def co_occurence(request, project_id):
         source_filter,
         request,
     )
-    return JsonResponse(chart_data.get("aspect_cooccurrence_data", []), safe=False)
+    if "aspect_cooccurrence_data" in chart_data:
+        response  = chart_data["aspect_cooccurrence_data"]
+    else:
+        response =  {}
+    return JsonResponse(response, safe=False)
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
@@ -476,7 +474,7 @@ def aspect_topic(request, project_id):
     ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clause), [project.id])
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where da.topic != '' and """ + getWhereClauses(request, where_clause), [ project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -493,7 +491,7 @@ def aspect_topic(request, project_id):
         query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')

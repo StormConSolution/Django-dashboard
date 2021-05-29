@@ -8,7 +8,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db import connection
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, query
 
 from data import models as data_models
 from data.models import Entity, Data, Aspect, Source, Country
@@ -435,13 +435,11 @@ class AspectCooccurrence(BaseChart):
 
         ASPECT_QUERY = """ 
             SELECT * 
-            FROM get_aspect_label_percentages(%s, $SQL$ {} $SQL$) 
+            FROM get_aspect_label_percentages(%s , $SQL$ date_created between %s AND %s and {} $SQL$) 
             ORDER BY label1, label2;
         """
 
-        where_clause = [
-            'date_created between %s AND %s',
-        ]
+        where_clause = []
         query_args = [self.project.id, self.start, self.end]
 
         if self.lang_filter:
@@ -453,7 +451,6 @@ class AspectCooccurrence(BaseChart):
         series_data = []
         s = {}
         handled = {}
-
         with connection.cursor() as cursor:
             cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
             for row in cursor.fetchall():
@@ -480,7 +477,6 @@ class AspectCooccurrence(BaseChart):
                     series_data.insert(idx, {'name':label, 'data':empty_row})
                 elif series_data[idx]['name'] != label:
                     series_data.insert(idx, {'name':label, 'data':empty_row})
-        
         return {
             'aspect_cooccurrence_data':series_data,
         }

@@ -24,7 +24,7 @@ def aspect_count(request, project_id):
         order_by_clause = 'da."label" asc'
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", count(da."label") from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clauses) + """ group by da."label" order by """ + order_by_clause, [project.id])
+            select distinct da."label", count(da."label") from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where da.topic != '' and  """ + getWhereClauses(request, where_clauses) + """ group by da."label" order by """ + order_by_clause, [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
