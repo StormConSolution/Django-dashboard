@@ -961,7 +961,7 @@ header h3 {
 }
 
 .modal-data {
-  max-width: 425px;
+  max-width: 90%;
   margin: auto;
   padding: 32px 0;
 }

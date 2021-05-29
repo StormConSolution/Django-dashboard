@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import connection
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from data.helpers import getWhereClauses, getFiltersSQL
+from data.helpers import getWhereClauses
 import data.models as data_models
 
 

@@ -2,11 +2,11 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import connection
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses, getFiltersSQL
+from data.helpers import getWhereClauses
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def sentiment_per_aspect(request, project_id):

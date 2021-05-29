@@ -175,6 +175,7 @@ SQL_USER = 'postgres'
 DEBUG = True
 
 API_HOST = 'https://api.repustate.com'
+AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
 SQL_HOST = 'localhost'
 SQL_DATABASE = "dashboardv3"
@@ -190,6 +191,9 @@ except:
 # Used by the add_data view. Set proper values in settings_local
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
+HMAC_SECRET = ""
+HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
+AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
 
 DATABASES = {
     "default": {

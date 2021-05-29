@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404
 
 import data.models as models
 from data.helpers import getWhereClauses
-from data.helpers import getWhereClauses
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)

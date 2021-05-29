@@ -442,7 +442,7 @@ a { color: #8E92A2; text-decoration: none; font-size: 16px;}
   &:hover { color: $purpal;}
   &.trash { color: $negative;}
 }
-.modal-data { max-width: 425px; margin: auto; padding: 32px 0;}
+.modal-data { max-width: 90%; margin: auto; padding: 32px 0;}
 .modal-header { border: 0; background-color: #333A54; color: #fff;}
 .close { color: #fff; text-shadow: 0 0px 0 #fff; opacity: 1;}
 .tagify {

@@ -3,23 +3,21 @@ import csv
 import json
 import math
 from urllib import parse
+import requests
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import connection
-from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-from django.db.models.functions import Coalesce
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-import requests
 
 import data.charts as charts
 import data.models as data_models
@@ -242,7 +240,9 @@ def add_data(request, project_id):
     if request.POST.get('with_entities'):
         for ent in resp['entities']:
             entity_instance, created = data_models.Entity.objects.get_or_create(
-                label=ent['title']
+                label=ent['title'],
+                language=lang,
+                english_label=ent['id'],
             )
 
             for clas in ent['classifications']:

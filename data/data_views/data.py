@@ -1,6 +1,5 @@
 import csv
 import math
-from urllib import parse
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -10,7 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses, getFiltersSQL
+from data.helpers import getWhereClauses
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data(request, project_id):

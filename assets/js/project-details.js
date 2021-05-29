@@ -7,6 +7,8 @@ let timeOutUpdateDelay
 let currentTab = "overview-tab"
 let renderAspect = true
 let renderEntity = true
+let tabLoadingCounter = 2
+let tabLoadingDiv = document.querySelector("#tab-loading")
 function updateProjectTables(){
     if(renderAspect){
         tables.aspectTopicTable(1)
@@ -152,6 +154,10 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
 
 // check if theres aspect data to render aspect graphs
 fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {
+    tabLoadingCounter--;
+    if(tabLoadingCounter == 0){
+        tabLoadingDiv.innerHTML = ""
+    }
     if(data.length != 0){
         let graphTabs =document.querySelector("#graph-tabs")
         let li = document.createElement("li")
@@ -161,12 +167,17 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
+
     } else {
         renderAspect = false
     }
 })
 
 fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.json()).then(data => {
+    tabLoadingCounter--;
+    if(tabLoadingCounter == 0){
+        tabLoadingDiv.innerHTML = ""
+    }
     if(data.length != 0){
         let graphTabs =document.querySelector("#graph-tabs")
         let li = document.createElement("li")
@@ -176,6 +187,7 @@ fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.
             currentTab = "entity-tab"
             showHideGraphsTables()
         })
+
     } else {
         renderEntity = false
     }
