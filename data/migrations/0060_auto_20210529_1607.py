@@ -3,7 +3,7 @@
 from django.db import migrations, models
 
 def set_language(apps, schema_editor):
-    Entity = apps.get_model('data', 'ENtity')
+    Data = apps.get_model('data', 'Data')
     for d in Data.objects.all():
         d.entities.update(language=d.language)
 
