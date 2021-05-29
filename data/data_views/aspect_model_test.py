@@ -29,7 +29,7 @@ def aspect_model_test(request):
     if len(resp['apikeys']) > 0:
         apikey = resp['apikeys'][0]
         req = requests.post("%s/v4/%s/aspect.json" % (settings.API_HOST, apikey), 
-                data={"text": text, "lang": language, "model":aspect_model.label, "neutral":1}).json()
+                data={"text": text, "lang": language, "model":aspect_model.label, "neutral":1})
         response = req.json()
         return JsonResponse(response, safe=False, status=req.status_code)
     else:

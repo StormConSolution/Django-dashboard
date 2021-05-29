@@ -263,12 +263,10 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="aspect-name" class="form-label">Sample Text</label>
-                            <input
+                            <textarea
                                 name="test-sentiment-text"
-                                type="text"
                                 class="form-control"
-                                placeholder="Enter some sample text to test your sentiment rules"
-                            />
+								placeholder="Enter some sample text to test your sentiment rules"></textarea>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Language</label>
