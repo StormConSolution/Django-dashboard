@@ -14,10 +14,10 @@ def sentiment_test(request):
     
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(request.user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
-    resp = requests.post("{}/credentials/fetch/{}/{}/".format(
+    resp = requests.get("{}/credentials/fetch/{}/{}/".format(
         settings.AUTH_HOST,
         request.user.email,
-        hashkey).json()
+        hashkey)).json()
     
     if len(resp['apikeys']) > 0:
         apikey = resp['apikeys'][0]
