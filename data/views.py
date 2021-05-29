@@ -28,8 +28,6 @@ from django.http.multipartparser import MultiPartParser
 from datetime import datetime, timedelta
 from django.conf import settings
 
-LOGIN_URL = '/login/'
-
 MAX_TEXT_LENGTH = 30
 
 ASPECT_COLORS = [
@@ -85,7 +83,7 @@ def default_encoder(o):
         return o.isoformat()
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def index(request):
     """
     The home page renders the latest project by default.
@@ -99,7 +97,7 @@ def index(request):
         return HttpResponseForbidden()
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def pages(request):
     context = {}
 
@@ -152,7 +150,7 @@ def get_chart_data(this_project, start, end, entity_filter,
     
     return result
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def projects(request, project_id):
     
     this_project = get_object_or_404(data_models.Project, pk=project_id)
@@ -348,7 +346,7 @@ class Projects(View):
         project.save()
         return redirect("project", project.id)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def new_project_details(request, project_id):
     user = request.user
     this_project = get_object_or_404(data_models.Project, pk=project_id)
@@ -518,7 +516,7 @@ def aspect_topic_summary(request, project_id):
     
     return JsonResponse({"data":list(data.items())})
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data_per_aspect(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
 
@@ -541,7 +539,7 @@ def data_per_aspect(request, project_id):
         rows = cursor.fetchall()
     return JsonResponse(rows, safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def sentiment_per_entity(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
@@ -564,7 +562,7 @@ def sentiment_per_entity(request, project_id):
 
     return JsonResponse(response, safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def topics_per_aspect(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
 
@@ -587,7 +585,7 @@ def topics_per_aspect(request, project_id):
     return JsonResponse(response_data, safe=False)
 
 class AspectsList(View):
-    #@login_required(login_url=LOGIN_URL)
+    #@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 
     @method_decorator(login_required)
     def get(self, request):
@@ -656,7 +654,7 @@ class AspectsList(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Aspect(View):
-    #@login_required(login_url=LOGIN_URL)
+    #@login_required(login_url=settings.LOGIN_REDIRECT_URL)
     @method_decorator(login_required)
     def delete(self, request, aspect_id):
         user = request.user
@@ -734,7 +732,7 @@ class Aspect(View):
         return HttpResponse(status=200)
 
 class SentimentList(View):
-    #@login_required(login_url=LOGIN_URL)
+    #@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 
     @method_decorator(login_required)
     def get(self, request):

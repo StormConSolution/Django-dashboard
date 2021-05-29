@@ -1,17 +1,19 @@
+import csv
+import math
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from data.helpers import getWhereClauses
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.http import JsonResponse, HttpResponse
-import data.models as data_models
-from urllib import parse
-from data.helpers import getWhereClauses, getFiltersSQL
-import math
-import csv
-LOGIN_URL = '/login/'
+from django.shortcuts import get_object_or_404
 
-@login_required(login_url=LOGIN_URL)
+import data.models as data_models
+from data.helpers import getWhereClauses
+from data.helpers import getWhereClauses, getFiltersSQL
+
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data_per_classification(request, project_id):
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))

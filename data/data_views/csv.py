@@ -12,10 +12,10 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from io import StringIO
 
-LOGIN_URL = '/login/'
+
 
 @method_decorator(csrf_exempt, name="upload_csv")
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def csv_upload(request):
     project_id = request.GET.get("project-id")
     print("project id: ", project_id)

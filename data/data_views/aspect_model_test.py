@@ -11,9 +11,9 @@ import requests
 from django.conf import settings
 import json
 
-LOGIN_URL = '/login/'
 
-@login_required(login_url=LOGIN_URL)
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def aspect_model_test(request):
 
     text = request.POST.get("test-aspect-model-text", "")

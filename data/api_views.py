@@ -2,30 +2,31 @@ import datetime
 import csv
 import json
 import math
-import data.charts as charts
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
+from urllib import parse
+
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.db import connection
+from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
+from django.db.models.functions import Coalesce
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 import requests
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import PermissionDenied
-from .permissions import IsAllowedAccessToData
+
+import data.charts as charts
 import data.models as data_models
+from .permissions import IsAllowedAccessToData
 from data import serializers
 from data import weighted
-from django.db.models.functions import Coalesce
-from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-from urllib import parse
-from django.db import connection
 from data.helpers import getFiltersSQL, getWhereClauses, getFiltersSQL2
-LOGIN_URL = '/login/'
 
 ASPECT_COLORS = [
     'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
@@ -272,7 +273,7 @@ def add_data(request, project_id):
     return JsonResponse({"status": "OK"})
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def project_overview(request, project_id):
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
@@ -307,7 +308,7 @@ def project_overview(request, project_id):
     data["sourceCount"] = rows[0][0]
     return JsonResponse(data, safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def volume_by_source(request, project_id):
     project = get_object_or_404(data_models.Project, pk=project_id)
     filtersSQL = getFiltersSQL(request)
@@ -329,7 +330,7 @@ def volume_by_source(request, project_id):
         response.append(aux)
     return JsonResponse(response, safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def co_occurence(request, project_id):
     context = {}
     this_project = get_object_or_404(data_models.Project, pk=project_id)
@@ -386,7 +387,7 @@ def co_occurence(request, project_id):
     )
     return JsonResponse(chart_data.get("aspect_cooccurrence_data", []), safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
     user = request.user
     page_size = int(request.GET.get("page-size", 10))
@@ -461,7 +462,7 @@ def entity_classification_count(request, project_id):
 
     return JsonResponse(response, safe=False)
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def aspect_topic(request, project_id):
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))

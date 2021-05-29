@@ -1,19 +1,21 @@
+import json
+from urllib import parse
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from data.helpers import getWhereClauses
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.http import JsonResponse
-import data.models as models
-from urllib import parse
-from data.helpers import getWhereClauses
+from django.shortcuts import get_object_or_404
 import requests
-from django.conf import settings
-import json
 
-LOGIN_URL = '/login/'
+import data.models as models
+from data.helpers import getWhereClauses
+from data.helpers import getWhereClauses
 
-@login_required(login_url=LOGIN_URL)
+
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def sentiment_test(request):
 
     text = request.POST.get("test-sentiment-text", "")

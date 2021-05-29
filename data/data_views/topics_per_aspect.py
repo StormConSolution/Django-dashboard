@@ -1,16 +1,18 @@
+from urllib import parse
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from data.helpers import getWhereClauses
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
 import data.models as models
-from urllib import parse
+from data.helpers import getWhereClauses
 from data.helpers import getWhereClauses
 
-LOGIN_URL = '/login/'
 
-@login_required(login_url=LOGIN_URL)
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def topics_per_aspect(request, project_id):
     this_project = get_object_or_404(models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
