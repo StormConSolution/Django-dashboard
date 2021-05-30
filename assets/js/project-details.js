@@ -5,32 +5,44 @@ import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/h
 let timeOut
 let timeOutUpdateDelay
 let currentTab = "overview-tab"
+let renderAspect = true
+let renderEntity = true
+let tabLoadingCounter = 2
+let tabLoadingDiv = document.querySelector("#tab-loading")
 function updateProjectTables(){
-    tables.aspectTopicTable(1)
-    //tables.dataTable(1)
-    tables.entityTable(1)
-    tables.topEntitiesPerAspectTable(1)
+    if(renderAspect){
+        tables.aspectTopicTable(1)
+    }
+    if(renderEntity){
+        tables.entityTable(1)
+        tables.topEntitiesPerAspectTable(1)
+    }
 }
 function updateGraphs(){
-    graphs.aspectBySentimentPercentageGraph()
-    graphs.aspectBySentimentAbsoluteGraph()
-    graphs.aspectCountGraph()
-    graphs.coOccurrenceGraph()
+    if(renderAspect){
+        graphs.aspectBySentimentPercentageGraph()
+        graphs.aspectBySentimentAbsoluteGraph()
+        graphs.aspectTopicTreeMap()
+        graphs.aspectCountGraph()
+        graphs.emotionAspectCoOccurrence()
+        graphs.coOccurrenceGraph()
+        graphs.mostCommonChunks()
+    }
+    if(renderEntity){
+        graphs.entityBySentimentGraph()
+        graphs.classificationBySentimentGraph()
+    }
     graphs.overallSentimentGraph()
     graphs.sentimentTrendGraph()
     graphs.volumeBySourceGraph()
-    graphs.aspectTopicTreeMap()
-    graphs.emotionAspectCoOccurrence()
     graphs.sourceBySentimentGraph()
-    graphs.entityBySentimentGraph()
-    graphs.classificationBySentimentGraph()
 }
 
 function updateProjectDetailsPageWithDelay(){
     if(timeOutUpdateDelay){
         clearTimeout(timeOutUpdateDelay)
     } else {
-        setTimeout(updateProjectDetailsPage, 4000)
+        setTimeout(updateProjectDetailsPage, 3000)
     }
 }
 function updateProjectDetailsPage(){
@@ -102,6 +114,9 @@ function showHideGraphsTables(){
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
+            if(document.querySelector("#most-common-chunks-graph").style.display!="none"){
+                showGraphTable("most-common-chunks")
+            }
             break
 /*         case "sentiment-tab":
             break */
@@ -131,6 +146,7 @@ function showHideGraphsTables(){
 }
 
 showHideGraphsTables()
+
 document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
     showHideGraphsTables()
@@ -139,14 +155,48 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "sentiment-tab"
     showHideGraphsTables()
 }) */
-document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
-    currentTab = "aspect-tab"
-    showHideGraphsTables()
+
+// check if theres aspect data to render aspect graphs
+fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {
+    tabLoadingCounter--;
+    if(tabLoadingCounter == 0){
+        tabLoadingDiv.innerHTML = ""
+    }
+    if(data.length != 0){
+        let graphTabs =document.querySelector("#graph-tabs")
+        let li = document.createElement("li")
+        li.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
+        graphTabs.appendChild(li)
+        document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
+            currentTab = "aspect-tab"
+            showHideGraphsTables()
+        })
+
+    } else {
+        renderAspect = false
+    }
 })
-document.querySelector("#entity-tab").addEventListener("click", (e)=>{
-    currentTab = "entity-tab"
-    showHideGraphsTables()
+
+fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.json()).then(data => {
+    tabLoadingCounter--;
+    if(tabLoadingCounter == 0){
+        tabLoadingDiv.innerHTML = ""
+    }
+    if(data.length != 0){
+        let graphTabs =document.querySelector("#graph-tabs")
+        let li = document.createElement("li")
+        li.innerHTML = '<a style="cursor:pointer;" id="entity-tab">Entity</a>'
+        graphTabs.appendChild(li)
+        document.querySelector("#entity-tab").addEventListener("click", (e)=>{
+            currentTab = "entity-tab"
+            showHideGraphsTables()
+        })
+
+    } else {
+        renderEntity = false
+    }
 })
+
 document.querySelector("#sources-tab").addEventListener("click", (e)=>{
     currentTab = "sources-tab"
     showHideGraphsTables()

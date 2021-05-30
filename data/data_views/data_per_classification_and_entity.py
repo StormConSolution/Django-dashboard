@@ -1,4 +1,3 @@
-from urllib import parse
 import csv
 import math
 
@@ -14,7 +13,6 @@ import data.models as data_models
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data_per_classification_and_entity(request, project_id):
-    user = request.user
     page_size = int(request.GET.get("page-size", 10))
     page = int(request.GET.get("page", 1))
     aspect_label = request.GET.get("aspect-label", "")
@@ -22,7 +20,6 @@ def data_per_classification_and_entity(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    filtersSQL = getFiltersSQL(request)
     entity = int(request.GET.get("entity"))
     classification = int(request.GET.get("classification"))
     where_clause = [

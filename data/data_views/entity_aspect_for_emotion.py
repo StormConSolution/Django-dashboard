@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404
 
 import data.models as models
 from data.helpers import getWhereClauses
-from data.helpers import getWhereClauses
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -22,21 +21,23 @@ def entity_aspect_for_emotion(request, project_id):
         return JsonResponse({}, safe=False)
     if models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
+    if models.Aspect.objects.filter(data__project_id = project_id).count() == 0:
+        return JsonResponse({}, safe=False)
     languages =parse.unquote(request.GET.get("languages", "")).split(",")
-    sources = parse.unquote(request.GET.get("sources", "")).split(",")
+    sources = parse.unquote(request.GET.get("sourcesID", "")).split(",")
     function_arguments = ""
     if languages != ['']:
-        languages = " ,languages := array['" + "','".join(languages) + "'] "
+        languages = " ,languages := array['" + "'::character varying,'".join(languages) + "'::character varying] "
         function_arguments = languages
 
     if sources != ['']:
-        sources = " ,sources := array['" + "','".join(sources) + "'] "
+        sources = " ,source_ids := array["+ " ,".join(sources) + "] "
         function_arguments = function_arguments + sources
-    response = []
     with connection.cursor() as cursor:
         cursor.execute("""select * from get_entity_aspect_counts(13, %s """ + function_arguments + """ )where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s """ + function_arguments + """) group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
         rows = cursor.fetchall()
     
+    response = []
     for row in rows:
         response.append({"entityLabel": row[0], "entityCount": row[1], "aspectLabel": row[2], "aspectCount": row[3]})
         

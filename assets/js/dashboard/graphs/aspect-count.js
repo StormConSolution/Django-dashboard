@@ -165,6 +165,9 @@ export function createGraph() {
             chartOptions.xaxis.categories = aspects;
             graphContainer.innerHTML = ""
             chartOptions.chart.height = 25 * data.length
+            if(chartOptions.chart.height < 100){
+                chartOptions.chart.height = 100
+            } 
             if(Object.keys(data).length !== 0){
             chart = new ApexCharts(
                 graphContainer,

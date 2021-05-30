@@ -95,8 +95,10 @@ export function createGraph(){
             chartOptions.series = data
             div.innerHTML = ""
             if(Object.keys(data).length !== 0){
-                let height = 25 * data.length
-                chartOptions.chart.height = height
+                chartOptions.chart.height = 25 * data.length
+                if(chartOptions.chart.height < 300){
+                    chartOptions.chart.height = 300
+                }
                 let chart = new ApexCharts(
                     div,
                     chartOptions

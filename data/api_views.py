@@ -3,23 +3,21 @@ import csv
 import json
 import math
 from urllib import parse
+import requests
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import connection
-from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
-from django.db.models.functions import Coalesce
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-import requests
 
 import data.charts as charts
 import data.models as data_models
@@ -242,7 +240,7 @@ def add_data(request, project_id):
     if request.POST.get('with_entities'):
         for ent in resp['entities']:
             entity_instance, created = data_models.Entity.objects.get_or_create(
-                label=ent['title']
+                label=ent['title'],
                 language=lang,
                 english_label=ent['id'],
             )
@@ -281,7 +279,6 @@ def project_overview(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     data = {}
-    filtersSQL = getFiltersSQL(request)
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
     query = """
@@ -353,17 +350,11 @@ def co_occurence(request, project_id):
     lang_list = []
     for lan in lan_data:
         lang_list.append(lan['language'])
-    
-    lang = request.GET.getlist('filter_language')
-    if lang and lang[0]:
-        lang_filter = lang[0].split(",")
-        context['selected_langs'] = lang_filter
-    else:
-        lang_filter = None
+
 
     #src = request.GET.getlist('filter_source')
     source_filter = request.GET.get('sourcesID', "").split(",")
-    lang_filter = request.GET.get("languages", "").split(",")
+    lang_filter = parse.unquote(request.GET.get("languages", "")).split(",")
     #if src and src[0]:
     #    source_filter = src[0].split(",")
     #    context['selected_sources'] = source_filter
@@ -387,7 +378,11 @@ def co_occurence(request, project_id):
         source_filter,
         request,
     )
-    return JsonResponse(chart_data.get("aspect_cooccurrence_data", []), safe=False)
+    if "aspect_cooccurrence_data" in chart_data:
+        response  = chart_data["aspect_cooccurrence_data"]
+    else:
+        response =  {}
+    return JsonResponse(response, safe=False)
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
@@ -478,7 +473,7 @@ def aspect_topic(request, project_id):
     ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where  """ + getWhereClauses(request, where_clause), [project.id])
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where da.topic != '' and """ + getWhereClauses(request, where_clause), [ project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -495,7 +490,7 @@ def aspect_topic(request, project_id):
         query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + getWhereClauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')

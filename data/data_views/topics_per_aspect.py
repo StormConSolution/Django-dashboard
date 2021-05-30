@@ -9,8 +9,6 @@ from django.shortcuts import get_object_or_404
 
 import data.models as models
 from data.helpers import getWhereClauses
-from data.helpers import getWhereClauses
-
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def topics_per_aspect(request, project_id):
@@ -35,7 +33,6 @@ def topics_per_aspect(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""select da.topic , count(da.topic ) from data_aspect da inner join data_data dd on da.data_id = dd.id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by (da.topic) order by count(da.topic) desc limit %s""", [project_id, aspect_label, max_topics])
         rows = cursor.fetchall()
-    
     for row in rows:
         response.append({
             'topicLabel':row[0],
