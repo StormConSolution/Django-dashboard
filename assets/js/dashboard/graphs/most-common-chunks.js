@@ -21,7 +21,6 @@ export function createGraph() {
     .then((response) => response.json())
     .then((data) => {
         graphContainer.innerHTML = "";
-        console.log(data)
         if(data.length != 0){
             document.querySelector("#most-common-chunks-graph").style.display = "block"
         }

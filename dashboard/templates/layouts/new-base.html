@@ -218,7 +218,11 @@
                                 aria-placeholder="Choose From Existing Aspects"
                             >
                                 {% for project in projects_data %}
+                                    {% if project.name == project_name %}
+                                    <option value="{{project.id}}" selected>{{project.name}}</option>
+                                    {% else %}
                                     <option value="{{project.id}}">{{project.name}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -243,25 +247,37 @@
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 
 <script>
+
+
+    document.querySelector("#csvbox-button").addEventListener("click", () => {
+
+        let projectId = document.querySelector("#csv-upload-select-project").value
         const importer = new FlatfileImporter("3222aa69-54a8-456f-9f59-bcef4de83ab2", {
             type: "imports",
             fields: [
-                {key: "date", label: "Date"},
-                {key: "text", label: "Text"},
-                {key: "source", label: "Source"},
+                {key: "text", label: "Text (required)", validators:[{validate:"required"}]},
+                {key: "date", label: "Date (optional)"},
+                {key: "url", label: "URL (optional)"},
+                {key: "source", label: "Source (optional)"},
+                {key: "location", label: "Location (optional)"},
                 ],
             managed: true,
             devMode: true,
+            //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
         });
-
-    document.querySelector("#csvbox-button").addEventListener("click", () => {
-        let projectId = document.querySelector("#csv-upload-select-project").value
         importer.setCustomer({userId: projectId});
         importer.requestDataFromUser().then(function(results) { 
+            console.log(results.headersMatched)
             let data = results.allData
-            console.log(data)
+/*             let headers = []
+            let headerObject = {}
+            for(let element of results.headersMatched){
+                headerObject[element.matched_key] = element.matched_key 
+            }
+            headers.push(headerObject) */
+            //data = headers.concat(data)
             importer.displaySuccess('Your data is being uploaded, please wait')
-            fetch("/api/csv/?project-id=" + projectId, {
+            fetch("/api/csv/?client=browser&project-id=" + projectId, {
                 method: "POST",
                 body: JSON.stringify(data),
                 credentials: "include"

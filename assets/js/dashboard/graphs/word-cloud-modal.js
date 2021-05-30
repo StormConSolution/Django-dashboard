@@ -51,4 +51,7 @@ export default function word_cloud(url) {
             document.querySelector("#word-cloud-modal-container").innerHTML = "No keywords available"
         }
     })
+    .catch(()=>{
+        document.querySelector("#word-cloud-modal-container").innerHTML = "No keywords available"
+    })
 }
