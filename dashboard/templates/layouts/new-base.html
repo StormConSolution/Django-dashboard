@@ -218,7 +218,11 @@
                                 aria-placeholder="Choose From Existing Aspects"
                             >
                                 {% for project in projects_data %}
+                                    {% if project.name == project_name %}
+                                    <option value="{{project.id}}" selected>{{project.name}}</option>
+                                    {% else %}
                                     <option value="{{project.id}}">{{project.name}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -259,7 +263,7 @@
                 ],
             managed: true,
             devMode: true,
-            //webhookUrl: `https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}`
+            //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
         });
         importer.setCustomer({userId: projectId});
         importer.requestDataFromUser().then(function(results) { 

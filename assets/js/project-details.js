@@ -119,6 +119,7 @@ function showHideGraphsTables(){
             if(document.querySelector("#most-common-chunks-graph").style.display!="none"){
                 showGraphTable("most-common-chunks")
             }
+            showGraphTable("most-common-chunks")
             break
 /*         case "sentiment-tab":
             break */

@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'dashboard.context_processors.general_context',
             ],
         },
     },
@@ -177,7 +178,7 @@ DEBUG = True
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
-
+FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/"
 try:
     from .settings_local import *
 except:
