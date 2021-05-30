@@ -1,6 +1,5 @@
 from urllib import parse
 def getFiltersSQL(request):
-    where_clauses = []
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     if not dateFrom:
@@ -9,17 +8,14 @@ def getFiltersSQL(request):
         dateTo = ""
     filters = []
     if dateFrom != "" :
-        filters.append("dd.date_created > '" + dateFrom + "'")
-        where_clauses.append("dd.date_created >= '" + dateFrom + "'")
+        filters.append("dd.date_created >= '" + dateFrom + "'")
     if dateTo != "":
         filters.append("dd.date_created <= '" + dateTo + "'")
-        where_clauses.append("dd.date_created <= '" + dateTo + "'")
     filtersSQL = " and ".join(filters)
     if filtersSQL != "":
         filtersSQL = " and " + filtersSQL
     else:
         filtersSQL = ""
-    where_clauses = []
     return filtersSQL
 
 def getFiltersSQL2(request):

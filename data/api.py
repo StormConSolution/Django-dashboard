@@ -32,4 +32,5 @@ urlpatterns = [
     path('test-sentiment/', data_api_views.sentiment_test),
     path('test-aspect-model/', data_api_views.aspect_model_test),
     path('csv/', data_api_views.csv_upload),
+    path('most-common-chunks/<int:project_id>/', data_api_views.most_common_chunks),
 ]

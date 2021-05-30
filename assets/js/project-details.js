@@ -26,6 +26,7 @@ function updateGraphs(){
         graphs.aspectCountGraph()
         graphs.emotionAspectCoOccurrence()
         graphs.coOccurrenceGraph()
+        graphs.mostCommonChunks()
     }
     if(renderEntity){
         graphs.entityBySentimentGraph()
@@ -113,6 +114,9 @@ function showHideGraphsTables(){
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
+            if(document.querySelector("#most-common-chunks-graph").style.display!="none"){
+                showGraphTable("most-common-chunks")
+            }
             break
 /*         case "sentiment-tab":
             break */

@@ -279,7 +279,6 @@ def project_overview(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     data = {}
-    filtersSQL = getFiltersSQL(request)
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
     query = """
