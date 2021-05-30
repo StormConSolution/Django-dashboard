@@ -14,7 +14,6 @@ from django.core.files.base import ContentFile
 
 
 @method_decorator(csrf_exempt, name="upload_csv")
-@login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def csv_upload(request):
     project_id = request.GET.get("project-id")
     print("project id: ", project_id)
@@ -24,7 +23,16 @@ def csv_upload(request):
     file_name = date.strftime("%Y-%m-%d_%H:%M:%S_") + project_id + ".csv"
     csv_buffer = StringIO()
     csv_writer = csv.writer(csv_buffer)
+    headers = []
+    if request.GET.get("client", "") != "browser":
+        body = body["data"]["validRows"]
+    for element in body[0].keys():
+        headers.append(element)
+    csv_writer.writerow(headers)
     for element in body:
-        csv_writer.writerow([element["date"], element["text"], element["source"]])
+        row = []
+        for value in element:
+            row.append(element[value])
+        csv_writer.writerow(row)
     default_storage.save(file_name, ContentFile(csv_buffer.getvalue().encode('utf-8')))
     return HttpResponse("csv upload")

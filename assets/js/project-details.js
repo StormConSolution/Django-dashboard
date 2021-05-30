@@ -15,6 +15,8 @@ function updateProjectTables(){
     }
     if(renderEntity){
         tables.entityTable(1)
+    }
+    if(renderEntity && renderAspect){
         tables.topEntitiesPerAspectTable(1)
     }
 }
@@ -131,7 +133,9 @@ function showHideGraphsTables(){
             break
         case "entity-tab":
             showGraphTable("entities-table")
-            showGraphTable("top-entities-per-aspect-table")
+            if(renderEntity && renderAspect){
+                showGraphTable("top-entities-per-aspect-table")
+            }
             showGraphTable("entity-by-sentiment")
             showGraphTable("classification-by-sentiment")
             break
@@ -158,41 +162,39 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
 
 // check if theres aspect data to render aspect graphs
 fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {
+    let liContainer =document.querySelector("#li-aspect-tab") 
     tabLoadingCounter--;
     if(tabLoadingCounter == 0){
         tabLoadingDiv.innerHTML = ""
     }
     if(data.length != 0){
-        let graphTabs =document.querySelector("#graph-tabs")
-        let li = document.createElement("li")
-        li.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
-        graphTabs.appendChild(li)
+        liContainer.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
         document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
 
     } else {
+        liContainer.style.display = "none"
         renderAspect = false
     }
 })
 
 fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.json()).then(data => {
+    let liContainer =document.querySelector("#li-entity-tab") 
     tabLoadingCounter--;
     if(tabLoadingCounter == 0){
         tabLoadingDiv.innerHTML = ""
     }
     if(data.length != 0){
-        let graphTabs =document.querySelector("#graph-tabs")
-        let li = document.createElement("li")
-        li.innerHTML = '<a style="cursor:pointer;" id="entity-tab">Entity</a>'
-        graphTabs.appendChild(li)
+        liContainer.innerHTML = '<a style="cursor:pointer;" id="entity-tab">Entity</a>'
         document.querySelector("#entity-tab").addEventListener("click", (e)=>{
             currentTab = "entity-tab"
             showHideGraphsTables()
         })
-
+        document.querySelector("#top-entities-per-aspect-table").style.display = "block"
     } else {
+        liContainer.style.display = "none"
         renderEntity = false
     }
 })

@@ -401,13 +401,15 @@ def entity_classification_count(request, project_id):
     ]
     query_args = [project_id]
 
+    aspect_inner_join = ""
     if aspect_label != "":
+        aspect_inner_join = 'inner join data_aspect da on da.data_id = dd.id'
         where_clause.append('da."label" = %s')
         query_args.append(aspect_label)
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause), query_args)
+        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join + """ where """ + getWhereClauses(request, where_clause), query_args)
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -417,9 +419,11 @@ def entity_classification_count(request, project_id):
     query_args = [
         project_id
     ]
-
+    aspect_inner_join = ""
     if aspect_label != "":
+        aspect_inner_join = 'inner join data_aspect da on da.data_id = dd.id'
         query_args.append(aspect_label)
+
 
     limit_offset_clause = ""
     if response_format != "csv":
@@ -429,7 +433,7 @@ def entity_classification_count(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc 
+            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + getWhereClauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc 
 """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     

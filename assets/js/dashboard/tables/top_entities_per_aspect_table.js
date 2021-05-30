@@ -51,7 +51,7 @@ export function createTable(page){
             "date-to": filtersValues.dateTo,
             "languages": filtersValues.languages,
             "sources": filtersValues.sources,
-            "aspect-label": aspectLabel
+            "aspect-label": aspectLabel,
         })
         document.getElementById("top-entities-per-aspect-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&aspect-label${aspectLabel}&` + urlParams
         fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
