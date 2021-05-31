@@ -18,6 +18,7 @@ from .data_per_classification import data_per_classification
 from .aspect_count import aspect_count
 from .csv import csv_upload
 from .most_common_chunks import most_common_chunks
+from .endpoint_test import endpoint_test
 __all__ = [
     'entity_aspect_for_emotion', 
     'topics_per_aspect', 
@@ -39,4 +40,5 @@ __all__ = [
     'aspect_count',
     'csv_upload',
     'most_common_chunks',
+    'endpoint_test',
 ]

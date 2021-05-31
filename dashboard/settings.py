@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'data',
     'authentication',  # Enable the inner app
     'debug_toolbar',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -178,7 +179,10 @@ DEBUG = True
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
-FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/"
+FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}"
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+
 try:
     from .settings_local import *
 except:
