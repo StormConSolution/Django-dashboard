@@ -116,10 +116,10 @@ function showHideGraphsTables(){
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
-            if(document.querySelector("#most-common-chunks-graph").style.display!="none"){
+            if(document.querySelector("#most-common-chunks-graph").getAttribute("data-show") =="true"){
                 showGraphTable("most-common-chunks")
             }
-            showGraphTable("most-common-chunks")
+            //showGraphTable("most-common-chunks")
             break
 /*         case "sentiment-tab":
             break */
@@ -174,7 +174,6 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
-
     } else {
         liContainer.style.display = "none"
         renderAspect = false
@@ -193,7 +192,7 @@ fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.
             currentTab = "entity-tab"
             showHideGraphsTables()
         })
-        document.querySelector("#top-entities-per-aspect-table").style.display = "block"
+        document.querySelector("#most-common-chunks-graph").setAttribute("data-show", "true")
     } else {
         liContainer.style.display = "none"
         renderEntity = false
