@@ -1,7 +1,7 @@
 from io import StringIO
 import csv
 import json
-from datetime import date, datetime
+from datetime import datetime
 
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
@@ -10,9 +10,6 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 from django.core.files.base import ContentFile
 from dashboard.tasks import process_data
-
-from data import models
-
 
 @method_decorator(csrf_exempt, name="upload_csv")
 def csv_upload(request):
@@ -35,7 +32,7 @@ def csv_upload(request):
             task_argument = {}
             task_argument["lang"] = 'en'
             task_argument["url"] = ''
-            task_argument[""] = ''
+            task_argument["source"] = ''
             task_argument["metadata"] = {}
             for value in element:
                 if value == "lang":
