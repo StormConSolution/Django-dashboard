@@ -182,7 +182,7 @@ def projects(request, project_id):
     for lan in lan_data:
         lang_list.append(lan['language'])
     context['lang_list'] = lang_list
-    context['languages'] = data_models.LANGUAGES
+    context['languages'] = settings.LANGUAGES
     
     # List of projects for the sidebar
     context['project_list'] = list(
@@ -314,7 +314,7 @@ class Projects(View):
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
         for element in languages:
-            for language_tuple in data_models.LANGUAGES:
+            for language_tuple in settings.LANGUAGES:
                 if element["language"] == language_tuple[0]:
                     context["all_languages"].append(language_tuple)
         context["all_sources"] = []
@@ -382,14 +382,14 @@ def new_project_details(request, project_id):
     languages = list(data_models.Data.objects.filter(project__users=user).distinct().values("language"))
     context["all_languages"] = []
     for element in languages:
-        for language_tuple in data_models.LANGUAGES:
+        for language_tuple in settings.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["all_languages"].append(language_tuple)
         #context["all_languages"].append(element["language"])
     languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).distinct().values("language"))
     context["languages"] = []
     for element in languages:
-        for language_tuple in data_models.LANGUAGES:
+        for language_tuple in settings.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["languages"].append(language_tuple)
     context["all_sources"] = []
@@ -621,11 +621,11 @@ class AspectsList(View):
         context["meta"]["page_items_to"] = page_number * 10
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
         context["classifications"] = json.loads(req.text)
-        context["languages"] = data_models.LANGUAGES
+        context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
         for element in languages:
-            for language_tuple in data_models.LANGUAGES:
+            for language_tuple in settings.LANGUAGES:
                 if element["language"] == language_tuple[0]:
                     context["all_languages"].append(language_tuple)
         return render(request, "aspect-list.html", context)
@@ -755,11 +755,11 @@ class SentimentList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        context["languages"] = data_models.LANGUAGES
+        context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
         for element in languages:
-            for language_tuple in data_models.LANGUAGES:
+            for language_tuple in settings.LANGUAGES:
                 if element["language"] == language_tuple[0]:
                     context["all_languages"].append(language_tuple)
         return render(request, "sentiment-list.html", context)

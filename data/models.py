@@ -1,39 +1,14 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.urls import reverse
 
-LANGUAGES = (
-    ('en', 'English'),
-    ('ar', 'Arabic (العربية)'),
-    ('zh', 'Chinese (中文)'),
-    ('da', 'Danish (Dansk)'),
-    ('nl', 'Dutch (Nederlands)'),
-    ('fi', 'Finnish (Suomi)'),
-    ('fr', 'French (Français)'),
-    ('de', 'German (Deutsch)'),
-    ('he', 'Hebrew (עִברִית)'),
-    ('it', 'Italian (Italiano)'),
-    ('id', 'Indonesian (Bahasa Indonesia)'),
-    ('ja', 'Japanese (日本語)'),
-    ('ko', 'Korean (한국어)'),
-    ('no', 'Norwegian (Norsk)'),
-    ('pl', 'Polish (Polski)'),
-    ('pt', 'Portuguese (Português)'),
-    ('ru', 'Russian (русский)'),
-    ('es', 'Spanish (Español)'),
-    ('sv', 'Swedish (Svenska)'),
-    ('tr', 'Turkish (Türk)'),
-    ('th', 'Thai (ไทย)'),
-    ('vi', 'Vietnamese (Tiếng Việt)'),
-    ('ur', 'Urdu (اردو)'),
-)
-
 class Sentiment(models.Model):
     label = models.CharField(max_length=80) 
     definition = models.TextField()
     rule_id = models.TextField()
-    language = models.CharField(max_length=2, default='en')
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
 
@@ -101,7 +76,7 @@ class Entity(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
     english_label = models.CharField(max_length=80, db_index=True, default='', 
             help_text='Non-blank only when language is not english')
-    language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     classifications = models.ManyToManyField(Classification)
 
     def __str__(self):
@@ -168,7 +143,7 @@ class Data(models.Model):
     sentiment = models.FloatField(default=0, db_index=True)
     weighted_score = models.FloatField(default=0, db_index=True)
     relevance = models.FloatField(default=0, db_index=True)
-    language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     entities = models.ManyToManyField(Entity)
     metadata = JSONField(blank=True, default=dict)
 

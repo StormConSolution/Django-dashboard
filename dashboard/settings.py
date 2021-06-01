@@ -120,11 +120,11 @@ USE_TZ = True
 
 
 LANGUAGES = (
+    ('en', 'English'),
     ('ar', 'Arabic (العربية)'),
     ('zh', 'Chinese (中文)'),
     ('da', 'Danish (Dansk)'),
     ('nl', 'Dutch (Nederlands)'),
-    ('en', 'English'),
     ('fi', 'Finnish (Suomi)'),
     ('fr', 'French (Français)'),
     ('de', 'German (Deutsch)'),

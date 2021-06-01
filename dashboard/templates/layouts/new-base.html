@@ -256,6 +256,8 @@
             type: "imports",
             fields: [
                 {key: "text", label: "Text (required)", validators:[{validate:"required"}]},
+				{key: "lang", label: "Language (optional)", 
+					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]}, 
                 {key: "date", label: "Date (optional)"},
                 {key: "url", label: "URL (optional)"},
                 {key: "source", label: "Source (optional)"},
