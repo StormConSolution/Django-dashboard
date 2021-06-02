@@ -321,13 +321,19 @@ class Projects(View):
         sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
         for element in sources:
             context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
+        
         context["projects_data"] = projects
         context["projects_count"] = len(projects)
         context["user"] = user
+        
         context["all_aspects"] = []
-        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        all_aspects = data_models.AspectModel.objects.filter(users=user).order_by("label")
         for aspect in all_aspects:
             context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+        
+        context["custom_aspect_models"] = data_models.AspectModel.objects.filter(users=user).values('id', 'label')
+        context['standard_aspect_models'] = data_models.AspectModel.objects.filter(standard=True).values('id', 'label')
+        
         return render(request, "projects.html", context)
     
     @method_decorator(login_required)
@@ -356,6 +362,7 @@ def new_project_details(request, project_id):
         raise PermissionDenied
 
     context={}
+    
     context["projects_data"] = projects
     context["project_id"] = project_id
     context["project_name"] = this_project.name
@@ -363,22 +370,17 @@ def new_project_details(request, project_id):
     context["sources"] = []
     context["sourceID"] = []
     context["languages"] = []
-    context["all_aspects"] = []
-    all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
-    for aspect in all_aspects:
-        context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
+    
+    context["custom_aspect_models"] = data_models.AspectModel.objects.filter(users=user).values('id', 'label')
+    context['standard_aspect_models'] = data_models.AspectModel.objects.filter(standard=True).values('id', 'label')
+    
     source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
         rows = cursor.fetchall()
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
-    #language_query = """ select dd."language" from data_data dd where dd.project_id = %s group by(dd."language" ) order by count(dd."language") desc ;"""
-    #with connection.cursor() as cursor:
-    #    cursor.execute(language_query, [project_id])
-    #    rows = cursor.fetchall()
-    #for row in rows:
-    #    context["languages"].append(row[0])
+    
     languages = list(data_models.Data.objects.filter(project__users=user).distinct().values("language"))
     context["all_languages"] = []
     for element in languages:
@@ -392,10 +394,12 @@ def new_project_details(request, project_id):
         for language_tuple in settings.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["languages"].append(language_tuple)
+    
     context["all_sources"] = []
     sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
     for element in sources:
         context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
+    
     if data_models.Data.objects.filter(project=project_id).count() != 0:
         data = data_models.Data.objects.filter(project=project_id).latest('date_created')
         context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
@@ -599,7 +603,7 @@ class AspectsList(View):
         context["custom_aspect_models"] = []
         p = Paginator(aspect_list, page_size)
         page = p.page(page_number)
-        all_aspects = data_models.AspectModel.objects.all().filter(users=user).order_by("label")
+        all_aspects = data_models.AspectModel.objects.filter(users=user).order_by("label")
         for aspect in all_aspects:
             context["custom_aspect_models"].append({"id":aspect.id, "label": aspect.label}) 
         standard_aspect_models = data_models.AspectModel.objects.filter(standard=True).order_by("label")
@@ -610,7 +614,7 @@ class AspectsList(View):
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
             for rule in rules:
                 rules_list.append(rule.__dict__)
-            projects = data_models.Project.objects.all().filter(users=user,aspect_model=aspect).values("name", "id")
+            projects = data_models.Project.objects.filter(users=user,aspect_model=aspect).values("name", "id")
             context["aspects"].append({"id":aspect.id, "label": aspect.label, "rules":rules_list,"projects":projects})
         projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
         context["projects_data"] = projects
@@ -706,19 +710,22 @@ class Aspect(View):
         aspect = aspect.get()
         aspect.label = aspect_label
         aspect.save()
-        rules = data_models.AspectRule.objects.all().filter(aspect_model=aspect)
+        rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
 
         for rule in rules:
             rule_id = str(rule.id)
             if rule_id not in rules_id:
                 rule.delete()
-                continue
+
         rules_len = len(rules_id)
         count = 0
         for rule_name in rule_names:
             if count >= rules_len:
-                new_rule = data_models.AspectRule(rule_name=rule_names[count], definition=rule_definitions[count], aspect_model=aspect, classifications=rule_classifications[count])
-                new_rule.save()
+                new_rule = data_models.AspectRule.objects.create(
+                        rule_name=rule_names[count], 
+                        definition=rule_definitions[count], 
+                        aspect_model=aspect,
+                        classifications=rule_classifications[count])
                 continue
             rule_id = rules_id[count]
             rule_to_change = data_models.AspectRule.objects.filter(aspect_model=aspect, pk=rule_id)

@@ -343,9 +343,16 @@
                                 name="aspect-id"
                             >
                                 <option value="-1">Choose From Existing Aspects</option>
-                                {% for aspect in all_aspects %}
-                                    <option value="{{aspect.id}}">{{aspect.label}}</option>
-                                {% endfor %}
+                                <optgroup label="Standard Aspect Models">
+                                    {% for aspect in standard_aspect_models %}
+										<option value="{{aspect.id}}">{{aspect.label}}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="Custom Aspect Models">
+                                    {% for aspect in custom_aspect_models %}
+										<option value="{{aspect.id}}">{{aspect.label}}</option>
+                                    {% endfor %}
+                                </optgroup>
                             </select>
                             <small
                                 id="emailHelp"

@@ -26,6 +26,9 @@ class AspectModel(models.Model):
     
     def __str__(self):
         return self.label
+    
+    class Meta:
+        ordering = ('label',)
 
 class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
