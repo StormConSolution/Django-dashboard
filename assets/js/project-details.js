@@ -2,6 +2,9 @@ import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import { getFilters } from "./dashboard/helpers/filters";
 import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers'
+
+import  "./dashboard/countrymap.js";
+
 let timeOut
 let timeOutUpdateDelay
 let currentTab = "overview-tab"
@@ -47,6 +50,7 @@ function updateProjectDetailsPageWithDelay(){
         setTimeout(updateProjectDetailsPage, 3000)
     }
 }
+
 function updateProjectDetailsPage(){
     if(update.canUpdate()){
         updateProjectTables()
@@ -116,13 +120,10 @@ function showHideGraphsTables(){
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
-            if(document.querySelector("#most-common-chunks-graph").getAttribute("data-show") =="true"){
+            if (document.querySelector("#most-common-chunks-graph").getAttribute("data-show") =="true"){
                 showGraphTable("most-common-chunks")
             }
-            //showGraphTable("most-common-chunks")
             break
-/*         case "sentiment-tab":
-            break */
         case "aspect-tab":
             showGraphTable("aspect-count")
             showGraphTable("aspect-by-sentiment-percentage")
@@ -177,6 +178,7 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
+        document.querySelector("#most-common-chunks-graph").setAttribute("data-show", "true")
     } else {
         liContainer.style.display = "none"
         renderAspect = false
@@ -195,7 +197,6 @@ fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.
             currentTab = "entity-tab"
             showHideGraphsTables()
         })
-        document.querySelector("#most-common-chunks-graph").setAttribute("data-show", "true")
     } else {
         liContainer.style.display = "none"
         renderEntity = false
