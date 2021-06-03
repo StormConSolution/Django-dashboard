@@ -181,8 +181,7 @@ def new_project_details(request, project_id):
     context={}
     
     context["projects_data"] = projects
-    context["project_id"] = project_id
-    context["project_name"] = this_project.name
+    context["project"] = this_project
     context["user"] = user
     context["sources"] = []
     context["sourceID"] = []
@@ -444,7 +443,7 @@ class AlertRule(View):
     @method_decorator(login_required)
     def delete(self, request, alert_id):
         user = request.user
-        rule = data_models.AlertRule.objects.filter(users=user, pk=alert_id)
+        rule = data_models.AlertRule.objects.filter(project__users=user, pk=alert_id)
         if rule.count() == 0:
             return HttpResponse(status=403)
 
@@ -453,15 +452,38 @@ class AlertRule(View):
 
     @method_decorator(login_required)
     def get(self, request, alert_id):
-        pass
+        user = request.user
+
+        rules = data_models.AlertRule.objects.filter(project__users=user, pk=alert_id)
+        if rules.count() == 0:
+            return HttpResponse(status=403)
+
+        rule = rules.get()
+        response = {
+            'name':rule.name,
+            'project':rule.project_id,
+            'aspect':rule.aspect,
+            'frequency':rule.frequency,
+            'period':rule.period,
+            'keywords':rule.keywords,
+            'emails':rule.emails,
+            'sms':rule.sms,
+        }
+        
+        return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)
-    def post(self, request, aspect_id):
-        pass
+    def post(self, request, alert_id):
+        user = request.user
+        
+        rule = data_models.AlertRule.objects.filter(project__users=user, pk=alert_id)
+        if rule.count() == 0:
+            return HttpResponse(status=403)
 
-    @method_decorator(login_required)
-    def put(self, request, aspect_id):
-        pass
+        form = AlertRuleForm(instance=rule.get(), data=request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect("alerts")
 
 class AspectsList(View):
 

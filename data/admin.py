@@ -75,7 +75,7 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('name', 'users__email')
     fieldsets = (
         (None, {
-            'fields':('name', 'aspect_model', 'users'),
+            'fields':('name', 'aspect_model', 'users', 'geo_enabled'),
         }),
     )
 

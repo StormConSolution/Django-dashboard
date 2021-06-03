@@ -142,8 +142,10 @@ function showHideGraphsTables(){
             break
         case "sources-tab":
             showGraphTable("volume-by-source")
-            //showGraphTable("data-table")
             showGraphTable("source-by-sentiment")
+            break
+        case "geo-tab":
+            showGraphTable("map")
             break
     }
 
@@ -156,10 +158,11 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
     showHideGraphsTables()
 })
-/* document.querySelector("#sentiment-tab").addEventListener("click", (e)=>{
-    currentTab = "sentiment-tab"
+
+document.querySelector("#geo-tab").addEventListener("click", (e)=>{
+    currentTab = "geo-tab"
     showHideGraphsTables()
-}) */
+})
 
 // check if theres aspect data to render aspect graphs
 fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {
