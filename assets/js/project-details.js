@@ -9,6 +9,10 @@ let renderAspect = true
 let renderEntity = true
 let tabLoadingCounter = 2
 let tabLoadingDiv = document.querySelector("#tab-loading")
+let showEmotionAspectCoOccurrence = true
+export function setShowEmotionAspectCoOccurrence(value){
+    showEmotionAspectCoOccurrence = value
+}
 function updateProjectTables(){
     if(renderAspect){
         tables.aspectTopicTable(1)
@@ -130,7 +134,9 @@ function showHideGraphsTables(){
             showGraphTable("aspect-co-occurrence")
             showGraphTable("aspect-topic")
             showGraphTable("aspect-topic-tree-map")
-            showGraphTable("emotion-aspect-co-occurrence")
+            if(showEmotionAspectCoOccurrence){
+                showGraphTable("emotion-aspect-co-occurrence")
+            }
             break
         case "entity-tab":
             showGraphTable("entities-table")

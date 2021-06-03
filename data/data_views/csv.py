@@ -14,21 +14,14 @@ from dashboard.tasks import process_data
 @method_decorator(csrf_exempt, name="upload_csv")
 def csv_upload(request):
     try:
+        defined_fields = ["lang", "date", "source", "url", "text"]
         project_id = request.GET.get("project-id")
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-        date = datetime.now()
-        file_name = date.strftime("%Y-%m-%d_%H:%M:%S_") + project_id + ".csv"
-        csv_buffer = StringIO()
-        csv_writer = csv.writer(csv_buffer)
-        headers = []
         if request.GET.get("client", "") != "browser":
             body = body["data"]["validRows"]
-        for element in body[0].keys():
-            headers.append(element)
-        csv_writer.writerow(headers)
+        print(body)
         for element in body:
-            row = []
             task_argument = {}
             task_argument["lang"] = 'en'
             task_argument["url"] = ''
@@ -43,14 +36,11 @@ def csv_upload(request):
                     task_argument[value] = element[value]
                 elif value == "url":
                     task_argument[value] = element[value]
-                else:
-                    task_argument["metadata"][value] = element[value]
-                row.append(element[value])
+            if "$custom" in element.keys():
+                    task_argument["metadata"] = element["$custom"]
             task_argument["text"] = element["text"]
             task_argument["project_id"] = project_id
             process_data.delay(task_argument)
-            csv_writer.writerow(row)
     except Exception as e:
         print(e)
-    default_storage.save(file_name, ContentFile(csv_buffer.getvalue().encode('utf-8')))
     return HttpResponse("csv upload")
