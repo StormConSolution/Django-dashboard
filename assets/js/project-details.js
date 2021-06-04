@@ -151,6 +151,13 @@ function showHideGraphsTables(){
             break
         case "geo-tab":
             showGraphTable("map")
+            showGraphTable("region-bullying-table")
+            showGraphTable("school-bullying-table")
+            showGraphTable("active-bullying-graph")
+            showGraphTable("time-bullying-graph")
+            showGraphTable("gender-bullying-graph")
+            showGraphTable("school-bullying-trend")
+            showGraphTable("map")
             break
     }
 
