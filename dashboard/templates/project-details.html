@@ -1,15 +1,13 @@
 {% extends 'layouts/new-base.html' %}
 
 {% block title %}
-<title>Repustate Insights | {{project_name}}</title>
+<title>Repustate Insights | {{ project.name }}</title>
 {% endblock %}
 
 {% block content %}
 	<script>
-	  window.project_id = {{project_id | safe}}
+	  window.project_id = {{ project.id|safe }}
 	</script>
-<!--   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script> -->
 
   <div class="main-content">
     <div class="container-fluid">
@@ -19,7 +17,7 @@
         <div class="col-12">
           <div class="porject-title align-items-center d-flex flex-wrap">
                 <div class="dashboard-title d-flex flex-wrap">
-                    {{project_name}} 
+                    {{ project.name }} 
                 </div>
             <a href="#" class="all-data" id="see-all-total-items"></a>
             <div class="ml-0 ml-md-auto">
@@ -108,9 +106,6 @@
                 <li>
                     <a style="cursor:pointer;" class="active" id="overview-tab">Overview</a>
                 </li>
-<!--               <li>
-                <a style="cursor:pointer;" id="sentiment-tab">Sentiment</a>
-              </li> -->
                 <li>
                     <a style="cursor:pointer;" id="sources-tab">Sources</a>
                 </li>
@@ -118,6 +113,11 @@
                 </li>
                 <li id="li-entity-tab">
                 </li>
+				{% if project.geo_enabled %}
+                <li id="li-geo-tab">
+                    <a style="cursor:pointer;" id="geo-tab">Geodata</a>
+                </li>
+				{% endif %}
             </ul>
             <div style="margin-left:auto; margin-right:1rem;display:flex;justify-content: center; align-content: center;flex-direction: column;" id="tab-loading">Loading...</div>
           </div>
@@ -154,6 +154,7 @@
        {% include "includes/graphs/entity-by-sentiment.html" %} 
        {% include "includes/graphs/classification-by-sentiment.html" %} 
        {% include "includes/graphs/most-common-chunks.html" %} 
+       {% include "includes/graphs/map.html" %} 
 
        {% include "includes/tables/aspect-topic-breakdown.html" %} 
        {% include "includes/tables/entities-table.html" %} 

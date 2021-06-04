@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+    web:
+        image: test
+        ports: 
+            - 8080:80
+            - 8000:8000
+        volumes: 
+            - ./dashboard:/var/www/dashboard
+            - ./data:/var/www/data
+            - ./authentication:/var/www/authentication
+            - ./docker/nginx.conf:/etc/nginx/nginx.conf
+    database:
+        image: postgres
+        environment: 
+            POSTGRES_PASSWORD: example
+        ports:
+            - 5432:5432
+        volumes: 
+            - ./database:/var/lib/postgresql/data
+    redis:
+        image: redis

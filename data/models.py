@@ -1,39 +1,14 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.urls import reverse
 
-LANGUAGES = (
-    ('en', 'English'),
-    ('ar', 'Arabic (العربية)'),
-    ('zh', 'Chinese (中文)'),
-    ('da', 'Danish (Dansk)'),
-    ('nl', 'Dutch (Nederlands)'),
-    ('fi', 'Finnish (Suomi)'),
-    ('fr', 'French (Français)'),
-    ('de', 'German (Deutsch)'),
-    ('he', 'Hebrew (עִברִית)'),
-    ('it', 'Italian (Italiano)'),
-    ('id', 'Indonesian (Bahasa Indonesia)'),
-    ('ja', 'Japanese (日本語)'),
-    ('ko', 'Korean (한국어)'),
-    ('no', 'Norwegian (Norsk)'),
-    ('pl', 'Polish (Polski)'),
-    ('pt', 'Portuguese (Português)'),
-    ('ru', 'Russian (русский)'),
-    ('es', 'Spanish (Español)'),
-    ('sv', 'Swedish (Svenska)'),
-    ('tr', 'Turkish (Türk)'),
-    ('th', 'Thai (ไทย)'),
-    ('vi', 'Vietnamese (Tiếng Việt)'),
-    ('ur', 'Urdu (اردو)'),
-)
-
 class Sentiment(models.Model):
     label = models.CharField(max_length=80) 
     definition = models.TextField()
     rule_id = models.TextField()
-    language = models.CharField(max_length=2, default='en')
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
 
@@ -51,12 +26,16 @@ class AspectModel(models.Model):
     
     def __str__(self):
         return self.label
+    
+    class Meta:
+        ordering = ('label',)
 
 class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
     definition = models.TextField()
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
     classifications = models.TextField()
+    
     class Meta:
         unique_together=('rule_name', 'aspect_model')
 
@@ -67,6 +46,7 @@ class Project(models.Model):
     charts = models.ManyToManyField(ChartType, blank=True)
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
     sentiment = models.ManyToManyField(Sentiment, blank=True)
+    geo_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -74,12 +54,6 @@ class Project(models.Model):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('name',)
-
-    def show_entities(self):
-        return self.charts.filter(label='entity_table').count() > 0
-
-    def show_aspects(self):
-        return self.charts.filter(label='aspect_s').count() > 0
 
     def get_absolute_url(self):
         return reverse('project', kwargs={'project_id': self.id})
@@ -96,12 +70,11 @@ class Classification(models.Model):
     def __str__(self):
         return self.label
 
-
 class Entity(models.Model):
     label = models.CharField(max_length=80, unique=True, db_index=True)
     english_label = models.CharField(max_length=80, db_index=True, default='', 
             help_text='Non-blank only when language is not english')
-    language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     classifications = models.ManyToManyField(Classification)
 
     def __str__(self):
@@ -148,13 +121,40 @@ class Summary(models.Model):
     def __str__(self):
         return self.title
 
-class Alert(models.Model):
-    date_created = models.DateField(auto_now=True)
-    handled = models.BooleanField(default=False)
+class AlertRule(models.Model):
+    """
+    The rules for sending out an alert.
+    """
+    PERIOD = (
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+    )
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    name = models.CharField(max_length=80)
+    aspect = models.CharField(max_length=80, default='')
+    frequency = models.IntegerField(help_text='How many times should the data appear before sending an alert', default=0)
+    period = models.CharField(max_length=80, choices=PERIOD, default='daily')
+    keywords = models.TextField(blank=True)
+    emails = models.TextField(blank=True)
+    sms = models.TextField(blank=True)
+    
+    def __str__(self):
+        return self.name
+
+class Alert(models.Model):
+    """
+    The alert that is generated when an AlertRule is triggered.
+    """
+    date_created = models.DateField(auto_now=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    data = models.ManyToManyField('Data', blank=True)
+    rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=80, default="")
     description = models.TextField()
-    
+    handled = models.BooleanField(default=False)
+
     def __str__(self):
         return self.title
 
@@ -168,7 +168,7 @@ class Data(models.Model):
     sentiment = models.FloatField(default=0, db_index=True)
     weighted_score = models.FloatField(default=0, db_index=True)
     relevance = models.FloatField(default=0, db_index=True)
-    language = models.CharField(max_length=2, default='en', choices=LANGUAGES)
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     entities = models.ManyToManyField(Entity)
     metadata = JSONField(blank=True, default=dict)
 

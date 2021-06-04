@@ -296,9 +296,7 @@
                     <form method="POST" action="{% url 'aspects' %}">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label"
-                                >Aspect model name</label
-                            >
+                            <label for="aspect-name" class="form-label">Aspect model name</label>
                             <input
                                 name="aspect-label"
                                 type="text"
@@ -458,7 +456,6 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
         </div>
     `
         div.innerHTML = element
-        console.log(div)
         div.querySelector("[data-role='delete-aspect-rule']").addEventListener("click", (e) => {
             e.currentTarget.parentNode.parentNode.remove()
             edit_aspect_rule_count--
@@ -502,10 +499,8 @@ document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
     })
 })
 function createAspectEditModal(id){
-    console.log(id)
     url = "/aspect/" + id + "/"
     fetch(url).then(response => response.json()).then(data => {
-        console.log(data)
         document.querySelector("#edit-aspect-name").value = data.aspect_label
         for(rule of data.rules){
             let div = document.createElement("div")
@@ -613,7 +608,6 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
     </div>
 `
     div.innerHTML = element
-    console.log(div)
     div.querySelector("[data-role='delete-aspect-rule']").addEventListener("click", (e) => {
         e.currentTarget.parentNode.parentNode.remove()
         count_rules--

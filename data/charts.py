@@ -473,7 +473,7 @@ class AspectCooccurrence(BaseChart):
             empty_row = [{'x':l, 'y':0} for l in aspect_labels]
 
             for idx, label in enumerate(aspect_labels):
-                if len(series_data) < idx:
+                if len(series_data) <= idx:
                     series_data.insert(idx, {'name':label, 'data':empty_row})
                 elif series_data[idx]['name'] != label:
                     series_data.insert(idx, {'name':label, 'data':empty_row})

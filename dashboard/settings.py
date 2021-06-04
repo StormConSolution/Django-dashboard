@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'data',
     'authentication',  # Enable the inner app
-    'debug_toolbar',
+    #'debug_toolbar',
     'django_celery_results',
 ]
 
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -121,11 +121,11 @@ USE_TZ = True
 
 
 LANGUAGES = (
+    ('en', 'English'),
     ('ar', 'Arabic (العربية)'),
     ('zh', 'Chinese (中文)'),
     ('da', 'Danish (Dansk)'),
     ('nl', 'Dutch (Nederlands)'),
-    ('en', 'English'),
     ('fi', 'Finnish (Suomi)'),
     ('fr', 'French (Français)'),
     ('de', 'German (Deutsch)'),
@@ -169,19 +169,19 @@ STATICFILES_DIRS = (
 # values from .env.prod but when testing locally outside a container, these
 # values can be overriden.
 SQL_DATABASE = 'rdv2'
-SQL_HOST = 'localhost'
-SQL_PASSWORD = ''
+SQL_HOST = 'database'
+SQL_PASSWORD = 'example'
 SQL_PORT = 5432
 SQL_USER = 'postgres'
 
-DEBUG = True
+DEBUG = False
 
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
 FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}"
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://redis:6379'
 
 try:
     from .settings_local import *

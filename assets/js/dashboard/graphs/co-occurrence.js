@@ -95,7 +95,7 @@ export function createGraph(){
             chartOptions.series = data
             div.innerHTML = ""
             if(Object.keys(data).length !== 0){
-                chartOptions.chart.height = 25 * data.length
+                chartOptions.chart.height = 50 * data.length
                 if(chartOptions.chart.height < 300){
                     chartOptions.chart.height = 300
                 }

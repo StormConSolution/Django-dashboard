@@ -198,11 +198,11 @@ def add_data(request, project_id):
 
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang}).json()
-        if 'score' in resp:
-            sentiment = resp['score']
+            HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang})
+        if resp.status_code == 200:
+            sentiment = resp.json()['score']
         else:
-            return JsonResponse(resp)
+            return JsonResponse({'message':resp.content, 'status':'Fail'})
     except Exception as e:
         return JsonResponse({"status": "Fail", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
 

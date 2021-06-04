@@ -132,6 +132,9 @@
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export Data</a>
 			    </li>
                 <li class="nav-item">
+                  <a class="nav-link" href="{% url 'alerts' %}"> <i class="fe fe-bell"></i> Manage Alerts</a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="{% url 'aspects' %}"> <i class="fe fe-hash"></i> Manage Aspects</a>
                 </li>
                 <li class="nav-item">
@@ -158,11 +161,8 @@
                 <a href="#" id="lightdark">
                   <i class="fe fe-moon"></i>
                   <i class="fe fe-sun"></i>
-      
                 </a>
               </div>
-      
-      
             </div>
         </nav>
     </header>
@@ -256,6 +256,8 @@
             type: "imports",
             fields: [
                 {key: "text", label: "Text (required)", validators:[{validate:"required"}]},
+				{key: "lang", label: "Language (optional)", 
+					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]}, 
                 {key: "date", label: "Date (optional)"},
                 {key: "url", label: "URL (optional)"},
                 {key: "source", label: "Source (optional)"},
@@ -263,7 +265,7 @@
                 ],
             managed: true,
             devMode: true,
-            allowCustom: true
+			allowCustom: true
             //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
         });
         importer.setCustomer({userId: projectId});
@@ -342,9 +344,16 @@
                                 name="aspect-id"
                             >
                                 <option value="-1">Choose From Existing Aspects</option>
-                                {% for aspect in all_aspects %}
-                                    <option value="{{aspect.id}}">{{aspect.label}}</option>
-                                {% endfor %}
+                                <optgroup label="Standard Aspect Models">
+                                    {% for aspect in standard_aspect_models %}
+										<option value="{{aspect.id}}">{{aspect.label}}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="Custom Aspect Models">
+                                    {% for aspect in custom_aspect_models %}
+										<option value="{{aspect.id}}">{{aspect.label}}</option>
+                                    {% endfor %}
+                                </optgroup>
                             </select>
                             <small
                                 id="emailHelp"

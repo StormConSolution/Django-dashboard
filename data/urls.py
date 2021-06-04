@@ -27,13 +27,16 @@ urlpatterns = [
     #path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('project/<int:project_id>/', views.new_project_details, name='project'),
-    #path('new-projects/', views.Projects.as_view(), name='new-projects'),
-    #path('new-projects/<int:project_id>/', views.new_project_details, name='new-project-details'),
+    
     path('aspect/', views.AspectsList.as_view(), name='aspects'),
     path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),
+
     path('sentiment/', views.SentimentList.as_view(), name='sentiment'),
     path('sentiment/<int:sentiment_id>/', views.Sentiment.as_view(), name='sentiment'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
+
+    path('alerts/', views.AlertRuleList.as_view(), name='alerts'),
+    path('alerts/<int:alert_id>/', views.AlertRule.as_view(), name='alerts'),
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages')
