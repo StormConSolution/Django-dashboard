@@ -1,0 +1,448 @@
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="active-bullying-graph">
+	<div class="project-card-inner">
+		<div class="chart-title align-items-center d-flex flex-wrap">
+			<h4 class="col p-0">Active bullying instances by region</h4>
+		</div>
+		<div id="active-bullying"></div>
+		<script>
+			var options = {
+				series: [144, 48, 40, 40, 36, 44, 36, 35, 38, 33, 26, 34, 42],
+				labels: ['Riyadh Province', 'Northern Borders Province', 'Makkah Province', 'Madinah Province', 'Eastern Province', 'Tabuk Province', 'Al Jawf Province', 'Al Baha Province', 'Qassim Province', "'Aseer Province", "Najran Province", "Ha'il Province", "Jazan Province"],
+				chart: {
+					type: 'donut',
+					height: 400
+				},
+				responsive: [{
+					breakpoint: 480,
+					options: {
+						chart: {
+							width: 200
+						},
+						legend: {
+							position: 'bottom'
+						}
+					}
+				}]
+			};
+
+			var chart = new ApexCharts(document.querySelector("#active-bullying"), options);
+			chart.render();
+		</script>
+	</div>
+</div>
+
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="school-bullying-trend">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+		  <h4 class="col p-0">National bullying trend: last 12 months</h4>
+      </div>
+
+	  <div id="bullying-trend"></div>
+
+		<script>
+        var options = {
+          series: [
+			  {"name": "Instances", "data": [24, 20, 13, 23, 27, 68, 88, 158, 262, 388, 314, 313]},
+		  ],
+          chart: {
+          height: 400,
+          type: 'line',
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'straight'
+        },
+        grid: {
+          row: {
+            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            opacity: 0.5
+          },
+        },
+        xaxis: {
+          categories: ['July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#bullying-trend"), options);
+        chart.render();
+		</script>
+
+
+	</div>
+</div>
+
+
+<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="time-bullying-graph">
+	<div class="project-card-inner">
+		<div class="chart-title align-items-center d-flex flex-wrap">
+			<h4 class="col p-0">Active bullying instances by age</h4>
+		</div>
+		<div id="time-bullying"></div>
+		<script>
+			var options = {
+				series: [8, 28, 46, 175, 215],
+				labels: ['4-7', '8-9', '10-12', '13-15', '16+'], 
+				chart: {
+				type: 'donut',
+			},
+			responsive: [{
+				breakpoint: 480,
+				options: {
+				chart: {
+				width: 200
+			},
+			legend: {
+				position: 'bottom'
+			}
+			}
+			}]
+			};
+
+		var chart = new ApexCharts(document.querySelector("#time-bullying"), options);
+		chart.render();
+		</script>
+	</div>
+</div>
+
+<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="gender-bullying-graph">
+	<div class="project-card-inner">
+		<div class="chart-title align-items-center d-flex flex-wrap">
+			<h4 class="col p-0">Active bullying instances by gender</h4>
+		</div>
+		<div id="gender-bullying"></div>
+		<script>
+			var options = {
+				series: [212, 416],
+				labels: ['Male', 'Female'],
+				chart: {
+				type: 'donut',
+			},
+			responsive: [{
+				breakpoint: 480,
+				options: {
+				chart: {
+				width: 200
+			},
+			legend: {
+				position: 'bottom'
+			}
+			}
+			}]
+			};
+
+		var chart = new ApexCharts(document.querySelector("#gender-bullying"), options);
+		chart.render();
+		</script>
+	</div>
+</div>
+
+
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="school-bullying-table">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+		  <h4 class="col p-0">Bullying instances by school</h4>
+      </div>
+      <div class="data-table table-responsive">
+        <table class="table table-striped table-borderless">
+		  <thead>
+			<tr>
+			  <th scope="col">School</th>
+			  <th scope="col">Active</th>
+			  <th scope="col">Resolved</th>
+			  <th scope="col">Total</th>
+			  <th scope="col">% change m/m</th>
+			  <th scope="col">% change y/y</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			  <tr>
+  <td scope="row">Al Alameen International School</td>
+  <td>25</td>
+  <td>94</td>
+  <td>119</td>
+  <td class="text-success">-6.5</td>
+  <td class="text-danger">4.4</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Al-Yasmin Internationalal School</td>
+  <td>23</td>
+  <td>91</td>
+  <td>114</td>
+  <td class="text-success">-1.3</td>
+  <td class="text-success">-8.2</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Khaled International School</td>
+  <td>22</td>
+  <td>86</td>
+  <td>108</td>
+  <td class="text-danger">6.5</td>
+  <td class="text-success">-0.0</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Al-Afaq International School</td>
+  <td>7</td>
+  <td>93</td>
+  <td>100</td>
+  <td class="text-success">-0.1</td>
+  <td class="text-danger">0.5</td>
+</tr>
+
+
+<tr>
+  <td scope="row">American International School of Jeddah</td>
+  <td>21</td>
+  <td>73</td>
+  <td>94</td>
+  <td class="text-danger">6.2</td>
+  <td class="text-danger">9.9</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Jawahir Al Riyadh International School</td>
+  <td>15</td>
+  <td>76</td>
+  <td>91</td>
+  <td class="text-success">-6.9</td>
+  <td class="text-success">-4.5</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Manarat Al Riyadh International School</td>
+  <td>16</td>
+  <td>71</td>
+  <td>87</td>
+  <td class="text-danger">3.7</td>
+  <td class="text-danger">9.0</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Nobles International School</td>
+  <td>10</td>
+  <td>68</td>
+  <td>78</td>
+  <td class="text-success">-6.1</td>
+  <td class="text-success">-0.4</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Yara International School</td>
+  <td>18</td>
+  <td>57</td>
+  <td>75</td>
+  <td class="text-success">-0.3</td>
+  <td class="text-danger">5.1</td>
+</tr>
+
+
+<tr>
+  <td scope="row">King Faisal School</td>
+  <td>17</td>
+  <td>50</td>
+  <td>67</td>
+  <td class="text-success">-6.8</td>
+  <td class="text-success">-3.8</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Al Faris International School</td>
+  <td>11</td>
+  <td>48</td>
+  <td>59</td>
+  <td class="text-danger">0.7</td>
+  <td class="text-danger">0.1</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Qimam El-Hayat International School</td>
+  <td>7</td>
+  <td>50</td>
+  <td>57</td>
+  <td class="text-success">-1.0</td>
+  <td class="text-success">-5.0</td>
+</tr>
+
+
+<tr>
+  <td scope="row">British International School Riyadh</td>
+  <td>5</td>
+  <td>36</td>
+  <td>41</td>
+  <td class="text-success">-9.5</td>
+  <td class="text-success">-1.9</td>
+</tr>
+		  </tbody>
+		</table>
+      </div>
+   </div>
+</div>
+
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="region-bullying-table">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+		  <h4 class="col p-0">Bullying instances by region</h4>
+      </div>
+      <div class="data-table table-responsive">
+        <table class="table table-striped table-borderless">
+		  <thead>
+			<tr>
+			  <th scope="col">Region</th>
+			  <th scope="col">Active</th>
+			  <th scope="col">Resolved</th>
+			  <th scope="col">Total</th>
+			  <th scope="col">% change m/m</th>
+			  <th scope="col">% change y/y</th>
+			</tr>
+		  </thead>
+		  <tbody>
+<tr>
+  <td scope="row">Riyadh Province</td>
+  <td>144</td>
+  <td>430</td>
+  <td>574</td>
+  <td class="text-danger">8.8</td>
+  <td class="text-success">-0.8</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Northern Borders Province</td>
+  <td>48</td>
+  <td>231</td>
+  <td>279</td>
+  <td class="text-success">-5.4</td>
+  <td class="text-danger">2.8</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Makkah Province</td>
+  <td>40</td>
+  <td>211</td>
+  <td>251</td>
+  <td class="text-danger">9.0</td>
+  <td class="text-danger">3.2</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Madinah Province</td>
+  <td>40</td>
+  <td>187</td>
+  <td>227</td>
+  <td class="text-success">-9.8</td>
+  <td class="text-success">-7.0</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Eastern Province</td>
+  <td>36</td>
+  <td>190</td>
+  <td>226</td>
+  <td class="text-success">-0.6</td>
+  <td class="text-danger">8.4</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Tabuk Province</td>
+  <td>44</td>
+  <td>172</td>
+  <td>216</td>
+  <td class="text-success">-9.7</td>
+  <td class="text-danger">9.0</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Al Jawf Province</td>
+  <td>36</td>
+  <td>146</td>
+  <td>182</td>
+  <td class="text-success">-3.7</td>
+  <td class="text-success">-3.4</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Al Baha Province</td>
+  <td>35</td>
+  <td>130</td>
+  <td>165</td>
+  <td class="text-success">-0.8</td>
+  <td class="text-danger">2.3</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Qassim Province</td>
+  <td>38</td>
+  <td>123</td>
+  <td>161</td>
+  <td class="text-success">-1.9</td>
+  <td class="text-danger">1.7</td>
+</tr>
+
+
+<tr>
+  <td scope="row">'Aseer Province</td>
+  <td>33</td>
+  <td>113</td>
+  <td>146</td>
+  <td class="text-danger">4.9</td>
+  <td class="text-success">-0.1</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Najran Province</td>
+  <td>26</td>
+  <td>119</td>
+  <td>145</td>
+  <td class="text-danger">2.0</td>
+  <td class="text-danger">4.7</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Ha'il Province</td>
+  <td>34</td>
+  <td>103</td>
+  <td>137</td>
+  <td class="text-danger">0.5</td>
+  <td class="text-success">-7.8</td>
+</tr>
+
+
+<tr>
+  <td scope="row">Jazan Province</td>
+  <td>42</td>
+  <td>82</td>
+  <td>124</td>
+  <td class="text-success">-7.2</td>
+  <td class="text-success">-5.0</td>
+</tr>
+		  </tbody>
+		</table>
+      </div>
+   </div>
+</div>
+

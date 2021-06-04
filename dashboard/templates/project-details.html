@@ -115,7 +115,7 @@
                 </li>
 				{% if project.geo_enabled %}
                 <li id="li-geo-tab">
-                    <a style="cursor:pointer;" id="geo-tab">Geodata</a>
+					<a style="cursor:pointer;" id="geo-tab">Geodata</a>
                 </li>
 				{% endif %}
             </ul>
@@ -154,7 +154,9 @@
        {% include "includes/graphs/entity-by-sentiment.html" %} 
        {% include "includes/graphs/classification-by-sentiment.html" %} 
        {% include "includes/graphs/most-common-chunks.html" %} 
-       {% include "includes/graphs/map.html" %} 
+       
+	   {% include "includes/graphs/map.html" %} 
+	   {% include "includes/tables/stc-tables.html" %} 
 
        {% include "includes/tables/aspect-topic-breakdown.html" %} 
        {% include "includes/tables/entities-table.html" %} 
@@ -164,165 +166,6 @@
       </div>
     </div>
   </div>
-<!--     <div class="col-12 project-card" data-role="graph-table-container" data-graph-table="data-table">
-        <div class="project-card-inner">
-        <div class="chart-title align-items-center d-flex flex-wrap">
-            <h4 class="col p-0">Data Items <a href="#" data-toggle="tooltip" data-placement="top" title="Need help?">
-                <i class="fe fe-help-circle"></i>
-            </a> </h4>
-            <div class="col-auto p-0 d-flex flex-wrap ">
-            <div class="per-page align-items-center d-flex">
-            Show <select class="custom-select" id="data-table-page-size">
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-            </select> Entries
-            </div>
-            <div class="data-search">
-            <input type="text" class="form-control " placeholder="Search">
-            </div>
-            <a style="margin-left:1rem;display:flex;align-items:center;cursor:pointer;" id="data-items-table-csv" target="_blank">Download CSV</a>
-            </div>
-
-        </div>
-
-        <div class="data-table table-responsive">
-            <table class="table table-striped table-borderless">
-            <thead>
-                <tr>
-                <th scope="col">
-                    DATE <span class="data-short">
-                    <a href="#" class="active">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                <th scope="col" class="twitter-col">
-                    TEXT <span class="data-short">
-                    <a href="#">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                <th scope="col"  >
-                    SOURCE <span class="data-short">
-                    <a href="#">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                <th scope="col" class="text-center">
-                    WEIGHTED <span class="data-short">
-                    <a href="#">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                <th scope="col" class="text-center" >
-                    RAW <span class="data-short">
-                    <a href="#">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                <th scope="col" class="text-center" >
-                    LANGUAGE <span class="data-short">
-                    <a href="#">
-                        <i class="fe fe-chevron-up"></i>
-                    </a>
-                    <a href="#">
-                        <i class="fe fe-chevron-down"></i>
-                    </a>
-                    </span>
-                </th>
-                
-                </tr>
-            </thead>
-            <tbody id="data-table-content">
-            </tbody>
-            </table>
-        </div>
-
-        <div class="table-bottom" id="data-table-pagination">
-        </div>
-        </div>
-    </div> -->
-
-  <!-- modal start -->
-
-    <!-- create-project modal start -->
-    <div class="modal fade" id="createproject" tabindex="-1" aria-labelledby="createprojectLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="createprojectLabel">Create New Project</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <i class="fe fe-x-circle"></i>
-            </button>
-          </div>
-        
-          <div class="modal-body">
-          
-            <div class="modal-data">
-                <form>
-                  <div class="form-group">
-                    <label for="projectname" class="form-label">Name of new project</label>
-                    
-                      <input type="text" class="form-control" id="projectname" placeholder="Enter Name">
-                   
-                  </div>
-                  <div class="form-group">
-                    <label for="selectaspect" class="form-label">Select Aspect</label>
-                    <select class="custom-select" id="selectaspect" aria-placeholder="Choose From Existing Aspects">
-                      <option >Choose From Existing Aspects</option>
-                      <option value="1">Royal Enfiled</option>
-                      <option value="2">Google</option>
-                     
-                    </select>
-                    <small id="emailHelp" class="form-text extra-text text-right">
-                      Don't have an aspect model? <a href="#">Create Aspect Model</a>
-                    </small>
-
-                  </div>
-                 
-                  <div class="form-group">
-                    <label class="form-label">Upload data or Link spreadsheet</label>
-                    <div class="drganddrop mb-2">
-                      Drag and drop, or <b>browse</b>  your files
-                    </div>
-                    <small  class="form-text extra-text mb-2">
-                      OR url link to existing spreadsheet somewhere
-                    </small>
-                    <input type="text" class="form-control" id="fileurl" placeholder="Enter Spreadsheet URL">
-                   
-                  </div>
-               
-                  <div class="d-flex flex-wrap align-items-center mt-4">
-                    <button type="submit" class="btn btn-primary">Add New Project <i class="fe fe-plus"></i> </button>
-                  </div>
-                </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- create-project modal End -->
 
      <!-- Test-Aspect modal start -->
      <div class="modal fade" id="testaspect" tabindex="-1" aria-labelledby="testaspectLabel" aria-hidden="true">

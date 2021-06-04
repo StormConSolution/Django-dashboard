@@ -70,7 +70,7 @@ def data_per_classification_and_entity(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join+""" where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause,
+        select dd.date_created, dd."text" , dd."url", ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join+""" where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause,
                        query_args)
         rows = cursor.fetchall()
 
@@ -79,12 +79,13 @@ def data_per_classification_and_entity(request, project_id):
         response['Content-Disposition'] = 'attachment; filename="data_per_classification_and_entity.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        writer.writerow(['Date', "Text", "URL", "Source", "Weighted", "Raw", "Language"])
         for row in rows:
-            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5], row[6]])
         return response
 
     response = {}
+    
     response["data"] = []
     response["currentPage"] = page
     response["total"] = total
@@ -92,14 +93,16 @@ def data_per_classification_and_entity(request, project_id):
     response["pageSize"] = page_size
     response["entity"] = entity
     response["classification"] = classification
+    
     for row in rows:
         response["data"].append({
             "dateCreated": row[0],
             "text": row[1],
-            "sourceLabel": row[2],
-            "weightedScore": row[3],
-            "sentimentValue": row[4],
-            "languageCode": row[5]
+            "url": row[2],
+            "sourceLabel": row[3],
+            "weightedScore": row[4],
+            "sentimentValue": row[5],
+            "languageCode": row[6]
         })
 
     return JsonResponse(response, safe=False)

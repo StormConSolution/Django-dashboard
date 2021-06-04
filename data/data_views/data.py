@@ -78,7 +78,7 @@ def data(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
+            select dd.date_created, dd."text" , dd."url", ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
     if response_format == "csv":
@@ -86,10 +86,11 @@ def data(request, project_id):
         response['Content-Disposition'] = 'attachment; filename="data_items.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        writer.writerow(['Date', "Text", 'URL', "Source", "Weighted", "Raw", "Language"])
         for row in rows:
-            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5], row[6]])
         return response
+
     response={}
     response["data"] = []
     response["currentPage"] = page
@@ -100,10 +101,11 @@ def data(request, project_id):
         response["data"].append({
             "dateCreated": row[0],
             "text": row[1],
-            "sourceLabel": row[2],
-            "weightedScore": row[3],
-            "sentimentValue": row[4],
-            "languageCode": row[5]
+            "url": row[2],
+            "sourceLabel": row[3],
+            "weightedScore": row[4],
+            "sentimentValue": row[5],
+            "languageCode": row[6]
         })
 
     return JsonResponse(response, safe=False)

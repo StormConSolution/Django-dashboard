@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'data',
     'authentication',  # Enable the inner app
+    "customize",
     #'debug_toolbar',
     'django_celery_results',
 ]
@@ -157,6 +158,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+MEDIA_URL = '/media/'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
