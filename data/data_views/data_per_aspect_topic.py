@@ -11,7 +11,6 @@ from django.shortcuts import get_object_or_404
 
 import data.models as data_models
 from data.helpers import getWhereClauses
-from data.helpers import getWhereClauses
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -64,7 +63,7 @@ def data_per_aspect_topic(request, project_id):
         limit_offset_clause = """ limit %s offset %s;"""
         query_args.append(page_size)
         query_args.append(offset)
-    query = """ select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
+    query = """ select dd.date_created, dd."text" , dd."url", ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
 
     with connection.cursor() as cursor:
         cursor.execute(query,
@@ -77,9 +76,9 @@ def data_per_aspect_topic(request, project_id):
         response['Content-Disposition'] = 'attachment; filename="data_items_per_aspect_topic.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+        writer.writerow(['Date', "Text", "URL", "Source", "Weighted", "Raw", "Language"])
         for row in rows:
-            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+            writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5], row[6]])
         return response
 
     if response_format == "word-cloud":
@@ -104,13 +103,17 @@ def data_per_aspect_topic(request, project_id):
     response["pageSize"] = page_size
     response["topicLabel"] = topic_label
     response["aspectLabel"] = aspect_label
+    
     for row in rows:
+        
         response["data"].append({
             "dateCreated": row[0],
             "text": row[1],
-            "sourceLabel": row[2],
-            "weightedScore": row[3],
-            "sentimentValue": row[4],
-            "languageCode": row[5]
+            "url": row[2],
+            "sourceLabel": row[3],
+            "weightedScore": row[4],
+            "sentimentValue": row[5],
+            "languageCode": row[6]
         })
+    
     return JsonResponse(response, safe=False)

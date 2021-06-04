@@ -160,10 +160,12 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     showHideGraphsTables()
 })
 
-document.querySelector("#geo-tab").addEventListener("click", (e)=>{
+if (document.getElementById("#geo-tab")) {
+	document.getElementById('#geo-tab').addEventListener("click", (e)=> {
     currentTab = "geo-tab"
     showHideGraphsTables()
-})
+	});
+}
 
 // check if theres aspect data to render aspect graphs
 fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {

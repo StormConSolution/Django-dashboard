@@ -28,7 +28,7 @@ export function createTable(page, options){
          ${text}
        </td>
        <td >
-        <b>${element.sourceLabel}</b>
+        <b><a href="${element.url}">${element.sourceLabel}</a></b>
        </td>
        <td class="text-center">
         ${element.weightedScore.toFixed(4)}
