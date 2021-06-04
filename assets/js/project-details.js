@@ -12,6 +12,7 @@ let renderAspect = true
 let renderEntity = true
 let tabLoadingCounter = 2
 let tabLoadingDiv = document.querySelector("#tab-loading")
+
 function updateProjectTables(){
     if(renderAspect){
         tables.aspectTopicTable(1)
@@ -23,6 +24,7 @@ function updateProjectTables(){
         tables.topEntitiesPerAspectTable(1)
     }
 }
+
 function updateGraphs(){
     if(renderAspect){
         graphs.aspectBySentimentPercentageGraph()
@@ -79,6 +81,7 @@ for(let languageCheckbox of languagesCheckbox){
         updateProjectDetailsPageWithDelay()
     })
 }
+
 let sourcesCheckbox = document.querySelectorAll("#dropdown-sources .choose input")
 for(let sourceCheckbox of sourcesCheckbox){
     sourceCheckbox.addEventListener("change", (e)=>{
@@ -111,6 +114,7 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
 function activeProjectDetailsTab(id){
     document.querySelector(`#${id}`).className="active"
 }
+
 function showHideGraphsTables(){
     hideAllGraphsTables()
     document.querySelectorAll(".project-menu ul li a").forEach(element=>{
@@ -160,10 +164,10 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     showHideGraphsTables()
 })
 
-if (document.getElementById("#geo-tab")) {
-	document.getElementById('#geo-tab').addEventListener("click", (e)=> {
-    currentTab = "geo-tab"
-    showHideGraphsTables()
+if (document.getElementById("geo-tab")) {
+	document.getElementById('geo-tab').addEventListener("click", (e)=> {
+		currentTab = "geo-tab"
+		showHideGraphsTables()
 	});
 }
 
