@@ -3,7 +3,6 @@
 
 <head>
     <!-- Required meta tags --><style>
-/* If you like this, be sure to ❤️ it. */
 .wrapper {
   height: 100vh;
   /* This part is important for centering the content */
@@ -115,7 +114,9 @@
 			{% if CUSTOM_LOGO %}
 				<a href="{% url 'project' %}"><img width="250" src="{{ CUSTOM_LOGO.upload.url }}" /></a>
 			{% else %}
-				<a class="navbar-brand" href="{% url 'project' %}"></a>
+				<a class="navbar-brand" href="{% url 'project' %}">
+					<img src="/static/assets/images/logo-repustate-light.svg"/>
+				</a>
 			  {% endif %}
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -361,7 +362,7 @@
                                 id="emailHelp"
                                 class="form-text extra-text text-right"
                             >
-                                Don't have aspect? <a href="{% url 'aspects' %}">Create Aspect</a>
+								Don't see the right aspect model? <a href="{% url 'aspects' %}">Create Aspect Model</a>
                             </small>
                         </div>
 
