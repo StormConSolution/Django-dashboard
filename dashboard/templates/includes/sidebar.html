@@ -8,22 +8,20 @@
   <ul class="c-sidebar-nav">
     {% if project_list %}
     <li class="c-sidebar-nav-title">Projects</li>
-	{% for project in project_list %}
-	<li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/projects/{{project.id}}/">
-	    <svg class="c-sidebar-nav-icon">
-	      <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-	    </svg> {{project.name}} </a></li>
-	{% endfor %}
-    {% endif %}
+
+    {%for project in project_list %}
+
+    <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/projects/{{project.id}}/">
+        <svg class="c-sidebar-nav-icon">
+          <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+        </svg> {{project.name}} </a></li>
+
+
+    {%endfor%}
+    {%endif%}
 
     <li class="c-sidebar-nav-divider"></li>
     <li class="c-sidebar-nav-title">System</li>
-    {% if user.is_staff %}
-    <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="/admin/">
-        <svg class="c-sidebar-nav-icon">
-          <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-applications-settings"></use>
-        </svg> Admin</a></li>
-    {% endif %}
     <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href={% url 'logout' %}>
         <svg class="c-sidebar-nav-icon">
           <use xlink:href="/static/assets/vendors/@coreui/icons/svg/free.svg#cil-account-logout"></use>
