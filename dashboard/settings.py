@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'authentication',  # Enable the inner app
     "customize",
     #'debug_toolbar',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -170,17 +171,20 @@ STATICFILES_DIRS = (
 # values from .env.prod but when testing locally outside a container, these
 # values can be overriden.
 SQL_DATABASE = 'rdv2'
-SQL_HOST = 'localhost'
-SQL_PASSWORD = ''
+SQL_HOST = 'database'
+SQL_PASSWORD = 'example'
 SQL_PORT = 5432
 SQL_USER = 'postgres'
 
-DEBUG = True
+DEBUG = False
 
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
-FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/"
+FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}"
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'redis://redis:6379'
+
 try:
     from .settings_local import *
 except:

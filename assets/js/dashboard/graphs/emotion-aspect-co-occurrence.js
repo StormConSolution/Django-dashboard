@@ -1,5 +1,6 @@
 import {update} from '../helpers/helpers'
 import {getFilters} from '../helpers/filters'
+import {setShowEmotionAspectCoOccurrence as show} from "../../project-details"
 let div = document.querySelector("#emotion-aspect-co-occurrence")
 let chart
 export function createGraph(){
@@ -98,6 +99,12 @@ export function createGraph(){
     fetch(`/api/entity-aspect-for-emotion/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
+            if(Object.keys(data).length==0){
+                document
+                .querySelector("#emotion-aspect-co-occurrence-container")
+                .style.display = "none"
+                show(false)
+            }
             let series = []
             let seriesData = []
             if(Object.keys(data).length !== 0){

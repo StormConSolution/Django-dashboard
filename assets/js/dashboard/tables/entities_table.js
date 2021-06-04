@@ -84,7 +84,6 @@ export function createTable(page){
     });
 }
 pageSizeDropdown.addEventListener("change", ()=>{
-    console.log("test")
     createTable(1)
 })
 //createTable(1);
