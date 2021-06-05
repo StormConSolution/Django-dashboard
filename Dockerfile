@@ -6,6 +6,12 @@ RUN  apt install python3 python3-pip nginx postgresql postgresql-contrib libpq-d
 WORKDIR /myfolder
 COPY ./docker/script.sh /myfolder
 COPY ./requirements.txt /myfolder
+COPY ./dashboard /var/www/dashboard
+COPY ./manage.py /var/www/manage.py
+COPY ./data /var/www/data
+COPY ./customize /var/www/customize
+COPY ./authentication /var/www/authentication
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 RUN python3 -m pip install -r requirements.txt
 WORKDIR /var/www/
 CMD ["bash", "/myfolder/script.sh"]
