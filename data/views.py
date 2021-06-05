@@ -2,8 +2,6 @@ import collections
 from datetime import datetime, timedelta
 import json
 import time
-import requests
-from typing import Dict, List
 
 from django import template
 from django.conf import settings
@@ -24,6 +22,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+import requests
 
 from data import models as data_models
 from data import charts
