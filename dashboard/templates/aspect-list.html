@@ -305,6 +305,19 @@
                                 placeholder="Enter aspect model name"
                             />
                         </div>
+                        <div class="form-group">
+                            <label for="aspect-lang" class="form-label">Aspect model language</label>
+                            <select
+                                name="aspect-lang"
+                                type="text"
+                                class="form-control"
+                                id="aspect-lang"
+							>
+							{% for code, label  in languages %}
+							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
+							{% endfor %}
+							</select>
+                        </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
                                 <p

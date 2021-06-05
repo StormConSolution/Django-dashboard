@@ -12,5 +12,6 @@ def general_context(request):
     return {
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
+        'LANGUAGES':settings.LANGUAGES,
         'CUSTOM_LOGO':custom_logo,
     }

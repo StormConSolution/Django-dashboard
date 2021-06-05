@@ -21,6 +21,7 @@ class ChartType(models.Model):
 
 class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False)
+    language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     users = models.ManyToManyField(User, blank=True)
     standard = models.BooleanField(default=True)
     
