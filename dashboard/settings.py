@@ -196,6 +196,8 @@ APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 HMAC_SECRET = ""
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
 
 DATABASES = {
     "default": {
