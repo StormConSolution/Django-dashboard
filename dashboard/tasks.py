@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 
 from django.conf import settings
+from django.core.mail import send_mail
 
 from data import models
 from data import weighted
@@ -9,48 +10,51 @@ from .celery import app
 from .sms import send_sms
 
 @app.task
-def process_data(arg):
+def process_data(kwargs):
+    
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY), 
-            data={'text': arg["text"], 'lang': arg["lang"]}).json()
+            data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
+        
         if 'score' in resp:
             sentiment = resp['score']
-            if arg["source"] == '':
+            if kwargs["source"] == '':
                 source = models.Source.objects.get_or_create(label="Upload")[0]
             else:
                 source = models.Source.objects.get_or_create(
-                    label=arg["source"])[0]
+                    label=kwargs["source"])[0]
             keywords = resp["keywords"]
 
-            project = models.Project.objects.get(pk=arg["project_id"])
+            project = models.Project.objects.get(pk=kwargs["project_id"])
 
-            if "date" not in arg.keys():
+            date = kwargs.get('date', None)
+            if not date:
                 date = datetime.now()
             else:
-                date = datetime.strptime(arg["date"], "%Y-%m-%d") 
+                date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
             
-            weight_args['raw_score'] = sentiment
-            weighted_score = weighted.calculate(**weight_args)
+            weight_kwargs = {'raw_score': sentiment}
+            weighted_score = weighted.calculate(**weight_kwargs)
             
             data = models.Data.objects.create(
                 project=project,
-                text=arg["text"], 
+                text=kwargs["text"], 
                 date_created=date, 
                 sentiment=sentiment,
                 source=source,
-                url=arg["url"], 
-                language=arg["lang"],
+                url=kwargs["url"], 
+                language=kwargs["lang"],
                 weighted_score=weighted_score,
                 relevance= 0, 
-                metadata=arg["metadata"],
+                metadata=kwargs["metadata"],
                 #keywords=keywords
             )
             
             for ent in resp['entities']:
                 entity_instance, created = models.Entity.objects.get_or_create(
                     label=ent['title'],
-                    language=arg["lang"],
+                    language=kwargs["lang"],
                     english_label=ent['id'],
                 )
 
@@ -68,9 +72,9 @@ def process_data(arg):
                     '{HOST}/v4/{APIKEY}/aspect.json'.format(
                         HOST=settings.API_HOST, APIKEY=settings.APIKEY),
                         {
-                            'text': arg["text"], 
+                            'text': kwargs["text"], 
                             'neutral': 1, 
-                            'lang': arg["lang"], 
+                            'lang': kwargs["lang"], 
                             'model': project.aspect_model.label
                         }
                     ).json()
@@ -90,12 +94,11 @@ def process_data(arg):
             
             # Check if we have to send out any alerts based on the alert rules setup.
             for rule in project.alertrule_set.all():
-                handled = False 
+                alert = None
                 if rule.keywords:
                     for kw in rule.keywords.split(','):
                         if kw in data.text:
-                            handled = True
-                            data_models.Alert.objects.create(
+                            alert = models.Alert.objects.create(
                                 project=project,
                                 data=data,
                                 rule=rule,
@@ -104,8 +107,8 @@ def process_data(arg):
                             )
                             break
                  
-                if not handled and rule.aspect in aspects_found:
-                    data_models.Alert.objects.create(
+                if not alert and rule.aspect in aspects_found:
+                    alert = models.Alert.objects.create(
                         project=project,
                         data=data,
                         rule=rule,
@@ -115,7 +118,26 @@ def process_data(arg):
                 
                 # Has this alert been triggered often enough? If so, notify.
                 if rule.should_notify():
-                    rule.notify()
+                    alert_notify(rule, alert)
 
     except Exception as e:
         print(e)
+
+@app.task
+def alert_notify(rule, alert):
+    """
+    Send out a notification about an alert that hass been triggered.
+    """
+    if rule.emails:
+        send_mail(
+            'Repustate Alert: {}'.format(rule.name),
+            '{}\n\n{}'.format(alert.title, alert.description),
+            'no-reply@repustate.com',
+            rule.emails.split(','),
+            fail_silently=False,
+        )
+
+    if rule.sms:
+        body = 'Alert [{}] triggered because of content: "{}" ...'.format(rule.name, alert.data.text[:100])
+        for phone_number in rule.sms.split(','):
+            send_sms(body, phone_number)
