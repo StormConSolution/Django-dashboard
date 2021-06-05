@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
@@ -143,6 +145,23 @@ class AlertRule(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def should_notify(self):
+        """
+        Has this rule been triggered enough to send out a notification.
+        """
+        today = datetime.datetime.now().date()
+        if self.period == 'daily' and self.alert_set.filter(
+                date_created__gte=today).count() >= self.frequency:
+            return True
+        elif self.period == 'weekly' and self.alert_set.filter(
+                date_created__gte=today-datetime.timedelta(7)).count() >= self.frequency:
+            return True
+        elif self.period == 'monthly' and self.alert_set.filter(
+                date_created__gte=today-datetime.timedelta(30)).count() >= self.frequency:
+            return True
+        
+        return False
 
 class Alert(models.Model):
     """
@@ -150,11 +169,10 @@ class Alert(models.Model):
     """
     date_created = models.DateField(auto_now=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    data = models.ManyToManyField('Data', blank=True)
+    data = models.ForeignKey('Data', blank=True, null=True, on_delete=models.CASCADE)
     rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=80, default="")
     description = models.TextField()
-    handled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
