@@ -185,6 +185,9 @@ FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'redis://redis:6379'
 
+TWILIO_ACCOUNT_SID = ''
+TWILIO_AUTH_TOKEN = ''
+
 try:
     from .settings_local import *
 except:
@@ -196,8 +199,8 @@ APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 HMAC_SECRET = ""
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', TWILIO_ACCOUNT_SID)
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', TWILIO_AUTH_TOKEN)
 
 DATABASES = {
     "default": {
