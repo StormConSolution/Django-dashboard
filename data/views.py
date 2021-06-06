@@ -1,21 +1,17 @@
 import collections
 from datetime import datetime, timedelta
 import json
-import time
+import requests
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import connection
-from django.db.models import Count, Q, F, Sum, Case, When, Value, IntegerField
+from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
-from django.forms.models import model_to_dict
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect, QueryDict
-from django.http.multipartparser import MultiPartParser
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse

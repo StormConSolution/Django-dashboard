@@ -2,20 +2,22 @@ version: '3.7'
 
 services:
     web:
-        image: juanpulydo/dashboard:0.0.6
+        image: test
         ports: 
-            - 80:80
-            - 443:443
+            - 8080:80
+            - 8000:8000
         command: >
             /bin/bash -c '
             service nginx start &
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
             gunicorn  dashboard.wsgi --preload --workers=4 --timeout 300'
-        depends_on: 
-            - database
         volumes: 
             - ./media_root:/var/www/media_root
+            - ./certificates:/certificates
+        depends_on: 
+            database:
+                condition: service_healthy
     database:
         image: postgres
         environment: 
@@ -38,15 +40,16 @@ services:
             timeout: 3s
             retries: 3
     celery:
-        image: juanpulydo/dashboard:0.0.6
+        image: test
         command: >
             /bin/bash -c '
             sleep 3;
             celery -A dashboard.celery worker'
         depends_on: 
-            - redis
+            redis:
+                condition: service_healthy
     flower:
-        image: juanpulydo/dashboard:0.0.6
+        image: test
         command: >
             /bin/bash -c '
             sleep 3;

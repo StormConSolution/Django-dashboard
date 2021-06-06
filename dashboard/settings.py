@@ -154,7 +154,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join("/var/www/static")
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
@@ -181,18 +181,18 @@ DEBUG = False
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
-FLATFILE_URL = "https://6b2a5436b61a.ngrok.io/api/csv/?project-id=${projectId}"
+FLATFILE_URL = "http://demo.repustate.com/api/csv/"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'redis://redis:6379'
 
 TWILIO_ACCOUNT_SID = ''
 TWILIO_AUTH_TOKEN = ''
-
 try:
     from .settings_local import *
 except:
     pass
 
+print(SQL_HOST)
 # Used by the add_data view. Set proper values in settings_local
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)

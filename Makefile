@@ -20,6 +20,14 @@ remove:
 start:
 	docker run -td --name test -p 8080:80  test
 
-compose:
-	docker-compose -f docker-compose-new.yaml up -d
+up-compose:
+	docker-compose -f docker-compose-test.yaml up 
+down-compose:
+	docker-compose -f docker-compose-test.yaml down
+exec-web:
+	docker-compose -f docker-compose-test.yaml exec web bash
+
+
+transfer-docker-compose:
+	scp -i ~/Downloads/dashboard.pem docker-compose.yaml ubuntu@34.230.9.46:~/setup
 	

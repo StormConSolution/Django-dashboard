@@ -13,7 +13,6 @@ from dashboard.tasks import process_data
 @method_decorator(csrf_exempt, name="upload_csv")
 def csv_upload(request):
     try:
-        defined_fields = ["lang", "date", "source", "url", "text"]
         project_id = request.GET.get("project-id")
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
