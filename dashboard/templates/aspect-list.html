@@ -67,6 +67,19 @@
                                         </span>
                                     </th>
                                     <th scope="col">
+                                        Language
+                                        <span class="data-short">
+                                            <a href="#" class="active">
+                                                <i class="fe fe-chevron-up"></i>
+                                            </a>
+                                            <a href="#">
+                                                <i
+                                                    class="fe fe-chevron-down"
+                                                ></i>
+                                            </a>
+                                        </span>
+                                    </th>
+                                    <th scope="col">
                                         Projects using
                                         <span class="data-short">
                                             <a href="#">
@@ -113,10 +126,10 @@
                             <tbody>
                                 {% for aspect in aspects %}
                                 <tr>
-                                    <td>{{aspect.label}}</td>
-
+                                    <td>{{ aspect.label }}</td>
+                                    <td>{{ aspect.lang }}</td>
                                     <td>
-                                    {%for project in aspect.projects %}
+                                    {% for project in aspect.projects %}
                                         {% if forloop.last %}
                                         {{project.name}}
                                         {% else %}
@@ -305,6 +318,19 @@
                                 placeholder="Enter aspect model name"
                             />
                         </div>
+                        <div class="form-group">
+                            <label for="aspect-lang" class="form-label">Aspect model language</label>
+                            <select
+                                name="aspect-lang"
+                                type="text"
+                                class="form-control"
+                                id="aspect-lang"
+							>
+							{% for code, label in languages %}
+							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
+							{% endfor %}
+							</select>
+                        </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
                                 <p
@@ -389,7 +415,7 @@
                     <form method="PUT" id="edit-aspect-form" data-aspect-id="NaN">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Aspect Name</label>
+                            <label for="aspect-name" class="form-label">Aspect model name</label>
                             <input
                                 name="aspect-label"
                                 type="text"
@@ -397,6 +423,19 @@
                                 id="edit-aspect-name"
                                 placeholder="Enter Aspect Name"
                             />
+                        </div>
+                        <div class="form-group">
+                            <label for="aspect-lang" class="form-label">Aspect model language</label>
+                            <select
+                                name="aspect-lang"
+                                type="text"
+                                class="form-control"
+                                id="edit-aspect-lang"
+							>
+							{% for code, label in languages %}
+							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
+							{% endfor %}
+							</select>
                         </div>
                         <input type="hidden" name = "_method" value="PUT"></input>
                         <button
@@ -498,10 +537,16 @@ document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
         }
     })
 })
+
 function createAspectEditModal(id){
+	// Fetch details for existing aspect and populate the form.
+
     url = "/aspect/" + id + "/"
     fetch(url).then(response => response.json()).then(data => {
-        document.querySelector("#edit-aspect-name").value = data.aspect_label
+        
+		document.querySelector("#edit-aspect-name").value = data.aspect_label
+		document.querySelector("#edit-aspect-lang").value = data.aspect_lang
+
         for(rule of data.rules){
             let div = document.createElement("div")
             div.className = "aspect-group"

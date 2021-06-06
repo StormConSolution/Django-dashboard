@@ -2,8 +2,6 @@ import collections
 from datetime import datetime, timedelta
 import json
 import time
-import requests
-from typing import Dict, List
 
 from django import template
 from django.conf import settings
@@ -24,6 +22,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+import requests
 
 from data import models as data_models
 from data import charts
@@ -515,10 +514,11 @@ class AspectsList(View):
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
             for rule in rules:
                 rules_list.append(rule.__dict__)
-            projects = data_models.Project.objects.filter(users=user,aspect_model=aspect).values("name", "id")
+            projects = data_models.Project.objects.filter(users=user, aspect_model=aspect).values("name", "id")
             context["aspects"].append({
                 "id":aspect.id,
                 "label": aspect.label,
+                "lang":aspect.language,
                 "rules":rules_list,
                 "projects":projects,
             })
@@ -545,12 +545,12 @@ class AspectsList(View):
     def post(self, request):
         user = request.user
         aspect_label = request.POST.get("aspect-label", "")
+        aspect_lang = request.POST.get("aspect-lang", "")
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition", "")
         rule_classifications = request.POST.getlist("rule-classification", "")
          
-        aspect_model = data_models.AspectModel(label=aspect_label, standard=False)
-        aspect_model.save() 
+        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang, standard=False)
         aspect_model.users.add(user)
         count = 0
         for rule_name in rule_names:
@@ -591,6 +591,7 @@ class Aspect(View):
         response = {}
         response["aspect_id"] = aspect.id
         response["aspect_label"] = aspect.label
+        response["aspect_lang"] = aspect.language
         response["rules"] = []
         for rule in rules:
             response["rules"].append({
@@ -612,6 +613,7 @@ class Aspect(View):
         user = request.user
         aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
         aspect_label = request.POST.get("aspect-label", "")
+        aspect_lang = request.POST.get("aspect-lang", "")
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition")
         rule_classifications = request.POST.getlist("rule-classification", "")
@@ -622,6 +624,7 @@ class Aspect(View):
 
         aspect = aspect.get()
         aspect.label = aspect_label
+        aspect.language = aspect_lang
         aspect.save()
         rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
 
