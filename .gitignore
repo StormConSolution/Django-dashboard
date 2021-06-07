@@ -33,3 +33,4 @@ node_modules/
 .idea
 media_root
 database/
+dashboard/static/assets/js/project-details.js

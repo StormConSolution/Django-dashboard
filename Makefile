@@ -12,8 +12,9 @@ celery-worker:
 
 transfer-docker-compose:
 	scp -i tmp/dashboard.pem docker-compose.yaml ubuntu@34.230.9.46:~/setup
+
 # docker
-build:
+build: webpack-production
 	docker build -t repustate/dashboard:latest .
 push:
 	docker push repustate/dashboard:latest 
