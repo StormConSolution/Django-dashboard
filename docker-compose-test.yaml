@@ -2,9 +2,9 @@ version: '3.7'
 
 services:
     web:
-        image: test
+        image: repustate/dashboard:latest
         ports: 
-            - 8080:80
+            - 80:80
             - 8000:8000
         command: >
             /bin/bash -c '
@@ -14,7 +14,7 @@ services:
             gunicorn  dashboard.wsgi --preload --workers=4 --timeout 300'
         volumes: 
             - ./media_root:/var/www/media_root
-            - ./certificates:/certificates
+            - ./docker/nginx-test.conf:/etc/nginx/sites-available/default
         depends_on: 
             database:
                 condition: service_healthy
@@ -40,7 +40,7 @@ services:
             timeout: 3s
             retries: 3
     celery:
-        image: test
+        image: repustate/dashboard:latest
         command: >
             /bin/bash -c '
             sleep 3;
@@ -49,7 +49,7 @@ services:
             redis:
                 condition: service_healthy
     flower:
-        image: test
+        image: repustate/dashboard:latest
         command: >
             /bin/bash -c '
             sleep 3;

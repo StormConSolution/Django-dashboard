@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
     web:
-        image: juanpulydo/dashboard:0.0.6
+        image: repustate/dashboard:latest
         ports: 
             - 80:80
             - 443:443
@@ -16,6 +16,7 @@ services:
             - database
         volumes: 
             - ./media_root:/var/www/media_root
+            - ./certificates:/certificates
     database:
         image: postgres
         environment: 
@@ -38,7 +39,7 @@ services:
             timeout: 3s
             retries: 3
     celery:
-        image: juanpulydo/dashboard:0.0.6
+        image: repustate/dashboard:latest
         command: >
             /bin/bash -c '
             sleep 3;
@@ -46,7 +47,7 @@ services:
         depends_on: 
             - redis
     flower:
-        image: juanpulydo/dashboard:0.0.6
+        image: repustate/dashboard:latest
         command: >
             /bin/bash -c '
             sleep 3;

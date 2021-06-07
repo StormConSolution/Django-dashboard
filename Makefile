@@ -10,24 +10,18 @@ celery-web:
 celery-worker:
 	celery -A dashboard.celery worker
 
+transfer-docker-compose:
+	scp -i tmp/dashboard.pem docker-compose.yaml ubuntu@34.230.9.46:~/setup
+# docker
 build:
-	docker build -t test .
-
-remove:
-	docker stop test
-	docker rm test
-
-start:
-	docker run -td --name test -p 8080:80  test
-
+	docker build -t repustate/dashboard:latest .
+push:
+	docker push repustate/dashboard:latest 
+publish: build push
 up-compose:
 	docker-compose -f docker-compose-test.yaml up 
 down-compose:
 	docker-compose -f docker-compose-test.yaml down
 exec-web:
 	docker-compose -f docker-compose-test.yaml exec web bash
-
-
-transfer-docker-compose:
-	scp -i ~/Downloads/dashboard.pem docker-compose.yaml ubuntu@34.230.9.46:~/setup
 	

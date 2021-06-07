@@ -12,6 +12,5 @@ COPY ./manage.py /var/www/manage.py
 COPY ./data /var/www/data
 COPY ./customize /var/www/customize
 COPY ./authentication /var/www/authentication
-COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/nginx.conf /etc/nginx/sites-available/default
 WORKDIR /var/www/
-CMD ["bash", "/myfolder/script.sh"]

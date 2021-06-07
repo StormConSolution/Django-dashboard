@@ -181,7 +181,7 @@ DEBUG = False
 API_HOST = 'https://api.repustate.com'
 AUTH_HOST = 'https://www.repustate.com'
 APIKEY = 'repustatedemopage'
-FLATFILE_URL = "http://demo.repustate.com/api/csv/"
+FLATFILE_URL = "https://demo.repustate.com/api/csv/"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'redis://redis:6379'
 

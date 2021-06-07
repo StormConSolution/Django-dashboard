@@ -33,5 +33,3 @@ node_modules/
 .idea
 media_root
 database/
-tmp.txt
-database.tar.gz
