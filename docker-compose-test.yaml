@@ -5,18 +5,19 @@ services:
         image: repustate/dashboard:latest
         ports: 
             - 80:80
-            - 443:443
+            - 8000:8000
         command: >
             /bin/bash -c '
             service nginx start &
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
             gunicorn  dashboard.wsgi --preload --workers=4 --timeout 300'
-        depends_on: 
-            - database
         volumes: 
             - ./media_root:/var/www/media_root
-            - ./certificates:/certificates
+            - ./docker/nginx-test.conf:/etc/nginx/sites-available/default
+        depends_on: 
+            database:
+                condition: service_healthy
     database:
         image: postgres
         environment: 
@@ -45,7 +46,8 @@ services:
             sleep 3;
             celery -A dashboard.celery worker'
         depends_on: 
-            - redis
+            redis:
+                condition: service_healthy
     flower:
         image: repustate/dashboard:latest
         command: >

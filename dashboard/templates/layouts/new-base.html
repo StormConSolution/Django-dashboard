@@ -112,7 +112,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-main navbar-light ">
 			{% if CUSTOM_LOGO %}
-				<a href="{% url 'project' %}"><img width="250" src="{{ CUSTOM_LOGO.upload.url }}" /></a>
+				<a href="{% url 'project' %}"><img width="100" src="{{ CUSTOM_LOGO.upload.url }}" /></a>
 			{% else %}
 				<a class="navbar-brand" href="{% url 'project' %}">
 					<img src="/static/assets/images/logo-repustate-light.svg"/>
@@ -220,11 +220,11 @@
                                 id="csv-upload-select-project"
                                 aria-placeholder="Choose From Existing Aspects"
                             >
-                                {% for project in projects_data %}
-                                    {% if project.name == project_name %}
-                                    <option value="{{project.id}}" selected>{{project.name}}</option>
+                                {% for element in projects_data %}
+                                    {% if element.id == project.id %}
+                                    <option value="{{element.id}}" selected>{{element.name}}</option>
                                     {% else %}
-                                    <option value="{{project.id}}">{{project.name}}</option>
+                                    <option value="{{element.id}}">{{element.name}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -268,28 +268,28 @@
                 ],
             managed: true,
             devMode: true,
-			allowCustom: true
-            //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
+			allowCustom: true,
+            webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
         });
         importer.setCustomer({userId: projectId});
         importer.requestDataFromUser().then(function(results) { 
-            console.log(results.headersMatched)
+            //console.log(results.headersMatched)
             let data = results.allData
-/*             let headers = []
+            let headers = []
             let headerObject = {}
             for(let element of results.headersMatched){
                 headerObject[element.matched_key] = element.matched_key 
             }
-            headers.push(headerObject) */
-            //data = headers.concat(data)
-            importer.displaySuccess('Your data is being uploaded, please wait')
-            fetch("/api/csv/?client=browser&project-id=" + projectId, {
+            headers.push(headerObject)
+            data = headers.concat(data)
+            importer.displaySuccess('Your data has been uploaded')
+                location.reload()
+/*             fetch("/api/csv/?client=browser&project-id=" + projectId, {
                 method: "POST",
                 body: JSON.stringify(data),
                 credentials: "include"
             }).then(response => {
-                location.reload()
-            })
+            }) */
         })
     })
 </script>

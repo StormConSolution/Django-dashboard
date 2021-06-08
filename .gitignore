@@ -33,4 +33,4 @@ node_modules/
 .idea
 media_root
 database/
-tmp.txt
+dashboard/static/assets/js/project-details.js

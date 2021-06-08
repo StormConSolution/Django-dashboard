@@ -8,7 +8,6 @@ def general_context(request):
         custom_logo = Setting.objects.get(key='logo')
     except:
         custom_logo = ''
-
     return {
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
