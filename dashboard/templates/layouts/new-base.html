@@ -112,7 +112,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-main navbar-light ">
 			{% if CUSTOM_LOGO %}
-				<a href="{% url 'project' %}"><img width="100" src="{{ CUSTOM_LOGO.upload.url }}" /></a>
+				<a href="{% url 'project' %}"><img alt="logo" src="{{ CUSTOM_LOGO.upload.url }}" /></a>
 			{% else %}
 				<a class="navbar-brand" href="{% url 'project' %}">
 					<img src="/static/assets/images/logo-repustate-light.svg"/>
