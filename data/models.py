@@ -74,7 +74,7 @@ class Classification(models.Model):
         return self.label
 
 class Entity(models.Model):
-    label = models.CharField(max_length=80, unique=True, db_index=True)
+    label = models.CharField(max_length=80, db_index=True)
     english_label = models.CharField(max_length=80, db_index=True, default='', 
             help_text='Non-blank only when language is not english')
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
@@ -85,6 +85,7 @@ class Entity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Entities'
+        unique_together=('label', 'english_label', 'language')
 
 
 class Source(models.Model):

@@ -1,7 +1,8 @@
 import os
+import urllib.parse
+
 from decouple import config
 from unipath import Path
-import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -154,7 +155,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join("/var/www/static")
+STATIC_ROOT = "/var/www/static"
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
@@ -168,37 +169,43 @@ STATICFILES_DIRS = (
 #############################################################
 
 # Variables expected from settings_local. Docker overrides these with the
-# values from .env.prod but when testing locally outside a container, these
+# values from an .env file but when testing locally outside a container, these
 # values can be overriden.
+
+APIKEY = 'repustatedemopage'
+API_HOST = 'https://api.repustate.com'
+AUTH_HOST = 'https://www.repustate.com'
+
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'django-db'
+
+DEBUG = False
+
+HMAC_SECRET = ""
+
+SERVER_NAME = "https://demo.repustate.com"
+
 SQL_DATABASE = 'rdv2'
 SQL_HOST = 'database'
 SQL_PASSWORD = 'example'
 SQL_PORT = 5432
 SQL_USER = 'postgres'
 
-DEBUG = False
-
-API_HOST = 'https://api.repustate.com'
-AUTH_HOST = 'https://www.repustate.com'
-APIKEY = 'repustatedemopage'
-FLATFILE_URL = "https://demo.repustate.com/api/csv/"
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://redis:6379'
-
 TWILIO_ACCOUNT_SID = ''
 TWILIO_AUTH_TOKEN = ''
+
 try:
     from .settings_local import *
 except:
     pass
 
-print(SQL_HOST)
-# Used by the add_data view. Set proper values in settings_local
-API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
-HMAC_SECRET = ""
-HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
+API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
+
+FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
+HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
+
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', TWILIO_ACCOUNT_SID)
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', TWILIO_AUTH_TOKEN)
 

@@ -138,6 +138,6 @@ def alert_notify(rule, alert):
         )
 
     if rule.sms:
-        body = 'Alert [{}] triggered because of content: "{}" ...'.format(rule.name, alert.data.text[:100])
+        body = 'Alert [{}] from {}: "{}" ...'.format(rule.name, alert.data.source, alert.data.text[:100])
         for phone_number in rule.sms.split(','):
             send_sms(body, phone_number)
