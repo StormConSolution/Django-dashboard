@@ -8,7 +8,7 @@ celery-web:
 	celery -A dashboard flower
 
 celery-worker:
-	celery -A dashboard.celery worker
+	celery -A dashboard.celery worker --logfile celery.log
 
 transfer-docker-compose:
 	scp -i tmp/dashboard.pem docker-compose.yaml ubuntu@34.230.9.46:~/setup

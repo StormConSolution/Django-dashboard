@@ -1,4 +1,5 @@
 import os
+import sys
 import urllib.parse
 
 from decouple import config
@@ -245,24 +246,28 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'formatter': 'file',
-            'filename': '/var/log/repustate/django.log',
-        },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'file',
+            'stream': sys.stdout
+        },
     },
     'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'tasks': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
         },
         'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': False,
@@ -275,3 +280,6 @@ LOGGING = {
         },
     },
 }
+
+import logging.config
+logging.config.dictConfig(LOGGING)

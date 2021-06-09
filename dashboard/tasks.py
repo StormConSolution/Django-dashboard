@@ -9,10 +9,15 @@ from data import weighted
 from .celery import app
 from .sms import send_sms
 
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
+
 @app.task
 def process_data(kwargs):
     
     try:
+        logger.warn("Data received {} in process_data task".format(kwargs))
+
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
             HOST=settings.API_HOST, APIKEY=settings.APIKEY), 
             data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
@@ -117,26 +122,28 @@ def process_data(kwargs):
                     )
                 
                 # Has this alert been triggered often enough? If so, notify.
-                if rule.should_notify():
-                    alert_notify(rule, alert)
+                if alert and rule.should_notify():
+                    notify(alert)
 
     except Exception as e:
         print(e)
 
-def alert_notify(rule, alert):
+def notify(alert):
     """
     Send out a notification about an alert that has been triggered.
     """
-    if rule.emails:
-        send_mail(
-            'Repustate Alert: {}'.format(rule.name),
+    if alert.rule.emails:
+        r = send_mail(
+            'Repustate Alert: {}'.format(alert.rule.name),
             '{}\n\n{}'.format(alert.title, alert.description),
             'no-reply@repustate.com',
-            rule.emails.split(','),
+            alert.rule.emails.split(','),
             fail_silently=False,
         )
+        logger.warn("Response from send_mail for alert {}: {}".format(alert, r))
 
-    if rule.sms:
-        body = 'Alert [{}] from {}: "{}" ...'.format(rule.name, alert.data.source, alert.data.text[:100])
-        for phone_number in rule.sms.split(','):
-            send_sms(body, phone_number)
+    if alert.rule.sms:
+        body = 'Alert [{}] from {}: "{}" ...'.format(alert.rule.name, alert.data.source, alert.data.text[:100])
+        for phone_number in alert.rule.sms.split(','):
+            m = send_sms(body, phone_number)
+            logger.warn("Response from sms for alert {}: {}".format(alert, m))

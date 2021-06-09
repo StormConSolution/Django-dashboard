@@ -145,7 +145,7 @@ class Projects(View):
         
         context["custom_aspect_models"] = data_models.AspectModel.objects.filter(users=user).values('id', 'label')
         context['standard_aspect_models'] = data_models.AspectModel.objects.filter(standard=True).values('id', 'label')
-        
+
         return render(request, "projects.html", context)
     
     @method_decorator(login_required)
