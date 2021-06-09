@@ -123,10 +123,9 @@ def process_data(kwargs):
     except Exception as e:
         print(e)
 
-@app.task
 def alert_notify(rule, alert):
     """
-    Send out a notification about an alert that hass been triggered.
+    Send out a notification about an alert that has been triggered.
     """
     if rule.emails:
         send_mail(

@@ -7,6 +7,9 @@
 {% block content %}
 	<script>
 	  window.project_id = {{ project.id|safe }}
+	  {% if project.geo_enabled %}
+	  window.geo_enabled = true;
+	  {% endif %}
 	</script>
 
   <div class="main-content">

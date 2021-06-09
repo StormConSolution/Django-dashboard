@@ -8,6 +8,9 @@ import  "./dashboard/countrymap.js";
 let timeOut
 let timeOutUpdateDelay
 let currentTab = "overview-tab"
+if (window.geo_enabled) {
+	currentTab = "geo-tab"
+}
 let renderAspect = true
 let renderEntity = true
 let tabLoadingCounter = 2
@@ -123,6 +126,8 @@ function showHideGraphsTables() {
     document.querySelectorAll(".project-menu ul li a").forEach(element=>{
         element.className = ""
     })
+
+	console.log("called", currentTab);
     
 	switch(currentTab) {
         case "overview-tab":
@@ -197,7 +202,6 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
-        document.querySelector("#most-common-chunks-graph").setAttribute("data-show", "true")
     } else {
         liContainer.style.display = "none"
         renderAspect = false
@@ -220,11 +224,6 @@ fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.
         liContainer.style.display = "none"
         renderEntity = false
     }
-})
-
-document.querySelector("#sources-tab").addEventListener("click", (e)=>{
-    currentTab = "sources-tab"
-    showHideGraphsTables()
 })
 
 document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>{

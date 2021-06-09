@@ -21,9 +21,6 @@ export function createGraph() {
     .then((response) => response.json())
     .then((data) => {
         graphContainer.innerHTML = "";
-        if(data.length != 0){
-            document.querySelector("#most-common-chunks-graph").style.display = "block"
-        }
         for (let element of data) {
             let button = document.createElement("button")
             button.style.margin = "1rem"
