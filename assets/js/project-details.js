@@ -158,6 +158,7 @@ function showHideGraphsTables() {
         case "geo-tab":
             showGraphTable("map")
             showGraphTable("most-recent-bullying-table")
+            showGraphTable("today-bullying-numbers")
             showGraphTable("region-bullying-table")
             showGraphTable("school-bullying-table")
             showGraphTable("active-bullying-graph")
