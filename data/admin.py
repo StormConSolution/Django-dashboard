@@ -69,6 +69,9 @@ class AspectModelAdmin(admin.ModelAdmin):
     list_filter = ('standard',)
     filter_horizontal = ('users',)
 
+class AspectRuleAdmin(admin.ModelAdmin):
+    list_display = ('rule_name', 'aspect_model',)
+
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'aspect_model', '_data_count', '_view')
     filter_horizontal = ('users',)
@@ -116,6 +119,7 @@ class SourceAdmin(admin.ModelAdmin):
 
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
+admin.site.register(AspectRule, AspectRuleAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Entity, EntityAdmin)
 admin.site.register(ChartType)

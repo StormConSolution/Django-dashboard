@@ -106,9 +106,6 @@
                 <li>
                     <a style="cursor:pointer;" class="active" id="overview-tab">Overview</a>
                 </li>
-                <li>
-                    <a style="cursor:pointer;" id="sources-tab">Sources</a>
-                </li>
                 <li id="li-aspect-tab">
                 </li>
                 <li id="li-entity-tab">
@@ -143,14 +140,13 @@
         </div>
        {% include "includes/graphs/sentiment-trend.html" %} 
        {% include "includes/graphs/overall-sentiment.html" %} 
-       {% include "includes/graphs/volume-by-source.html" %} 
+       {% include "includes/graphs/source.html" %} 
        {% include "includes/graphs/aspects-count.html" %} 
        {% include "includes/graphs/emotion-aspect-co-occurrence.html" %} 
        {% include "includes/graphs/aspect-co-occurrence.html" %} 
        {% include "includes/graphs/aspect-by-sentiment-percentage.html" %} 
        {% include "includes/graphs/aspect-by-sentiment-absolute.html" %} 
        {% include "includes/graphs/aspect-topic-tree-map.html" %} 
-       {% include "includes/graphs/source-by-sentiment.html" %} 
        {% include "includes/graphs/entity-by-sentiment.html" %} 
        {% include "includes/graphs/classification-by-sentiment.html" %} 
        {% include "includes/graphs/most-common-chunks.html" %} 

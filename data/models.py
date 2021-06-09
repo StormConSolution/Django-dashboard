@@ -35,12 +35,13 @@ class AspectModel(models.Model):
 
 class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
-    definition = models.TextField()
+    definition = models.TextField(blank=True)
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
-    classifications = models.TextField()
+    classifications = models.TextField(blank=True)
     
     class Meta:
         unique_together=('rule_name', 'aspect_model')
+        ordering = ('rule_name',)
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)

@@ -131,6 +131,8 @@ function showHideGraphsTables() {
             if (document.querySelector("#most-common-chunks-graph").getAttribute("data-show") == "true") {
                 showGraphTable("most-common-chunks")
             }
+            showGraphTable("volume-by-source")
+            showGraphTable("source-by-sentiment")
             break
         case "aspect-tab":
             showGraphTable("aspect-count")
@@ -150,10 +152,6 @@ function showHideGraphsTables() {
             }
             showGraphTable("entity-by-sentiment")
             showGraphTable("classification-by-sentiment")
-            break
-        case "sources-tab":
-            showGraphTable("volume-by-source")
-            showGraphTable("source-by-sentiment")
             break
         case "geo-tab":
             showGraphTable("map")

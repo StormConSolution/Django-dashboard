@@ -7,13 +7,13 @@ from django.shortcuts import get_object_or_404
 
 import data.models as data_models
 from data.helpers import getWhereClauses
-from data.helpers import getWhereClauses
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def classification_by_sentiment(request, project_id):
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
+
     where_clause = [
         'dd.project_id = %s',
     ]

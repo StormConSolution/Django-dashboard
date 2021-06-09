@@ -1,5 +1,5 @@
 <div class="col-6 project-card" data-role="graph-table-container" data-graph-table="today-bullying-numbers">
-    <div class="project-card-inner">
+    <div class="project-card-inner h-100">
       <div class="chart-title align-items-center d-flex flex-wrap">
 		  <h4 class="col p-0">Bullying cases today</h4>
       </div>
@@ -147,46 +147,46 @@
 	</div>
 </div>
 
-<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="time-bullying-graph">
-	<div class="project-card-inner">
-		<div class="chart-title align-items-center d-flex flex-wrap">
-			<h4 class="col p-0">Active bullying instances by age</h4>
-		</div>
-		<div id="time-bullying"></div>
-		<script>
-			var options = {
-				series: [8, 28, 46, 175, 215],
-				labels: ['4-7', '8-9', '10-12', '13-15', '16+'], 
-				chart: {
-				type: 'donut',
-			},
-			responsive: [{
-				breakpoint: 480,
-				options: {
-				chart: {
-				width: 200
-			},
-			legend: {
-				position: 'bottom'
-			}
-			}
-			}]
-			};
-
-		var chart = new ApexCharts(document.querySelector("#time-bullying"), options);
-		chart.render();
-		</script>
-	</div>
-</div>
-
-<div class="col-6" data-role="graph-table-container" data-graph-table="gender-bullying-graph">
+<div class="col-12" data-role="graph-table-container" data-graph-table="gender-bullying-graph">
 	<div class="row">
-		<div class="col-12 project-card">
+		<div class="col-4 project-card" data-role="graph-table-container" data-graph-table="time-bullying-graph">
 			<div class="project-card-inner">
+				<div class="chart-title align-items-center d-flex flex-wrap">
+					<h4 class="col p-0">Active bullying instances by age</h4>
+				</div>
+				<div id="time-bullying"></div>
+				<script>
+					var options = {
+						series: [8, 28, 46, 175, 215],
+						labels: ['4-7', '8-9', '10-12', '13-15', '16+'], 
+						chart: {
+						type: 'donut',
+					},
+					responsive: [{
+						breakpoint: 480,
+						options: {
+						chart: {
+						width: 200
+					},
+					legend: {
+						position: 'bottom'
+					}
+					}
+					}]
+					};
+
+				var chart = new ApexCharts(document.querySelector("#time-bullying"), options);
+				chart.render();
+				</script>
+			</div>
+		</div>
+
+		<div class="col-4 project-card">
+			<div class="project-card-inner h-100">
 				<div class="chart-title align-items-center d-flex flex-wrap">
 					<h4 class="col p-0">Active bullying instances by gender</h4>
 				</div>
-				<div class="mt-4 pb-5 row">
+				<div class="mt-5 pb-5 row">
 					<div class="text-center col-6">
 						<img width="100" src="/static/assets/images/male-user-svgrepo-com.svg"/>
 						<span style="font-size:4em">58%</span>
@@ -198,12 +198,13 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-12 project-card">
-			<div class="project-card-inner">
+		
+		<div class="col-4 project-card">
+			<div class="project-card-inner h-100">
 				<div class="chart-title align-items-center d-flex flex-wrap">
 					<h4 class="col p-0">Total bullying instances by gender</h4>
 				</div>
-				<div class="mt-4 pb-5 row">
+				<div class="mt-5 pb-5 row">
 					<div class="text-center col-6">
 						<img width="100" src="/static/assets/images/male-user-svgrepo-com.svg"/>
 						<span style="font-size:4em">38%</span>
@@ -244,7 +245,7 @@
 				  <td><a href="#" title="14 yr old / M">123129123</a></td>
 				  <td>أنت غبية</td>
 				  <td>MS Teams</td>
-				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+				  <td><i title="Phone school" class="fe fe-phone"></i> <i title="Email school" class="fe fe-mail"></i></td>
 			  </tr>
 			  <tr>
 				  <td>2021-06-08</td>
@@ -253,7 +254,7 @@
 				  <td><a href="#" title="12 yr old / M">663591234</a></td>
 				  <td>أنت حقا قبيحة</td>
 				  <td>MS Teams</td>
-				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+				  <td><i title="Phone school" class="fe fe-phone"></i> <i title="Email school" class="fe fe-mail"></i></td>
 			  </tr>
 			  <tr>
 				  <td>2021-06-08</td>
@@ -262,7 +263,7 @@
 				  <td><a href="#" title="16 yr old / F">783891234</a></td>
 				  <td>أنت غبي جدا</td>
 				  <td>MS Teams</td>
-				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+				  <td><i title="Phone school" class="fe fe-phone"></i> <i title="Email school" class="fe fe-mail"></i></td>
 			  </tr>
 			  <tr>
 				  <td>2021-06-08</td>
@@ -271,7 +272,7 @@
 				  <td><a href="#" title="13 yr old / M">871231022</a></td>
 				  <td>أنت حقا قبيحة</td>
 				  <td>MS Teams</td>
-				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+				  <td><i title="Phone school" class="fe fe-phone"></i> <i title="Email school" class="fe fe-mail"></i></td>
 			  </tr>
 			  <tr>
 				  <td>2021-06-08</td>
@@ -280,7 +281,7 @@
 				  <td><a href="#" title="15 yr old / M">998123219</a></td>
 				  <td>يا له من معلم غبي</td>
 				  <td>MS Teams</td>
-				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+				  <td><i title="Phone school" class="fe fe-phone"></i> <i title="Email school" class="fe fe-mail"></i></td>
 			  </tr>
 		  </tbody>
 		</table>

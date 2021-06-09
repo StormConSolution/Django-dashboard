@@ -1,0 +1,34 @@
+	<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="volume-by-source">
+		<div class="project-card-inner h-100">
+		  <div class="chart-title  align-items-center d-flex flex-wrap">
+			<h4>Sources (volume) <a href="#" data-toggle="tooltip" data-placement="top" title="Total data items per source">
+				<i class="fe fe-help-circle"></i>
+			  </a> </h4>
+		  </div>
+		  <div class="chart-wrap">
+			<div id="volume-by-source" >
+			</div>
+		  </div>
+		</div>
+	</div>
+	<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="source-by-sentiment">
+		<div class="project-card-inner h-100">
+		  <div class="chart-title align-items-center d-flex flex-wrap">
+			<h4>Sources (sentiment)<a href="#" data-toggle="tooltip" data-placement="top" title="Sentiment breakdown for each source">
+				<i class="fe fe-help-circle"></i>
+			  </a> </h4>
+			  <div class="per-page align-items-center d-flex" style="margin-left: auto;">
+				No. of Sources <select class="custom-select" id="source-by-sentiment-max-sources">
+				  <option value="5" selected>5</option>
+				  <option value="10">10</option>
+				  <option value="15">15</option>
+				  <option value="20">20</option>
+				</select> 
+			</div>
+		  </div>
+		  <div class="chart-wrap">
+			<div id="source-by-sentiment-graph" >
+			</div>
+		  </div>
+		</div>
+	</div>

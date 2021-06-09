@@ -106,7 +106,7 @@ def pages(request):
     except template.TemplateDoesNotExist:
         html_template = loader.get_template('page-404.html')
         return HttpResponse(html_template.render(context, request))
-    except:
+    except Exception as e:
         html_template = loader.get_template('page-500.html')
         return HttpResponse(html_template.render(context, request))
 
@@ -413,14 +413,6 @@ class AlertRuleList(View):
         
         context = {}
         context["projects_data"] = data_models.Project.objects.filter(users=user).values("name", "id")
-
-        # Get list of possible aspects. This is slow right now, probably should move to raw SQL.
-        all_aspects = data_models.Aspect.objects.filter(
-                data__project__users=user).distinct('label')
-        for a in all_aspects:
-            a.project = a.data.project
-        context["all_aspects"] = all_aspects
-
         context['alerts'] = data_models.AlertRule.objects.filter(project__users=user)
 
         return render(request, "alertrule-list.html", context)

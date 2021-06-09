@@ -263,9 +263,6 @@
                             <label for="alert-aspect" class="form-label">Aspect</label>
 							<select class="form-control" name="aspect">
 								<option value="-1">-- choose a project first --</option>
-								{% for aspect in all_aspects %}
-								<option hidden data-project="{{ aspect.project.id }}" value="{{ aspect }}">{{ aspect }}</option>
-								{% endfor %}
 							</select>
                         </div>
                         <div class="form-group">
@@ -309,19 +306,28 @@
 		});
 
 		document.querySelector('[name=project]').addEventListener('change', function(e) {
-			// Get the selected project and hide/unhide the appropriate alerts.
+			// For the selected project, fetch possible aspect labels.
 			el = e.target;
 			projValue = el.value;
-			alertSelect = document.querySelector('[name=aspect]');
-			options = alertSelect.querySelectorAll('option');
-			for (var i = 0; i < options.length; i++) {
-				o = options[i];
-				if (o.getAttribute('data-project') == projValue) {
-					o.hidden = false;
-				} else {
-					o.hidden = true;
+			fetch("/api/aspects-per-project/" + projValue + "/", { method: "GET" }).then(response => response.json()).then(data => {
+				alertSelect = document.querySelector('[name=aspect]');
+				options = alertSelect.querySelectorAll('option');
+				for (var i = 0; i < options.length; i++) {
+					let o = options[i];
+					// First remove previous list.
+					if (o.value != -1) {
+						o.remove();
+					}
 				}
-			}
+				// Now add options for each possible aspect label for this project.
+				for (var i = 0; i < data.length; i++) {
+					console.debug(data[i]);
+					let o = document.createElement('option');
+					o.value = data[i];
+					o.text = data[i];
+					alertSelect.appendChild(o);
+				}
+			})
 		});
 		
 		document.querySelectorAll('[data-role="delete-alert"]').forEach((e) => {
@@ -352,18 +358,33 @@
 				document.querySelector('[name=period]').value = data.period;
 				document.querySelector('[name=frequency]').value = data.frequency;
 				document.querySelector('[name=project]').value = data.project;
-				document.querySelector('[name=aspect]').value = data.aspect;
-				alertSelect = document.querySelector('[name=aspect]');
-				options = alertSelect.querySelectorAll('option');
-				for (var i = 0; i <= options.length; i++) {
-					o = options[i];
-					if (o.getAttribute('data-project') == data.project) {
-						o.hidden = false;
-					} else {
-						o.hidden = true;
+
+				var targetAspect = data.aspect;
+				
+				fetch("/api/aspects-per-project/" + data.project+ "/", {method: "GET"}).then(response => response.json()).then(data => {
+					alertSelect = document.querySelector('[name=aspect]');
+					options = alertSelect.querySelectorAll('option');
+					for (var i = 0; i < options.length; i++) {
+						let o = options[i];
+						// First remove previous list.
+						if (o.value != -1) {
+							o.remove();
+						}
 					}
-				}
+					// Now add options for each possible aspect label for this project.
+					for (var i = 0; i < data.length; i++) {
+						console.debug(data[i]);
+						let o = document.createElement('option');
+						o.value = data[i];
+						o.text = data[i];
+						alertSelect.appendChild(o);
+						if (o.value == targetAspect) {
+							o.selected = true;
+						}
+					}
+				})
 			});
+			
 			$('#createalert').modal()
 			
 			// Change the button text and change the form action URL.
