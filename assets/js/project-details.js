@@ -13,23 +13,23 @@ let renderEntity = true
 let tabLoadingCounter = 2
 let tabLoadingDiv = document.querySelector("#tab-loading")
 let showEmotionAspectCoOccurrence = true
-export function setShowEmotionAspectCoOccurrence(value){
+export function setShowEmotionAspectCoOccurrence(value) {
     showEmotionAspectCoOccurrence = value
 }
-function updateProjectTables(){
-    if(renderAspect){
+function updateProjectTables() {
+    if (renderAspect) {
         tables.aspectTopicTable(1)
     }
-    if(renderEntity){
+    if (renderEntity) {
         tables.entityTable(1)
     }
-    if(renderEntity && renderAspect){
+    if (renderEntity && renderAspect) {
         tables.topEntitiesPerAspectTable(1)
     }
 }
 
-function updateGraphs(){
-    if(renderAspect){
+function updateGraphs() {
+    if (renderAspect) {
         graphs.aspectBySentimentPercentageGraph()
         graphs.aspectBySentimentAbsoluteGraph()
         graphs.aspectTopicTreeMap()
@@ -38,7 +38,7 @@ function updateGraphs(){
         graphs.coOccurrenceGraph()
         graphs.mostCommonChunks()
     }
-    if(renderEntity){
+    if (renderEntity) {
         graphs.entityBySentimentGraph()
         graphs.classificationBySentimentGraph()
     }
@@ -48,20 +48,20 @@ function updateGraphs(){
     graphs.sourceBySentimentGraph()
 }
 
-function updateProjectDetailsPageWithDelay(){
-    if(timeOutUpdateDelay){
+function updateProjectDetailsPageWithDelay() {
+    if (timeOutUpdateDelay) {
         clearTimeout(timeOutUpdateDelay)
     } else {
         setTimeout(updateProjectDetailsPage, 3000)
     }
 }
 
-function updateProjectDetailsPage(){
-    if(update.canUpdate()){
+function updateProjectDetailsPage() {
+    if (update.canUpdate()) {
         updateProjectTables()
         updateGraphs()
     } else {
-        if(timeOut){
+        if (timeOut) {
             clearTimeout(timeOut)
         }
         timeOut = setTimeout(updateProjectDetailsPage,1000)
@@ -79,14 +79,14 @@ document.getElementById("date-to").addEventListener("change", (e)=>{
 })
 
 let languagesCheckbox = document.querySelectorAll("#dropdown-languages .choose input")
-for(let languageCheckbox of languagesCheckbox){
+for(let languageCheckbox of languagesCheckbox) {
     languageCheckbox.addEventListener("change", (e)=>{
         updateProjectDetailsPageWithDelay()
     })
 }
 
 let sourcesCheckbox = document.querySelectorAll("#dropdown-sources .choose input")
-for(let sourceCheckbox of sourcesCheckbox){
+for(let sourceCheckbox of sourcesCheckbox) {
     sourceCheckbox.addEventListener("change", (e)=>{
         updateProjectDetailsPageWithDelay()
     })
@@ -114,20 +114,21 @@ document.querySelectorAll(".uncheck-all").forEach((element) => {
     })
 })
 
-function activeProjectDetailsTab(id){
+function activeProjectDetailsTab(id) {
     document.querySelector(`#${id}`).className="active"
 }
 
-function showHideGraphsTables(){
+function showHideGraphsTables() {
     hideAllGraphsTables()
     document.querySelectorAll(".project-menu ul li a").forEach(element=>{
         element.className = ""
     })
-    switch(currentTab){
+    
+	switch(currentTab) {
         case "overview-tab":
             showGraphTable("overall-sentiment")
             showGraphTable("sentiment-trend")
-            if (document.querySelector("#most-common-chunks-graph").getAttribute("data-show") =="true"){
+            if (document.querySelector("#most-common-chunks-graph").getAttribute("data-show") == "true") {
                 showGraphTable("most-common-chunks")
             }
             break
@@ -138,13 +139,13 @@ function showHideGraphsTables(){
             showGraphTable("aspect-co-occurrence")
             showGraphTable("aspect-topic")
             showGraphTable("aspect-topic-tree-map")
-            if(showEmotionAspectCoOccurrence){
+            if (showEmotionAspectCoOccurrence) {
                 showGraphTable("emotion-aspect-co-occurrence")
             }
             break
         case "entity-tab":
             showGraphTable("entities-table")
-            if(renderEntity && renderAspect){
+            if (renderEntity && renderAspect) {
                 showGraphTable("top-entities-per-aspect-table")
             }
             showGraphTable("entity-by-sentiment")
@@ -156,6 +157,7 @@ function showHideGraphsTables(){
             break
         case "geo-tab":
             showGraphTable("map")
+            showGraphTable("most-recent-bullying-table")
             showGraphTable("region-bullying-table")
             showGraphTable("school-bullying-table")
             showGraphTable("active-bullying-graph")
@@ -185,12 +187,12 @@ if (document.getElementById("geo-tab")) {
 
 // check if theres aspect data to render aspect graphs
 fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json()).then(data => {
-    let liContainer =document.querySelector("#li-aspect-tab") 
+    let liContainer = document.querySelector("#li-aspect-tab") 
     tabLoadingCounter--;
-    if(tabLoadingCounter == 0){
+    if (tabLoadingCounter == 0) {
         tabLoadingDiv.innerHTML = ""
     }
-    if(data.length != 0){
+    if (data.length != 0) {
         liContainer.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
         document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
             currentTab = "aspect-tab"
@@ -206,10 +208,10 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
 fetch(`/api/entity-by-sentiment/${window.project_id}/`).then(response=>response.json()).then(data => {
     let liContainer =document.querySelector("#li-entity-tab") 
     tabLoadingCounter--;
-    if(tabLoadingCounter == 0){
+    if (tabLoadingCounter == 0) {
         tabLoadingDiv.innerHTML = ""
     }
-    if(data.length != 0){
+    if (data.length != 0) {
         liContainer.innerHTML = '<a style="cursor:pointer;" id="entity-tab">Entity</a>'
         document.querySelector("#entity-tab").addEventListener("click", (e)=>{
             currentTab = "entity-tab"

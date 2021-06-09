@@ -3,28 +3,28 @@ export let update = {
     finishUpdate: finishUpdate,
     canUpdate: canUpdate
 }
-function startUpdate(){
+function startUpdate() {
     updateCount++
 }
 
-function finishUpdate(){
+function finishUpdate() {
     updateCount--
 }
 
-function canUpdate(){
-    if(updateCount ===  0){
+function canUpdate() {
+    if(updateCount ===  0) {
         return true
     }
     return false
 }
 let updateCount = 0
 
-export function hideAllGraphsTables(){
+export function hideAllGraphsTables() {
     document.querySelectorAll("[data-role='graph-table-container']").forEach((element) => {
-        element.style.display="none"
+        element.style.display = "none"
     })
 }
 
-export function showGraphTable(data_graph_table){
+export function showGraphTable(data_graph_table) {
     document.querySelector(`[data-graph-table="${data_graph_table}"]`).style.display="block"
 }

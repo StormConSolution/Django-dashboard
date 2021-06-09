@@ -1,33 +1,49 @@
-<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="active-bullying-graph">
-	<div class="project-card-inner">
-		<div class="chart-title align-items-center d-flex flex-wrap">
-			<h4 class="col p-0">Active bullying instances by region</h4>
-		</div>
-		<div id="active-bullying"></div>
-		<script>
-			var options = {
-				series: [144, 48, 40, 40, 36, 44, 36, 35, 38, 33, 26, 34, 42],
-				labels: ['Riyadh Province', 'Northern Borders Province', 'Makkah Province', 'Madinah Province', 'Eastern Province', 'Tabuk Province', 'Al Jawf Province', 'Al Baha Province', 'Qassim Province', "'Aseer Province", "Najran Province", "Ha'il Province", "Jazan Province"],
-				chart: {
-					type: 'donut',
-					height: 400
-				},
-				responsive: [{
-					breakpoint: 480,
-					options: {
-						chart: {
-							width: 200
-						},
-						legend: {
-							position: 'bottom'
+<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="school-bullying-trend">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+		  <h4 class="col p-0">Bullying cases today</h4>
+      </div>
+      <div class="data-table table-responsive">
+        <table class="table table-striped table-borderless">
+		  <thead>
+			<tr>
+			  <th scope="col">Region</th>
+			  <th scope="col">No.</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			  <tr><td>Riyadh </td><td><span id="cases-0"></span></td></tr>
+			  <tr><td>Makkah </td><td><span id="cases-1"></span></td></tr>
+			  <tr><td>Madinah </td><td><span id="cases-2"></span></td></tr>
+			  <tr><td>Tabuk </td><td><span id="cases-3"></span></td></tr>
+			  <tr><td>Al Jawf </td><td><span id="cases-4"></span></td></tr>
+			  <tr><td>Al Baha </td><td><span id="cases-5"></span></td></tr>
+			  <tr><td>Aseer </td><td><span id="cases-6"></span></td></tr>
+			  <tr><td>Najran </td><td><span id="cases-7"></span></td></tr>
+			  <tr><td>Ha'il </td><td><span id="cases-8"></span></td></tr>
+			  <tr><td>Jazan </td><td><span id="cases-9"></span></td></tr>
+		  </tbody>
+		</table>
+			<script>
+				function animateValue(obj, start, end, duration) {
+					let startTimestamp = null;
+					const step = (timestamp) => {
+						if (!startTimestamp) startTimestamp = timestamp;
+						const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+						obj.innerHTML = Math.floor(progress * (end - start) + start);
+						if (progress < 1) {
+							window.requestAnimationFrame(step);
 						}
-					}
-				}]
-			};
+					};
+					window.requestAnimationFrame(step);
+				}
 
-			var chart = new ApexCharts(document.querySelector("#active-bullying"), options);
-			chart.render();
-		</script>
+				for (var i=0; i<10; i++) {
+					let obj = document.getElementById("cases-"+i);
+					animateValue(obj, 0, Math.floor((Math.random() * 15) + 1), 5000);
+				}
+			</script>
+	  </div>
 	</div>
 </div>
 
@@ -77,6 +93,60 @@
 </div>
 
 
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="active-bullying-graph">
+	<div class="project-card-inner">
+		<div class="chart-title align-items-center d-flex flex-wrap">
+			<h4 class="col p-0">Active bullying instances by region</h4>
+		</div>
+		<div id="active-bullying"></div>
+		<script>
+			var options = {
+			  series: [{
+				  name: 'MALE',
+				  data: [74, 15, 21, 23, 17, 12, 12, 14, 18, 12, 11, 7, 4]
+				}, {
+				  name: 'FEMALE',
+				  data: [84, 55, 41, 27, 32, 33, 28, 23, 18, 18, 19, 19, 9]
+				}],
+          chart: {
+          type: 'bar',
+          stacked: true,
+          toolbar: {
+            show: true
+          },
+          zoom: {
+            enabled: true
+          }
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: {
+              position: 'bottom',
+              offsetX: -10,
+              offsetY: 0
+            }
+          }
+        }],
+        plotOptions: {
+          bar: {
+            horizontal: false
+          },
+        },
+        xaxis: {
+          categories: ['Riyadh Province', 'Northern Borders Province', 'Makkah Province', 'Madinah Province', 'Eastern Province', 'Tabuk Province', 'Al Jawf Province', 'Al Baha Province', 'Qassim Province', "'Aseer Province", "Najran Province", "Ha'il Province", "Jazan Province"]
+        },
+        fill: {
+          opacity: 1
+        }
+        };
+
+			var chart = new ApexCharts(document.querySelector("#active-bullying"), options);
+			chart.render();
+		</script>
+	</div>
+</div>
+
 <div class="col-6 project-card" data-role="graph-table-container" data-graph-table="time-bullying-graph">
 	<div class="project-card-inner">
 		<div class="chart-title align-items-center d-flex flex-wrap">
@@ -109,36 +179,113 @@
 	</div>
 </div>
 
-<div class="col-6 project-card" data-role="graph-table-container" data-graph-table="gender-bullying-graph">
-	<div class="project-card-inner">
-		<div class="chart-title align-items-center d-flex flex-wrap">
-			<h4 class="col p-0">Active bullying instances by gender</h4>
+<div class="col-6" data-role="graph-table-container" data-graph-table="gender-bullying-graph">
+	<div class="row">
+		<div class="col-12 project-card">
+			<div class="project-card-inner">
+				<div class="chart-title align-items-center d-flex flex-wrap">
+					<h4 class="col p-0">Active bullying instances by gender</h4>
+				</div>
+				<div class="mt-4 pb-5 row">
+					<div class="text-center col-6">
+						<img width="100" src="/static/assets/images/male-user-svgrepo-com.svg"/>
+						<span style="font-size:4em">58%</span>
+					</div>
+					<div class="text-center col-6">
+						<img width="100" src="/static/assets/images/female-user-svgrepo-com.svg"/>
+						<span style="font-size:4em">42%</span>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div id="gender-bullying"></div>
-		<script>
-			var options = {
-				series: [212, 416],
-				labels: ['Male', 'Female'],
-				chart: {
-				type: 'donut',
-			},
-			responsive: [{
-				breakpoint: 480,
-				options: {
-				chart: {
-				width: 200
-			},
-			legend: {
-				position: 'bottom'
-			}
-			}
-			}]
-			};
-
-		var chart = new ApexCharts(document.querySelector("#gender-bullying"), options);
-		chart.render();
-		</script>
+		<div class="col-12 project-card">
+			<div class="project-card-inner">
+				<div class="chart-title align-items-center d-flex flex-wrap">
+					<h4 class="col p-0">Total bullying instances by gender</h4>
+				</div>
+				<div class="mt-4 pb-5 row">
+					<div class="text-center col-6">
+						<img width="100" src="/static/assets/images/male-user-svgrepo-com.svg"/>
+						<span style="font-size:4em">38%</span>
+					</div>
+					<div class="text-center col-6">
+						<img width="100" src="/static/assets/images/female-user-svgrepo-com.svg"/>
+						<span style="font-size:4em">62%</span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
+</div>
+
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="most-recent-bullying-table">
+    <div class="project-card-inner">
+      <div class="chart-title align-items-center d-flex flex-wrap">
+		  <h4 class="col p-0">Most Recent Active bullying cases</h4>
+      </div>
+      <div class="data-table table-responsive">
+        <table class="table table-striped table-borderless">
+		  <thead>
+			<tr>
+			  <th scope="col">Date</th>
+			  <th scope="col">Region</th>
+			  <th scope="col">School</th>
+			  <th scope="col">Student No.</th>
+			  <th scope="col">Details</th>
+			  <th scope="col">Source</th>
+			  <th scope="col">Actions</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			  <tr>
+				  <td>2021-06-08</td>
+				  <td>Riyadh</td>
+				  <td>British International School</td>
+				  <td>123129123</td>
+				  <td>أنت غبية</td>
+				  <td>MS Teams</td>
+				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+			  </tr>
+			  <tr>
+				  <td>2021-06-08</td>
+				  <td>Riyadh</td>
+				  <td>British International School</td>
+				  <td>663591234</td>
+				  <td>أنت حقا قبيحة</td>
+				  <td>MS Teams</td>
+				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+			  </tr>
+			  <tr>
+				  <td>2021-06-08</td>
+				  <td>Riyadh</td>
+				  <td>American International School of Jeddah</td>
+				  <td>783891234</td>
+				  <td>أنت غبي جدا</td>
+				  <td>MS Teams</td>
+				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+			  </tr>
+			  <tr>
+				  <td>2021-06-08</td>
+				  <td>Riyadh</td>
+				  <td>Jawahir Al Riyadh International School</td>
+				  <td>871231022</td>
+				  <td>أنت حقا قبيحة</td>
+				  <td>MS Teams</td>
+				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+			  </tr>
+			  <tr>
+				  <td>2021-06-08</td>
+				  <td>Riyadh</td>
+				  <td>Khaled International School</td>
+				  <td>998123219</td>
+				  <td>يا له من معلم غبي</td>
+				  <td>MS Teams</td>
+				  <td><i class="fe fe-phone"></i> <i class="fe fe-mail"></i></td>
+			  </tr>
+		  </tbody>
+		</table>
+      </div>
+   </div>
 </div>
 
 
