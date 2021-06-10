@@ -164,7 +164,7 @@ export function createGraph() {
             chartOptions.xaxis = {}
             chartOptions.xaxis.categories = aspects;
             graphContainer.innerHTML = ""
-            chartOptions.chart.height = 25 * data.length
+            chartOptions.chart.height = 40 * data.length
             if(chartOptions.chart.height < 100){
                 chartOptions.chart.height = 100
             } 

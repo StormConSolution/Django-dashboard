@@ -16,13 +16,35 @@ def most_common_chunks(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    where_clause = [
+    where_clause = getWhereClauses(request, [
         "dd.project_id = %s"
-    ]
+    ])
+
+    try:
+        # This just guards against SQL injection since we're sloppily appending
+        # the limit to the query string. 
+        limit = int(request.GET['limit'])
+    except:
+        # Not a valid integer.
+        limit = 15
+    
+    # We multiply by 3 to get more results than we actually need just in case we
+    # collate a few because of # similarity.
+    upper_limit = limit * 3
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*), lower(da.chunk), sum(case when dd.sentiment > 0 then 1 else 0 end) as pos, sum(case when dd.sentiment < 0 then 1 else 0 end) as neg from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.chunk != ''  and (dd.sentiment > 0 or dd.sentiment < 0) and """ + getWhereClauses(request, where_clause) + """ group by lower(da.chunk) order by count(lower(da.chunk)) desc limit 30""", [project_id])
+            select 
+                count(*),
+                lower(da.chunk),
+                sum(case when dd.sentiment > 0 then 1 else 0 end) as pos,
+                sum(case when dd.sentiment < 0 then 1 else 0 end) as neg 
+            from 
+                data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id
+            where 
+                da.chunk != ''  and (dd.sentiment > 0 or dd.sentiment < 0) and {}
+            group by 
+                lower(da.chunk) order by count(lower(da.chunk)) desc limit {}""".format(where_clause, upper_limit), [project_id])
         rows = cursor.fetchall()
     
     temp_response = []
@@ -52,4 +74,4 @@ def most_common_chunks(request, project_id):
     response = sorted(response, key = lambda i: i['total'])
     response.reverse()
 
-    return JsonResponse(response, safe=False)
+    return JsonResponse(response[:limit], safe=False)

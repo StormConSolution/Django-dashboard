@@ -1,7 +1,10 @@
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
+
 let chart;
 let graphContainer = document.querySelector("#most-common-chunks")
+let maxChunks = document.querySelector("#max-most-common-chunks")
+
 export function createGraph() {
     update.startUpdate();
     if (chart) {
@@ -16,6 +19,7 @@ export function createGraph() {
         "languages": filtersValues.languages,
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID,
+        'limit':maxChunks.value
     })
     fetch(`/api/most-common-chunks/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
@@ -37,3 +41,7 @@ export function createGraph() {
         update.finishUpdate()
     });
 }
+
+maxChunks.addEventListener("change", (e)=>{
+    createGraph()
+})

@@ -127,8 +127,6 @@ function showHideGraphsTables() {
         element.className = ""
     })
 
-	console.log("called", currentTab);
-    
 	switch(currentTab) {
         case "overview-tab":
             showGraphTable("overall-sentiment")

@@ -2,9 +2,17 @@
 	   id="most-common-chunks-graph" data-show="{% if project.aspect_model %}true{% else %}false{% endif %}">
     <div class="project-card-inner">
       <div class="chart-title  align-items-center d-flex flex-wrap">
-        <h4>What people are saying<a href="#" data-toggle="tooltip" data-placement="top" title="What people are saying">
+        <h4>What people are saying<a href="#" data-toggle="tooltip" data-placement="top" title="The most common phrases and topics, coloured for sentiment">
             <i class="fe fe-help-circle"></i>
           </a> </h4>
+		  <div class="per-page align-items-center d-flex" style="margin-left: auto;">
+			No. of phrases<select class="custom-select" id="max-most-common-chunks">
+			  <option value="15" selected>15</option>
+			  <option value="25">25</option>
+			  <option value="50">50</option>
+			  <option value="100">100</option>
+			</select> 
+		</div>
       </div>
       <div class="chart-wrap">
         <div id="most-common-chunks" >
