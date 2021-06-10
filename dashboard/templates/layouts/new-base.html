@@ -175,12 +175,12 @@
         </a>
         <h3>Projects</h3>
         <ul>
-            {% for project in projects_data %}
+            {% for p in projects_data %}
             <li>
-                {% if project.name == project_name %}
-                    <a href="{% url 'project' project.id %}" class="active"> {{project.name}} </a>
+				{% if p.name == project.name %}
+                    <a href="{% url 'project' p.id %}" class="active"> {{p.name}} </a>
                 {% else %}
-                    <a href="{% url 'project' project.id %}" > {{project.name}} </a>
+                    <a href="{% url 'project' p.id %}" > {{p.name}} </a>
                 {% endif %}
             </li>
             {% endfor %}
