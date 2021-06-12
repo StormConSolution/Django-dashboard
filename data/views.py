@@ -1,9 +1,11 @@
 import collections
 from datetime import datetime, timedelta
 import json
+from django.db.models.query import prefetch_related_objects
 import requests
 
 from django import template
+from django.core import serializers
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -523,6 +525,8 @@ class AspectsList(View):
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
+        context["predefined_aspect_rules"] = list(data_models.PredefinedAspectRule.objects.all().values())
+        #print(context["predefined_aspect_rules"])
         for element in languages:
             for language_tuple in settings.LANGUAGES:
                 if element["language"] == language_tuple[0]:
@@ -537,9 +541,11 @@ class AspectsList(View):
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition", "")
         rule_classifications = request.POST.getlist("rule-classification", "")
-         
-        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang, standard=False)
+        predefined_aspect_rules = request.POST.getlist("predefined-rule", "")
+        print(predefined_aspect_rules)
+        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang)
         aspect_model.users.add(user)
+
         count = 0
         for rule_name in rule_names:
             aspect_definition = data_models.AspectRule(
@@ -550,6 +556,13 @@ class AspectsList(View):
             ) 
             aspect_definition.save()
             count += 1
+        for predefined_aspect_rule in predefined_aspect_rules:
+            aspect_rule = data_models.AspectRule(
+                rule_name = predefined_aspect_rule,
+                aspect_model = aspect_model,
+                predefined = True
+            )
+            aspect_rule.save()
         
         return redirect("aspects")
 
@@ -586,7 +599,9 @@ class Aspect(View):
                 "rule_label":rule.rule_name,
                 "rule_definitions":rule.definition,
                 "rule_id":rule.id,
-                "rule_classifications": rule.classifications})
+                "rule_classifications": rule.classifications,
+                "predefined":rule.predefined,
+                })
         return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)

@@ -33,11 +33,15 @@ class AspectModel(models.Model):
     class Meta:
         ordering = ('label',)
 
+class PredefinedAspectRule(models.Model):
+    label = models.CharField(max_length=80, blank=False)
+
 class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
     definition = models.TextField(blank=True)
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
     classifications = models.TextField(blank=True)
+    predefined = models.BooleanField(default=False)
     
     class Meta:
         unique_together=('rule_name', 'aspect_model')

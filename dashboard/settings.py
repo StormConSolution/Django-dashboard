@@ -5,6 +5,7 @@ import urllib.parse
 from decouple import config
 from unipath import Path
 
+SITE_URL = ""
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = Path(__file__).parent
@@ -200,6 +201,8 @@ try:
 except:
     pass
 
+# Used by the add_data view. Set proper values in settings_local
+API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
