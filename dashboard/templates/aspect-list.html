@@ -331,13 +331,15 @@
 							{% endfor %}
 							</select>
                         </div>
-                        <div class="form-check form-switch">
+                        <div class="form-check form-switch aspect-group">
                             <p>Select predefined aspect rule</p>
+                            <div class="form-check form-switch" id="edit-aspect-predefined-rules" >
                         {% for predefined_aspect_rule in predefined_aspect_rules %}
-                            <input class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" name="predefined-rule">
+                            <input class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" class="form-check-input" name="predefined-rule"/>
                             <label class="form-check-label" >{{predefined_aspect_rule.label}}</label>
                             <br>
                         {% endfor %}
+                        </div>
                         </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
@@ -444,11 +446,11 @@
 							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
 							{% endfor %}
 							</select>
-                            <div class="form-check form-switch" >
+                            <div class="form-check form-switch aspect-group" >
                                 <p>Select predefined aspect rule</p>
-                                <select id="edit-aspect-predefined-rules" multiple>
+                                <div class="form-check form-switch" id="edit-aspect-predefined-rules" >
 
-                                </select>
+                                </div>
                             </div>
                         </div>
                         <input type="hidden" name = "_method" value="PUT"></input>
@@ -483,7 +485,7 @@ function resetEditAspectForm(){
     document.querySelectorAll("[data-role='edit-aspect-group']").forEach(element=>{
         element.remove()
     })
-    edit_aspect_rule_count = 1
+    aspectPredefinedRulesDiv.innerHTML = ""
 }
 document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
     let currentElement = e.currentTarget
@@ -551,35 +553,43 @@ document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
         }
     })
 })
+let aspectPredefinedRulesDiv = document.querySelector("#edit-aspect-predefined-rules")
 function createAspectEditModal(id){
 	// Fetch details for existing aspect and populate the form.
 
     url = "/aspect/" + id + "/"
-    let aspectPredefinedRulesDiv = document.querySelector("#edit-aspect-predefined-rules")
     fetch(url).then(response => response.json()).then(data => {
-        
 
 		document.querySelector("#edit-aspect-name").value = data.aspect_label
 		document.querySelector("#edit-aspect-lang").value = data.aspect_lang
         let predefinedRules = {{predefined_aspect_rules | safe}}
         let aspectPredefinedRules = data.rules.filter(x => x.predefined)
-        console.log(aspectPredefinedRulesDiv)
-        for(rule of data.rules){
-            if(rule.predefined){
-                let html = ""
-                if(predefinedRules.includes(rule)){
-                    let html = `<option value="${rule.rule_label}"  selected>${rule.rule_label}</option>`
-                } else {
-                    let html = `<option value="${rule.rule_label}"  selected>${rule.rule_label}</option>` 
-                }
-                aspectPredefinedRulesDiv.insertAdjacentHTML("beforeend", html)
-            }
-        }
+        console.log(predefinedRules)
+        console.log(aspectPredefinedRules)
         for(predefinedRule of predefinedRules){
-
-            let option = "<option "
+                let html = ""
+                let isRuleInUse = false
+                for(rule of data.rules){
+                    if(rule.rule_label == predefinedRule.label){
+                        isRuleInUse = true
+                    }
+                }
+                if(isRuleInUse){
+                    html = `
+                    <input value="${predefinedRule.label}" class="form-check-input" type="checkbox" name="predefined-rules" checked />
+                    <label class="form-check-label" >${predefinedRule.label}</label>
+                    <br>
+                    `
+                } else {
+                    html = `
+                    <input value="${predefinedRule.label}" class="form-check-input" type="checkbox" name="predefined-rules" />
+                    <label class="form-check-label" >${predefinedRule.label}</label>
+                    <br>
+                    `
+                }
+                console.log(isRuleInUse)
+                aspectPredefinedRulesDiv.insertAdjacentHTML("beforeend", html)
         }
-
         for(rule of data.rules){
             if(!rule.predefined){
                 let div = document.createElement("div")
