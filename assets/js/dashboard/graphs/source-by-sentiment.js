@@ -3,10 +3,12 @@ import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal'
 import wordCloud from "./word-cloud-modal";
+
 let chart;
 let container = document.querySelector("#source-by-sentiment-graph")
 let maxSources = document.querySelector("#source-by-sentiment-max-sources")
 let mapSourceAndID = {}
+
 export function createGraph() {
     update.startUpdate();
     if (chart) {
