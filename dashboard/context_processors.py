@@ -5,7 +5,7 @@ from customize.models import Setting
 def general_context(request):
     # See if we have a custom logo.
     try:
-        custom_logo = Setting.objects.get(key='logo')
+        custom_logo = Setting.objects.get(key='logo', users=request.user)
     except:
         custom_logo = ''
     return {
