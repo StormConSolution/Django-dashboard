@@ -57,13 +57,13 @@ def most_common_chunks(request, project_id):
             "negativeCount": row[3],
             "valid":True,
         })
-    
+
     # Before we return, collate chunks based on substring match. First sort by
     # length of chunk, smalles to largest.
     temp_response = sorted(temp_response, key = lambda i: len(i['chunk']))
     for idx, t in enumerate(temp_response):
         for next_one in temp_response[idx+1:]:
-            if next_one['chunk'].find(t['chunk']) >= 0:
+            if next_one['valid'] and t['valid'] and next_one['chunk'].find(t['chunk']) >= 0:
                 next_one['positiveCount'] += t['positiveCount']
                 next_one['negativeCount'] += t['negativeCount']
                 next_one['total'] += t['total']
