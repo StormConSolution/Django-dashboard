@@ -35,31 +35,27 @@ The app is provided with a basic configuration to be executed in [Docker](https:
 
 ### [Docker](https://www.docker.com/) execution
 
----
+The project is deployed on production through a docker-compose file 
+`docker-compose.yaml` in the root repository. This docker compose setup 
+has 4 services:
 
-The application can be easily executed in a docker container. The steps:
+* celery: task queue for the data when a csv is uploaded
+* redis: used as broker by celery
+* database: postgres database
+* web: contains the django aplication and nginx server to serve the appo
 
-> Get the code
+Environment variables are defined in `.env` file.
+HTTPS certificates must exist in the folder `./certificates`, this folder is
+mapped to `/certificates` inside the `web` service, this certificates are
+used by the nginx server´.
 
-```bash
-$ git clone git clone git@bitbucket.org:repustatecom/dashboard.git
-$ cd dashboard
-```
+The `web` service uses the following image `repustate/dashboard:latest`
+to build this image run `make build` and then push to the docker registry
+with `make push`.
 
-> Start the app in Docker
-
-```bash
-$ sudo docker-compose pull && sudo docker-compose build && sudo docker-compose up -d
-```
-
-> launching first time also run
-
-```bash
-$ sudo docker-compose exec repustate-app python3 manage.py makemigrations
-$ sudo docker-compose exec repustate-app python3 manage.py migrate
-```
-
-Visit `http://localhost:5005` in your browser. The app should be up & running.
+To test the docker build locally run `make up-compose`, this command uses
+the file `docker-compose-test.yaml`, this docker compose file differs from
+production by not using the HTTPS certificates.
 
 <br />
 
