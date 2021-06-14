@@ -1,3 +1,4 @@
+import re
 import string
 
 from django.conf import settings
@@ -37,8 +38,8 @@ def most_common_chunks(request, project_id):
             select 
                 count(*),
                 lower(da.chunk),
-                sum(case when dd.sentiment > 0 then 1 else 0 end) as pos,
-                sum(case when dd.sentiment < 0 then 1 else 0 end) as neg 
+                sum(case when da.sentiment > 0 then 1 else 0 end) as pos,
+                sum(case when da.sentiment < 0 then 1 else 0 end) as neg 
             from 
                 data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id
             where 
@@ -50,13 +51,14 @@ def most_common_chunks(request, project_id):
     temp_response = []
 
     for row in rows:
-        temp_response.append({
-            "total": row[0],
-            "chunk": row[1].strip(string.punctuation),
-            "positiveCount": row[2],
-            "negativeCount": row[3],
-            "valid":True,
-        })
+        if row[2] > 0 or row[3] > 0:
+            temp_response.append({
+                "total": row[0],
+                "chunk": re.sub(r'\bi\b', 'I', row[1].strip(string.punctuation)),
+                "positiveCount": row[2],
+                "negativeCount": row[3],
+                "valid":True,
+            })
 
     # Before we return, collate chunks based on substring match. First sort by
     # length of chunk, smalles to largest.
