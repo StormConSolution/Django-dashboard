@@ -17,12 +17,12 @@ export function createGraph(){
         },
         plotOptions: {
             heatmap: {
-                shadeIntensity: 0,
+                shadeIntensity: 0.3,
                 radius: 0,
                 colorScale: {
                     ranges: [
                         {
-                            from: 0,
+                            from: -10,
                             to: 20,
                             name: "0-20",
                             color: "#E2E0FB",
@@ -47,16 +47,10 @@ export function createGraph(){
                         },
                         {
                             from: 80,
-                            to: 99,
-                            name: "80-99",
-                            color: "#8075F1",
-                        },
-                        {
-                            from: 100,
                             to: 100,
-                            name: "100",
-                            color: "#7367F0",
-                        },
+                            name: "80-100",
+                            color: "#8075F1",
+                        }
                     ],
                 },
             },
@@ -107,18 +101,34 @@ export function createGraph(){
             }
             let series = []
             let seriesData = []
+            let allAspects = []
             if(Object.keys(data).length !== 0){
                 for(let element of data){
-                        if(currentEntity != "" && currentEntity != element.entityLabel){
-                            series.push({name: currentEntity, data: seriesData})
-                            seriesData = []
-                            countEmotions++
-                            if(countEmotions==maxEmotions){
-                                break
-                            }
+                    if(!allAspects.includes(element.aspectLabel)){
+                        allAspects.push(element.aspectLabel)
+                    }
+                }
+            }
+            let insertedAspects = []
+            if(Object.keys(data).length !== 0){
+                for(let element of data){
+                    if(currentEntity != "" && currentEntity != element.entityLabel){
+                        let notInsertedAspects = allAspects.filter(x => !insertedAspects.includes(x))
+                        for(let notInsertedAspect of notInsertedAspects){
+                            seriesData.push({x:notInsertedAspect, y:0.00})
+
                         }
-                        seriesData.push({x: element.aspectLabel, y:(element.aspectCount/element.entityCount * 100).toFixed(2)})
-                        currentEntity = element.entityLabel
+                        series.push({name: currentEntity, data: seriesData})
+                        seriesData = []
+                        insertedAspects = []
+                        countEmotions++
+                        if(countEmotions==maxEmotions){
+                            break
+                        }
+                    }
+                    seriesData.push({x: element.aspectLabel, y:(element.aspectCount/element.entityCount * 100).toFixed(2)})
+                    insertedAspects.push(element.aspectLabel)
+                    currentEntity = element.entityLabel
                 }
                 chartOptions.series = series
                 chart = new ApexCharts(

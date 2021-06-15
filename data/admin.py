@@ -117,6 +117,9 @@ class AlertAdmin(admin.ModelAdmin):
 class SourceAdmin(admin.ModelAdmin):
     search_fields = ('label',)
 
+class PredefinedAspectRuleAdmin(admin.ModelAdmin):
+    list_display = ("label",)
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(AspectRule, AspectRuleAdmin)
@@ -131,3 +134,4 @@ admin.site.register(Source, SourceAdmin)
 admin.site.register(Summary, SummaryAdmin)
 admin.site.register(Alert, AlertAdmin)
 admin.site.register(AlertRule)
+admin.site.register(PredefinedAspectRule, PredefinedAspectRuleAdmin)

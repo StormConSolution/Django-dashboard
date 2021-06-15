@@ -333,6 +333,16 @@
 							{% endfor %}
 							</select>
                         </div>
+                        <div class="form-check form-switch aspect-group">
+                            <p>Select predefined aspect rule</p>
+                            <div class="form-check form-switch"  >
+                        {% for predefined_aspect_rule in predefined_aspect_rules %}
+						<input id="predefined_aspect_{{ predefined_aspect_rule.id }}" class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" class="form-check-input" name="predefined-rule"/>
+						<label for="predefined_aspect_{{ predefined_aspect_rule.id }}" class="form-check-label" >{{predefined_aspect_rule.label}}</label>
+                            <br>
+                        {% endfor %}
+                            </div>
+                        </div>
                         <div class="aspect-group" style="position: relative">
                             <div class="form-group">
                                 <p
@@ -346,7 +356,7 @@
                                 >
                                     X
                                 </p>
-                                <label for="Rule-name" class="form-label">Aspect 1 Name</label>
+                                <label for="Rule-name" class="form-label">Aspect Name</label>
                                 <input
                                     name="rule-name"
                                     type="text"
@@ -358,7 +368,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="Rule-name" class="form-label"
-                                    >Aspect 1 Definition</label
+                                    >Aspect Definition</label
                                 >
                                 <input
                                     name="rule-definition"
@@ -368,7 +378,7 @@
                                 >
                             </div>
                             <div class="form-group" style="position: relative">
-                                <label for="aspect-classifications" class="form-label">Aspect 1 Classifications</label>
+                                <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
                                 <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
                             </div>
                         </div>
@@ -438,6 +448,12 @@
 							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
 							{% endfor %}
 							</select>
+                            <div class="form-check form-switch aspect-group" >
+                                <p>Select predefined aspect rule</p>
+                                <div class="form-check form-switch" id="edit-aspect-predefined-rules" >
+
+                                </div>
+                            </div>
                         </div>
                         <input type="hidden" name = "_method" value="PUT"></input>
                         <button
@@ -471,7 +487,7 @@ function resetEditAspectForm(){
     document.querySelectorAll("[data-role='edit-aspect-group']").forEach(element=>{
         element.remove()
     })
-    edit_aspect_rule_count = 1
+    aspectPredefinedRulesDiv.innerHTML = ""
 }
 document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
     let currentElement = e.currentTarget
@@ -484,15 +500,15 @@ document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
             `
         <div class="form-group">
             <p style="position:absolute; top:1rem;right:1rem;cursor:pointer;" data-role="delete-aspect-rule">X</p>
-            <label for="Rule-name" class="form-label">Aspect ${edit_aspect_rule_count} Name</label>
+            <label for="Rule-name" class="form-label">Aspect Name</label>
             <input name="rule-name"type="text" class="form-control" id="Rule-name" value="" placeholder="Enter Rule Name">
         </div>
         <div class="form-group">
-            <label for="Rule-name" class="form-label">Aspect ${edit_aspect_rule_count} Definition</label>
+            <label for="Rule-name" class="form-label">Aspect Definition</label>
             <input name='rule-definition' class="tagify" value='' autofocus>
         </div>
         <div class="form-group" style="position: relative">
-            <label for="aspect-classifications" class="form-label">Aspect ${edit_aspect_rule_count} Classifications</label>
+            <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
             <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
         </div>
     `
@@ -539,66 +555,90 @@ document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
         }
     })
 })
-
+let aspectPredefinedRulesDiv = document.querySelector("#edit-aspect-predefined-rules")
 function createAspectEditModal(id){
 	// Fetch details for existing aspect and populate the form.
 
     url = "/aspect/" + id + "/"
     fetch(url).then(response => response.json()).then(data => {
-        
+
 		document.querySelector("#edit-aspect-name").value = data.aspect_label
 		document.querySelector("#edit-aspect-lang").value = data.aspect_lang
-
-        for(rule of data.rules){
-            let div = document.createElement("div")
-            div.className = "aspect-group"
-            div.style.position = "relative"
-            div.setAttribute("data-role", "edit-aspect-group")
-            let element=`                            
-                <div class="form-group">
-                    <p style="position:absolute; top:1rem;right:1rem;cursor:pointer;"
-                        data-role="delete-aspect-rule">X</p>
-                    <label for="Rule-name" class="form-label">Aspect ${edit_aspect_rule_count} Name</label>
-                    <input name="rule-name" type="text" class="form-control" value="${rule.rule_label}"
-                        placeholder="Enter Rule Name">
-                </div>
-                <div class="form-group">
-                    <label for="Rule-name" class="form-label">Aspect ${edit_aspect_rule_count} Definition</label>
-                    <input name='rule-definition' class="tagify" value='${rule.rule_definitions}' autofocus>
-                </div>
-                <div class="form-group" style="position: relative">
-                    <label for="aspect-classifications" class="form-label">Aspect ${edit_aspect_rule_count} Classifications</label>
-                    <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications" value='${rule.rule_classifications}'>
-                </div>
-                <input type="hidden" name="rule-id" value="${rule.rule_id}"></input>
-            `
-            div.innerHTML = element
-            edit_aspect_rule_count++
-            div.querySelector("[data-role='delete-aspect-rule']").addEventListener("click", (e) => {
-                e.currentTarget.parentNode.parentNode.remove()
-                edit_aspect_rule_count--
-            })
-            new Tagify(div.querySelector(".tagify"), {
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-            })
-            new Tagify(div.querySelector(".tagify-classifications"),{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-                whitelist:[
-                            {% for classification in classifications %}
-                                '{{classification.classification}}',
-                            {% endfor %}
-                        ],
-                dropdown : {
-                    classname     : "color-blue",
-                    enabled       : 1,              // show the dropdown immediately on focus
-                    maxItems      : 10,
-                    position      : "text",         // place the dropdown near the typed text
-                    closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-                    highlightFirst: true
+        let predefinedRules = {{predefined_aspect_rules | safe}}
+        let aspectPredefinedRules = data.rules.filter(x => x.predefined)
+        for(predefinedRule of predefinedRules){
+                let html = ""
+                let isRuleInUse = false
+                for(rule of data.rules){
+                    if(rule.rule_label == predefinedRule.label){
+                        isRuleInUse = true
+                    }
                 }
-            })
-            let editButton = document.querySelector("#edit-add-aspect-rule")
-            editButton.parentNode.insertBefore(div, editButton)
+                if(isRuleInUse){
+                    html = `
+                    <input value="${predefinedRule.label}" class="form-check-input" type="checkbox" name="predefined-rules" checked />
+                    <label class="form-check-label" >${predefinedRule.label}</label>
+                    <br>
+                    `
+                } else {
+                    html = `
+                    <input value="${predefinedRule.label}" class="form-check-input" type="checkbox" name="predefined-rules" />
+                    <label class="form-check-label" >${predefinedRule.label}</label>
+                    <br>
+                    `
+                }
+                aspectPredefinedRulesDiv.insertAdjacentHTML("beforeend", html)
+        }
+        for(rule of data.rules){
+            if(!rule.predefined){
+                let div = document.createElement("div")
+                div.className = "aspect-group"
+                div.style.position = "relative"
+                div.setAttribute("data-role", "edit-aspect-group")
+                let element=`                            
+                    <div class="form-group">
+                        <p style="position:absolute; top:1rem;right:1rem;cursor:pointer;"
+                            data-role="delete-aspect-rule">X</p>
+                        <label for="Rule-name" class="form-label">Aspect Name</label>
+                        <input name="rule-name" type="text" class="form-control" value="${rule.rule_label}"
+                            placeholder="Enter Rule Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="Rule-name" class="form-label">Aspect Definition</label>
+                        <input name='rule-definition' class="tagify" value='${rule.rule_definitions}' autofocus>
+                    </div>
+                    <div class="form-group" style="position: relative">
+                        <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
+                        <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications" value='${rule.rule_classifications}'>
+                    </div>
+                    <input type="hidden" name="rule-id" value="${rule.rule_id}"></input>
+                `
+                div.innerHTML = element
+                div.querySelector("[data-role='delete-aspect-rule']").addEventListener("click", (e) => {
+                    e.currentTarget.parentNode.parentNode.remove()
+                })
+                new Tagify(div.querySelector(".tagify"), {
+                    originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+                })
+                new Tagify(div.querySelector(".tagify-classifications"),{
+                    originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+                    whitelist:[
+                                {% for classification in classifications %}
+                                    '{{classification.classification}}',
+                                {% endfor %}
+                            ],
+                    dropdown : {
+                        classname     : "color-blue",
+                        enabled       : 1,              // show the dropdown immediately on focus
+                        maxItems      : 10,
+                        position      : "text",         // place the dropdown near the typed text
+                        closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+                        highlightFirst: true
+                    }
+                })
+                let editButton = document.querySelector("#edit-add-aspect-rule")
+                editButton.parentNode.insertBefore(div, editButton)
+            }
         }
         document.querySelector("#edit-aspect-form").setAttribute("data-aspect-id", id)
     })
@@ -642,15 +682,15 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
         `
     <div class="form-group" >
         <p style="position:absolute; top:1rem;right:1rem;cursor:pointer;" data-role="delete-aspect-rule">X</p>
-        <label for="Rule-name" class="form-label">Aspect ${count_rules} Name</label>
+        <label for="Rule-name" class="form-label">Aspect Name</label>
         <input name="rule-name"type="text" class="form-control" id="Rule-name" value="" placeholder="Enter Rule Name">
     </div>
     <div class="form-group">
-        <label for="Rule-name" class="form-label">Aspect ${count_rules} Definition</label>
+        <label for="Rule-name" class="form-label">Aspect Definition</label>
         <input name='rule-definition' class="tagify" value='' autofocus>
     </div>
     <div class="form-group" style="position: relative">
-        <label for="aspect-classifications" class="form-label">Aspect ${count_rules} Classifications</label>
+        <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
         <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
     </div>
 `

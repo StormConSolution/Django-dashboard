@@ -1,11 +1,22 @@
 import time
+import requests
+import os
+import sys
+from pathlib import Path
+
+sys.path.append(os.path.join(Path(__file__).parents[1]))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
+from django import setup
+setup()
+
 
 from django.conf import settings
-import requests
+from django.core.mail import EmailMessage
 from searchtweets import load_credentials, gen_rule_payload, collect_results
+from data.models import TwitterSearch, Project
 
-from django.core.mail import EmailMessage, mail_admins
-from data.models import TwitterSearch, Project, ChartType
+from dashboard.tasks import process_data
+
 
 MAX_RESULTS = 3000
 
@@ -45,10 +56,13 @@ def run():
                     'username':ts.created_by.username,
                     'aspect_model':ts.aspect,
                 }
+                project, created = Project.objects.get_or_create(name=ts.project_name)
+                if created:
+                    project.users.add(ts.created_by)
+                    project.save()
+
                 if ts.aspect_id:
                     post_data['aspect_model'] = ts.aspect.label
-                resp = requests.post('https://dashboard.repustate.com/create-project/', post_data)
-                project_id = resp.json()['project_id']
             except Exception as e:
                 print(e)
                 ts.status = TwitterSearch.ERROR
@@ -59,24 +73,21 @@ def run():
             for tweet in tweets:
                 # Twitter does a bad job of detecting language.
                 lang = tweet.lang
+                print(tweet.most_unrolled_urls)
                 if lang not in VALID_LANGS:
                     lang = 'en'
-
                 post_data = dict(
                     source='Twitter',
                     text=tweet.text,
                     date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
                     lang=lang,
+                    url=tweet.most_unrolled_urls[0]
                 )
                 
                 if ts.entities:
                     post_data['with_entities'] = 1
-
-                try:
-                    requests.post('https://dashboard.repustate.com/add-data/{}/'.format(project_id), data=post_data)
-                except Exception as e:
-                    print(e)
-                    break
+                post_data["project_id"] = project.pk
+                process_data.delay(post_data)
 
             ts.status = TwitterSearch.DONE
             ts.save()
@@ -84,3 +95,6 @@ def run():
 
         print("Sleeping ...")
         time.sleep(120)
+
+if __name__ == "__main__":
+    run()

@@ -14,8 +14,11 @@ logger = get_task_logger(__name__)
 
 @app.task
 def process_data(kwargs):
-    
+
     try:
+        for key in ["url", "metadata"]:
+            if key not in kwargs:
+                kwargs[key] = ""
         logger.warn("Data received {} in process_data task".format(kwargs))
 
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
@@ -29,7 +32,6 @@ def process_data(kwargs):
             else:
                 source = models.Source.objects.get_or_create(
                     label=kwargs["source"])[0]
-            keywords = resp["keywords"]
 
             project = models.Project.objects.get(pk=kwargs["project_id"])
 

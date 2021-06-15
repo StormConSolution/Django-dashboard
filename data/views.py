@@ -1,9 +1,11 @@
 import collections
 from datetime import datetime, timedelta
 import json
+from django.db.models.query import prefetch_related_objects
 import requests
 
 from django import template
+from django.core import serializers
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -523,6 +525,7 @@ class AspectsList(View):
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
         context["all_languages"] = []
+        context["predefined_aspect_rules"] = list(data_models.PredefinedAspectRule.objects.all().values())
         for element in languages:
             for language_tuple in settings.LANGUAGES:
                 if element["language"] == language_tuple[0]:
@@ -537,9 +540,10 @@ class AspectsList(View):
         rule_names = request.POST.getlist("rule-name")
         rule_definitions = request.POST.getlist("rule-definition", "")
         rule_classifications = request.POST.getlist("rule-classification", "")
-         
-        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang, standard=False)
+        predefined_aspect_rules = request.POST.getlist("predefined-rule", "")
+        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang)
         aspect_model.users.add(user)
+
         count = 0
         for rule_name in rule_names:
             aspect_definition = data_models.AspectRule(
@@ -550,6 +554,13 @@ class AspectsList(View):
             ) 
             aspect_definition.save()
             count += 1
+        for predefined_aspect_rule in predefined_aspect_rules:
+            aspect_rule = data_models.AspectRule(
+                rule_name = predefined_aspect_rule,
+                aspect_model = aspect_model,
+                predefined = True
+            )
+            aspect_rule.save()
         
         return redirect("aspects")
 
@@ -586,7 +597,9 @@ class Aspect(View):
                 "rule_label":rule.rule_name,
                 "rule_definitions":rule.definition,
                 "rule_id":rule.id,
-                "rule_classifications": rule.classifications})
+                "rule_classifications": rule.classifications,
+                "predefined":rule.predefined,
+                })
         return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)
@@ -606,6 +619,7 @@ class Aspect(View):
         rule_definitions = request.POST.getlist("rule-definition")
         rule_classifications = request.POST.getlist("rule-classification", "")
         rules_id = request.POST.getlist("rule-id", "")
+        predefined_rules = request.POST.getlist("predefined-rules", "")
 
         if aspect.count() == 0:
             return HttpResponse(status=403)
@@ -614,18 +628,25 @@ class Aspect(View):
         aspect.label = aspect_label
         aspect.language = aspect_lang
         aspect.save()
-        rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
 
+        # get all no predefined rules for aspect model
+        rules = data_models.AspectRule.objects.filter(aspect_model=aspect, predefined=False)
+
+        """
+        if request does not contain the rule id that was already defined 
+        delete it
+        """
         for rule in rules:
-            rule_id = str(rule.id)
-            if rule_id not in rules_id:
+            rule_name = rule.rule_name
+            if rule_name not in rule_names:
                 rule.delete()
 
         rules_len = len(rules_id)
         count = 0
+        """
         for rule_name in rule_names:
             if count >= rules_len:
-                new_rule = data_models.AspectRule.objects.create(
+                data_models.AspectRule.objects.create(
                         rule_name=rule_names[count], 
                         definition=rule_definitions[count], 
                         aspect_model=aspect,
@@ -640,6 +661,35 @@ class Aspect(View):
                 rule_to_change.classifications = rule_classifications[count]
                 rule_to_change.save()
             count = count + 1
+        """
+        count = 0
+        for rule_name in rule_names:
+            rule_name_query = data_models.AspectRule.objects.filter(aspect_model=aspect, rule_name=rule_name)
+            if rule_name_query.count() == 0:
+                    data_models.AspectRule.objects.create(
+                        rule_name=rule_names[count], 
+                        definition=rule_definitions[count], 
+                        aspect_model=aspect,
+                        classifications=rule_classifications[count])
+            else:
+                rule_name_object = rule_name_query.get()
+                rule_name_object.definition = rule_definitions[count]
+                rule_name_object.label = rule_names[count]
+                rule_name_object.classifications = rule_classifications[count]
+                rule_name_object.save()
+            count = count + 1
+
+        aspect_predefined_rules = data_models.AspectRule.objects.filter(aspect_model=aspect, predefined=True)
+        for predefined_rule in aspect_predefined_rules:
+            if predefined_rule.rule_name not in predefined_rules:
+                predefined_rule.delete()
+        for predefined_rule in predefined_rules:
+            if data_models.AspectRule.objects.filter(aspect_model=aspect,
+            rule_name=predefined_rule, predefined=True).count()==0:
+                data_models.AspectRule.objects.create(
+                aspect_model=aspect,
+                rule_name=predefined_rule, predefined=True)
+
         return HttpResponse(status=200)
 
 class SentimentList(View):
