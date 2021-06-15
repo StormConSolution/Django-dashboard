@@ -155,7 +155,7 @@ class DataEntryTable(BaseChart):
         } 
         
         for entry in entry_data_set.values('date_created', 'text', 
-                'source__label', 'weighted_score', 'url', 'language',
+                'source__label', 'url', 'language',
                 'sentiment',).order_by('-date_created')[self.offset:self.offset+self.page_size]:
             
             # We encode the URL and text in json string and decode it client side.
@@ -169,7 +169,6 @@ class DataEntryTable(BaseChart):
                 entry['date_created'],
                 json.dumps(text),
                 entry['source__label'],
-                round(entry['weighted_score'], 4),
                 round(entry['sentiment'], 4), 
                 entry['language'],
             ])

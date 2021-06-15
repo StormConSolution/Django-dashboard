@@ -87,7 +87,7 @@ def data_per_classification(request, project_id):
         "dc.id = %s"
     ]
     with connection.cursor() as cursor:
-        cursor.execute("""select dd.date_created, dd."text", dd."url", ds."label", dd.weighted_score , dd.sentiment , dd."language" from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause, query_args)
+        cursor.execute("""select dd.date_created, dd."text", dd."url", ds."label" , dd.sentiment , dd."language" from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
     if response_format == "csv":

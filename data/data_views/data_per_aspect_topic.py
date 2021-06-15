@@ -63,7 +63,7 @@ def data_per_aspect_topic(request, project_id):
         limit_offset_clause = """ limit %s offset %s;"""
         query_args.append(page_size)
         query_args.append(offset)
-    query = """ select dd.date_created, dd."text" , dd."url", ds."label" , dd.weighted_score , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
+    query = """ select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """ + limit_offset_clause
 
     with connection.cursor() as cursor:
         cursor.execute(query,

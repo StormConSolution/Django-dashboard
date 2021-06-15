@@ -1,4 +1,10 @@
 from urllib import parse
+import requests
+import hmac
+
+from django.contrib.auth.models import User
+from django.conf import settings
+
 def getFiltersSQL(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
@@ -48,3 +54,18 @@ def getWhereClauses(request, where_clauses):
     filter_clauses = getFiltersSQL2(request)
     where_clauses = where_clauses + filter_clauses
     return " and ".join(where_clauses)
+
+def getAPIKEY(user: User) -> str:
+    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
+    hashkey = h.hexdigest()
+    print(hashkey)
+    print(settings.AUTH_HOST)
+    print(user.email)
+    resp = requests.get("{}/credentials/fetch/{}/{}/".format(
+        settings.AUTH_HOST,
+        user.email,
+        hashkey)).json()
+    
+    if len(resp['apikeys']) > 0:
+        return resp['apikeys'][0]
+    return ""

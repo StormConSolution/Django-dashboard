@@ -11,6 +11,7 @@ COPY ./dashboard /var/www/dashboard
 COPY ./manage.py /var/www/manage.py
 COPY ./data /var/www/data
 COPY ./customize /var/www/customize
+COPY ./scripts /var/www/scripts
 COPY ./authentication /var/www/authentication
 COPY ./docker/nginx.conf /etc/nginx/sites-available/default
 WORKDIR /var/www/

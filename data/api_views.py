@@ -24,7 +24,7 @@ import data.models as data_models
 from .permissions import IsAllowedAccessToData
 from data import serializers
 from data import weighted
-from data.helpers import getFiltersSQL, getWhereClauses, getFiltersSQL2
+from data.helpers import getFiltersSQL, getWhereClauses, getAPIKEY
 
 ASPECT_COLORS = [
     'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
@@ -195,10 +195,10 @@ def add_data(request, project_id):
 
     text = request.POST['text']
     lang = request.POST.get('lang', 'en')
-
+    APIKEY = getAPIKEY(request.user)
     try:
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY), data={'text': text, 'lang': lang})
+            HOST=settings.API_HOST, APIKEY=APIKEY), data={'text': text, 'lang': lang})
         if resp.status_code == 200:
             sentiment = resp.json()['score']
         else:
@@ -213,7 +213,6 @@ def add_data(request, project_id):
 
     weight_args = json.loads(request.POST.get('weight_args', '{}'))
     weight_args['raw_score'] = sentiment
-    weighted_score = weighted.calculate(**weight_args)
 
     data = data_models.Data.objects.create(
         date_created=request.POST.get('date', datetime.datetime.now().date()),
@@ -221,7 +220,6 @@ def add_data(request, project_id):
         source=source,
         text=text,
         sentiment=sentiment,
-        weighted_score=weighted_score,
         language=lang,
         url=request.POST.get('url', ''),
     )
@@ -255,7 +253,7 @@ def add_data(request, project_id):
 
     if project.aspect_model:
         aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY),
+            HOST=settings.API_HOST, APIKEY=APIKEY),
             {'text': text, 'neutral': 1, 'lang': lang, 'model': project.aspect_model.label}).json()
 
         for key, value in aspects.items():

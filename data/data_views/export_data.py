@@ -28,7 +28,7 @@ def export_data(request):
     where_clauses.append("ds.id in ('%s')"%("','".join(sources)))
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + " and ".join(where_clauses) + """ order by dd.date_created desc""")
+            select dd.date_created, dd."text" , ds."label"  , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + " and ".join(where_clauses) + """ order by dd.date_created desc""")
         rows = cursor.fetchall()
     
     response = HttpResponse(content_type='text/csv')

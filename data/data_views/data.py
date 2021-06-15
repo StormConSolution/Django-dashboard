@@ -78,7 +78,7 @@ def data(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , dd."url", ds."label" , dd.weighted_score , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
+            select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """order by date_created desc""" + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
     if response_format == "csv":

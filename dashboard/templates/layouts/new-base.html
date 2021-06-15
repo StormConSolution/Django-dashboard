@@ -269,7 +269,7 @@
             managed: true,
             devMode: true,
 			allowCustom: true,
-            webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
+            //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
         });
         importer.setCustomer({userId: projectId});
         importer.requestDataFromUser().then(function(results) { 
@@ -284,12 +284,12 @@
             data = headers.concat(data)
             importer.displaySuccess('Your data has been uploaded')
                 location.reload()
-/*             fetch("/api/csv/?client=browser&project-id=" + projectId, {
+            fetch("/api/csv/?client=browser&project-id=" + projectId, {
                 method: "POST",
                 body: JSON.stringify(data),
                 credentials: "include"
             }).then(response => {
-            }) */
+            })
         })
     })
 </script>

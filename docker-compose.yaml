@@ -11,7 +11,8 @@ services:
             service nginx start &
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
-            gunicorn  dashboard.wsgi --preload --workers=4 --timeout 300'
+            python3 scripts/twitter_search_v1.py &
+            gunicorn dashboard.wsgi --preload --workers=4 --timeout 300'
         depends_on: 
             - database
         env_file:
