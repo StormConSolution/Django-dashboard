@@ -337,8 +337,8 @@
                             <p>Select predefined aspect rule</p>
                             <div class="form-check form-switch"  >
                         {% for predefined_aspect_rule in predefined_aspect_rules %}
-                            <input class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" class="form-check-input" name="predefined-rule"/>
-                            <label class="form-check-label" >{{predefined_aspect_rule.label}}</label>
+						<input id="predefined_aspect_{{ predefined_aspect_rule.id }}" class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" class="form-check-input" name="predefined-rule"/>
+						<label for="predefined_aspect_{{ predefined_aspect_rule.id }}" class="form-check-label" >{{predefined_aspect_rule.label}}</label>
                             <br>
                         {% endfor %}
                             </div>
