@@ -90,18 +90,19 @@
                                     <td class="text-center">
 										{{ alert.alert_set.count }}
 									</td>
-                                    <td class="text-center" style="display:flex;flex-direction: row;">
+                                    <td class="text-center" style="flex-direction: row;">
                                         <a
                                         href='{% url "alert-rule-toggle" alert.id %}'
+										title="{% if alert.active %}Turn off alert{% else %}Turn on alert{% endif %}"
                                         class="icon-link"
                                         data-toggle="tooltip"
                                         data-placement="bottom"
                                         >
                                         {% if alert.active %}
-                                        deactivate
+                                            <i style="margin-top:auto"class="fe fe-bell"></i>
                                         {% else %}
-                                        activate
-                                        {% endif %} 
+                                            <i style="margin-top:auto"class="fe fe-bell-off"></i>
+                                        {% endif %}
                                         </a>
 
                                         <a

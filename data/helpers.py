@@ -1,9 +1,10 @@
 from urllib import parse
-import requests
 import hmac
+import math
 
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
+import requests
 
 def getFiltersSQL(request):
     dateFrom = request.GET.get("date-from")
@@ -58,9 +59,6 @@ def getWhereClauses(request, where_clauses):
 def getAPIKEY(user: User) -> str:
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
-    print(hashkey)
-    print(settings.AUTH_HOST)
-    print(user.email)
     resp = requests.get("{}/credentials/fetch/{}/{}/".format(
         settings.AUTH_HOST,
         user.email,

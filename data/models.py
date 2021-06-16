@@ -153,6 +153,9 @@ class AlertRule(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        ordering = ('name',)
+
     def should_notify(self):
         """
         Has this rule been triggered enough to send out a notification.

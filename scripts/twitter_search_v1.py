@@ -90,7 +90,6 @@ def run():
                 post_data["project_id"] = project.pk
                 process_data.delay(post_data)
 
-            print("mark as done")
             ts.status = TwitterSearch.DONE
             ts.save()
             notify(ts)

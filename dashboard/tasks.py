@@ -1,14 +1,14 @@
-import requests
 from datetime import datetime
-from celery.utils.log import get_task_logger
 
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.mail import send_mail
+import requests
 
-from data import models
-from data import weighted
 from .celery import app
 from .sms import send_sms
+from data import models
+from data import weighted
 from data.helpers import getAPIKEY
 
 logger = get_task_logger(__name__)
@@ -17,7 +17,7 @@ logger = get_task_logger(__name__)
 def process_data(kwargs):
     user = models.Project.objects.get(id=int(kwargs["project_id"])).users.all()[0]
     APIKEY = getAPIKEY(user)
-    print(kwargs)
+    
     try:
         for key in ["url", "metadata"]:
             if key not in kwargs:
