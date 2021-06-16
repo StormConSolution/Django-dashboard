@@ -101,7 +101,7 @@ def process_data(kwargs):
                             )
             
             # Check if we have to send out any alerts based on the alert rules setup.
-            for rule in project.alertrule_set.all():
+            for rule in project.alertrule_set.filter(active=True):
                 alert = None
                 if rule.keywords:
                     for kw in rule.keywords.split(','):
