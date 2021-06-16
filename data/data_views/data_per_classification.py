@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses, getFiltersSQL
+from data.helpers import get_where_clauses, get_filters_sql
 from data.serialize import serialize_rows
 
 
@@ -36,7 +36,7 @@ def data_per_classification(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(dd.id) from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause), [project_id, classification_id])
+            select count(dd.id) from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(request, where_clause), [project_id, classification_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
@@ -61,7 +61,7 @@ def data_per_classification(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_classification dc on dc.id=%s inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_source ds on ds.id = dd.source_id where dd.id= dde.data_id and """ + getWhereClauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""" + limit_offset_clause, query_args)
+                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_classification dc on dc.id=%s inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_source ds on ds.id = dd.source_id where dd.id= dde.data_id and """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""" + limit_offset_clause, query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
@@ -84,7 +84,7 @@ def data_per_classification(request, project_id):
     sql_query = """
     select dd.date_created, dd."text", dd."url", ds."label" , dd.sentiment , dd."language"
     from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id
-    where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """
+    where """ + get_where_clauses(request, where_clause) + """ order by dd.date_created desc """
     
     return serialize_rows(
         request,

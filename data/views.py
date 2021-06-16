@@ -1,6 +1,6 @@
 import collections
 from dashboard.settings import APIKEY
-from data.helpers import getAPIKEY
+from data.helpers import get_api_key
 from datetime import datetime, timedelta
 import json
 from django.db.models.query import prefetch_related_objects
@@ -532,7 +532,7 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        APIKEY = getAPIKEY(request.user)
+        APIKEY = get_api_key(request.user)
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(APIKEY))
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
@@ -768,7 +768,7 @@ class SentimentList(View):
             "lang": sentiment_language
         }
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        APIKEY = getAPIKEY(request.user)
+        APIKEY = get_api_key(request.user)
         req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, APIKEY), data=data)
         json_data = json.loads(req.text)
         sentiment_model = data_models.Sentiment(
@@ -790,7 +790,7 @@ class Sentiment(View):
         user = request.user
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
-        APIKEY = getAPIKEY(request.user)
+        APIKEY = get_api_key(request.user)
         requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
         sentiment.delete()
         return HttpResponse(status=200)
@@ -808,7 +808,7 @@ class Sentiment(View):
         text_definition_count = len(text_definition.split())
         if text_definition_count < 1 or text_definition_count > 3:
             return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
-        APIKEY = getAPIKEY(request.user)
+        APIKEY = get_api_key(request.user)
         requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
         data = {
             "text":text_definition,

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -35,7 +35,7 @@ def sentiment_trend(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + getWhereClauses(request,where_clause) + """ order by date desc ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
+            select dates.date, sum(case when dd.sentiment > 0 then 1 else 0 end) as positives , sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives from (select distinct(to_char (dd.date_created, 'YYYY-MM')) as date from data_data dd inner join data_source ds on ds.id=dd.source_id where """ + get_where_clauses(request,where_clause) + """ order by date desc ) as dates inner join data_data dd on to_char (dd.date_created, 'YYYY-MM') = dates.date inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(request, where_clause) + """ group by dates.date order by dates.date asc;""", [project.id, project_id])
         rows = cursor.fetchall()
     
     response=[]

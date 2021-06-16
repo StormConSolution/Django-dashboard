@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -21,7 +21,7 @@ def source_by_sentiment(request, project_id):
     response = []
     limit = request.GET.get("limit", "5")
     with connection.cursor() as cursor:
-        cursor.execute("""select ds."label" , count(ds.id),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) as NeutCount, ds.id from data_data dd inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """ group by (ds.id) order by count(ds.id) desc limit %s""" , [project_id, limit])
+        cursor.execute("""select ds."label" , count(ds.id),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) as NeutCount, ds.id from data_data dd inner join data_source ds on ds.id = dd.source_id where """+ get_where_clauses(request, where_clause) + """ group by (ds.id) order by count(ds.id) desc limit %s""" , [project_id, limit])
         rows = cursor.fetchall()
     
     for row in rows:
