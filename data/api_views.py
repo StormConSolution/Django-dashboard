@@ -22,6 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 import data.charts as charts
 import data.models as data_models
 from .permissions import IsAllowedAccessToData
+from dashboard.tasks import process_data
 from data import serializers
 from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_api_key
@@ -193,80 +194,19 @@ def add_data(request, project_id):
                 "message": "Missing required field `{}`".format(key)
             })
 
-    text = request.POST['text']
-    lang = request.POST.get('lang', 'en')
-    APIKEY = get_api_key(request.user)
-    try:
-        resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=APIKEY), data={'text': text, 'lang': lang})
-        if resp.status_code == 200:
-            sentiment = resp.json()['score']
-        else:
-            return JsonResponse({'message':resp.content, 'status':'Fail'})
-    except Exception as e:
-        return JsonResponse({"status": "Fail", "message": "Could not add text = {} lang = {} because: {}".format(text, lang, e)})
-
-    project = data_models.Project.objects.get(pk=project_id)
-
-    source, _ = data_models.Source.objects.get_or_create(
-        label=request.POST['source'])
-
-    weight_args = json.loads(request.POST.get('weight_args', '{}'))
-    weight_args['raw_score'] = sentiment
-
-    data = data_models.Data.objects.create(
-        date_created=request.POST.get('date', datetime.datetime.now().date()),
-        project=project,
-        source=source,
-        text=text,
-        sentiment=sentiment,
-        language=lang,
-        url=request.POST.get('url', ''),
-    )
-
-    metadata = request.POST.get('metadata')
-    if metadata:
-        data.metadata = json.loads(metadata)
-        data.save()
-
-    if request.POST.get('country'):
-        country, _ = data_models.Country.objects.get_or_create(
-            label=request.POST['country'])
-        data.country = country
-        data.save()
-
-    if request.POST.get('with_entities'):
-        for ent in resp['entities']:
-            entity_instance, created = data_models.Entity.objects.get_or_create(
-                label=ent['title'],
-                language=lang,
-                english_label=ent['id'],
-            )
-
-            for clas in ent['classifications']:
-                c_instance, created = data_models.Classification.objects.get_or_create(
-                    label=clas
-                )
-                entity_instance.classifications.add(c_instance)
-
-            data.entities.add(entity_instance)
-
-    if project.aspect_model:
-        aspects = requests.post('{HOST}/v4/{APIKEY}/aspect.json'.format(
-            HOST=settings.API_HOST, APIKEY=APIKEY),
-            {'text': text, 'neutral': 1, 'lang': lang, 'model': project.aspect_model.label}).json()
-
-        for key, value in aspects.items():
-            if key != "status" and aspects['status'] == 'OK':
-                for v in value:
-                    data_models.Aspect.objects.create(
-                        data=data,
-                        label=key,
-                        chunk=v['chunk'],
-                        sentiment=v['score'],
-                        topic=v['sentiment_topic'],
-                        sentiment_text=v['sentiment_text']
-                    )
+    task_argument = {
+        "project_id": project_id,
+        "lang":'en',
+        "url":'',
+        "source":'',
+        "metadata":{},
+    }
+    
+    for key in ('lang', 'date', 'source', 'url', 'text', 'metadata'):
+        if key in request.POST:
+            task_argument[key] = element[key]
+    
+    process_data.delay(task_argument)
 
     return JsonResponse({"status": "OK"})
 
