@@ -148,14 +148,20 @@ class AlertRule(models.Model):
     keywords = models.TextField(blank=True)
     emails = models.TextField(blank=True)
     sms = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
     
     def __str__(self):
         return self.name
     
+    class Meta:
+        ordering = ('name',)
+
     def should_notify(self):
         """
         Has this rule been triggered enough to send out a notification.
         """
+        if self.active == False:
+            return False
         today = datetime.datetime.now().date()
         if self.period == 'daily' and self.alert_set.filter(
                 date_created__gte=today).count() >= self.frequency:
@@ -191,7 +197,6 @@ class Data(models.Model):
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     text = models.TextField(blank=False)
     sentiment = models.FloatField(default=0, db_index=True)
-    weighted_score = models.FloatField(default=0, db_index=True)
     relevance = models.FloatField(default=0, db_index=True)
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     entities = models.ManyToManyField(Entity)

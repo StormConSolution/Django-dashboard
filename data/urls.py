@@ -12,6 +12,7 @@ urlpatterns = [
     path('project/', views.Projects.as_view(), name='project'),
     path('create-project/', api_views.create_project, name='create-project'),
     path('add-data/<int:project_id>/', api_views.add_data, name='add-data'),
+    path('alert/toggle/<int:aspect_rule_id>/', views.alert_rule_toggle, name='alert-rule-toggle'),
     
     path('aspect-topics/<int:project_id>/',
          views.aspect_topics, name='aspect-topics'),

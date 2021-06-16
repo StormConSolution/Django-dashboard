@@ -42,9 +42,6 @@ export function createTable(page){
         <b>${element.sourceLabel}</b>
        </td>
        <td class="text-center">
-        ${element.weightedScore.toFixed(4)}
-       </td>
-       <td class="text-center">
          ${element.sentimentValue.toFixed(4)}
        </td>
        <td class="text-center">

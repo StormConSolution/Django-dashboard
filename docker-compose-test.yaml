@@ -11,6 +11,7 @@ services:
             service nginx start &
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
+            python3 scripts/twitter_search_v1.py &
             gunicorn  dashboard.wsgi --preload --workers=4 --timeout 300'
         volumes: 
             - ./media_root:/var/www/media_root

@@ -3,6 +3,7 @@ import requests
 import os
 import sys
 from pathlib import Path
+import json
 
 sys.path.append(os.path.join(Path(__file__).parents[1]))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
@@ -73,7 +74,7 @@ def run():
             for tweet in tweets:
                 # Twitter does a bad job of detecting language.
                 lang = tweet.lang
-                print(tweet.most_unrolled_urls)
+                #aux = json.dumps(tweet)
                 if lang not in VALID_LANGS:
                     lang = 'en'
                 post_data = dict(
@@ -81,7 +82,7 @@ def run():
                     text=tweet.text,
                     date=tweet.created_at_datetime.strftime('%Y-%m-%d'),
                     lang=lang,
-                    url=tweet.most_unrolled_urls[0]
+                    url=tweet.most_unrolled_urls["expanded_url"]
                 )
                 
                 if ts.entities:

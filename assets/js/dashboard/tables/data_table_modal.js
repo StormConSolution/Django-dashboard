@@ -31,9 +31,6 @@ export function createTable(page, options){
         <b><a href="${element.url}">${element.sourceLabel}</a></b>
        </td>
        <td class="text-center">
-        ${element.weightedScore.toFixed(4)}
-       </td>
-       <td class="text-center">
          ${element.sentimentValue.toFixed(4)}
        </td>
        <td class="text-center">

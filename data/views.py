@@ -1,4 +1,6 @@
 import collections
+from dashboard.settings import APIKEY
+from data.helpers import getAPIKEY
 from datetime import datetime, timedelta
 import json
 from django.db.models.query import prefetch_related_objects
@@ -94,6 +96,16 @@ def index(request):
         # return forbiden if no projects, so that there is no crash
         return HttpResponseForbidden()
 
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
+def alert_rule_toggle(request, aspect_rule_id):
+    aspect_rule = data_models.AlertRule.objects.filter(
+        pk=aspect_rule_id, project__users=request.user.id)
+    if aspect_rule.count() == 0:
+        raise PermissionDenied
+    aspect_rule_obj = aspect_rule.get()
+    aspect_rule_obj.active = not aspect_rule_obj.active
+    aspect_rule_obj.save()
+    return redirect("alerts")
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def pages(request):
@@ -520,7 +532,8 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(settings.APIKEY))
+        APIKEY = getAPIKEY(request.user)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(APIKEY))
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
@@ -755,7 +768,8 @@ class SentimentList(View):
             "lang": sentiment_language
         }
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
+        APIKEY = getAPIKEY(request.user)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, APIKEY), data=data)
         json_data = json.loads(req.text)
         sentiment_model = data_models.Sentiment(
             label=sentiment_label,
@@ -776,8 +790,8 @@ class Sentiment(View):
         user = request.user
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
-       
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
+        APIKEY = getAPIKEY(request.user)
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
         sentiment.delete()
         return HttpResponse(status=200)
 
@@ -794,13 +808,14 @@ class Sentiment(View):
         text_definition_count = len(text_definition.split())
         if text_definition_count < 1 or text_definition_count > 3:
             return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, settings.APIKEY, sentiment.rule_id))
+        APIKEY = getAPIKEY(request.user)
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, settings.APIKEY), data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, APIKEY), data=data)
         json_data = json.loads(req.text)
         sentiment.label = sentiment_label
         sentiment.definition = text_definition

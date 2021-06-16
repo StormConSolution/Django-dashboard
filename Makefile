@@ -25,4 +25,14 @@ down-compose:
 	docker-compose -f docker-compose-test.yaml down
 exec-web:
 	docker-compose -f docker-compose-test.yaml exec web bash
+
+###
+postgres-up:
+	brew services start postgresql
+
+postgres-down:
+	brew services stop postgresql
+run:
+	python3 manage.py runserver
+
 	

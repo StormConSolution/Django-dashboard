@@ -1,20 +1,23 @@
-import requests
 from datetime import datetime
 
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.mail import send_mail
+import requests
 
-from data import models
-from data import weighted
 from .celery import app
 from .sms import send_sms
+from data import models
+from data import weighted
+from data.helpers import getAPIKEY
 
-from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 @app.task
 def process_data(kwargs):
-
+    user = models.Project.objects.get(id=int(kwargs["project_id"])).users.all()[0]
+    APIKEY = getAPIKEY(user)
+    
     try:
         for key in ["url", "metadata"]:
             if key not in kwargs:
@@ -22,7 +25,7 @@ def process_data(kwargs):
         logger.warn("Data received {} in process_data task".format(kwargs))
 
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=settings.APIKEY), 
+            HOST=settings.API_HOST, APIKEY=APIKEY), 
             data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
         
         if 'score' in resp:
@@ -42,7 +45,6 @@ def process_data(kwargs):
                 date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
             
             weight_kwargs = {'raw_score': sentiment}
-            weighted_score = weighted.calculate(**weight_kwargs)
             
             data = models.Data.objects.create(
                 project=project,
@@ -52,7 +54,6 @@ def process_data(kwargs):
                 source=source,
                 url=kwargs["url"], 
                 language=kwargs["lang"],
-                weighted_score=weighted_score,
                 relevance= 0, 
                 metadata=kwargs["metadata"],
                 #keywords=keywords
@@ -77,7 +78,7 @@ def process_data(kwargs):
             if project.aspect_model:
                 aspects = requests.post(
                     '{HOST}/v4/{APIKEY}/aspect.json'.format(
-                        HOST=settings.API_HOST, APIKEY=settings.APIKEY),
+                        HOST=settings.API_HOST, APIKEY=APIKEY),
                         {
                             'text': kwargs["text"], 
                             'neutral': 1, 
