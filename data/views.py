@@ -1,4 +1,6 @@
 import collections
+
+from requests import status_codes
 from dashboard.settings import APIKEY
 from data.helpers import getAPIKEY
 from datetime import datetime, timedelta
@@ -27,6 +29,8 @@ import requests
 from data import models as data_models
 from data import charts
 from data.forms import AlertRuleForm
+
+from data.helpers import APIsaveAspectModel, APIdeleteAspectModel, getAPIKEY
 
 MAX_TEXT_LENGTH = 30
 
@@ -575,6 +579,7 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
+        APIsaveAspectModel(getAPIKEY(user), aspect_model)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -585,11 +590,12 @@ class Aspect(View):
         user = request.user
         aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
         if aspect.count() == 0:
-            return HttpResponse(status=403)
+            return HttpResponse(status=404)
 
-       
-        aspect.delete()
-        return HttpResponse(status=200)
+        if APIdeleteAspectModel(getAPIKEY(user), aspect.get()):
+            aspect.delete()
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
 
     @method_decorator(login_required)
     def get(self, request, aspect_id):
@@ -620,7 +626,7 @@ class Aspect(View):
         method = request.POST.get("_method", "")
         if method == "PUT":
             return self.put(request, aspect_id)
-        return HttpResponse("test")
+        return HttpResponse(status=400)
 
     @method_decorator(login_required)
     def put(self, request, aspect_id):
@@ -703,6 +709,9 @@ class Aspect(View):
                 aspect_model=aspect,
                 rule_name=predefined_rule, predefined=True)
 
+        apiKey = getAPIKEY(user)
+        APIdeleteAspectModel(apiKey, aspect)
+        APIsaveAspectModel(apiKey, aspect)
         return HttpResponse(status=200)
 
 class SentimentList(View):
