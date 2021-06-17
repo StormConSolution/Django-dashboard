@@ -1,7 +1,7 @@
 import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
-import { getFilters } from "./dashboard/helpers/filters";
-import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers'
+import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers';
+import "./project-details/filters";
 
 import  "./dashboard/countrymap.js";
 

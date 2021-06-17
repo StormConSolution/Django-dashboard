@@ -234,6 +234,26 @@ def new_project_details(request, project_id):
         context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
         #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
         context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+    context["more_filters"] = []
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        select distinct (jsonb_object_keys(dd.metadata))
+        from data_data as dd where dd.project_id = %s
+        """,
+        [project_id])
+        rows = cursor.fetchall()
+        for row in rows:
+            with connection.cursor() as metadata_cursor:
+                metadata_cursor.execute("""
+                select distinct (dd.metadata ->> %s)
+                from data_data as dd where dd.project_id = %s
+                """,
+                [row[0],project_id])
+                metadata_rows = metadata_cursor.fetchall()
+                metadata_values = []
+                for metadata_row in metadata_rows:
+                    metadata_values.append(metadata_row[0])
+            context["more_filters"].append({"name":row[0], "values":metadata_values})
 
     return render(request, "project-details.html", context)
 
