@@ -27,10 +27,10 @@ exec-web:
 	docker-compose -f docker-compose-test.yaml exec web bash
 
 ###
-postgres-up:
+postgres-start:
 	brew services start postgresql
 
-postgres-down:
+postgres-stop:
 	brew services stop postgresql
 run:
 	python3 manage.py runserver

@@ -710,9 +710,9 @@ class Aspect(View):
                 rule_name=predefined_rule, predefined=True)
 
         apiKey = getAPIKEY(user)
-        APIdeleteAspectModel(apiKey, aspect)
-        APIsaveAspectModel(apiKey, aspect)
-        return HttpResponse(status=200)
+        if APIsaveAspectModel(apiKey, aspect):
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
 
 class SentimentList(View):
 

@@ -113,7 +113,6 @@ def APIdeleteAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
         url=url,
         json=body
     )
-    print(req.content)
-    if req.status_code != 200:
+    if req.status_code != 200 and req.status_code != 404:
         return False
     return True
