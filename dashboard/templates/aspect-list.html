@@ -1,5 +1,7 @@
 {% extends 'layouts/new-base.html' %}
 
+{% load data_filters %}
+
 {% block title%}Manage Aspects{% endblock%} 
 
 {% block content %}
@@ -261,7 +263,7 @@
                     <form method="POST" action="{% url 'aspects' %}">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Aspect model name</label>
+							<label for="aspect-name" class="form-label">Aspect model name</label>
                             <input
                                 name="aspect-label"
                                 type="text"
@@ -284,7 +286,7 @@
 							</select>
                         </div>
                         <div class="form-check form-switch aspect-group">
-                            <p>Select predefined aspect rule</p>
+							<label class="form-label">Select predefined aspect rules {{ "These are prebuilt machine learned aspect sentiment models. Select as many as you like."|tooltip }}</label>
                             <div class="form-check form-switch"  >
                         {% for predefined_aspect_rule in predefined_aspect_rules %}
 						<input id="predefined_aspect_{{ predefined_aspect_rule.id }}" class="form-check-input" type="checkbox" value="{{predefined_aspect_rule.label}}" class="form-check-input" name="predefined-rule"/>
@@ -317,18 +319,17 @@
                                 />
                             </div>
                             <div class="form-group">
-                                <label for="Rule-name" class="form-label"
-                                    >Aspect Definition</label
-                                >
-                                <input
+								<label for="Rule-name" class="form-label">Aspect Keywords and Phrases {{ "Comma separated words and phrases that define this aspect"|tooltip }}</label>
+                                <textarea
                                     name="rule-definition"
                                     class="tagify"
+									rows=5
                                     value=""
                                     autofocus
-                                >
+									></textarea>
                             </div>
                             <div class="form-group" style="position: relative">
-                                <label for="aspect-classifications" class="form-label">Aspect Classifications</label>
+								<label for="aspect-classifications" class="form-label">Aspect Classifications {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
                                 <input type="text" id="aspect-classifications" class="tagify-classifications" name="rule-classification" placeholder="Enter Classifications">
                             </div>
                         </div>

@@ -1,5 +1,7 @@
 {% extends 'layouts/new-base.html' %} 
 
+{% load data_filters %}
+
 {% block title %}Manage Sentiment{% endblock %}
 
 {% block content %}
@@ -283,16 +285,16 @@
                             />
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Text Definition (max 3 words)</label>
+							<label class="form-label">Rule Definition (max 5 words) {{ "The words or phrases that this rule should match against"|tooltip }}</label>
                             <input
                                 name="sentiment-definition"
                                 type="text"
                                 class="form-control"
-                                placeholder="Text Definition"
+                                placeholder="Sentiment Rule Definition"
                             />
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Sentiment</label>
+							<label class="form-label">Sentiment {{ "The sentiment that this rule should return when matched"|tooltip }}</label>
                             <select class="custom-select" name="sentiment">
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
