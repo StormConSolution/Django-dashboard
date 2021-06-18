@@ -1,10 +1,11 @@
 from urllib import parse
 import hmac
-import math
+import requests
 
 from django.conf import settings
 from django.contrib.auth.models import User
-import requests
+from requests.api import request
+from data import models
 
 def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")
@@ -67,3 +68,51 @@ def get_api_key(user: User) -> str:
     if len(resp['apikeys']) > 0:
         return resp['apikeys'][0]
     return ""
+
+def save_aspect_model(apikey: str, aspect_model: models.AspectModel) -> bool:
+    rules: list[models.AspectRule] = list(aspect_model.aspectrule_set.all())
+
+    body = {
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
+        "rules":[]
+    }
+
+    for rule in rules:
+        request_rule = {
+            "name": rule.rule_name,
+            "terms": rule.definition,
+            "classifications": rule.classifications,
+        }
+        if rule.predefined:
+            request_rule["predefinedAspect"] = rule.rule_name
+        body["rules"].append(request_rule)
+
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-aspect.json".format(apikey))
+
+    req = requests.post(
+        url=url,
+        json=body
+    )
+
+    if req.status_code != 200:
+        return False
+    return True
+
+def delete_aspect_model(apikey: str, aspect_model: models.AspectModel) -> bool:
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-aspect.json".format(apikey))
+
+    body = {
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
+    }
+
+    req = requests.delete(
+        url=url,
+        json=body
+    )
+    if req.status_code != 200 and req.status_code != 404:
+        return False
+    return True
