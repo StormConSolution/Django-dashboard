@@ -1,10 +1,11 @@
 import config from "../config";
+import { metadataFiltersURL } from "../helpers/filters";
 let chart;
 let div =  document.getElementById("sentiment-for-each-entity")
 function createSentimentPerEntityGraph(max_entities) {
     div.innerHTML = "Loading..."
     update.startUpdate()
-    fetch('/sentiment-per-entity/' + window.project_id + '/?max-entities=' + max_entities).then(response => response.json()).then(data => {
+    fetch('/sentiment-per-entity/' + window.project_id + '/?max-entities=' + max_entities+ "&" +  metadataFiltersURL()).then(response => response.json()).then(data => {
         var options = {
             chart: {
                 type: 'bar',

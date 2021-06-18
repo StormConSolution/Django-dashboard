@@ -2,6 +2,7 @@ import {createPagination} from './utils/utils'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
+import { metadataFiltersURL } from "../helpers/filters";
 let content = document.getElementById("data-table-content");
 export function createTable(page){
     update.startUpdate()
@@ -16,7 +17,7 @@ export function createTable(page){
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
         "sourcesID": filtersValues.sourcesID
-    })
+    })+ "&" +  metadataFiltersURL()
     document.getElementById("data-items-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())

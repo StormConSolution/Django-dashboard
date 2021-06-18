@@ -1,5 +1,6 @@
 import { getFilters } from "../helpers/filters";
 import {update} from '../helpers/helpers'
+import { metadataFiltersURL } from "../helpers/filters";
 let div = document.querySelector("#co-occurrence-graph")
 export function createGraph(){
     update.startUpdate()
@@ -89,7 +90,7 @@ export function createGraph(){
         "sourcesID": filtersValues.sourcesID,
         "date-from": filtersValues.dateFrom,
         "date-to": filtersValues.dateTo,
-    }))
+    })+ "&" +  metadataFiltersURL())
         .then((response) => response.json())
         .then((data) => {
             chartOptions.series = data

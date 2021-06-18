@@ -1,4 +1,5 @@
 import config from "../config";
+import { metadataFiltersURL } from "../helpers/filters";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal'
@@ -38,7 +39,7 @@ export function createGraph() {
                         "sourcesID": mapSourceAndID[source],
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
@@ -46,7 +47,7 @@ export function createGraph() {
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": options.sourceID,
                         "sentiment": options.sentiment
-                    }) 
+                    })+ "&" +  metadataFiltersURL() 
                     options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
@@ -54,7 +55,7 @@ export function createGraph() {
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": options.sourceID,
                         "sentiment": options.sentiment
-                    }) 
+                    })+ "&" +  metadataFiltersURL() 
                     wordCloud(wordCloudURL)
                     dataTableModalVolumeBySource(1, options)
                 }            
@@ -95,7 +96,7 @@ export function createGraph() {
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID,
         'limit':maxSources.value
-    })
+    })+ "&" +  metadataFiltersURL()
     fetch(`/api/source-by-sentiment/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {

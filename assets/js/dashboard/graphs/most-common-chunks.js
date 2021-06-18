@@ -1,5 +1,6 @@
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
+import { metadataFiltersURL } from "../helpers/filters";
 
 let chart;
 let graphContainer = document.querySelector("#most-common-chunks")
@@ -20,7 +21,7 @@ export function createGraph() {
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID,
         'limit':maxChunks.value
-    })
+    })+ "&" +  metadataFiltersURL()
     fetch(`/api/most-common-chunks/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {

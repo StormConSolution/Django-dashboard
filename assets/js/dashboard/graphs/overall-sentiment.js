@@ -1,5 +1,6 @@
 import config from "../config";
 import * as filters from "../helpers/filters"
+import {metadataFiltersURL} from "../helpers/filters";
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal"
 import wordlCloud from './word-cloud-modal'
@@ -25,7 +26,7 @@ function overallSentiment(data){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    }))
+                    })+ "&" +  metadataFiltersURL())
                     options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
@@ -33,7 +34,7 @@ function overallSentiment(data){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    }) 
+                    })+ "&" +  metadataFiltersURL() 
                     options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
                         "date-from": filtersValues.dateFrom,
@@ -41,7 +42,7 @@ function overallSentiment(data){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     dataTableModalPerSentiment(1, options)
                 }            
             }
@@ -107,7 +108,8 @@ export function createGraph(){
         "languages": encodeURIComponent(filtersValues.languages),
         "sources": encodeURIComponent(filtersValues.sources),
         "sourcesId": filtersValues.sourcesId
-    })
+    })+ "&" +  metadataFiltersURL()
+    console.log(metadataFiltersURL())
     if(chart){
         chart.destroy()
     }

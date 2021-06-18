@@ -3,7 +3,7 @@ import {createTable as dataEntityClassificationTable} from './data_table_modal'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
-import { createGraph } from '../graphs/aspect-topic-tree-map'
+import { metadataFiltersURL } from "../helpers/filters";
 let content = document.getElementById("entity-table-content");
 let pageSizeDropdown = document.getElementById("entity-table-page-size") 
 export function createTable(page){
@@ -20,7 +20,7 @@ export function createTable(page){
         "languages": filtersValues.languages,
         "sources": encodeURIComponent(filtersValues.sources),
         "sourcesID": filtersValues.sourcesID
-    })
+    })+ "&" +  metadataFiltersURL()
     document.getElementById("entities-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
@@ -52,7 +52,7 @@ export function createTable(page){
                     "languages": encodeURIComponent(filtersValues.languages),
                     "sources": encodeURIComponent(filtersValues.sources),
                     "sourcesID": filtersValues.sourcesID
-                })
+                })+ "&" +  metadataFiltersURL()
                 let options = {}
                 options.csvURL =`/api/data-per-classification-and-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
                     "entity": entityID,
@@ -62,7 +62,7 @@ export function createTable(page){
                     "languages": encodeURIComponent(filtersValues.languages),
                     "sources": encodeURIComponent(filtersValues.sources),
                     "sourcesID": filtersValues.sourcesID
-                }) 
+                })+ "&" +  metadataFiltersURL() 
                 options.dataURL = `/api/data-per-classification-and-entity/${window.project_id}/?` + new URLSearchParams({
                     "entity": entityID,
                     "classification": classificationID, 
@@ -71,7 +71,7 @@ export function createTable(page){
                     "languages": encodeURIComponent(filtersValues.languages),
                     "sources": encodeURIComponent(filtersValues.sources),
                     "sourcesID": filtersValues.sourcesID
-                })
+                })+ "&" +  metadataFiltersURL()
                 wordCloud(wordCloudURL)
                 dataEntityClassificationTable(1, options)
             })

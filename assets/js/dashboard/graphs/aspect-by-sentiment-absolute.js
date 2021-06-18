@@ -1,6 +1,4 @@
-import { create } from "d3-selection";
-import config from "../config";
-import { getFilters } from "../helpers/filters";
+import { getFilters, metadataFiltersURL } from "../helpers/filters";
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/data_table_modal"
 import wordCloud from './word-cloud-modal'
@@ -41,7 +39,7 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
-                    })
+                    }) + "&" +  metadataFiltersURL()
                     options.csvURL = `/api/data-per-aspect/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
                         "aspect-label": encodeURIComponent(options.aspect),
@@ -50,7 +48,7 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     options.dataURL = `/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
                         "aspect-label": encodeURIComponent(options.aspect), 
@@ -59,7 +57,7 @@ export function createGraph() {
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": filtersValues.sources,
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     wordCloud(wordCloudURL)
                     dataTableModalDataPerAspectAndSentiment(1, options)
                 }            
@@ -129,7 +127,7 @@ export function createGraph() {
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID,
         "limit": limitDiv.value
-    })
+    })+ "&" +  metadataFiltersURL()
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

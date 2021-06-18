@@ -1,4 +1,4 @@
-import config from "../config";
+import { metadataFiltersURL } from "../helpers/filters";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable } from "../tables/data_table_modal";
@@ -52,7 +52,7 @@ export function createGraph() {
             "aspect-label": encodeURIComponent(aspectLabel),
             "max-topics": encodeURIComponent(maxTopics),
             sentiment: sentiment,
-        });
+        })+ "&" +  metadataFiltersURL();
         fetch(`/api/topics-per-aspect/${project_id}/?` + urlParams)
             .then((response) => response.json())
             .then((data) => {
@@ -100,7 +100,7 @@ export function createGraph() {
                                         ),
                                         sources: filtersValues.sources,
                                         sourcesID: filtersValues.sourcesID,
-                                    });
+                                    })+ "&" +  metadataFiltersURL();
                                 options.csvURL =
                                     `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` +
                                     new URLSearchParams({
@@ -132,7 +132,7 @@ export function createGraph() {
                                         ),
                                         sources: filtersValues.sources,
                                         sourcesID: filtersValues.sourcesID,
-                                    });
+                                    })+ "&" +  metadataFiltersURL();
                                 wordCloud(wordCloudURL);
                                 createTable(1, options);
                             },

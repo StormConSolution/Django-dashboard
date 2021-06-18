@@ -1,4 +1,4 @@
-import config from "../config";
+import { metadataFiltersURL } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { getFilters } from "../helpers/filters";
 let chart;
@@ -22,7 +22,7 @@ export function createGraph() {
         sources: filtersValues.sources,
         sourcesID: filtersValues.sourcesID,
         default: def,
-    });
+    })+ "&" +  metadataFiltersURL();
     fetch(`/api/sentiment-trend/${projectId}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

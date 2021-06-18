@@ -59,7 +59,7 @@ function updateProjectDetailsPageWithDelay() {
     }
 }
 
-function updateProjectDetailsPage() {
+export function updateProjectDetailsPage() {
     if (update.canUpdate()) {
         updateProjectTables()
         updateGraphs()

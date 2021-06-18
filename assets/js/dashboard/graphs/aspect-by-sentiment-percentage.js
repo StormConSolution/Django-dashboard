@@ -2,6 +2,7 @@ import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal";
+import { metadataFiltersURL } from "../helpers/filters";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#aspect-by-sentiment-percentage");
@@ -43,7 +44,7 @@ export function createGraph() {
                             sourcesID: filtersValues.sourcesID,
                             "date-from": filtersValues.dateFrom,
                             "date-to": filtersValues.dateTo,
-                        });
+                        })+ "&" +  metadataFiltersURL();
                     options.csvURL =
                         `/api/data-per-aspect/${window.project_id}/?format=csv&` +
                         new URLSearchParams({
@@ -56,7 +57,7 @@ export function createGraph() {
                             sourcesID: filtersValues.sourcesID,
                             "date-from": filtersValues.dateFrom,
                             "date-to": filtersValues.dateTo,
-                        });
+                        })+ "&" +  metadataFiltersURL();
                     options.dataURL =
                         `/api/data-per-aspect/${window.project_id}/?` +
                         new URLSearchParams({
@@ -69,7 +70,7 @@ export function createGraph() {
                             ),
                             sources: filtersValues.sources,
                             sourcesID: filtersValues.sourcesID,
-                        });
+                        })+ "&" +  metadataFiltersURL();
                     wordCloud(wordCloudURL);
                     dataTableModalDataPerAspectAndSentiment(1, options);
                 },
@@ -110,7 +111,7 @@ export function createGraph() {
         sources: filtersValues.sources,
         sourcesID: filtersValues.sourcesID,
         "limit": limitDiv.value
-    });
+    })+ "&" +  metadataFiltersURL();
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

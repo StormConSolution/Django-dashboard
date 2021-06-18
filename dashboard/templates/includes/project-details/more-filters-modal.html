@@ -35,15 +35,22 @@
                                 class="custom-select"
                                 id="selectaspect"
                                 aria-placeholder=""
-                                name=""
+                                name="{{filter.name}}"
+                                data-role="more-filters-select"
                             >
+                            <option></option>
                             {% for value in filter.values %}
-                            <option value="">{{value}}</option>
+                            <option value="{{value}}">{{value}}</option>
                             {% endfor %}
                             </select>
                         </div>
                         {% endfor %}
                     </form>
+                    <div class="d-flex flex-wrap align-items-center mt-4">
+                        <button class="btn btn-primary" id="apply-more-filters">
+                            Apply Filters
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

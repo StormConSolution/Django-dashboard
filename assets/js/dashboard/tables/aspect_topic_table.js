@@ -3,6 +3,7 @@ import {createTable as dataModalTable} from './data_table_modal'
 import {getFilters} from '../helpers/filters'
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
+import { metadataFiltersURL } from "../helpers/filters";
 export function createTable(page){
     update.startUpdate()
     makeTable(page)
@@ -21,7 +22,7 @@ function makeTable(page){
         "languages": filtersValues.languages,
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID
-    })
+    })+ "&" +  metadataFiltersURL()
     document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
@@ -64,7 +65,7 @@ function makeTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     let options = {}
                     options.csvURL = `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "aspect-label": encodeURIComponent(dataAspectLabel),
@@ -75,7 +76,7 @@ function makeTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     options.dataURL = `/api/data-per-aspect-topic/${window.project_id}/?` + new URLSearchParams({
                         "aspect-label": encodeURIComponent(dataAspectLabel),
                         "topic-label": encodeURIComponent(dataTopicLabel),
@@ -85,7 +86,7 @@ function makeTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     wordCloud(wordCloudURL)
                     dataModalTable(1, options)
                 })

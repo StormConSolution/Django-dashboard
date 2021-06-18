@@ -2,6 +2,7 @@ import config from "../config";
 import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataTableModalEntityBySentiment} from "../tables/data_table_modal";
+import { metadataFiltersURL } from "../helpers/filters";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#classification-by-sentiment")
@@ -37,7 +38,7 @@ export function createGraph() {
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
                         "classificationID": mapClassificationAndID[classification]
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     options.csvURL = `/api/data-per-classification/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
@@ -46,7 +47,7 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "sentiment": options.sentiment,
                         "classificationID": options.classificationID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     options.dataURL = `/api/data-per-classification/${window.project_id}/?` + new URLSearchParams({
                         "date-from": filtersValues.dateFrom,
                         "date-to": filtersValues.dateTo,
@@ -55,7 +56,7 @@ export function createGraph() {
                         "sourcesID": filtersValues.sourcesID,
                         "sentiment": options.sentiment,
                         "classificationID": options.classificationID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     wordCloud(wordCloudURL)
                     dataTableModalEntityBySentiment(1, options)
                 }            
@@ -96,7 +97,7 @@ export function createGraph() {
         "sources": filtersValues.sources,
         "sourcesID": filtersValues.sourcesID,
         "limit": limit.value
-    })
+    })+ "&" +  metadataFiltersURL()
     fetch(`/api/classification-by-sentiment/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {

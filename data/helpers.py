@@ -1,6 +1,5 @@
 from urllib import parse
-import hmac
-import requests
+import json
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -50,6 +49,16 @@ def getFiltersSQL2(request):
         #map(lambda x: "''%s''" % x, sources)
         #where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
         where_clauses.append('ds.id in (%s)' % (",".join(sourcesID)))
+    metadata_filters = {}
+
+    # get parameters for metadata start all with prefix "filter_"
+    for key, value in request.GET.items():
+        if key.startswith("filter_"):
+            key = parse.unquote(key[len("filter_"):])
+            metadata_filters[key] = parse.unquote(value)
+    if len(metadata_filters) > 0:
+        where_clauses.append("dd.metadata @> '{}'"
+        .format(json.dumps(metadata_filters)))
     return where_clauses
 
 def getWhereClauses(request, where_clauses):
@@ -57,7 +66,7 @@ def getWhereClauses(request, where_clauses):
     where_clauses = where_clauses + filter_clauses
     return " and ".join(where_clauses)
 
-def getAPIKEY(user: User) -> str:
+def getAPIKEY(user):
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     resp = requests.get("{}/credentials/fetch/{}/{}/".format(
@@ -69,8 +78,8 @@ def getAPIKEY(user: User) -> str:
         return resp['apikeys'][0]
     return ""
 
-def APIsaveAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
-    rules: list[models.AspectRule] = list(aspectModel.aspectrule_set.all())
+def APIsaveAspectModel(apikey, aspectModel):
+    rules = list(aspectModel.aspectrule_set.all())
 
     body = {
         "name": aspectModel.label,
@@ -100,7 +109,7 @@ def APIsaveAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
         return False
     return True
 
-def APIdeleteAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
+def APIdeleteAspectModel(apikey, aspectModel):
     url = (settings.API_HOST + 
     "/v4/{}/custom-aspect.json".format(apikey))
 

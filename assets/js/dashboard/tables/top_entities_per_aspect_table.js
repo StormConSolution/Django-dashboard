@@ -3,6 +3,7 @@ import {createTable as dataEntityClassificationTable} from './data_table_modal'
 import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
+import { metadataFiltersURL } from "../helpers/filters";
 let content = document.getElementById("top-entities-per-aspect-table-content");
 let firstRun = true
 let aspectLabel = ""
@@ -19,7 +20,7 @@ export function createTable(page){
             "sources": encodeURIComponent(filtersValues.sources),
             "sourcesID": filtersValues.sourcesID,
             "order-by":"label",
-        })
+        })+ "&" +  metadataFiltersURL()
         fetch(`/api/aspect-count/${window.project_id}/?` + urlParams).then(response => response.json()).then(data => {
             let first = true
             for(let element of data){
@@ -52,7 +53,7 @@ export function createTable(page){
             "languages": filtersValues.languages,
             "sources": filtersValues.sources,
             "aspect-label": aspectLabel,
-        })
+        })+ "&" +  metadataFiltersURL()
         document.getElementById("top-entities-per-aspect-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&aspect-label${aspectLabel}&` + urlParams
         fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
         .then((response) => response.json())
@@ -85,7 +86,7 @@ export function createTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    })
+                    })+ "&" +  metadataFiltersURL()
                     let options = {}
                     options.csvURL =`/api/data-per-classification-and-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "aspect-label": selectAspect,
@@ -96,7 +97,7 @@ export function createTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    }) 
+                    }) + "&" +  metadataFiltersURL()
                     options.dataURL =`/api/data-per-classification-and-entity/${window.project_id}/?` + new URLSearchParams({
                         "aspect-label": selectAspect,
                         "entity": entityID, 
@@ -106,7 +107,7 @@ export function createTable(page){
                         "languages": encodeURIComponent(filtersValues.languages),
                         "sources": encodeURIComponent(filtersValues.sources),
                         "sourcesID": filtersValues.sourcesID
-                    }) 
+                    }) + "&" +  metadataFiltersURL()
                     wordCloud(wordCloudURL)
                     dataEntityClassificationTable(1, options)
                 })
