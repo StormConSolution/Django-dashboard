@@ -69,12 +69,12 @@ def get_api_key(user: User) -> str:
         return resp['apikeys'][0]
     return ""
 
-def APIsaveAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
-    rules: list[models.AspectRule] = list(aspectModel.aspectrule_set.all())
+def save_aspect_model(apikey: str, aspect_model: models.AspectModel) -> bool:
+    rules: list[models.AspectRule] = list(aspect_model.aspectrule_set.all())
 
     body = {
-        "name": aspectModel.label,
-        "lang": aspectModel.language,
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
         "rules":[]
     }
 
@@ -100,13 +100,13 @@ def APIsaveAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
         return False
     return True
 
-def APIdeleteAspectModel(apikey: str, aspectModel: models.AspectModel) -> bool:
+def delete_aspect_model(apikey: str, aspect_model: models.AspectModel) -> bool:
     url = (settings.API_HOST + 
     "/v4/{}/custom-aspect.json".format(apikey))
 
     body = {
-        "name": aspectModel.label,
-        "lang": aspectModel.language,
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
     }
 
     req = requests.delete(

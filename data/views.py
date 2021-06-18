@@ -30,7 +30,7 @@ from data import models as data_models
 from data import charts
 from data.forms import AlertRuleForm
 
-from data.helpers import APIsaveAspectModel, APIdeleteAspectModel, getAPIKEY
+from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
 
 MAX_TEXT_LENGTH = 30
 
@@ -579,7 +579,7 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
-        APIsaveAspectModel(getAPIKEY(user), aspect_model)
+        save_aspect_model(get_api_key(user), aspect_model)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -592,7 +592,7 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if APIdeleteAspectModel(getAPIKEY(user), aspect.get()):
+        if delete_aspect_model(get_api_key(user), aspect.get()):
             aspect.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -709,8 +709,8 @@ class Aspect(View):
                 aspect_model=aspect,
                 rule_name=predefined_rule, predefined=True)
 
-        apiKey = getAPIKEY(user)
-        if APIsaveAspectModel(apiKey, aspect):
+        apiKey = get_api_key(user)
+        if save_aspect_model(apiKey, aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
 
