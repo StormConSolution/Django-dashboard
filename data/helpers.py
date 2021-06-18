@@ -1,12 +1,13 @@
 from urllib import parse
+import hmac
 import json
-
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from requests.api import request
 from data import models
 
-def getFiltersSQL(request):
+def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     if not dateFrom:
@@ -25,7 +26,7 @@ def getFiltersSQL(request):
         filtersSQL = ""
     return filtersSQL
 
-def getFiltersSQL2(request):
+def get_filters_sql2(request):
     where_clauses = []
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
@@ -61,12 +62,12 @@ def getFiltersSQL2(request):
         .format(json.dumps(metadata_filters)))
     return where_clauses
 
-def getWhereClauses(request, where_clauses):
-    filter_clauses = getFiltersSQL2(request)
+def get_where_clauses(request, where_clauses):
+    filter_clauses = get_filters_sql2(request)
     where_clauses = where_clauses + filter_clauses
     return " and ".join(where_clauses)
 
-def getAPIKEY(user):
+def get_api_key(user):
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     resp = requests.get("{}/credentials/fetch/{}/{}/".format(
@@ -78,12 +79,12 @@ def getAPIKEY(user):
         return resp['apikeys'][0]
     return ""
 
-def APIsaveAspectModel(apikey, aspectModel):
-    rules = list(aspectModel.aspectrule_set.all())
+def save_aspect_model(apikey, aspect_model):
+    rules = list(aspect_model.aspectrule_set.all())
 
     body = {
-        "name": aspectModel.label,
-        "lang": aspectModel.language,
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
         "rules":[]
     }
 
@@ -109,13 +110,13 @@ def APIsaveAspectModel(apikey, aspectModel):
         return False
     return True
 
-def APIdeleteAspectModel(apikey, aspectModel):
+def delete_aspect_model(apikey, aspect_model):
     url = (settings.API_HOST + 
     "/v4/{}/custom-aspect.json".format(apikey))
 
     body = {
-        "name": aspectModel.label,
-        "lang": aspectModel.language,
+        "name": aspect_model.label,
+        "lang": aspect_model.language,
     }
 
     req = requests.delete(

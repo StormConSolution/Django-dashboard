@@ -9,14 +9,14 @@ from .celery import app
 from .sms import send_sms
 from data import models
 from data import weighted
-from data.helpers import getAPIKEY
+from data.helpers import get_api_key
 
 logger = get_task_logger(__name__)
 
 @app.task
 def process_data(kwargs):
     user = models.Project.objects.get(id=int(kwargs["project_id"])).users.all()[0]
-    APIKEY = getAPIKEY(user)
+    APIKEY = get_api_key(user)
     
     try:
         for key in ["url", "metadata"]:

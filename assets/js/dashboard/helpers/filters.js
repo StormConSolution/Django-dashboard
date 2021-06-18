@@ -41,8 +41,6 @@ export function convertFiltersToURL(filters){
         aux[encodeURIComponent(key)] = encodeURIComponent(filters[key])
     }
     let URLParams = new URLSearchParams(aux)
-    console.log(aux)
-    console.log("/test?" + URLParams)
     return URLParams
 }
 

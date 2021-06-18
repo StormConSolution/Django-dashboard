@@ -8,7 +8,7 @@ from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from data.helpers import getWhereClauses, getFiltersSQL
+from data.helpers import get_where_clauses, get_filters_sql
 import data.models as data_models
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -36,7 +36,7 @@ def data_per_classification_and_entity(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(*) from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + getWhereClauses(request, where_clause),
+        select count(*) from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(request, where_clause),
                        query_args)
         row = cursor.fetchone()
     total_data = int(row[0])
@@ -47,7 +47,7 @@ def data_per_classification_and_entity(request, project_id):
         with connection.cursor() as cursor:
             cursor.execute("""
             WITH counts AS (
-            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """  where """ + getWhereClauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
+            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """  where """ + get_where_clauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
@@ -59,7 +59,7 @@ def data_per_classification_and_entity(request, project_id):
 
     sql_query = """
         select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language" 
-        from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join+""" where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """
+        from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join+""" where """ + get_where_clauses(request, where_clause) + """ order by dd.date_created desc """
 
     extra_context = {
         "entity":entity,
