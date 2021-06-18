@@ -1,22 +1,18 @@
-import collections
-
-from requests import status_codes
-from dashboard.settings import APIKEY
-from data.helpers import get_api_key
 from datetime import datetime, timedelta
+import collections
 import json
-from django.db.models.query import prefetch_related_objects
-import requests
 
 from django import template
-from django.core import serializers
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
+from django.core.mail import mail_admins
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
+from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -24,12 +20,13 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from requests import status_codes
 import requests
 
-from data import models as data_models
 from data import charts
+from data import models as data_models
 from data.forms import AlertRuleForm
-
+from data.helpers import get_api_key
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
 
 MAX_TEXT_LENGTH = 30
@@ -834,3 +831,41 @@ class Sentiment(View):
 
         sentiment.save()
         return HttpResponse(status=200)
+
+def support(request):
+    """
+    Accepts support requests and forwards them to zendesk.
+    """
+    projects = data_models.Project.objects.filter(users=request.user).values("name", "id")
+    html_template = loader.get_template('support.html')
+    context = {'projects_data':projects}
+
+    if request.method == 'POST':
+        # Create zendesk ticket.
+        # Package the data in a dictionary matching the expected JSONdata = 
+        ticket = {'ticket': {
+                'subject': 'New ticket from {}'.format(request.user.email),
+                'comment': {'body': request.POST['question']}
+            }
+        }
+        url = 'https://repustatehelp.zendesk.com/api/v2/tickets.json'
+        user = settings.ZENDESK_USER
+        pwd = settings.ZENDESK_PASSWORD
+        headers = {'content-type': 'application/json'}
+
+        response = requests.post(
+            url, 
+            data=json.dumps(ticket), 
+            auth=(user, pwd), 
+            headers=headers,
+        )
+
+        if response.status_code != 201:
+            mail_admins(
+                'Zendesk ticket not issued',
+                'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}'.format(request.user, request.POST['question']),
+            )
+
+        context['success'] = True
+    
+    return HttpResponse(html_template.render(context, request))

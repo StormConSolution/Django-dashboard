@@ -39,6 +39,8 @@ urlpatterns = [
     path('alerts/', views.AlertRuleList.as_view(), name='alerts'),
     path('alerts/<int:alert_id>/', views.AlertRule.as_view(), name='alerts'),
 
+    path('support/', views.support, name='support'),
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages')
 ]

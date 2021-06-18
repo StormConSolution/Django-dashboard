@@ -196,6 +196,9 @@ SQL_USER = 'postgres'
 TWILIO_ACCOUNT_SID = ''
 TWILIO_AUTH_TOKEN = ''
 
+ZENDESK_USER = ''
+ZENDESK_PASSWORD = ''
+
 try:
     from .settings_local import *
 except:
@@ -212,6 +215,9 @@ HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
 
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', TWILIO_ACCOUNT_SID)
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', TWILIO_AUTH_TOKEN)
+
+ZENDESK_USER = os.environ.get('ZENDESK_USER', ZENDESK_USER)
+ZENDESK_PASSWORD = os.environ.get('ZENDESK_PASSWORD', ZENDESK_PASSWORD)
 
 DATABASES = {
     "default": {

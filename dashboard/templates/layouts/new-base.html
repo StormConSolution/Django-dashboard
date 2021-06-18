@@ -158,6 +158,7 @@
                     {% if user.is_staff %}
                     <a class="dropdown-item" href="/admin/"><i class="fe fe-user"></i>Admin</a>
                     {% endif %}
+					<a class="dropdown-item" href="{% url 'support' %}"><i class="fe fe-at-sign"></i>Support</a>
                     <a class="dropdown-item" href="/logout/"><i class="fe fe-log-out"></i> Logout</a>
                   </div>
                 </div>
