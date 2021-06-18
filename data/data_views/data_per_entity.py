@@ -9,7 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 from data.serialize import serialize_rows
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -35,7 +35,7 @@ def data_per_entity(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + getWhereClauses(request, where_clause), [project_id, entity_id])
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + get_where_clauses(request, where_clause), [project_id, entity_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
@@ -61,7 +61,7 @@ def data_per_entity(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + getWhereClauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""" + limit_offset_clause, query_args)
+                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""" + limit_offset_clause, query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
@@ -73,7 +73,7 @@ def data_per_entity(request, project_id):
     
     sql_query = """
         select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language" 
-        from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + getWhereClauses(request, where_clause) + """order by date_created desc"""
+        from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_data_entities dde on dde.data_id = dd.id inner join data_entity de on de.id = dde.entity_id where """ + get_where_clauses(request, where_clause) + """order by date_created desc"""
     
     return serialize_rows(
         request,

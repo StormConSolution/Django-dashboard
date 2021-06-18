@@ -10,7 +10,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 from data.serialize import serialize_rows
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -38,7 +38,7 @@ def data_per_aspect(request, project_id):
     
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause), [project.id, aspect_label])
+            select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id inner join data_aspect da on da.data_id = dd.id where """ + get_where_clauses(request, where_clause), [project.id, aspect_label])
         row = cursor.fetchone()
     
     total_data = int(row[0])
@@ -51,7 +51,7 @@ def data_per_aspect(request, project_id):
         with connection.cursor() as cursor:
             cursor.execute("""
                         WITH counts AS (
-            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + getWhereClauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
+            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id where """ + get_where_clauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
@@ -64,7 +64,7 @@ def data_per_aspect(request, project_id):
     sql_query = """
     select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language"
     from data_data dd inner join data_source ds on dd.source_id = ds.id inner join data_aspect da on da.data_id = dd.id
-    where """ + getWhereClauses(request, where_clause) + """order by date_created desc """
+    where """ + get_where_clauses(request, where_clause) + """order by date_created desc """
 
     return serialize_rows(
         request,

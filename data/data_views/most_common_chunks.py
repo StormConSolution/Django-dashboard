@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def most_common_chunks(request, project_id):
@@ -17,7 +17,7 @@ def most_common_chunks(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    where_clause = getWhereClauses(request, [
+    where_clause = get_where_clauses(request, [
         "dd.project_id = %s"
     ])
 

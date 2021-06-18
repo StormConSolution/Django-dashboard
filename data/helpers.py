@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from requests.api import request
 from data import models
 
-def getFiltersSQL(request):
+def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
     if not dateFrom:
@@ -26,7 +26,7 @@ def getFiltersSQL(request):
         filtersSQL = ""
     return filtersSQL
 
-def getFiltersSQL2(request):
+def get_filters_sql2(request):
     where_clauses = []
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
@@ -52,12 +52,12 @@ def getFiltersSQL2(request):
         where_clauses.append('ds.id in (%s)' % (",".join(sourcesID)))
     return where_clauses
 
-def getWhereClauses(request, where_clauses):
-    filter_clauses = getFiltersSQL2(request)
+def get_where_clauses(request, where_clauses):
+    filter_clauses = get_filters_sql2(request)
     where_clauses = where_clauses + filter_clauses
     return " and ".join(where_clauses)
 
-def getAPIKEY(user: User) -> str:
+def get_api_key(user: User) -> str:
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     resp = requests.get("{}/credentials/fetch/{}/{}/".format(

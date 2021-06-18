@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def sentiment_per_aspect(request, project_id):
@@ -31,7 +31,7 @@ def sentiment_per_aspect(request, project_id):
     
     response = []
     with connection.cursor() as cursor:
-        cursor.execute("""select da."label", count( da."label"),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ getWhereClauses(request, where_clause) + """group by (da."label") order by count(da."label") desc """ + limit_clause , query_args)
+        cursor.execute("""select da."label", count( da."label"),sum(case when dd.sentiment > 0 then 1 else 0 end) as PosCount, sum(case when dd.sentiment < 0 then 1 else 0 end) as NegCount, sum(case when dd.sentiment = 0 then 1 else 0 end) from data_aspect da inner join data_data dd on dd.id = da.data_id  inner join data_source ds on ds.id = dd.source_id where """+ get_where_clauses(request, where_clause) + """group by (da."label") order by count(da."label") desc """ + limit_clause , query_args)
         rows = cursor.fetchall()
     
     for row in rows:

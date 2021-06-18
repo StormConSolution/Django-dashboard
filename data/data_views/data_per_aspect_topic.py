@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import getWhereClauses
+from data.helpers import get_where_clauses
 from data.serialize import serialize_rows
 
 
@@ -55,7 +55,7 @@ def data_per_aspect_topic(request, project_id):
         with connection.cursor() as cursor:
             cursor.execute("""
                         WITH counts AS (
-            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + getWhereClauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
+            SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clause) + """ order by date_created desc """ + limit_offset_clause + ") SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50", query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
@@ -66,7 +66,7 @@ def data_per_aspect_topic(request, project_id):
             return JsonResponse(response, safe=False)
     
     with connection.cursor() as cursor:
-        cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + getWhereClauses(request, where_clause),
+        cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(request, where_clause),
                        query_args)
 
         row = cursor.fetchone()
@@ -75,7 +75,7 @@ def data_per_aspect_topic(request, project_id):
     sql_query = """
     select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id
     from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id
-    where """ + getWhereClauses(request, where_clause) + """ order by dd.date_created desc """
+    where """ + get_where_clauses(request, where_clause) + """ order by dd.date_created desc """
     
     return serialize_rows(
         request,
