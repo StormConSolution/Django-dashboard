@@ -1,11 +1,11 @@
 import config from "../config";
-import * as filters from "../helpers/filters"
-import {metadataFiltersURL} from "../helpers/filters";
+import {metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal"
 import wordlCloud from './word-cloud-modal'
 let chart
 let div = document.querySelector("#overall-sentiment-chart")
+normalFiltersURL()
 function overallSentiment(data){
     var chartOptions = {
         colors: [config.positive, config.negative, config.neutral],
@@ -17,32 +17,16 @@ function overallSentiment(data){
                     let sentiment = config.w.config.labels[config.dataPointIndex].toLowerCase()
                     let options = {}
                     options.sentiment = sentiment
-                    let filtersValues = filters.getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
                     wordlCloud(`/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
                         "sentiment": encodeURIComponent(options.sentiment),
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    })+ "&" +  metadataFiltersURL())
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL())
                     options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
                         "sentiment": encodeURIComponent(options.sentiment),
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    })+ "&" +  metadataFiltersURL() 
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL() 
                     options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    })+ "&" +  metadataFiltersURL()
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     dataTableModalPerSentiment(1, options)
                 }            
             }
@@ -101,15 +85,7 @@ function seeAllTotalItems(data){
 let project_id = window.project_id
 export function createGraph(){
     update.startUpdate()
-    let filtersValues = filters.getFilters()
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesId": filtersValues.sourcesId
-    })+ "&" +  metadataFiltersURL()
-    console.log(metadataFiltersURL())
+    let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     if(chart){
         chart.destroy()
     }

@@ -1,7 +1,6 @@
 import {update} from '../helpers/helpers'
-import {getFilters} from '../helpers/filters'
+import {normalFiltersURL, metadataFiltersURL} from '../helpers/filters'
 import {setShowEmotionAspectCoOccurrence as show} from "../../project-details"
-import { metadataFiltersURL } from "../helpers/filters";
 let div = document.querySelector("#emotion-aspect-co-occurrence")
 let chart
 export function createGraph(){
@@ -84,13 +83,7 @@ export function createGraph(){
     let currentEntity = ""
     let maxEmotions = document.querySelector("#emotion-aspect-co-occurrence-max-emotions").value
     let countEmotions = 0
-    let filtersValues = getFilters()
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sourcesID": filtersValues.sourcesID
-    })+ "&" +  metadataFiltersURL()
+    let urlParams =  "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
     fetch(`/api/entity-aspect-for-emotion/${project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

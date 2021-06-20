@@ -1,8 +1,7 @@
 import config from "../config";
-import { getFilters } from "../helpers/filters";
+import {normalFiltersURL, metadataFiltersURL} from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataTableModalEntityBySentiment} from "../tables/data_table_modal";
-import { metadataFiltersURL } from "../helpers/filters";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#entity-by-sentiment")
@@ -28,35 +27,19 @@ export function createGraph() {
                     let options = {}
                     options.entityID = mapEntityAndID[entity]
                     options.sentiment = sentiment.toLowerCase()
-                    let filtersValues = getFilters()
                     document.querySelector("#data-table-modal").style.display = "block"
                     let wordCloudURL = `/api/data-per-entity/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
                         "sentiment": encodeURIComponent(options.sentiment),
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": filtersValues.sources,
-                        "sourcesID": filtersValues.sourcesID,
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
                         "entityID": mapEntityAndID[entity]
-                    })+ "&" +  metadataFiltersURL()
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     options.csvURL = `/api/data-per-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID,
                         "sentiment": options.sentiment,
                         "entityID": options.entityID
-                    })+ "&" +  metadataFiltersURL()
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     options.dataURL = `/api/data-per-entity/${window.project_id}/?` + new URLSearchParams({
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID,
                         "sentiment": options.sentiment,
                         "entityID": options.entityID
-                    })+ "&" +  metadataFiltersURL()
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     wordCloud(wordCloudURL)
                     dataTableModalEntityBySentiment(1, options)
                 }            
@@ -89,15 +72,9 @@ export function createGraph() {
         legend: { show: false },
         colors: [config.positive, config.neutral, config.negative]
     };
-    let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources,
-        "sourcesID": filtersValues.sourcesID,
         "limit": limit.value
-    })+ "&" +  metadataFiltersURL()
+    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
     fetch(`/api/entity-by-sentiment/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {

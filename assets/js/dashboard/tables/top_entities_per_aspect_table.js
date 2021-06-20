@@ -1,9 +1,8 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal'
-import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
-import { metadataFiltersURL } from "../helpers/filters";
+import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
 let content = document.getElementById("top-entities-per-aspect-table-content");
 let firstRun = true
 let aspectLabel = ""
@@ -12,15 +11,9 @@ let pageSizeDropdown = document.querySelector("#top-entities-per-aspect-table-pa
 export function createTable(page){
     if(firstRun){
         update.startUpdate()
-        let filtersValues = getFilters() 
         let urlParams = new URLSearchParams({
-            "date-from": filtersValues.dateFrom,
-            "date-to": filtersValues.dateTo,
-            "languages": filtersValues.languages,
-            "sources": encodeURIComponent(filtersValues.sources),
-            "sourcesID": filtersValues.sourcesID,
             "order-by":"label",
-        })+ "&" +  metadataFiltersURL()
+        })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
         fetch(`/api/aspect-count/${window.project_id}/?` + urlParams).then(response => response.json()).then(data => {
             let first = true
             for(let element of data){
@@ -46,14 +39,7 @@ export function createTable(page){
         pagination.innerHTML = ""
         let pageSize = pageSizeDropdown.value
     
-        let filtersValues = getFilters() 
-        let urlParams = new URLSearchParams({
-            "date-from": filtersValues.dateFrom,
-            "date-to": filtersValues.dateTo,
-            "languages": filtersValues.languages,
-            "sources": filtersValues.sources,
-            "aspect-label": aspectLabel,
-        })+ "&" +  metadataFiltersURL()
+        let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
         document.getElementById("top-entities-per-aspect-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&aspect-label${aspectLabel}&` + urlParams
         fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
         .then((response) => response.json())
@@ -78,36 +64,19 @@ export function createTable(page){
                     let entityID = e.target.getAttribute("data-entity-id")
                     let classificationID = e.target.getAttribute("data-classification-id")
                     document.querySelector("#data-table-modal").style.display = "block"
-                    let filtersValues = getFilters() 
                     let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect").value
-                    let wordCloudURL = `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&aspect-label=${selectAspect}&` + new URLSearchParams({
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    })+ "&" +  metadataFiltersURL()
+                    let wordCloudURL = `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&aspect-label=${selectAspect}&` + metadataFiltersURL()+ "&" + normalFiltersURL()
                     let options = {}
                     options.csvURL =`/api/data-per-classification-and-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
                         "aspect-label": selectAspect,
                         "entity": entityID, 
                         "classification": classificationID,
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    }) + "&" +  metadataFiltersURL()
+                    }) + "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     options.dataURL =`/api/data-per-classification-and-entity/${window.project_id}/?` + new URLSearchParams({
                         "aspect-label": selectAspect,
                         "entity": entityID, 
                         "classification": classificationID,
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": encodeURIComponent(filtersValues.sources),
-                        "sourcesID": filtersValues.sourcesID
-                    }) + "&" +  metadataFiltersURL()
+                    }) + "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                     wordCloud(wordCloudURL)
                     dataEntityClassificationTable(1, options)
                 })

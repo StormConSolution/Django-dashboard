@@ -3,9 +3,6 @@ import hmac
 import json
 import requests
 from django.conf import settings
-from django.contrib.auth.models import User
-from requests.api import request
-from data import models
 
 def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")

@@ -1,9 +1,8 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal'
-import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
-import { metadataFiltersURL } from "../helpers/filters";
+import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
 let content = document.getElementById("entity-table-content");
 let pageSizeDropdown = document.getElementById("entity-table-page-size") 
 export function createTable(page){
@@ -13,14 +12,7 @@ export function createTable(page){
     pagination.innerHTML = ""
     let pageSize = pageSizeDropdown.value
 
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
-    })+ "&" +  metadataFiltersURL()
+    let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     document.getElementById("entities-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
@@ -45,33 +37,16 @@ export function createTable(page){
                 let entityID = e.target.getAttribute("data-entity-id")
                 let classificationID = e.target.getAttribute("data-classification-id")
                 document.querySelector("#data-table-modal").style.display = "block"
-                filtersValues = getFilters()
-                let wordCloudURL =  `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&` + new URLSearchParams({
-                    "date-from": filtersValues.dateFrom,
-                    "date-to": filtersValues.dateTo,
-                    "languages": encodeURIComponent(filtersValues.languages),
-                    "sources": encodeURIComponent(filtersValues.sources),
-                    "sourcesID": filtersValues.sourcesID
-                })+ "&" +  metadataFiltersURL()
+                let wordCloudURL =  `/api/data-per-classification-and-entity/${window.project_id}/?format=word-cloud&classification=${classificationID}&entity=${entityID}&` +  metadataFiltersURL()+ "&" + normalFiltersURL()
                 let options = {}
                 options.csvURL =`/api/data-per-classification-and-entity/${window.project_id}/?format=csv&` + new URLSearchParams({
                     "entity": entityID,
                     "classification": classificationID,
-                    "date-from": filtersValues.dateFrom,
-                    "date-to": filtersValues.dateTo,
-                    "languages": encodeURIComponent(filtersValues.languages),
-                    "sources": encodeURIComponent(filtersValues.sources),
-                    "sourcesID": filtersValues.sourcesID
-                })+ "&" +  metadataFiltersURL() 
+                })+ "&" +  metadataFiltersURL() + "&" + normalFiltersURL()
                 options.dataURL = `/api/data-per-classification-and-entity/${window.project_id}/?` + new URLSearchParams({
                     "entity": entityID,
                     "classification": classificationID, 
-                    "date-from": filtersValues.dateFrom,
-                    "date-to": filtersValues.dateTo,
-                    "languages": encodeURIComponent(filtersValues.languages),
-                    "sources": encodeURIComponent(filtersValues.sources),
-                    "sourcesID": filtersValues.sourcesID
-                })+ "&" +  metadataFiltersURL()
+                })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
                 wordCloud(wordCloudURL)
                 dataEntityClassificationTable(1, options)
             })

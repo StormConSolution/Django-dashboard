@@ -1,8 +1,7 @@
 import {createPagination} from './utils/utils'
-import {getFilters} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
-import { metadataFiltersURL } from "../helpers/filters";
+import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
 let content = document.getElementById("data-table-content");
 export function createTable(page){
     update.startUpdate()
@@ -10,14 +9,7 @@ export function createTable(page){
     let pagination = document.getElementById("data-table-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-page-size").value
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
-    })+ "&" +  metadataFiltersURL()
+    let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     document.getElementById("data-items-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
@@ -61,48 +53,7 @@ export function createTable(page){
 
 document.querySelector("#show-word-cloud-data-items-table").addEventListener("click", (e)=>{
     document.querySelector("#word-cloud-modal").style.display = "block"
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": encodeURIComponent(filtersValues.languages),
-        "sources": encodeURIComponent(filtersValues.sources),
-        "sourcesID": filtersValues.sourcesID
-    })
+    let urlParams = metadataFiltersURL() + normalFiltersURL()
     let wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` + urlParams
     wordCloud(wordCloudURL)
 })
-//createTable(1);
-/*
-<div class="col-12 col-md-auto">
-        <ul class="pagination">
-        <li>
-            <a href="#">
-            <i class="fe fe-chevron-left"></i>
-            </a>
-        </li>
-        <li class="active">
-            <a href="#">01</a>
-        </li>
-        <li>
-            <a href="#">02</a>
-        </li>
-        <li>
-            <a href="#">03</a>
-        </li>
-        <li>
-            <a href="#">04</a>
-        </li>
-        <li>
-            <a href="#">..</a>
-        </li>
-        <li>
-            <a href="#">25</a>
-        </li>
-        <li>
-            <a href="#"> <i class="fe fe-chevron-right"></i></a>
-        </li>
-        
-        </ul>
-    </div>
-*/

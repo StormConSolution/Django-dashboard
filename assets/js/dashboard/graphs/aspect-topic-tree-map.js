@@ -1,5 +1,4 @@
-import { metadataFiltersURL } from "../helpers/filters";
-import { getFilters } from "../helpers/filters";
+import { metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable } from "../tables/data_table_modal";
 import wordCloud from "./word-cloud-modal";
@@ -33,7 +32,6 @@ export function createGraph() {
         if (chart) {
             chart.destroy();
         }
-        let filtersValues = getFilters();
         let aspectLabel = document.querySelector(
             "#aspect-topic-tree-map-aspects"
         ).value;
@@ -44,15 +42,10 @@ export function createGraph() {
             "#aspect-topic-tree-map-sentiment"
         ).value;
         let urlParams = new URLSearchParams({
-            "date-from": filtersValues.dateFrom,
-            "date-to": filtersValues.dateTo,
-            languages: filtersValues.languages,
-            sources: filtersValues.sources,
-            sourcesID: filtersValues.sourcesID,
             "aspect-label": encodeURIComponent(aspectLabel),
             "max-topics": encodeURIComponent(maxTopics),
             sentiment: sentiment,
-        })+ "&" +  metadataFiltersURL();
+        })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
         fetch(`/api/topics-per-aspect/${project_id}/?` + urlParams)
             .then((response) => response.json())
             .then((data) => {
@@ -84,7 +77,6 @@ export function createGraph() {
                                 document.querySelector(
                                     "#data-table-modal"
                                 ).style.display = "block";
-                                filtersValues = getFilters();
                                 let wordCloudURL =
                                     `/api/data-per-aspect-topic/${window.project_id}/?format=word-cloud&` +
                                     new URLSearchParams({
@@ -93,14 +85,7 @@ export function createGraph() {
                                         "topic-label":
                                             encodeURIComponent(topicLabel),
                                         sentiment: sentiment,
-                                        "date-from": filtersValues.dateFrom,
-                                        "date-to": filtersValues.dateTo,
-                                        languages: encodeURIComponent(
-                                            filtersValues.languages
-                                        ),
-                                        sources: filtersValues.sources,
-                                        sourcesID: filtersValues.sourcesID,
-                                    })+ "&" +  metadataFiltersURL();
+                                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                                 options.csvURL =
                                     `/api/data-per-aspect-topic/${window.project_id}/?format=csv&` +
                                     new URLSearchParams({
@@ -108,15 +93,8 @@ export function createGraph() {
                                             encodeURIComponent(aspectLabel),
                                         "topic-label":
                                             encodeURIComponent(topicLabel),
-                                        sentiment: sentiment,
-                                        "date-from": filtersValues.dateFrom,
-                                        "date-to": filtersValues.dateTo,
-                                        languages: encodeURIComponent(
-                                            filtersValues.languages
-                                        ),
-                                        sources: filtersValues.sources,
-                                        sourcesID: filtersValues.sourcesID,
-                                    });
+                                       
+                                    })+ "&" + normalFiltersURL() + "&" + metadataFiltersURL();
                                 options.dataURL =
                                     `/api/data-per-aspect-topic/${window.project_id}/?` +
                                     new URLSearchParams({
@@ -125,14 +103,7 @@ export function createGraph() {
                                         "topic-label":
                                             encodeURIComponent(topicLabel),
                                         sentiment: sentiment,
-                                        "date-from": filtersValues.dateFrom,
-                                        "date-to": filtersValues.dateTo,
-                                        languages: encodeURIComponent(
-                                            filtersValues.languages
-                                        ),
-                                        sources: filtersValues.sources,
-                                        sourcesID: filtersValues.sourcesID,
-                                    })+ "&" +  metadataFiltersURL();
+                                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                                 wordCloud(wordCloudURL);
                                 createTable(1, options);
                             },

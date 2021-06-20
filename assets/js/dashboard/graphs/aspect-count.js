@@ -1,7 +1,6 @@
-import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataPerAspectTable } from "../tables/data_table_modal";
-import { metadataFiltersURL } from "../helpers/filters";
+import {metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import wordCloud from "./word-cloud-modal";
 import config from "../config";
 let chart;
@@ -14,14 +13,7 @@ export function createGraph() {
 
     let aspectCountGraphs = document.querySelector("#aspect-count-graphs");
     aspectCountGraphs.innerHTML = "Loading...";
-    let filtersValues = getFilters();
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        languages: filtersValues.languages,
-        sources: filtersValues.sources,
-        sourcesID: filtersValues.sourcesID,
-    })+ "&" +  metadataFiltersURL();
+    let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL();
     let project_id = window.project_id;
     fetch(`/api/aspect-count/${project_id}/?` + urlParams)
         .then((response) => response.json())
@@ -57,45 +49,24 @@ export function createGraph() {
                             let wordCloudURL =
                                 `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` +
                                 new URLSearchParams({
-                                    "date-from": filtersValues.dateFrom,
-                                    "date-to": filtersValues.dateTo,
                                     "aspect-label": encodeURIComponent(
                                         options.aspectLabel
                                     ),
-                                    languages: encodeURIComponent(
-                                        filtersValues.languages
-                                    ),
-                                    sources: encodeURIComponent(filtersValues.sources),
-                                    sourcesID: filtersValues.sourcesID,
-                                })+ "&" +  metadataFiltersURL();
+                                })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                             options.csvURL =
                                 `/api/data-per-aspect/${window.project_id}/?format=csv&` +
                                 new URLSearchParams({
-                                    "date-from": filtersValues.dateFrom,
-                                    "date-to": filtersValues.dateTo,
                                     "aspect-label": encodeURIComponent(
                                         options.aspectLabel
                                     ),
-                                    languages: encodeURIComponent(
-                                        filtersValues.languages
-                                    ),
-                                    sources: encodeURIComponent(filtersValues.sources),
-                                    sourcesID: filtersValues.sourcesID,
-                                })+ "&" +  metadataFiltersURL();
+                                })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                             options.dataURL =
                                 `/api/data-per-aspect/${window.project_id}/?` +
                                 new URLSearchParams({
                                     "aspect-label": encodeURIComponent(
                                         options.aspectLabel
                                     ),
-                                    "date-from": filtersValues.dateFrom,
-                                    "date-to": filtersValues.dateTo,
-                                    languages: encodeURIComponent(
-                                        filtersValues.languages
-                                    ),
-                                    sources: encodeURIComponent(filtersValues.sources),
-                                    sourcesID: filtersValues.sourcesID,
-                                })+ "&" +  metadataFiltersURL();
+                                })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                             wordCloud(wordCloudURL);
                             dataPerAspectTable(1, options);
                         }            
