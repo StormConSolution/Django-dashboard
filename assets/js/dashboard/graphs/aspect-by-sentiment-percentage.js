@@ -1,7 +1,7 @@
 import config from "../config";
-import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
 import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal";
+import { metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import wordCloud from "./word-cloud-modal";
 let chart;
 let graphContainer = document.querySelector("#aspect-by-sentiment-percentage");
@@ -28,7 +28,6 @@ export function createGraph() {
                     let options = {};
                     options.aspect = aspect;
                     options.sentiment = sentiment.toLowerCase();
-                    let filtersValues = getFilters();
                     document.querySelector("#data-table-modal").style.display =
                         "block";
                     let wordCloudURL =
@@ -36,40 +35,19 @@ export function createGraph() {
                         new URLSearchParams({
                             sentiment: encodeURIComponent(options.sentiment),
                             "aspect-label": encodeURIComponent(options.aspect),
-                            languages: encodeURIComponent(
-                                filtersValues.languages
-                            ),
-                            sources: filtersValues.sources,
-                            sourcesID: filtersValues.sourcesID,
-                            "date-from": filtersValues.dateFrom,
-                            "date-to": filtersValues.dateTo,
-                        });
+                        })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                     options.csvURL =
                         `/api/data-per-aspect/${window.project_id}/?format=csv&` +
                         new URLSearchParams({
                             sentiment: encodeURIComponent(options.sentiment),
                             "aspect-label": encodeURIComponent(options.aspect),
-                            languages: encodeURIComponent(
-                                filtersValues.languages
-                            ),
-                            sources: filtersValues.sources,
-                            sourcesID: filtersValues.sourcesID,
-                            "date-from": filtersValues.dateFrom,
-                            "date-to": filtersValues.dateTo,
-                        });
+                        })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                     options.dataURL =
                         `/api/data-per-aspect/${window.project_id}/?` +
                         new URLSearchParams({
                             sentiment: encodeURIComponent(options.sentiment),
                             "aspect-label": encodeURIComponent(options.aspect),
-                            "date-from": filtersValues.dateFrom,
-                            "date-to": filtersValues.dateTo,
-                            languages: encodeURIComponent(
-                                filtersValues.languages
-                            ),
-                            sources: filtersValues.sources,
-                            sourcesID: filtersValues.sourcesID,
-                        });
+                        })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
                     wordCloud(wordCloudURL);
                     dataTableModalDataPerAspectAndSentiment(1, options);
                 },
@@ -102,15 +80,9 @@ export function createGraph() {
         legend: { show: false },
         colors: [config.positive, config.neutral, config.negative],
     };
-    let filtersValues = getFilters();
     let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        languages: filtersValues.languages,
-        sources: filtersValues.sources,
-        sourcesID: filtersValues.sourcesID,
         "limit": limitDiv.value
-    });
+    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

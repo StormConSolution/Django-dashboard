@@ -1,5 +1,5 @@
-metadata,Date,Text,Source,Optional
-123,2010-10-11, this food is good, forum, optional
-1234,2010-10-11,this food is bad, forum , optiona1234
-12345,2010-10-11, the house is small, forum , optiona1235
-1233456,2010-10-11,the house is big, forum , optiona1236
+metadata,Date,Text,Source,Optional,New Column
+123,2010-10-11, this food is good, forum,optional,new value1
+1234,2010-10-11,this food is bad, forum ,optiona1234,new value2
+12345,2010-10-11, the house is small, forum ,optiona1235,new value3
+1233456,2010-10-11,the house is big, forum ,optiona1236,newvalue1

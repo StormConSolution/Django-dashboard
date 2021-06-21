@@ -1,0 +1,58 @@
+<!-- create-alert modal start -->
+<div
+    class="modal fade"
+    id="more-filters-modal"
+    tabindex="-1"
+    aria-labelledby="createalertLabel"
+    aria-hidden="true"
+    aria-modal="true"
+    role="dialog"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createalertLabel">
+                    More Filters
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i class="fe fe-x-circle"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-data">
+                    <form method="POST" action="{% url 'alerts' %}">
+                        {% for filter in more_filters %}
+                        <div class="form-group">
+                            <label for="selectaspect" class="form-label"
+                                >{{filter.name}}</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="selectaspect"
+                                aria-placeholder=""
+                                name="{{filter.name}}"
+                                data-role="more-filters-select"
+                            >
+                            <option></option>
+                            {% for value in filter.values %}
+                            <option value="{{value}}">{{value}}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </form>
+                    <div class="d-flex flex-wrap align-items-center mt-4">
+                        <button class="btn btn-primary" id="apply-more-filters">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

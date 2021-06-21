@@ -13,6 +13,7 @@ export function getFilters(){
         sources.push(sourceCheckbox.value)
         sourcesID.push(sourceCheckbox.getAttribute("data-id"))
     }
+
     return {
         dateFrom: dateFrom,
         dateTo: dateTo,
@@ -20,4 +21,55 @@ export function getFilters(){
         sourcesID: sourcesID.join(","),
         languages: languages.join(",")
     }
+}
+
+export function getMetadataFilters(){
+    let moreFiltersSelects = document.querySelectorAll("[data-role='more-filters-select']")
+    let moreFiltersValues = {}
+    for(let element of moreFiltersSelects){
+        let filterValue = element.value
+        if (filterValue != ""){
+            moreFiltersValues["filter_" + element.name] = filterValue
+        }
+    }
+    return moreFiltersValues
+}
+
+export function convertFiltersToURL(filters){
+    let aux = {}
+    for(let key in filters){
+        aux[encodeURIComponent(key)] = encodeURIComponent(filters[key])
+    }
+    let URLParams = new URLSearchParams(aux)
+    return URLParams
+}
+
+export function metadataFiltersURL(){
+    let filters = getMetadataFilters()
+    return convertFiltersToURL(filters)
+}
+
+export function normalFiltersURL(){
+    let filters = getFilters()
+    let aux = {}
+    for(let key in filters){
+        switch(key){
+            case "dateFrom":
+                aux["date-from"] = filters[key]
+                break
+            case "dateTo":
+                aux["date-to"] = filters[key]
+                break
+            case "languages":
+                aux["languages"] = filters[key]
+                break
+            case "sources":
+                aux["sources"] = encodeURIComponent(filters[key])
+                break
+            case "sourcesID":
+                aux["sourcesID"] = filters[key]
+                break
+        }
+    }
+    return new URLSearchParams(aux)
 }

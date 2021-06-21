@@ -68,10 +68,10 @@ def data_per_aspect(request, project_id):
 
     return serialize_rows(
         request,
-         project_id,
-         total_data,
-         sql_query,
-         where_clause, 
-         query_args,
-         response_format,
-         'data_items_per_aspect.csv')
+        project_id,
+        total_data,
+        sql_query,
+        where_clause, 
+        query_args,
+        response_format,
+        'data_items_per_aspect.csv')

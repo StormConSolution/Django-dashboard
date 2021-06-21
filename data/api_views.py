@@ -27,14 +27,6 @@ from data import serializers
 from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_api_key
 
-ASPECT_COLORS = [
-    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
-    'DarkOliveGreen', 'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown',
-    'Tomato', 'SeaGreen', 'DarkKhaki', 'DarkOrange', 'DarkSlateGray',
-    'DeepSkyBlue', 'DimGrey', 'DarkRed', 'Gold', 'IndianRed', 'Lavender',
-    'LightGrat', 'LightSlateGray',
-]
-
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()

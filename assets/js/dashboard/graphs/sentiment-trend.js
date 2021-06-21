@@ -1,6 +1,5 @@
-import config from "../config";
+import { metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import { update } from "../helpers/helpers";
-import { getFilters } from "../helpers/filters";
 let chart;
 let def = 1;
 let div = document.querySelector("#sentiment-trend-graph");
@@ -14,15 +13,9 @@ export function createGraph() {
     document.getElementById("sentiment-trend-total-positives").innerHTML = 0;
     document.getElementById("sentiment-trend-total-negatives").innerHTML = 0;
     var projectId = window.project_id;
-    let filtersValues = getFilters();
     let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        languages: filtersValues.languages,
-        sources: filtersValues.sources,
-        sourcesID: filtersValues.sourcesID,
         default: def,
-    });
+    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL();
     fetch(`/api/sentiment-trend/${projectId}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {

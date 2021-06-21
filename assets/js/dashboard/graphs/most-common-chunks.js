@@ -1,5 +1,5 @@
-import { getFilters } from "../helpers/filters";
 import { update } from "../helpers/helpers";
+import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
 
 let chart;
 let graphContainer = document.querySelector("#most-common-chunks")
@@ -12,15 +12,9 @@ export function createGraph() {
     }
     graphContainer.innerHTML = "Loading...";
     
-    let filtersValues = getFilters() 
     let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources,
-        "sourcesID": filtersValues.sourcesID,
         'limit':maxChunks.value
-    })
+    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
     fetch(`/api/most-common-chunks/${window.project_id}/?` + urlParams)
     .then((response) => response.json())
     .then((data) => {

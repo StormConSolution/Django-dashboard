@@ -1,19 +1,16 @@
-import { create } from "d3-selection";
-import config from "../config";
-import { getFilters } from "../helpers/filters";
-import {update} from '../helpers/helpers'
-import {createTable as dataTableModalDataPerAspectAndSentiment} from "../tables/data_table_modal"
-import wordCloud from './word-cloud-modal'
-let chart 
-let graphContainer = document.querySelector("#aspect-by-sentiment-absolute")
-let limitDiv = document.querySelector("#aspect-by-sentiment-absolute-limit")
+import { metadataFiltersURL, normalFiltersURL } from "../helpers/filters";
+import { update } from "../helpers/helpers";
+import { createTable as dataTableModalDataPerAspectAndSentiment } from "../tables/data_table_modal";
+import wordCloud from "./word-cloud-modal";
+let chart;
+let graphContainer = document.querySelector("#aspect-by-sentiment-absolute");
+let limitDiv = document.querySelector("#aspect-by-sentiment-absolute-limit");
 export function createGraph() {
-
-    update.startUpdate()
-    if(chart){
-        chart.destroy()
+    update.startUpdate();
+    if (chart) {
+        chart.destroy();
     }
-    graphContainer.innerHTML = "Loading..."
+    graphContainer.innerHTML = "Loading...";
     var chartOptions = {
         series: [],
         chart: {
@@ -21,49 +18,56 @@ export function createGraph() {
             height: 440,
             stacked: true,
             events: {
-                dataPointSelection: function(event, chartContext, config) {
-                    let aspect = config.w.config.xaxis.categories[config.dataPointIndex]
-                    let count = config.w.config.series[config.seriesIndex].data[config.dataPointIndex]
-                    let options = {}
-                    if(count > 0){
-                        options.sentiment = "positive"
+                dataPointSelection: function (event, chartContext, config) {
+                    let aspect =
+                        config.w.config.xaxis.categories[config.dataPointIndex];
+                    let count =
+                        config.w.config.series[config.seriesIndex].data[
+                            config.dataPointIndex
+                        ];
+                    let options = {};
+                    if (count > 0) {
+                        options.sentiment = "positive";
                     } else {
-                        options.sentiment = "negative"
+                        options.sentiment = "negative";
                     }
-                    options.aspect = aspect
-                    let filtersValues = getFilters()
-                    document.querySelector("#data-table-modal").style.display = "block"
-                    let wordCloudURL = `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
-                        "sentiment": encodeURIComponent(options.sentiment),
-                        "aspect-label": encodeURIComponent(options.aspect),
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": filtersValues.sources,
-                        "sourcesID": filtersValues.sourcesID,
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo
-                    })
-                    options.csvURL = `/api/data-per-aspect/${window.project_id}/?format=csv&` + new URLSearchParams({
-                        "sentiment": encodeURIComponent(options.sentiment),
-                        "aspect-label": encodeURIComponent(options.aspect),
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": filtersValues.sources,
-                        "sourcesID": filtersValues.sourcesID,
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo
-                    })
-                    options.dataURL = `/api/data-per-aspect/${window.project_id}/?` + new URLSearchParams({
-                        "sentiment": encodeURIComponent(options.sentiment),
-                        "aspect-label": encodeURIComponent(options.aspect), 
-                        "date-from": filtersValues.dateFrom,
-                        "date-to": filtersValues.dateTo,
-                        "languages": encodeURIComponent(filtersValues.languages),
-                        "sources": filtersValues.sources,
-                        "sourcesID": filtersValues.sourcesID
-                    })
-                    wordCloud(wordCloudURL)
-                    dataTableModalDataPerAspectAndSentiment(1, options)
-                }            
-            }
+                    options.aspect = aspect;
+                    document.querySelector("#data-table-modal").style.display =
+                        "block";
+                    let wordCloudURL =
+                        `/api/data-per-aspect/${window.project_id}/?format=word-cloud&` +
+                        new URLSearchParams({
+                            sentiment: encodeURIComponent(options.sentiment),
+                            "aspect-label": encodeURIComponent(options.aspect),
+                        }) +
+                        "&" +
+                        metadataFiltersURL() +
+                        "&" +
+                        normalFiltersURL();
+                    options.csvURL =
+                        `/api/data-per-aspect/${window.project_id}/?format=csv&` +
+                        new URLSearchParams({
+                            sentiment: encodeURIComponent(options.sentiment),
+                            "aspect-label": encodeURIComponent(options.aspect),
+                        }) +
+                        "&" +
+                        metadataFiltersURL() +
+                        "&" +
+                        normalFiltersURL();
+                    options.dataURL =
+                        `/api/data-per-aspect/${window.project_id}/?` +
+                        new URLSearchParams({
+                            sentiment: encodeURIComponent(options.sentiment),
+                            "aspect-label": encodeURIComponent(options.aspect),
+                        }) +
+                        "&" +
+                        metadataFiltersURL() +
+                        "&" +
+                        normalFiltersURL();
+                    wordCloud(wordCloudURL);
+                    dataTableModalDataPerAspectAndSentiment(1, options);
+                },
+            },
         },
         legend: { show: false },
         colors: ["#28C76F", "#EA5455"],
@@ -121,15 +125,14 @@ export function createGraph() {
         },
     };
 
-    let filtersValues = getFilters() 
-    let urlParams = new URLSearchParams({
-        "date-from": filtersValues.dateFrom,
-        "date-to": filtersValues.dateTo,
-        "languages": filtersValues.languages,
-        "sources": filtersValues.sources,
-        "sourcesID": filtersValues.sourcesID,
-        "limit": limitDiv.value
-    })
+    let urlParams =
+        new URLSearchParams({
+            limit: limitDiv.value,
+        }) +
+        "&" +
+        metadataFiltersURL() +
+        "&" +
+        normalFiltersURL();
     fetch(`/api/sentiment-per-aspect/${window.project_id}/?` + urlParams)
         .then((response) => response.json())
         .then((data) => {
@@ -162,19 +165,16 @@ export function createGraph() {
             chartOptions.yaxis.min =
                 -maxNegative - Math.round(maxNegative * 0.1);
             chartOptions.xaxis.categories = aspects;
-            graphContainer.innerHTML = ""
+            graphContainer.innerHTML = "";
 
-            if(Object.keys(data).length !== 0){
-            chart = new ApexCharts(
-                graphContainer,
-                chartOptions
-            );
-            chart.render();
+            if (Object.keys(data).length !== 0) {
+                chart = new ApexCharts(graphContainer, chartOptions);
+                chart.render();
             }
-            update.finishUpdate()
+            update.finishUpdate();
         });
 }
 
-limitDiv.addEventListener("change", (e)=>{
-    createGraph()
-})
+limitDiv.addEventListener("change", (e) => {
+    createGraph();
+});
