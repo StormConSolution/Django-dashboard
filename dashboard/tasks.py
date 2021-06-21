@@ -8,16 +8,14 @@ import requests
 from .celery import app
 from .sms import send_sms
 from data import models
-from data import weighted
-from data.helpers import get_api_key
+from data.helpers import get_project_api_key
 
 logger = get_task_logger(__name__)
 
 @app.task
 def process_data(kwargs):
-    user = models.Project.objects.get(id=int(kwargs["project_id"])).users.all()[0]
-    APIKEY = get_api_key(user)
-    
+    APIKEY = get_project_api_key(kwargs["project_id"])
+    print(APIKEY) 
     try:
         for key in ["url", "metadata"]:
             if key not in kwargs:
@@ -58,6 +56,7 @@ def process_data(kwargs):
                 metadata=kwargs["metadata"],
                 #keywords=keywords
             )
+            print(data)
             
             for ent in resp['entities']:
                 entity_instance, created = models.Entity.objects.get_or_create(

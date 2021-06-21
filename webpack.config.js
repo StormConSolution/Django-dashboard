@@ -4,6 +4,8 @@ module.exports = {
     mode: 'development',
     entry: {
         'project-details':'./assets/js/project-details.js',
+        'dashboard':'./assets/js/dashboard.js',
+        'sentiment':'./assets/js/sentiment.js',
     },
     output: {
         filename: '[name].js',

@@ -35,4 +35,5 @@ urlpatterns = [
     path('test/', data_api_views.endpoint_test),
     path('topics-per-aspect/<int:project_id>/', data_api_views.topics_per_aspect),
     path('volume-by-source/<int:project_id>/', views.volume_by_source),
+    path('user-api-keys/', data_api_views.get_user_api_keys),
 ]

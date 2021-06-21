@@ -153,6 +153,7 @@ def create_project(request):
         m, _ = data_models.AspectModel.objects.get_or_create(
             label=request.POST['aspect_model'])
         proj.aspect_model = m
+        proj.api_key = request.POST.get("api-key")
         proj.save()
 
     user, _ = User.objects.get_or_create(username=request.POST['username'])

@@ -13,6 +13,7 @@ class Sentiment(models.Model):
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
+    api_key = models.TextField(blank=False, default="")
 
 class ChartType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
@@ -55,6 +56,7 @@ class Project(models.Model):
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
     sentiment = models.ManyToManyField(Sentiment, blank=True)
     geo_enabled = models.BooleanField(default=False)
+    api_key = models.TextField(blank=False, default="")
 
     def __str__(self):
         return self.name

@@ -20,6 +20,7 @@ from .sentiment_test import sentiment_test
 from .sentiment_trend import sentiment_trend
 from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
+from .get_user_api_keys import get_user_api_keys
 
 
 __all__ = [
@@ -45,4 +46,5 @@ __all__ = [
     'sentiment_trend',
     'source_by_sentiment',
     'topics_per_aspect', 
+    'get_user_api_keys', 
 ]

@@ -3,7 +3,7 @@ import hmac
 import json
 import requests
 from django.conf import settings
-
+from data.models import Project
 def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
@@ -73,8 +73,8 @@ def get_api_key(user):
         hashkey)).json()
     
     if len(resp['apikeys']) > 0:
-        return resp['apikeys'][0]
-    return ""
+        return resp
+    return {'apikeys':[]}
 
 def save_aspect_model(apikey, aspect_model):
     rules = list(aspect_model.aspectrule_set.all())
@@ -123,3 +123,7 @@ def delete_aspect_model(apikey, aspect_model):
     if req.status_code != 200 and req.status_code != 404:
         return False
     return True
+
+def get_project_api_key(project_id):
+    print(Project.objects.get(id=project_id).api_key)
+    return Project.objects.get(id=project_id).api_key
