@@ -1,22 +1,18 @@
 import collections
 
-from requests import status_codes
-from dashboard.settings import APIKEY
-from data.helpers import get_api_key
 from datetime import datetime, timedelta
 import json
-from django.db.models.query import prefetch_related_objects
-import requests
 
 from django import template
-from django.core import serializers
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
+from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -24,23 +20,16 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from natsort import natsorted
 import requests
+from requests import status_codes
 
-from data import models as data_models
 from data import charts
+from data import models as data_models
 from data.forms import AlertRuleForm
+from data.helpers import get_api_key
 
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
-
-MAX_TEXT_LENGTH = 30
-
-ASPECT_COLORS = [
-    'Pink', 'Crimson', 'Coral', 'Chocolate', 'DarkCyan', 'LightCoral',
-    'DarkOliveGreen', 'LightSkyBlue', 'MintCream', 'PowderBlue', 'SandyBrown',
-    'Tomato', 'SeaGreen', 'DarkKhaki', 'DarkOrange', 'DarkSlateGray',
-    'DeepSkyBlue', 'DimGrey', 'DarkRed', 'Gold', 'IndianRed', 'Lavender',
-    'LightGrat', 'LightSlateGray',
-]
 
 def collect_args(this_project, request):
     entity_filter = request.GET.get('entity')
@@ -248,12 +237,12 @@ def new_project_details(request, project_id):
                 select distinct (dd.metadata ->> %s)
                 from data_data as dd where dd.project_id = %s
                 """,
-                [row[0],project_id])
+                [row[0], project_id])
                 metadata_rows = metadata_cursor.fetchall()
                 metadata_values = []
                 for metadata_row in metadata_rows:
                     metadata_values.append(metadata_row[0])
-            context["more_filters"].append({"name":row[0], "values":metadata_values})
+            context["more_filters"].append({"name":row[0], "values":natsorted(metadata_values)})
 
     return render(request, "project-details.html", context)
 
@@ -556,8 +545,8 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        APIKEY = get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"%(APIKEY))
+        apikey = get_api_key(request.user)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json" % apikey)
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
@@ -797,8 +786,8 @@ class SentimentList(View):
             "lang": sentiment_language
         }
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        APIKEY = get_api_key(request.user)
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, APIKEY), data=data)
+        apikey = get_api_key(request.user)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, apikey), data=data)
         json_data = json.loads(req.text)
         sentiment_model = data_models.Sentiment(
             label=sentiment_label,
@@ -819,8 +808,8 @@ class Sentiment(View):
         user = request.user
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
-        APIKEY = get_api_key(request.user)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
+        apikey = get_api_key(request.user)
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, apikey, sentiment.rule_id))
         sentiment.delete()
         return HttpResponse(status=200)
 
@@ -837,14 +826,14 @@ class Sentiment(View):
         text_definition_count = len(text_definition.split())
         if text_definition_count < 1 or text_definition_count > 3:
             return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
-        APIKEY = get_api_key(request.user)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, APIKEY, sentiment.rule_id))
+        apikey = get_api_key(request.user)
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, apikey, sentiment.rule_id))
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, APIKEY), data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, apikey), data=data)
         json_data = json.loads(req.text)
         sentiment.label = sentiment_label
         sentiment.definition = text_definition
