@@ -1,0 +1,40 @@
+{% extends 'layouts/new-base.html' %}
+
+{% load data_filters %}
+
+{% block title %}Support Request{% endblock %} 
+
+{% block content %}
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="mt-3 col-12">
+				<h4>Support request</h4>
+				{% if success %}
+				<div class="alert alert-success" role="alert">
+					Your request has been received.  We reply within two hours during normal business hours, 9AM to 5PM (GMT-5)
+				</div>
+				{% endif %}
+				<form method="POST" action="">
+					{% csrf_token %}
+					{% if projects_data|length > 1 %}
+					<div class="form-group">
+						<select class="form-control" name="project">
+							<option value="-1">-- which project is this about --</option>
+							{% for proj in projects_data %}
+							<option value="{{ proj.id }}">{{ proj.name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					{% endif %}
+					<div class="form-group">
+						<textarea class="form-control" name="question"  rows=10 required
+							placeholder="Tell us as much info as possible about the issue you're having"></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary">Submit your request</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
