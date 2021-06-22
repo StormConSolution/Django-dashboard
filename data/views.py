@@ -20,6 +20,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from requests import api
 from natsort import natsorted
 import requests
 from requests import status_codes
@@ -548,7 +549,8 @@ class AspectsList(View):
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
         apikey = get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json" % apikey)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+            % apikey["apikeys"][0])
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
@@ -569,7 +571,9 @@ class AspectsList(View):
         rule_definitions = request.POST.getlist("rule-definition", "")
         rule_classifications = request.POST.getlist("rule-classification", "")
         predefined_aspect_rules = request.POST.getlist("predefined-rule", "")
-        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang)
+        api_key = request.POST.get("api-key", "")
+        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, 
+            language=aspect_lang, api_key=api_key)
         aspect_model.users.add(user)
 
         count = 0
@@ -590,7 +594,7 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
-        save_aspect_model(get_api_key(user), aspect_model)
+        save_aspect_model(aspect_model)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -603,7 +607,7 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if delete_aspect_model(get_api_key(user), aspect.get()):
+        if delete_aspect_model(aspect.get()):
             aspect.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -720,8 +724,7 @@ class Aspect(View):
                 aspect_model=aspect,
                 rule_name=predefined_rule, predefined=True)
 
-        apiKey = get_api_key(user)
-        if save_aspect_model(apiKey, aspect):
+        if save_aspect_model(aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
 

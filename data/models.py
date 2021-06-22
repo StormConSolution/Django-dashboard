@@ -27,6 +27,7 @@ class AspectModel(models.Model):
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     users = models.ManyToManyField(User, blank=True)
     standard = models.BooleanField(default=True)
+    api_key = models.TextField(blank=False, default="")
     
     def __str__(self):
         return self.label

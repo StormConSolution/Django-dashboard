@@ -6,6 +6,7 @@ module.exports = {
         'project-details':'./assets/js/project-details.js',
         'dashboard':'./assets/js/dashboard.js',
         'sentiment':'./assets/js/sentiment.js',
+        'aspect':'./assets/js/aspect.js',
     },
     output: {
         filename: '[name].js',

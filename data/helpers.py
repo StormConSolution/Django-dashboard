@@ -76,7 +76,7 @@ def get_api_key(user):
         return resp
     return {'apikeys':[]}
 
-def save_aspect_model(apikey, aspect_model):
+def save_aspect_model(aspect_model):
     rules = list(aspect_model.aspectrule_set.all())
 
     body = {
@@ -96,20 +96,19 @@ def save_aspect_model(apikey, aspect_model):
         body["rules"].append(request_rule)
 
     url = (settings.API_HOST + 
-    "/v4/{}/custom-aspect.json".format(apikey))
+    "/v4/{}/custom-aspect.json".format(aspect_model.api_key))
 
     req = requests.post(
         url=url,
         json=body
     )
-
     if req.status_code != 200:
         return False
     return True
 
-def delete_aspect_model(apikey, aspect_model):
+def delete_aspect_model(aspect_model):
     url = (settings.API_HOST + 
-    "/v4/{}/custom-aspect.json".format(apikey))
+    "/v4/{}/custom-aspect.json".format(aspect_model.api_key))
 
     body = {
         "name": aspect_model.label,

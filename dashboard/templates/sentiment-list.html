@@ -224,10 +224,22 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="test-sentiment-api-key-select" class="form-label"
+                            >Select API Keys</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="test-sentiment-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="test-sentiment-modal-loading"></div>
+<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
                         <div id="test-sentiment-score">
                             Score
                         </div>
-<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
                         <button type="submit" class="btn btn-primary mt-2">
                             Test Sentiment
                         </button>
