@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack-dev": "webpack -w",
     "webpack": "webpack --mode='production'",
-    "sass": "sass ./assets/css/style.scss ./assets/css/style.css",
-    "postcss": "postcss ./assets/css/style.css -u autoprefixer -u cssnano --no-map --output ./dashboard/static/assets/css/style.min.css",
+    "sass": "sass --watch ./assets/css/style.scss ./assets/css/style.css",
+    "postcss": "postcss -w ./assets/css/style.css -u autoprefixer -u cssnano --no-map --output ./dashboard/static/assets/css/style.min.css",
     "css": "npm run sass && npm run postcss"
   },
   "repository": {
