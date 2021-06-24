@@ -208,6 +208,7 @@
                 class="btn btn-primary mr-2"
                 data-toggle="modal"
                 data-target="#createaspect"
+                id="create-aspect-model"
                 >Add New Aspect</a
             >
         <!--<a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#testaspect" >
@@ -336,10 +337,22 @@
                         <button
                             type="button"
                             data-role="add-aspect-rule"
-                            class="btn btn-outline-primary mr-2 mt-2"
+                            class="btn btn-outline-primary mr-2 mt-2 mb-2"
                         >
                             Add New Aspect
                         </button>
+                        <div class="form-group">
+                            <label for="create-aspect-model-api-key-select" class="form-label"
+                            >Select API key</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="create-aspect-model-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="create-aspect-model-modal-loading"></div>
                         <button type="submit" class="btn btn-primary mt-2">
                             Save And Close
                         </button>
@@ -699,5 +712,5 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     });
 </script>
-<!--<script src="/static/assets/js/bundle.js"></script>-->
+<script src="/static/assets/js/aspect.js"></script>
 {% endblock %}

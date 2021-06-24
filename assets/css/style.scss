@@ -660,3 +660,11 @@ $breakpoint-mobile-big: 620px;
 }
 
 
+// overwrite bootstrap style
+
+@media (min-width: 576px) {
+    .modal-dialog {
+      max-width: 90vw !important;
+      margin: 1.75rem auto;
+    }
+}

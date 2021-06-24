@@ -55,9 +55,22 @@
                                 class="form-control"
 								placeholder="Enter some sample text to test your aspect models"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="test-aspect-api-key-select" class="form-label"
+                            >Select API key</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="test-aspect-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="test-aspect-modal-loading"></div>
                         <div id="test-aspect-model-score">
                             
                         </div>
+
 <!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
                         <button type="submit" class="btn btn-primary mt-2">
                             Test Aspect

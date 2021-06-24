@@ -20,6 +20,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from requests import api
 from natsort import natsorted
 from requests import status_codes
 import requests
@@ -159,12 +160,14 @@ class Projects(View):
         user = request.user
         project_name = request.POST.get("project-name")
         aspect_id = request.POST.get("aspect-id")
+        api_key = request.POST.get("api-key")
+        print(api_key)
         if aspect_id != "-1":
             aspect = data_models.AspectModel.objects.get(pk=aspect_id)
             project = data_models.Project(aspect_model=aspect, name=project_name)
         else:
             project = data_models.Project(name=project_name)
-        
+        project.api_key = api_key 
         project.save()
         project.users.add(user)
         project.save()
@@ -545,7 +548,8 @@ class AspectsList(View):
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
         apikey = get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json" % apikey)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+            % apikey["apikeys"][0])
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
         languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
@@ -566,7 +570,9 @@ class AspectsList(View):
         rule_definitions = request.POST.getlist("rule-definition", "")
         rule_classifications = request.POST.getlist("rule-classification", "")
         predefined_aspect_rules = request.POST.getlist("predefined-rule", "")
-        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, language=aspect_lang)
+        api_key = request.POST.get("api-key", "")
+        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, 
+            language=aspect_lang, api_key=api_key)
         aspect_model.users.add(user)
 
         count = 0
@@ -587,7 +593,7 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
-        save_aspect_model(get_api_key(user), aspect_model)
+        save_aspect_model(aspect_model)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -600,7 +606,7 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if delete_aspect_model(get_api_key(user), aspect.get()):
+        if delete_aspect_model(aspect.get()):
             aspect.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -717,8 +723,7 @@ class Aspect(View):
                 aspect_model=aspect,
                 rule_name=predefined_rule, predefined=True)
 
-        apiKey = get_api_key(user)
-        if save_aspect_model(apiKey, aspect):
+        if save_aspect_model(aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
 
@@ -729,7 +734,7 @@ class SentimentList(View):
         page_number = int(request.GET.get("page", 1))
         page_size = int(request.GET.get("page-size", 10))
         user = request.user
-        sentiment_list = data_models.Sentiment.objects.filter(users=user)
+        sentiment_list = data_models.Sentiment.objects.filter(users=user).order_by('-id')
         context = {}
         context['sentiments'] = []
         p = Paginator(sentiment_list, page_size)
@@ -768,6 +773,7 @@ class SentimentList(View):
         text_definition = request.POST.get("sentiment-definition", "")
         sentiment = request.POST.get("sentiment", "")
         sentiment_language = request.POST.get("sentiment-language", "")
+        api_key = request.POST.get("api-key")
         if sentiment_label == "":
             return HttpResponse("Sentiment Name is empty", status = 400)
         text_definition_count = len(text_definition.split())
@@ -785,15 +791,15 @@ class SentimentList(View):
             "lang": sentiment_language
         }
         #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        apikey = get_api_key(request.user)
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, apikey), data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data)
         json_data = json.loads(req.text)
         sentiment_model = data_models.Sentiment(
             label=sentiment_label,
             definition=text_definition,
             sentiment=sentiment,
             language=sentiment_language,
-            rule_id = json_data["rule_id"]
+            rule_id = json_data["rule_id"],
+            api_key=api_key,
         )
         sentiment_model.save() 
         sentiment_model.users.add(user)
@@ -807,8 +813,10 @@ class Sentiment(View):
         user = request.user
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
-        apikey = get_api_key(request.user)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, apikey, sentiment.rule_id))
+
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % 
+            (settings.API_HOST, sentiment.api_key, sentiment.rule_id))
+
         sentiment.delete()
         return HttpResponse(status=200)
 
@@ -820,19 +828,22 @@ class Sentiment(View):
         sentiment_value = request.POST.get("sentiment", "")
         sentiment_language = request.POST.get("sentiment-language", "")
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
+        api_key = sentiment.api_key
         if sentiment_label == "":
             return HttpResponse("Sentiment Name is empty", status = 400)
         text_definition_count = len(text_definition.split())
         if text_definition_count < 1 or text_definition_count > 3:
             return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
-        apikey = get_api_key(request.user)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % (settings.API_HOST, apikey, sentiment.rule_id))
+        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" % 
+
+            (settings.API_HOST, api_key, sentiment.rule_id))
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, apikey), data=data)
+        req = requests.post('%s/v4/%s/sentiment-rules.json' % 
+            (settings.API_HOST, api_key), data=data)
         json_data = json.loads(req.text)
         sentiment.label = sentiment_label
         sentiment.definition = text_definition

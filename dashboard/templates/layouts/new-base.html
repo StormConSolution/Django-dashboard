@@ -126,7 +126,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#createproject"> <i class="fe fe-plus"></i> Create Project</a>
+                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" data-target="#createproject"> <i class="fe fe-plus"></i> Create Project</a>
                 </li>
 				<li class="nav-item">
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload Data</a>
@@ -270,7 +270,9 @@
             managed: true,
             devMode: true,
 			allowCustom: true,
-            //webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
+            {% if not UPLOAD_CSV_FROM_CLIENT %}
+            webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
+            {% endif %}
         });
         importer.setCustomer({userId: projectId});
         importer.requestDataFromUser().then(function(results) { 
@@ -284,13 +286,18 @@
             headers.push(headerObject)
             data = headers.concat(data)
             importer.displaySuccess('Your data has been uploaded')
-                //location.reload()
-            fetch("/api/csv/?client=browser&project-id=" + projectId, {
-                method: "POST",
-                body: JSON.stringify(data),
-                credentials: "include"
-            }).then(response => {
-            })
+            
+            {% if UPLOAD_CSV_FROM_CLIENT %}
+                fetch("/api/csv/?client=browser&project-id=" + projectId, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    credentials: "include"
+                }).then(response => {
+                    location.reload()
+                })
+            {% else %}
+            location.reload()
+            {% endif %}
         })
     })
 </script>
@@ -359,6 +366,7 @@
                                     {% endfor %}
                                 </optgroup>
                             </select>
+   
                             <small
                                 id="emailHelp"
                                 class="form-text extra-text text-right"
@@ -366,25 +374,18 @@
 								Don't see the right aspect model? <a href="{% url 'aspects' %}">Create Aspect Model</a>
                             </small>
                         </div>
-
-{% comment %}                         <div class="form-group">
-                            <label class="form-label"
-                                >Upload data or Link spreadsheet</label
+                        <div class="form-group">
+                            <label for="create-project-api-key-select" class="form-label"
+                            >Select API key</label
                             >
-                            <div class="drganddrop mb-2">
-                                Drag and drop, or <b>browse</b> your files
-                            </div>
-                            <small class="form-text extra-text mb-2">
-                                OR url link to existing spreadsheet somewhere
-                            </small>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="fileurl"
-                                placeholder="Enter Spreadsheet URL"
-                            />
-                        </div> {% endcomment %}
-
+                            <select
+                                class="custom-select"
+                                id="create-project-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="create-project-modal-loading"></div>
                         <div class="d-flex flex-wrap align-items-center mt-4">
                             <button type="submit" class="btn btn-primary">
                                 Add New Project <i class="fe fe-plus"></i>
@@ -508,6 +509,7 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="/static/assets/js/bootstrap-datepicker.min.js"></script>
     <script src="/static/assets/js/jQuery.tagify.min.js"></script>
+    <script src="/static/assets/js/dashboard.js"></script>
 
     <script>
         // if IE, add IE tagify's polyfills
