@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'data',
     'authentication',  # Enable the inner app
     "customize",
+    "markdownify",
     #'debug_toolbar',
     'django_celery_results',
 ]
@@ -200,6 +201,11 @@ TWILIO_AUTH_TOKEN = ''
 
 ZENDESK_USER = ''
 ZENDESK_PASSWORD = ''
+
+MARKDOWNIFY_WHITELIST_TAGS = {
+ 'a', 'p', 'h1', 'h2', 'h3','h4', 'h5', 'h6', 'h7', 'ul', 'li', 'span', 'img',
+ 'div', 'abbr', 'acronym', 'em', 'blockquote', 'i', 'strong', 'ol', 'b', 'code'
+}
 
 try:
     from .settings_local import *

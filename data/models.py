@@ -57,7 +57,8 @@ class Project(models.Model):
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
     sentiment = models.ManyToManyField(Sentiment, blank=True)
     geo_enabled = models.BooleanField(default=False)
-    api_key = models.TextField(blank=False, default="")
+    api_key = models.CharField(max_length=80, blank=False, default="")
+    popup_text = models.TextField(blank=True, default="", help_text='Content for an initial popup. Markdown format supported')
 
     def __str__(self):
         return self.name

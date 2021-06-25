@@ -268,7 +268,9 @@
                 {key: "location", label: "Location (optional)"},
                 ],
             managed: true,
+			{% if debug %}
             devMode: true,
+			{% endif %}
 			allowCustom: true,
             {% if not UPLOAD_CSV_FROM_CLIENT %}
             webhookUrl: `{{FLATFILE_URL}}?project-id=${projectId}`
