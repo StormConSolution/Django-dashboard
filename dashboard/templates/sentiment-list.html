@@ -171,7 +171,7 @@
         <!--<a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#testaspect" >
         Test aspect modal
       </a>-->
-        <a href="#" class="btn btn-primary mr-2" data-toggle="modal" id="show-test-sentiment-modal">
+        <a href="#" class="btn btn-primary mr-2" id="show-test-sentiment-modal">
             Test sentiment
         </a>
         <a
@@ -185,11 +185,10 @@
 
 </div>
 <div
-    class="modal fade show"
+    class="modal fade"
     id="test-sentiment-modal"
     tabindex="-1"
-    aria-label="createaspectLabel"
-    style="z-index: 100;overflow-y:scroll;"
+    aria-modal="true"
 >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -203,7 +202,6 @@
                 >
                     <i
                         class="fe fe-x-circle"
-                        onclick="closeTestSentimentModal()"
                     ></i>
                 </button>
             </div>
@@ -252,20 +250,13 @@
     </div>
 </div>
 <script>
-    function closeTestSentimentModal(){
-        document.querySelector("#test-sentiment-modal").style.display="none"
-    }
 
-    document.querySelector("#show-test-sentiment-modal").addEventListener("click", (e)=>{
-        document.querySelector("#test-sentiment-modal").style.display="block"
-    })
 </script>
 <div
     class="modal fade show"
     id="create-sentiment-modal"
     tabindex="-1"
     aria-label="createaspectLabel"
-    style="z-index: 100;overflow-y:scroll;"
 >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -279,7 +270,6 @@
                 >
                     <i
                         class="fe fe-x-circle"
-                        onclick="closeCreateSentimentModal()"
                     ></i>
                 </button>
             </div>
@@ -349,7 +339,6 @@
     id="edit-sentiment-modal"
     tabindex="-1"
     aria-label="createaspectLabel"
-    style="z-index: 100;overflow-y:scroll;"
 >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -418,115 +407,9 @@
         </div>
     </div>
 </div>
-<script>
-function closeCreateSentimentModal(){
-    let modal = document.querySelector("#create-sentiment-modal")
-    modal.style.display = "none"
-}
-function closeEditSentimentModal(){
-    let modal = document.querySelector("#edit-sentiment-modal")
-    modal.style.display = "none"
-}
-document.querySelector("#create-sentiment-button").addEventListener("click", (e)=>{
-    let modal = document.querySelector("#create-sentiment-modal")
-    modal.style.display = "block"
-})
-
-document.querySelectorAll("[data-role='delete-sentiment']").forEach((element) => {
-    element.addEventListener("click", (e) => {
-        sentimentID = e.currentTarget.getAttribute("data-sentiment-id")
-        fetch("/sentiment/" + sentimentID + "/", {
-            method:'delete'
-        }).then((response) => {
-            if(response.status == 200){
-                location.reload()
-            } else {
-                alert("Error deleting sentiment")
-            }
-        })
-    })
-})
-document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((element) => {
-    element.addEventListener("click", (e) => {
-        document.querySelector("#edit-sentiment-modal").style.display = "block"
-        let element = e.currentTarget
-        sentimentID = element.getAttribute("data-sentiment-id")
-        sentimentValue = element.getAttribute("data-sentiment-sentiment")
-        sentimentLanguage = element.getAttribute("data-sentiment-language")
-        sentimentText = element.getAttribute("data-sentiment-text")
-        sentimentLabel = element.getAttribute("data-sentiment-label")
-        document.querySelector("#edit-sentiment-label").value = sentimentLabel
-        document.querySelector("#edit-sentiment-text").value = sentimentText
-        document.querySelector("#edit-sentiment-value").value = sentimentValue
-        document.querySelector("#edit-sentiment-language").value = sentimentLanguage
-        document.querySelector("#edit-sentiment-id").value = sentimentID
-/*         fetch("/sentiment/" + ruleID + "/", {
-            method:'delete'
-        }).then((response) => {
-            if(response.status == 200){
-                location.reload()
-            } else {
-                alert("Error deleting sentiment")
-            }
-        }) */
-    })
-})
-document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=>{
-    e.preventDefault()
-    let formData = new FormData(e.currentTarget)
-    fetch("/sentiment/", {
-        method: 'post',
-        body: formData
-    }).then(response => {
-        if(response.status == 200){
-            location.reload()
-        } else if(response.status == 400){
-            response.text().then(data =>{
-                alert("Error creating sentiment: " + data)
-            })
-        } else {
-            alert("Error creating sentiment")
-        }
-    })
-})
-document.querySelector("#test-sentiment-form").addEventListener("submit", (e)=>{
-    e.preventDefault()
-    let formData = new FormData(e.currentTarget)
-    let scoreDiv = document.querySelector("#test-sentiment-score")
-    scoreDiv.innerHTML = "Loading..."
-    fetch("/api/test-sentiment/", {
-        method: 'post',
-        body: formData
-    }).then(response => {
-        if(response.status == 200){
-            response.json().then(data=>{
-                scoreDiv.innerHTML = "Score: " + data.score
-            })
-        } else {
-            scoreDiv.innerHTML = ""
-            alert("Error testing sentiment")
-        }
-    })
-})
-document.querySelector("#edit-sentiment-form").addEventListener("submit", (e)=>{
-    e.preventDefault()
-    let formData = new FormData(e.currentTarget)
-    let sentimentID = document.querySelector("#edit-sentiment-id").value
-    fetch("/sentiment/" + sentimentID + "/", {
-        method: 'post',
-        body: formData
-    }).then(response => {
-        if(response.status == 200){
-            location.reload()
-        } else if(response.status == 400){
-            response.text().then(data =>{
-                alert("Error creating sentiment: " + data)
-            })
-        } else {
-            alert("Error creating sentiment")
-        }
-    })
-})
-</script>
+{% if GUEST_USER %}
+<script src="/static/assets/js/sentiment-guest.js"></script>
+{% else %}
 <script src="/static/assets/js/sentiment.js"></script>
+{% endif %}
 {% endblock %}

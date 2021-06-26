@@ -10,6 +10,7 @@ let createProjectModalLoading = document.querySelector(
 );
 let firstRun = true;
 openCreateProjectModal.addEventListener("click", () => {
+    $('#createproject').modal()
     if (firstRun) {
         createProjectModalLoading.innerHTML = "Loading...";
         fetch("/api/user-api-keys/")

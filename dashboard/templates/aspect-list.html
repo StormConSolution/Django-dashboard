@@ -207,7 +207,6 @@
                 href="#"
                 class="btn btn-primary mr-2"
                 data-toggle="modal"
-                data-target="#createaspect"
                 id="create-aspect-model"
                 >Add New Aspect</a
             >
@@ -368,7 +367,7 @@
     id="edit-aspect"
     tabindex="-1"
     aria-label="createaspectLabel"
-    style="z-index: 100;overflow-y:scroll;"
+    style="overflow-y:scroll;"
 >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -437,14 +436,9 @@
     </div>
 </div>
 {% include "includes/aspect-list/aspect-model-test.html" %}
-<script>
-function closeTestAspectModal(){
-    document.querySelector("#test-aspect-modal").style.display="none"
-}
 
-document.querySelector("#test-aspect-button").addEventListener("click", ()=>{
-    document.querySelector("#test-aspect-modal").style.display="block"
-})
+<script>
+
 let edit_aspect_rule_count = 1
 function resetEditAspectForm(){
     document.querySelector('#edit-aspect').style.display='none'
@@ -608,32 +602,7 @@ function createAspectEditModal(id){
     })
 }
 
-document.querySelectorAll('[data-role="edit-aspect-button"]').forEach((element) => {
 
-    element.addEventListener("click", (e) => {
-        let modal = document.querySelector("#edit-aspect")
-        modal.style.display = "block"
-        createAspectEditModal(element.getAttribute("data-aspect-id"))
-    })
-})
-document.querySelectorAll('[data-role="delete-aspect-rule"]').forEach((element) => {
-    element.addEventListener("click", (e) => {
-        e.currentTarget.parentNode.parentNode.remove()
-        count_rules--
-    })
-})
-document.querySelectorAll('[data-role="delete-aspect"]').forEach((e) => {
-    e.addEventListener("click", (e) => {
-        let aspectId = e.currentTarget.getAttribute("data-aspect-id")
-        fetch("/aspect/" + aspectId + "/", { method: "DELETE" }).then(response => {
-            if (response.status == 200) {
-                location.reload()
-            } else {
-                alert("Error deleting aspect")
-            }
-        })
-    })
-})
 let count_rules = 1
 document.querySelector("[data-role='add-aspect-rule']").addEventListener("click", (e) => {
     let currentElement = e.currentTarget
@@ -712,5 +681,9 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     });
 </script>
+{% if GUEST_USER %}
+<script src="/static/assets/js/aspect-guest.js"></script>
+{% else %}
 <script src="/static/assets/js/aspect.js"></script>
+{% endif %}
 {% endblock %}
