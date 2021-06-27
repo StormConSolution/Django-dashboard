@@ -170,6 +170,11 @@ MEDIA_URL = '/media/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'dashboard/static'),
 )
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'dashboard.backends.GuestBackend',
+)
 #############################################################
 #############################################################
 

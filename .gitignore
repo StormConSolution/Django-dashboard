@@ -36,5 +36,11 @@ media_root
 database/
 dashboard/static/assets/js/project-details.js
 dashboard/static/assets/js/dashboard.js
+dashboard/static/assets/js/dashboard-guest.js
 dashboard/static/assets/js/sentiment.js
+dashboard/static/assets/js/aspect.js
+dashboard/static/assets/js/aspect-guest.js
+dashboard/static/assets/js/sentiment-guest.js
+dashboard/static/assets/js/alerts.js
+dashboard/static/assets/js/alerts-guest.js
 .env

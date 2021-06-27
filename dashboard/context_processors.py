@@ -8,9 +8,11 @@ def general_context(request):
         custom_logo = Setting.objects.get(key='logo', users=request.user)
     except:
         custom_logo = ''
+    guest_user = request.user.username == "guest@repustate.com"
     return {
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
         'CUSTOM_LOGO':custom_logo,
         'UPLOAD_CSV_FROM_CLIENT': settings.UPLOAD_CSV_FROM_CLIENT,
+        'GUEST_USER': guest_user,
     }
