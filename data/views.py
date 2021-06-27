@@ -79,15 +79,9 @@ def default_encoder(o):
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def index(request):
     """
-    The home page renders the latest project by default.
+    List the projects a user has, if any
     """
-    proj = data_models.Project.objects.filter(users=request.user)
-    if proj:
-        proj = proj.latest()
-        return redirect(reverse('project'))
-    else:
-        # return forbiden if no projects, so that there is no crash
-        return HttpResponseForbidden()
+    return redirect(reverse('project'))
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def alert_rule_toggle(request, aspect_rule_id):

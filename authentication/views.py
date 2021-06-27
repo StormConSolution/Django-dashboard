@@ -1,13 +1,11 @@
 # -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from .forms import LoginForm, SignUpForm
 
@@ -58,3 +56,13 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
+
+def guest_login(request):
+    """
+    Automatically sign a user in under the guest@repustate.com account.
+    """
+    logout(request)
+    user = authenticate(username='guest@repustate.com', password='')
+    login(request, user)
+    
+    return redirect(reverse("project"))
