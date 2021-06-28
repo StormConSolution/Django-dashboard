@@ -205,6 +205,7 @@ class Data(models.Model):
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     entities = models.ManyToManyField(Entity)
     metadata = JSONField(blank=True, default=dict)
+    keywords = JSONField(blank=True, default=dict)
 
     class Meta:
         verbose_name_plural = 'Data'

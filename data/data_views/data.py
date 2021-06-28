@@ -51,7 +51,7 @@ def data(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL each(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""", query_args)
+                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""", query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:

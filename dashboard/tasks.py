@@ -28,6 +28,7 @@ def process_data(kwargs):
         
         if 'score' in resp:
             sentiment = resp['score']
+            keywords = resp['keywords']
             if kwargs["source"] == '':
                 source = models.Source.objects.get_or_create(label="Upload")[0]
             else:
@@ -42,8 +43,6 @@ def process_data(kwargs):
             else:
                 date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
             
-            weight_kwargs = {'raw_score': sentiment}
-            
             data = models.Data.objects.create(
                 project=project,
                 text=kwargs["text"], 
@@ -54,7 +53,7 @@ def process_data(kwargs):
                 language=kwargs["lang"],
                 relevance= 0, 
                 metadata=kwargs["metadata"],
-                #keywords=keywords
+                keywords=keywords,
             )
             print(data)
             
