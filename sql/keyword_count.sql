@@ -19,7 +19,7 @@ BEGIN
         WITH counts AS (
             SELECT keyword, ct::INT
             FROM data_data
-                CROSS JOIN LATERAL each(keywords) AS k(keyword, ct)
+                CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct)
             WHERE ' || ARRAY_TO_STRING(filters, ' AND ') || '
         )
         SELECT keyword, SUM(ct)::INT keyword_count
