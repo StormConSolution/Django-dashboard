@@ -58,6 +58,7 @@ class Project(models.Model):
     sentiment = models.ManyToManyField(Sentiment, blank=True)
     geo_enabled = models.BooleanField(default=False)
     api_key = models.CharField(max_length=80, blank=False, default="")
+    popup_title = models.CharField(max_length=80, blank=True, default="")
     popup_text = models.TextField(blank=True, default="", help_text='Content for an initial popup. Markdown format supported')
 
     def __str__(self):
