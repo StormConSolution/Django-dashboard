@@ -23,7 +23,7 @@ def csv_upload(request):
         for element in body:
             task_argument = {
                 "project_id": project_id,
-                "lang":'en',
+                "lang":'',
                 "url":'',
                 "source":'',
                 "metadata":{},

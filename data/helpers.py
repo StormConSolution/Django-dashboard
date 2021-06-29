@@ -124,5 +124,4 @@ def delete_aspect_model(aspect_model):
     return True
 
 def get_project_api_key(project_id):
-    print(Project.objects.get(id=project_id).api_key)
     return Project.objects.get(id=project_id).api_key

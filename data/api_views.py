@@ -189,7 +189,7 @@ def add_data(request, project_id):
 
     task_argument = {
         "project_id": project_id,
-        "lang":'en',
+        "lang":'',
         "url":'',
         "source":'',
         "metadata":{},

@@ -14,16 +14,24 @@ logger = get_task_logger(__name__)
 
 @app.task
 def process_data(kwargs):
-    APIKEY = get_project_api_key(kwargs["project_id"])
-    print(APIKEY) 
+    apikey = get_project_api_key(kwargs["project_id"])
+    
     try:
-        for key in ["url", "metadata"]:
-            if key not in kwargs:
-                kwargs[key] = ""
         logger.warn("Data received {} in process_data task".format(kwargs))
 
+        if not kwargs.get('lang'):
+            # No language set; use language detection.
+            try:
+                resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
+                    HOST=settings.API_HOST, APIKEY=apikey), 
+                    data={'text': kwargs["text"]})
+                kwargs['lang'] = resp['language']
+            except:
+                # In case of network error, just use English.
+                kwargs['lang'] = 'en'
+
         resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=APIKEY), 
+            HOST=settings.API_HOST, APIKEY=apikey), 
             data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
         
         if 'score' in resp:
@@ -49,13 +57,12 @@ def process_data(kwargs):
                 date_created=date, 
                 sentiment=sentiment,
                 source=source,
-                url=kwargs["url"], 
+                url=kwargs.get("url", ''), 
                 language=kwargs["lang"],
                 relevance= 0, 
-                metadata=kwargs["metadata"],
+                metadata=kwargs.get("metadata", ''),
                 keywords=keywords,
             )
-            print(data)
             
             for ent in resp['entities']:
                 entity_instance, created = models.Entity.objects.get_or_create(
@@ -76,7 +83,7 @@ def process_data(kwargs):
             if project.aspect_model:
                 aspects = requests.post(
                     '{HOST}/v4/{APIKEY}/aspect.json'.format(
-                        HOST=settings.API_HOST, APIKEY=APIKEY),
+                        HOST=settings.API_HOST, APIKEY=apikey),
                         {
                             'text': kwargs["text"], 
                             'neutral': 1, 
