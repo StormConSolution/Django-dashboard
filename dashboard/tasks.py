@@ -16,125 +16,126 @@ logger = get_task_logger(__name__)
 def process_data(kwargs):
     apikey = get_project_api_key(kwargs["project_id"])
     
-    try:
-        logger.warn("Data received {} in process_data task".format(kwargs))
+    logger.info("Data received {} in process_data task".format(kwargs))
 
-        if not kwargs.get('lang'):
-            # No language set; use language detection.
-            try:
-                resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
-                    HOST=settings.API_HOST, APIKEY=apikey), 
-                    data={'text': kwargs["text"]})
-                kwargs['lang'] = resp['language']
-            except:
-                # In case of network error, just use English.
-                kwargs['lang'] = 'en'
+    if not kwargs.get('lang'):
+        # No language set; use language detection.
+        try:
+            resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
+                HOST=settings.API_HOST, APIKEY=apikey), 
+                data={'text': kwargs["text"]}).json()
+            print(resp)
+            kwargs['lang'] = resp['language']
+        except Exception as e:
+            logger.error("Error detecting language for {}: {}".format(kwargs['text'], e))
+            return
 
-        resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
-            HOST=settings.API_HOST, APIKEY=apikey), 
-            data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
-        
-        if 'score' in resp:
-            sentiment = resp['score']
-            keywords = resp['keywords']
-            if kwargs["source"] == '':
-                source = models.Source.objects.get_or_create(label="Upload")[0]
-            else:
-                source = models.Source.objects.get_or_create(
-                    label=kwargs["source"])[0]
+    resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
+        HOST=settings.API_HOST, APIKEY=apikey), 
+        data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
+    
+    if 'score' not in resp:
+        logger.error("Error processing {}: {}".format(kwargs, resp))
+        return
 
-            project = models.Project.objects.get(pk=kwargs["project_id"])
+    sentiment = resp['score']
+    keywords = resp['keywords']
+    if kwargs["source"] == '':
+        source = models.Source.objects.get_or_create(label="Upload")[0]
+    else:
+        source = models.Source.objects.get_or_create(
+            label=kwargs["source"])[0]
 
-            date = kwargs.get('date', None)
-            if not date:
-                date = datetime.now()
-            else:
-                date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
-            
-            data = models.Data.objects.create(
-                project=project,
-                text=kwargs["text"], 
-                date_created=date, 
-                sentiment=sentiment,
-                source=source,
-                url=kwargs.get("url", ''), 
-                language=kwargs["lang"],
-                relevance= 0, 
-                metadata=kwargs.get("metadata", ''),
-                keywords=keywords,
+    project = models.Project.objects.get(pk=kwargs["project_id"])
+
+    date = kwargs.get('date', None)
+    if not date:
+        date = datetime.now()
+    else:
+        date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
+    
+    data = models.Data.objects.create(
+        project=project,
+        text=kwargs["text"], 
+        date_created=date, 
+        sentiment=sentiment,
+        source=source,
+        url=kwargs.get("url", ''), 
+        language=kwargs["lang"],
+        relevance= 0, 
+        metadata=kwargs.get("metadata", ''),
+        keywords=keywords,
+    )
+    
+    for ent in resp['entities']:
+        entity_instance, created = models.Entity.objects.get_or_create(
+            label=ent['title'],
+            language=kwargs["lang"],
+            english_label=ent['id'],
+        )
+
+        for clas in ent['classifications']:
+            c_instance, created = models.Classification.objects.get_or_create(
+                label=clas
             )
-            
-            for ent in resp['entities']:
-                entity_instance, created = models.Entity.objects.get_or_create(
-                    label=ent['title'],
-                    language=kwargs["lang"],
-                    english_label=ent['id'],
-                )
+            entity_instance.classifications.add(c_instance)
 
-                for clas in ent['classifications']:
-                    c_instance, created = models.Classification.objects.get_or_create(
-                        label=clas
-                    )
-                    entity_instance.classifications.add(c_instance)
+        data.entities.add(entity_instance)
 
-                data.entities.add(entity_instance)
+    aspects_found = set()
+    if project.aspect_model:
+        aspects = requests.post(
+            '{HOST}/v4/{APIKEY}/aspect.json'.format(
+                HOST=settings.API_HOST, APIKEY=apikey),
+                {
+                    'text': kwargs["text"], 
+                    'neutral': 1, 
+                    'lang': kwargs["lang"], 
+                    'model': project.aspect_model.label
+                }
+            ).json()
         
-            aspects_found = set()
-            if project.aspect_model:
-                aspects = requests.post(
-                    '{HOST}/v4/{APIKEY}/aspect.json'.format(
-                        HOST=settings.API_HOST, APIKEY=apikey),
-                        {
-                            'text': kwargs["text"], 
-                            'neutral': 1, 
-                            'lang': kwargs["lang"], 
-                            'model': project.aspect_model.label
-                        }
-                    ).json()
-                
-                for key, value in aspects.items():
-                    if key != "status" and aspects['status'] == 'OK':
-                        for v in value:
-                            aspects_found.add(key)
-                            models.Aspect.objects.create(
-                                data=data,
-                                label=key,
-                                chunk=v['chunk'],
-                                sentiment=v['score'],
-                                topic=v['sentiment_topic'],
-                                sentiment_text=v['sentiment_text']
-                            )
-            
-            # Check if we have to send out any alerts based on the alert rules setup.
-            for rule in project.alertrule_set.filter(active=True):
-                alert = None
-                if rule.keywords:
-                    for kw in rule.keywords.split(','):
-                        if kw in data.text:
-                            alert = models.Alert.objects.create(
-                                project=project,
-                                data=data,
-                                rule=rule,
-                                title='Triggered because keyword {} detected'.format(kw),
-                                description='Alert created for message: {}'.format(data.text)
-                            )
-                            break
-                 
-                if not alert and rule.aspect in aspects_found:
+        for key, value in aspects.items():
+            if key != "status" and aspects['status'] == 'OK':
+                for v in value:
+                    aspects_found.add(key)
+                    models.Aspect.objects.create(
+                        data=data,
+                        label=key,
+                        chunk=v['chunk'],
+                        sentiment=v['score'],
+                        topic=v['sentiment_topic'],
+                        sentiment_text=v['sentiment_text']
+                    )
+    
+    # Check if we have to send out any alerts based on the alert rules setup.
+    for rule in project.alertrule_set.filter(active=True):
+        alert = None
+        if rule.keywords:
+            for kw in rule.keywords.split(','):
+                if kw in data.text:
                     alert = models.Alert.objects.create(
                         project=project,
                         data=data,
                         rule=rule,
-                        title='Triggered because aspect {} detected'.format(rule.aspect),
+                        title='Triggered because keyword {} detected'.format(kw),
                         description='Alert created for message: {}'.format(data.text)
                     )
-                
-                # Has this alert been triggered often enough? If so, notify.
-                if alert and rule.should_notify():
-                    notify(alert)
+                    break
+         
+        if not alert and rule.aspect in aspects_found:
+            alert = models.Alert.objects.create(
+                project=project,
+                data=data,
+                rule=rule,
+                title='Triggered because aspect {} detected'.format(rule.aspect),
+                description='Alert created for message: {}'.format(data.text)
+            )
+        
+        # Has this alert been triggered often enough? If so, notify.
+        if alert and rule.should_notify():
+            notify(alert)
 
-    except Exception as e:
-        print(e)
 
 def notify(alert):
     """
