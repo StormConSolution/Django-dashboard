@@ -9,10 +9,12 @@ def general_context(request):
     except:
         custom_logo = ''
     guest_user = request.user.username == "guest@repustate.com"
+    firebase_auth = settings.FIREBASE_AUTH == "1"
     return {
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
         'CUSTOM_LOGO':custom_logo,
         'UPLOAD_CSV_FROM_CLIENT': settings.UPLOAD_CSV_FROM_CLIENT,
         'GUEST_USER': guest_user,
+        'FIREBASE_AUTH': firebase_auth,
     }

@@ -1,0 +1,66 @@
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+    https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+
+<script>
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyCDdm-RxHVsJTHKUMe5Cb3iDeSjykNrC44",
+    authDomain: "test-4e2af.firebaseapp.com",
+    projectId: "test-4e2af",
+    storageBucket: "test-4e2af.appspot.com",
+    messagingSenderId: "660351860193",
+    appId: "1:660351860193:web:aabf1edd04ad1c516426a0"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+document.querySelector("#login-form").addEventListener("submit", (e)=>{
+    e.preventDefault()
+    console.log("test")
+    let email = document.querySelector("#inputEmail").value
+    let password = document.querySelector("#inputPassword").value
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+        // Signed in
+        var user = userCredential.user;
+        // ...
+        firebase.auth().currentUser.getIdToken().then((idToken)=>{
+/*             let xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+            xmlhttp.open("POST", "/firebase-login/");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    window.location = this.responseText
+                }
+            };
+
+            xmlhttp.send(JSON.stringify({token:idToken})); */
+            fetch("/firebase-login/", {
+                method:"POST", 
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({token:idToken}),
+                credentials: "include"
+            })
+            .then(response=> response.text())
+            .then(redirectURL =>{
+                //window.location = redirectURL
+                    window.location.replace(redirectURL)
+            })
+            }).catch((error)=>{
+                alert("Login error")
+            })
+    })
+    .catch((error) => {
+        alert("Email or password incorrect")
+        var errorCode = error.code;
+        var errorMessage = error.message;
+    });
+})
+
+</script>

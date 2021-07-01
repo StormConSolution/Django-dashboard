@@ -12,7 +12,8 @@ PROJECT_DIR = Path(__file__).parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
-
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_NAME = "dashboard_sessionid"
 # load production server from .env
 ALLOWED_HOSTS = ['*']
 
@@ -62,9 +63,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
-
 ROOT_URLCONF = 'dashboard.urls'
-
+CORS_ORIGIN_ALLOW_ALL = True
 LOGIN_REDIRECT_URL = "/login/"   # Route defined in data/urls.py
 LOGOUT_REDIRECT_URL = "/login/"  # Route defined in data/urls.py
 
@@ -218,6 +218,8 @@ except:
     pass
 
 # Used by the add_data view. Set proper values in settings_local
+FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', "0")
+REPUSTATE_WEBSITE = os.environ.get("REPUSTATE_WEBSITE", "")
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
