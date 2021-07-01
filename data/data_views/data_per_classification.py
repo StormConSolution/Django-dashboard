@@ -61,7 +61,7 @@ def data_per_classification(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_classification dc on dc.id=%s inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_source ds on ds.id = dd.source_id where dd.id= dde.data_id and """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""" + limit_offset_clause, query_args)
+                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_classification dc on dc.id=%s inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_source ds on ds.id = dd.source_id where dd.id= dde.data_id and """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""", query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
