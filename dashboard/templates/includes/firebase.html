@@ -20,7 +20,6 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 document.querySelector("#login-form").addEventListener("submit", (e)=>{
     e.preventDefault()
-    console.log("test")
     let email = document.querySelector("#inputEmail").value
     let password = document.querySelector("#inputPassword").value
     firebase.auth().signInWithEmailAndPassword(email, password)

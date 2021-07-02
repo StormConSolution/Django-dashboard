@@ -13,6 +13,18 @@ import firebase_admin
 from .forms import LoginForm, SignUpForm
 
 
+ 
+def firebase_logout(request):
+    logout(request)
+    return redirect(settings.REPUSTATE_WEBSITE)
+
+def logout_view(request):
+    logout(request)
+    if settings.REPUSTATE_WEBSITE != "":
+        return redirect(settings.REPUSTATE_WEBSITE + "/firebase-logout/")
+    return redirect("/")
+        
+
 def login_view(request):
     form = LoginForm(request.POST or None)
 
