@@ -318,8 +318,14 @@ def co_occurence(request, project_id):
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
     user = request.user
-    page_size = int(request.GET.get("page-size", 10))
-    page = int(request.GET.get("page", 1))
+    try:
+        page_size = int(request.GET.get("page-size", 10))
+    except:
+        page_size = 10
+    try:
+        page = int(request.GET.get("page", 1))
+    except:
+        page = 1
     project = get_object_or_404(data_models.Project, pk=project_id)
     aspect_label = request.GET.get("aspect-label", "") 
     if project.users.filter(pk=request.user.id).count() == 0:

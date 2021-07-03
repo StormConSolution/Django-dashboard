@@ -1,12 +1,13 @@
 import {getFilters} from "../helpers/filters"
 import {createPagination} from './utils/utils'
+let optionsState = {}
 export function createTable(page, options){
+    optionsState = options
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
-    let filtersValues = getFilters() 
     document.getElementById("data-modal-table-csv").href = options.wordCloudURL
     fetch(options.dataURL + `&page-size=${pageSize}&page=${page}`)
     .then((response) => response.json())
@@ -45,3 +46,7 @@ export function createTable(page, options){
         createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, options);
     });
 }
+
+document.getElementById("data-table-modal-page-size").addEventListener("change",()=>{
+    createTable(1, optionsState)
+})

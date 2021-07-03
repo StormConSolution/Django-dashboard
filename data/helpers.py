@@ -2,6 +2,8 @@ from urllib import parse
 import hmac
 import json
 import requests
+import re
+
 from django.conf import settings
 from data.models import Project
 def get_filters_sql(request):
@@ -34,9 +36,9 @@ def get_filters_sql2(request):
         dateFrom = ""
     if not dateTo:
         dateTo = ""
-    if dateFrom != "" :
+    if re.match(r"(\D*\d){6,}", dateFrom):
         where_clauses.append("dd.date_created >= '" + dateFrom + "'")
-    if dateTo != "":
+    if re.match(r"(\D*\d){6,}", dateTo):
         where_clauses.append("dd.date_created <= '" + dateTo + "'")
     if languages != ['']:
         map(lambda x: "''%s''" % x, languages)
