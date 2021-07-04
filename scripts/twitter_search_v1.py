@@ -19,7 +19,7 @@ from data.models import TwitterSearch, Project
 from dashboard.tasks import process_data
 
 
-MAX_RESULTS = 3000
+MAX_RESULTS = 2
 
 VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 

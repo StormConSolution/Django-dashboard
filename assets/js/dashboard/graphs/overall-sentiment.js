@@ -3,6 +3,7 @@ import {metadataFiltersURL, normalFiltersURL} from "../helpers/filters";
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalPerSentiment} from "../tables/data_table_modal"
 import wordlCloud from './word-cloud-modal'
+import {saveGraph} from '../pdf/pdf'
 let chart
 let div = document.querySelector("#overall-sentiment-chart")
 normalFiltersURL()
@@ -59,7 +60,13 @@ function overallSentiment(data){
     };
     chartOptions.series = [data.positivesCount, data.negativesCount, data.neutralsCount]
     chart = new ApexCharts(div, chartOptions);
-    chart.render();
+
+    chart.render().then(()=>{
+
+        saveGraph(chart, 'overall-sentiment', 400)
+    }
+    );
+
 }
 
 function aspectAndSourceCount(data){

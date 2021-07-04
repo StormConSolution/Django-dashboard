@@ -2,6 +2,7 @@ import * as graphs from "./dashboard/graphs";
 import * as tables from "./dashboard/tables";
 import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers';
 import "./project-details/filters";
+import {getGraphs, generatePDF} from './dashboard/pdf/pdf';
 
 import  "./dashboard/countrymap.js";
 
@@ -231,3 +232,8 @@ document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>
 document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=>{
     document.querySelector("#word-cloud-modal").style.display = "none"
 })
+
+/* document.querySelector("#generate-pdf-report").addEventListener("click", (e)=>{
+    console.log(getGraphs())
+    generatePDF()
+}) */

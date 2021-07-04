@@ -45,6 +45,7 @@ def get_chart_data(this_project, start, end, entity_filter,
 
     if this_project.aspect_model:
         chart_classes.append(charts.AspectCooccurrence)
+
     for chart_class in chart_classes:
         instance = chart_class(
             this_project,
@@ -269,11 +270,12 @@ def co_occurence(request, project_id):
 
     if data_models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
+    
     start = request.GET.get("date-from")
     end = request.GET.get("date-to")
-    
-    #end = this_project.data_set.latest().date_created
-    #start = end - datetime.timedelta(days=30)
+    if not start or not end:
+        end = this_project.data_set.latest().date_created
+        start = end - datetime.timedelta(days=30)
 
     # list of languages in a given project
     lan_data = list(data_models.Data.objects.filter(
@@ -283,21 +285,13 @@ def co_occurence(request, project_id):
         lang_list.append(lan['language'])
 
 
-    #src = request.GET.getlist('filter_source')
     source_filter = request.GET.get('sourcesID', "").split(",")
     lang_filter = parse.unquote(request.GET.get("languages", "")).split(",")
-    #if src and src[0]:
-    #    source_filter = src[0].split(",")
-    #    context['selected_sources'] = source_filter
-    #else:
-    #    source_filter = None
     
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
     aspect_name = request.GET.get('aspectname')
     
-    #source_filter = request.GET.get("sourcesID", "").split(",")
-    #lang_filter =parse.unquote(request.GET.get("languages", "")).split(",")
     chart_data = get_chart_data(
         this_project,
         start,
@@ -313,13 +307,20 @@ def co_occurence(request, project_id):
         response  = chart_data["aspect_cooccurrence_data"]
     else:
         response =  {}
+    
     return JsonResponse(response, safe=False)
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
     user = request.user
-    page_size = int(request.GET.get("page-size", 10))
-    page = int(request.GET.get("page", 1))
+    try:
+        page_size = int(request.GET.get("page-size", 10))
+    except:
+        page_size = 10
+    try:
+        page = int(request.GET.get("page", 1))
+    except:
+        page = 1
     project = get_object_or_404(data_models.Project, pk=project_id)
     aspect_label = request.GET.get("aspect-label", "") 
     if project.users.filter(pk=request.user.id).count() == 0:
