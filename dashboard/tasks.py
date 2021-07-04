@@ -156,3 +156,21 @@ def notify(alert):
         for phone_number in alert.rule.sms.split(','):
             m = send_sms(body, phone_number)
             logger.warn("Response from sms for alert {}: {}".format(alert, m))
+
+@app.task
+def job_complete(project_id):
+    project = models.Project.objects.get(pk=project_id)
+    
+    logger.info("Data upload complete for project {}".format(project_id))
+
+    # Send an email to all people on this project.
+    if not settings.DEBUG:
+        msg = 'We have completed processing your latest data upload for project "{}"'.format(project.name)
+        
+        send_mail(
+            'Repustate Data Upload Complete',
+            msg,
+            'no-reply@repustate.com',
+            [u.email for u in project.users.all()],
+            fail_silently=False
+        )

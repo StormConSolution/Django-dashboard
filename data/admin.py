@@ -78,7 +78,8 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('name', 'users__email')
     fieldsets = (
         (None, {
-            'fields':('name', 'aspect_model', 'users', 'geo_enabled', "api_key", "popup_text"),
+            'fields':('name', 'aspect_model', 'users', 'geo_enabled', 
+                "api_key", "popup_title", "popup_text"),
         }),
     )
 
