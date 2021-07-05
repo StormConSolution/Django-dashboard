@@ -68,6 +68,7 @@ pyasn1==0.4.8
 pycodestyle==2.6.0
 pycparser==2.20
 pyparsing==2.4.7
+python-dateutil==2.8.1
 python-decouple==3.3
 pytz==2020.1
 redis==3.5.3

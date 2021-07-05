@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from celery.utils.log import get_task_logger
+from dateutil import parser
 from django.conf import settings
 from django.core.mail import send_mail
 import requests
@@ -48,11 +49,10 @@ def process_data(kwargs):
 
     project = models.Project.objects.get(pk=kwargs["project_id"])
 
-    date = kwargs.get('date', None)
-    if not date:
+    if not kwargs.get('date'):
         date = datetime.now()
     else:
-        date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
+        date = parser.parse(kwargs['date'])
     
     data = models.Data.objects.create(
         project=project,
