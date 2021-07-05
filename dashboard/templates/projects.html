@@ -66,7 +66,7 @@
 					-->
                 </div>
                 <div class="project-list-alldata">
-                    ${total_data}
+                    ${total_data.toLocaleString()}
                     <span>Total data items</span>
                 </div>
                 <div class="project-list-data">
@@ -78,7 +78,7 @@
                                 <small>Total Positive</small>
                             </td>
                             <td>
-                                <span>${project.positive_count}</span>
+                                <span>${project.positive_count.toLocaleString()}</span>
                             </td>
                             <td class="text-right">${positivePercentage}%</td>
                             <td class="text-right small-chart">
@@ -91,7 +91,7 @@
                                 <small>Total Negative</small>
                             </td>
                             <td>
-                                <span>${project.negative_count}</span>
+                                <span>${project.negative_count.toLocaleString()}</span>
                             </td>
                             <td class="text-right">${negativePercentage}%</td>
                             <td class="text-right small-chart">
@@ -104,7 +104,7 @@
                                 <small>Total Neutral</small>
                             </td>
                             <td>
-                                <span>${project.neutral_count}</span>
+                                <span>${project.neutral_count.toLocaleString()}</span>
                             </td>
                             <td class="text-right">${neutralPercentage}%</td>
                             <td class="text-right small-chart">
