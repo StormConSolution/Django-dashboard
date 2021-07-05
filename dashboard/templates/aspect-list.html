@@ -11,42 +11,6 @@
             <div class="col-12">
                 <div class="porject-title align-items-center d-flex flex-wrap">
                     <a href="#" class="all-data">Aspect List</a>
-                    <div class="ml-auto">
-                        <form>
-                            <div class="form-row align-items-center">
-                                {% comment %}
-                                <div class="col-auto">
-                                    <div
-                                        class="per-page align-items-center d-flex"
-                                    >
-                                        Show
-                                        <select
-                                            class="custom-select"
-                                            id="inputGroupSelect01"
-                                        >
-                                            <option selected>10</option>
-                                            <option value="1">20</option>
-                                            <option value="2">30</option>
-                                            <option value="3">40</option>
-                                        </select>
-                                        Entries
-                                    </div>
-                                </div>
-                                {% endcomment %} {% comment %}
-                                <div class="col-auto">
-                                    <div class="data-search">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            placeholder="Search"
-                                        />
-                                    </div>
-                                </div>
-                                {% endcomment %}
-
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -210,19 +174,6 @@
                 id="create-aspect-model"
                 >Add New Aspect</a
             >
-        <!--<a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#testaspect" >
-        Test aspect modal
-      </a>-->
-        {% comment %}
-        <a
-            href="#"
-            class="btn btn-primary mr-2"
-            data-toggle="modal"
-            data-target="#createaspect"
-        >
-            Create aspect modal
-        </a>
-        {% endcomment %}
     </div>
 </div>
 
@@ -656,30 +607,25 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
         }
     });
 })
-    {% comment %} let dataTableModalContainer = document.querySelector("#data-table-modal")
-    let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
-    dataTableModalCloseButton.addEventListener("click", (e) => {
-        dataTableModalContainer.style.display = 'none'
-    }) {% endcomment %}
-    new Tagify(document.querySelector(".tagify-classifications"),{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-        whitelist:[
-                    {% for classification in classifications %}
-                        '{{classification.classification}}',
-                    {% endfor %}
-                ],
-        dropdown : {
-            classname     : "color-blue",
-            enabled       : 1,              // show the dropdown immediately on focus
-            maxItems      : 10,
-            position      : "text",         // place the dropdown near the typed text
-            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-            highlightFirst: true
-        }
-    });
-    new Tagify(document.querySelector(".tagify"),{
-                originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-    });
+new Tagify(document.querySelector(".tagify-classifications"),{
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+    whitelist:[
+                {% for classification in classifications %}
+                    '{{classification.classification}}',
+                {% endfor %}
+            ],
+    dropdown : {
+        classname     : "color-blue",
+        enabled       : 1,              // show the dropdown immediately on focus
+        maxItems      : 10,
+        position      : "text",         // place the dropdown near the typed text
+        closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+        highlightFirst: true
+    }
+});
+new Tagify(document.querySelector(".tagify"),{
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+});
 </script>
 {% if GUEST_USER %}
 <script src="/static/assets/js/aspect-guest.js"></script>

@@ -30,6 +30,5 @@ document.querySelector("#test-aspect-button").addEventListener("click", ()=>{
     $("#test-aspect-modal").modal()
 })
 document.querySelector('#create-aspect-model').addEventListener('click',()=>{
-    console.log("test")
     $('#createaspect').modal()
 })

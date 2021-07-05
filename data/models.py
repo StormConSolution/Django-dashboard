@@ -89,6 +89,9 @@ class Entity(models.Model):
             help_text='Non-blank only when language is not english')
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     classifications = models.ManyToManyField(Classification)
+    users = models.ManyToManyField(User, blank=True)
+    aliases = models.TextField(blank=False, default="")
+    api_key = models.TextField(blank=False, default="")
 
     def __str__(self):
         return self.label

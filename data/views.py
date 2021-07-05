@@ -30,6 +30,46 @@ from data import charts
 from data import models as data_models
 from data.forms import AlertRuleForm
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
+import data.helpers as helpers
+def collect_args(this_project, request):
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+
+    # getting list of query params
+    lang = request.GET.getlist('filter_language')
+    src = request.GET.getlist('filter_source')
+    # cleaning up the query params
+    if lang:
+        lang_filter = lang[0].split(",")
+    else:
+        lang_filter = lang
+    if src:
+        source_filter = src[0].split(",")
+    else:
+        source_filter = src
+
+    if this_project.data_set.count() > 0:
+        end = this_project.data_set.latest().date_created
+    else:
+        end = datetime.date.today()
+    start = end - datetime.timedelta(days=30)
+
+    if 'from' in request.GET and 'to' in request.GET:
+        start = datetime.datetime.strptime(request.GET.get('from'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
+    
+    return dict(
+        project=this_project,
+        entity_filter=entity_filter,
+        aspect_topic=aspect_topic,
+        aspect_name=aspect_name,
+        lang_filter=lang_filter,
+        source_filter=source_filter,
+        start=start,
+        end=end,
+        request=request
+    )
 
 
 def default_encoder(o):
@@ -569,6 +609,77 @@ class Aspect(View):
         if save_aspect_model(aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
+
+class EntitiesList(View):
+
+    @method_decorator(login_required)
+    def get(self, request):
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        user = request.user
+        aspect_list = data_models.Entity.objects.filter(users=user).order_by("label", "id")
+        
+        context = {}
+        context["entities"] = []
+        context["standard_aspect_models"] = []
+        context["custom_aspect_models"] = []
+        
+        p = Paginator(aspect_list, page_size)
+        page = p.page(page_number)
+        
+        for aspect in page.object_list:
+            context["entities"].append({
+                "id":aspect.id,
+                "name": aspect.label,
+                "lang":aspect.language,
+            })
+
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        apikey = get_api_key(request.user)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+            % apikey["apikeys"][0])
+        context["classifications"] = json.loads(req.text)
+        context["languages"] = settings.LANGUAGES
+        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
+        context["all_languages"] = []
+        for element in languages:
+            for language_tuple in settings.LANGUAGES:
+                if element["language"] == language_tuple[0]:
+                    context["all_languages"].append(language_tuple)
+        return render(request, "entity-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications","") 
+        entity_aliases = request.POST.get("entity-aliases","")
+        api_key = request.POST.get("api-key", "")
+        print(entity_aliases)
+        print(entity_classifications)
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+
+        for entity_classification in entity_classifications:
+            try:
+                classification_model = data_models.Classification.objects.get(
+                label=entity_classification)
+                entity_model.classifications.add(classification_model)
+            except:
+                pass
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+        return redirect("entities")
+
 
 class SentimentList(View):
 
