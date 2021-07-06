@@ -172,6 +172,7 @@ STATICFILES_DIRS = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    'dashboard.backends.CaseInsensitiveModelBackend',
     'django.contrib.auth.backends.ModelBackend',
     'dashboard.backends.GuestBackend',
 )
