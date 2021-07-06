@@ -452,3 +452,25 @@ def aspect_topic(request, project_id):
         })
 
     return JsonResponse(response, safe=False)
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
+def sources_languages_per_project(request, project_id):
+    """
+    Fetch the unique set of languages and sources for this project.
+    """
+    project = data_models.Project.objects.get(pk=project_id)
+    languages = list(project.data_set.values_list('language', flat=True).distinct())
+    
+    all_languages = []
+    for l in languages:
+        for code, label in settings.LANGUAGES:
+            if l == code:
+                all_languages.append({'code':code, 'label':label})
+
+    response = {
+        "sources": list(data_models.Source.objects.filter(
+            pk__in=project.data_set.values_list('source', flat=True).distinct()).values()),
+        "languages":all_languages, 
+    }
+    
+    return JsonResponse(response, safe=False)
