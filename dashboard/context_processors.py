@@ -14,12 +14,17 @@ def general_context(request):
         custom_logo = ''
     guest_user = request.user.username == "guest@repustate.com"
     
+    if request.user.is_authenticated:
+        custom_aspects = data_models.AspectModel.objects.filter(users=request.user).values('id', 'label')
+    else:
+        custom_aspects = []
+    
     return {
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
         'CUSTOM_LOGO':custom_logo,
         'UPLOAD_CSV_FROM_CLIENT': settings.UPLOAD_CSV_FROM_CLIENT,
         'GUEST_USER': guest_user,
-        "CUSTOM_ASPECT_MODELS": data_models.AspectModel.objects.filter(users=request.user).values('id', 'label'),
+        "CUSTOM_ASPECT_MODELS": custom_aspects,
         'STANDARD_ASPECT_MODELS': data_models.AspectModel.objects.filter(standard=True).values('id', 'label'),
     }
