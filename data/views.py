@@ -683,7 +683,8 @@ def support(request):
         if response.status_code != 201:
             mail_admins(
                 'Zendesk ticket not issued',
-                'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}'.format(request.user, request.POST['question']),
+                'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}\n\nResponse: {}'.format(
+                    request.user, request.POST['question'], response.content),
             )
 
         context['success'] = True
