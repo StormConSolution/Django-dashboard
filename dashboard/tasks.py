@@ -23,12 +23,11 @@ def process_data(kwargs):
         # No language set; use language detection.
         try:
             resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
-                HOST=settings.API_HOST, APIKEY=apikey), 
-                data={'text': kwargs["text"]}).json()
-            print(resp)
-            kwargs['lang'] = resp['language']
+                HOST=settings.API_HOST, APIKEY=apikey), data={'text': kwargs["text"]})
+            kwargs['lang'] = resp.json()['language']
         except Exception as e:
-            logger.error("Error detecting language for {}: {}".format(kwargs['text'], e))
+            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}".format(
+                kwargs['text'], e, settings.API_HOST, apikey))
             return
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
