@@ -9,12 +9,11 @@ import requests
 def sentiment_test(request):
 
     text = request.POST.get("test-sentiment-text", "")
-    language = request.POST.get("language", "")
+    language = request.POST.get("text-language", "")
     api_key = request.POST.get("api-key", "")
 
     req = requests.post("%s/v4/%s/score.json" % (settings.API_HOST, api_key),
         data={"text": text, "lang": language})
     response = req.json()
+    
     return JsonResponse(response, safe=False, status=req.status_code)
-
-
