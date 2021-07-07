@@ -1,0 +1,67 @@
+<div
+    class="modal fade"
+    id="test-entity-modal"
+    tabindex="-1"
+    aria-label="testaspectLabel"
+>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Aspect</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <i
+                        class="fe fe-x-circle"
+                    ></i>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow-y:visible;position:relative">
+                <div class="modal-data">
+                    <form method="POST" action="/sentiment/" id="test-entity-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="custom-select" name="text-language" id="test-entity-language">
+                                {% for language in languages %}
+                                <option value="{{language.0}}">{{language.1}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aspect-name" class="form-label">Sample Text</label>
+                            <textarea
+                                name="test-entity-model-text"
+                                class="form-control"
+                                id="test-entity-text"
+								placeholder="Enter some sample text to test your aspect models"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="test-entity-api-key-select" class="form-label"
+                            >Select API key</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="test-entity-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="test-entity-modal-loading"></div>
+                        <div id="test-entity-model-score">
+                            
+                        </div>
+
+<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
+                        <button type="submit" class="btn btn-primary mt-2">
+                            Test Entity
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
