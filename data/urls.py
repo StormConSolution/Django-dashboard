@@ -16,6 +16,7 @@ urlpatterns = [
     
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('project/<int:project_id>/', views.new_project_details, name='project'),
+    path('delete-project/<int:project_id>/', views.delete_project_details, name='delete-project'),
     
     path('aspect/', views.AspectsList.as_view(), name='aspects'),
     path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),

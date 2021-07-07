@@ -74,6 +74,7 @@ def pages(request):
 
 
 class Projects(View):
+    
     @method_decorator(login_required)
     def get(self, request):
         user = request.user
@@ -116,6 +117,12 @@ class Projects(View):
         project.save()
 
         return redirect("project", project.id)
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
+def delete_project_details(request, project_id):
+    p = get_object_or_404(data_models.Project, pk=project_id)
+    p.delete()
+    return redirect("project")
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def new_project_details(request, project_id):
