@@ -1,2 +1,2 @@
-import "./entity/entitity"
+import "./entity/entity"
 
