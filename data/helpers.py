@@ -150,7 +150,7 @@ def save_entity_model(entity_model):
     url = (settings.API_HOST + 
     "/v4/{}/custom-aliases.json".format(entity_model.api_key))
     for alias in aliases:
-        requests.put(
+        resp = requests.put(
             url=url,
             params={
                 "title":entity_model.label,

@@ -27,6 +27,12 @@
                                     <th scope="col">
                                         Language
                                     </th>
+                                    <th scope="col">
+                                        Classifications
+                                    </th>
+                                    <th scope="col">
+                                        Aliases
+                                    </th>
                                     <th
                                         scope="col"
                                         class="text-center action-col"
@@ -38,21 +44,18 @@
                             <tbody>
                                 {% for entity in entities %}
                                 <tr>
-                                    <td>{{ entity.name }}</td>
-                                    <td>{{ entity.lang }}</td>
+                                    <td>{{ entity.label }}</td>
+                                    <td>{{ entity.language }}</td>
+                                    <td>{{ entity.classifications.all|join:", " }}</td>
+                                    <td>{{ entity.aliases }}</td>
                                     <td class="text-center">
-                                        <!--
-                      <a href="#" class="icon-link" data-toggle="modal" data-target="#testaspect" >
-                        <i class="fe fe-eye" data-toggle="tooltip" data-placement="bottom" title="Test Aspect"></i>
-                      </a>
--->
                                         <a
                                             href="#"
                                             class="icon-link"
                                             data-toggle="tooltip"
                                             data-role="edit-entity-button"
                                             data-placement="bottom"
-                                            title="Edit Aspect"
+                                            title="Edit Entity"
                                             data-entity-id="{{entity.id}}"
                                         >
                                             <i class="fe fe-edit"></i>
@@ -284,11 +287,11 @@
 							</select>
                         </div>
                         <div class="form-group" style="position: relative">
-                            <label for="edit-entity-classifications" class="form-label">Entity Classifications {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
+                            <label for="edit-entity-classifications" class="form-label">Entity Classifications {{ "Comma-separated list of classifications for the new entity"|tooltip }}</label>
                             <input type="text" id="edit-entity-classifications"  name="entity-classifications" placeholder="Enter Classifications">
                         </div>
                         <div class="form-group" style="position: relative">
-                            <label for="edit-entity-aliases" class="form-label">Entity Aliases {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
+                            <label for="edit-entity-aliases" class="form-label">Entity Aliases {{ "Comma-separated list of aliases for this new entity"|tooltip }}</label>
                             <input type="text"  name="entity-aliases" id="edit-entity-aliases" placeholder="Enter Aliases">
                         </div>
                         <div class="form-group">
@@ -312,7 +315,6 @@
         </div>
     </div>
 </div>
-{% include "includes/aspect-list/aspect-model-test.html" %}
 
 <script>
 let tagEditClassifications = new Tagify((document.querySelector("#edit-entity-classifications")),{
