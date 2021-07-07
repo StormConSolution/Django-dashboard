@@ -36,3 +36,18 @@ createEntityButton.addEventListener("click", () => {
     }
 });
 
+
+
+document.querySelectorAll('[data-role="delete-entity"]').forEach((e) => {
+    e.addEventListener("click", (e) => {
+        let entityID = e.currentTarget.getAttribute("data-entity-id")
+        fetch("/entity/" + entityID + "/", { method: "DELETE" }).then(response => {
+            if (response.status == 200) {
+                location.reload()
+            } else {
+                alert("Error deleting aspect")
+            }
+        })
+    })
+});
+

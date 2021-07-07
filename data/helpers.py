@@ -141,11 +141,11 @@ def save_entity_model(entity_model):
     body = {
         "title": entity_model.label,
         "lang": entity_model.language,
-        "classifications[]": classifications
+        "classifications": classifications
     }
-    requests.put(
+    resp = requests.put(
         url=url,
-        params=body
+        data=body
     )
     url = (settings.API_HOST + 
     "/v4/{}/custom-aliases.json".format(entity_model.api_key))
@@ -158,4 +158,16 @@ def save_entity_model(entity_model):
                 "alias": alias,
             },
         ) 
+    return True
+
+def delete_entity_model(entity_model):
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-entities.json".format(entity_model.api_key))
+
+    requests.delete(
+        url=url,
+        params={
+            "title": entity_model.label
+        }
+    )
     return True

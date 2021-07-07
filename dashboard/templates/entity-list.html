@@ -50,7 +50,7 @@
                                             href="#"
                                             class="icon-link"
                                             data-toggle="tooltip"
-                                            data-role="edit-aspect-button"
+                                            data-role="edit-entity-button"
                                             data-placement="bottom"
                                             title="Edit Aspect"
                                             data-entity-id="{{entity.id}}"
@@ -62,7 +62,7 @@
                                             href="#"
                                             class="icon-link trash"
                                             data-toggle="tooltip"
-                                            data-role="delete-aspect"
+                                            data-role="delete-entity"
                                             data-placement="bottom"
                                             data-entity-id="{{entity.id}}"
                                             title="Delete Entity"
@@ -206,11 +206,11 @@
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-classifications" class="form-label">Entity Classifications {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
-                            <input type="text" id="entity-classifications" class="tagify-classifications" name="entity-classifications" placeholder="Enter Classifications">
+                            <input type="text" id="entity-classifications" class="tagify-entity-classifications" name="entity-classifications" placeholder="Enter Classifications">
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-aliases" class="form-label">Entity Aliases {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
-                            <input type="text" id="entity-aliases" name="entity-aliases" placeholder="Enter Classifications">
+                            <input type="text" class="entity-aliases" name="entity-aliases" placeholder="Enter Aliases">
                         </div>
                         <div class="form-group">
                             <label for="create-entity-api-key-select" class="form-label"
@@ -235,8 +235,8 @@
 </div>
 
 <div
-    class="modal fade show"
-    id="edit-aspect"
+    class="modal fade"
+    id="edit-entity"
     tabindex="-1"
     aria-label="createaspectLabel"
     style="overflow-y:scroll;"
@@ -244,7 +244,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Aspect</h5>
+                <h5 class="modal-title">Edit Entity</h5>
                 <button
                     type="button"
                     class="close"
@@ -253,51 +253,56 @@
                 >
                     <i
                         class="fe fe-x-circle"
-                        onclick="resetEditAspectForm()"
                     ></i>
                 </button>
             </div>
-            <div class="modal-body" style="overflow-y:visible;position:relative">
+            <div class="modal-body">
                 <div class="modal-data">
-                    <form method="PUT" id="edit-aspect-form" data-aspect-id="NaN">
+                    <form method="POST" id="edit-entity-form">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="aspect-name" class="form-label">Aspect model name</label>
+							<label for="entity-name" class="form-label">Entity name</label>
                             <input
-                                name="aspect-label"
+                                name="entity-name"
                                 type="text"
                                 class="form-control"
-                                id="edit-aspect-name"
-                                placeholder="Enter Aspect Name"
+                                id="edit-entity-name"
+                                placeholder="Enter entity name"
                             />
                         </div>
                         <div class="form-group">
-                            <label for="aspect-lang" class="form-label">Aspect model language</label>
+                            <label for="entity-lang" class="form-label">Entity language</label>
                             <select
-                                name="aspect-lang"
+                                name="entity-lang"
                                 type="text"
                                 class="form-control"
-                                id="edit-aspect-lang"
+                                id="edit-entity-lang"
 							>
 							{% for code, label in languages %}
 							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
 							{% endfor %}
 							</select>
-                            <div class="form-check form-switch aspect-group" >
-                                <p>Select predefined aspect rule</p>
-                                <div class="form-check form-switch" id="edit-aspect-predefined-rules" >
-
-                                </div>
-                            </div>
                         </div>
-                        <input type="hidden" name = "_method" value="PUT"></input>
-                        <button
-                            type="button"
-                            id="edit-add-aspect-rule"
-                            class="btn btn-outline-primary mr-2 mt-2"
-                        >
-                            Add New Aspect
-                        </button>
+                        <div class="form-group" style="position: relative">
+                            <label for="edit-entity-classifications" class="form-label">Entity Classifications {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
+                            <input type="text" id="edit-entity-classifications"  name="entity-classifications" placeholder="Enter Classifications">
+                        </div>
+                        <div class="form-group" style="position: relative">
+                            <label for="edit-entity-aliases" class="form-label">Entity Aliases {{ "Classifications for any named entities that should match this aspect"|tooltip }}</label>
+                            <input type="text"  name="entity-aliases" id="edit-entity-aliases" placeholder="Enter Aliases">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-entity-api-key-select" class="form-label"
+                            >Select API key</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="edit-entity-api-key-select"
+                                name="api-key"
+                            >
+                            </select>
+                        </div>
+                        <div id="edit-entity-modal-loading"></div>
                         <button type="submit" class="btn btn-primary mt-2">
                             Save And Close
                         </button>
@@ -310,7 +315,7 @@
 {% include "includes/aspect-list/aspect-model-test.html" %}
 
 <script>
-new Tagify(document.querySelector(".tagify-classifications"),{
+let tagEditClassifications = new Tagify((document.querySelector("#edit-entity-classifications")),{
             originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     whitelist:[
                 {% for classification in classifications %}
@@ -325,56 +330,91 @@ new Tagify(document.querySelector(".tagify-classifications"),{
         closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
         highlightFirst: true
     }
-});
-new Tagify(document.querySelector("#entity-aliases"),{
+    }); 
+document.querySelectorAll(".tagify-entity-classifications").forEach((e)=>{
+    new Tagify((e),{
             originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-});
-document.querySelector("#edit-aspect").addEventListener("submit", (e)=>{
-    e.preventDefault()
-    let form = document.querySelector("#edit-aspect-form")
-    let formData = new FormData(form)
-    let id = form.getAttribute("data-aspect-id")
-    fetch(`/aspect/${id}/`, {
-        method:"POST",
-        body:formData
-    }).then(response =>{
-        if(response.status===200){
-            location.reload()
-        } else {
-            alert("Error editing aspect")
-        }
+    whitelist:[
+                {% for classification in classifications %}
+                    '{{classification.classification}}',
+                {% endfor %}
+            ],
+    dropdown : {
+        classname     : "color-blue",
+        enabled       : 1,              // show the dropdown immediately on focus
+        maxItems      : 10,
+        position      : "text",         // place the dropdown near the typed text
+        closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+        highlightFirst: true
+    }
+    }); 
+})
+document.querySelectorAll(".entity-aliases").forEach((e)=>{
+    new Tagify((e),{
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     })
 })
-function createAspectEditModal(id){
-	// Fetch details for existing aspect and populate the form.
-
-    url = "/aspect/" + id + "/"
-    fetch(url).then(response => response.json()).then(data => {
-
-                new Tagify(div.querySelector(".tagify"), {
-                    originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-                })
-                new Tagify(div.querySelector(".tagify-classifications"),{
-                    originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-                    whitelist:[
-                                {% for classification in classifications %}
-                                    '{{classification.classification}}',
-                                {% endfor %}
-                            ],
-                    dropdown : {
-                        classname     : "color-blue",
-                        enabled       : 1,              // show the dropdown immediately on focus
-                        maxItems      : 10,
-                        position      : "text",         // place the dropdown near the typed text
-                        closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
-                        highlightFirst: true
-                    }
-                })
-                let editButton = document.querySelector("#edit-add-aspect-rule")
-                editButton.parentNode.insertBefore(div, editButton)
-        document.querySelector("#edit-aspect-form").setAttribute("data-aspect-id", id)
+let editAliases = new Tagify((document.querySelector("#edit-entity-aliases")),{
+            originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
     })
+let editEntityButton = document.querySelector(
+    "#edit-entity-button"
+);
+let editEntityAPIKeysSelect = document.querySelector(
+    "#edit-entity-api-key-select"
+);
+let editEntityModalLoading = document.querySelector(
+    "#edit-entity-modal-loading"
+);
+let editEntityFirstRun = true;
+function editEntityAPIKeys(){
+    if (editEntityFirstRun) {
+        editEntityModalLoading.innerHTML = "Loading...";
+        fetch("/api/user-api-keys/")
+            .then((data) => data.json())
+            .then((data) => {
+                let firstAPIKey = true
+                for (let APIKey of data["apikeys"]) {
+                    let option = document.createElement("option");
+                    option.innerHTML = APIKey;
+                    option.value = APIKey;
+                    if(firstAPIKey){
+                        option.selected = firstAPIKey
+                        firstAPIKey = false
+                    }
+                    editEntityAPIKeysSelect.append(option);
+                }
+                editEntityFirstRun = false;
+                editEntityModalLoading.innerHTML = "";
+            });
+    }
 }
+let editEntityForm = document.querySelector("#edit-entity-form")
+let editEntityName = document.querySelector("#edit-entity-name")
+let editEntityAliases = document.querySelector("#edit-entity-aliases")
+let editEntityClassifications = document.querySelector("#edit-entity-classifications")
+let editEntityLanguage = document.querySelector("#edit-entity-lang")
+document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
+    e.addEventListener("click", (e) => {
+        editEntityAPIKeys()
+        tagEditClassifications.removeAllTags()
+        editAliases.removeAllTags()
+        let entityID = e.currentTarget.getAttribute("data-entity-id")
+        fetch("/entity/" + entityID + "/").then(resp => resp.json()).then(resp=>{
+            editEntityForm.setAttribute("action", "/entity/" + entityID + "/")
+            editEntityName.value = resp.entity_label
+            editAliases.addTags(resp.entity_aliases)
+            editEntityLanguage.value = resp.entity_lang
+            let classifications = []
+            for(classification of resp.classifications){
+                //classifications.push(classification.label)
+                tagEditClassifications.addTags(classification.label)
+            }
+            editEntityClassifications.value = classifications.join(",")
+            $("#edit-entity").modal()
+        })
+    })
+})
 </script>
 {% if GUEST_USER %}
 <script src="/static/assets/js/entity-guest.js"></script>

@@ -1,18 +1,15 @@
 from datetime import datetime, timedelta
-import collections
 import json
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
-from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -20,16 +17,13 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from requests import api
 from natsort import natsorted
-from requests import status_codes
 import requests
-from requests import status_codes
 
-from data import charts
 from data import models as data_models
 from data.forms import AlertRuleForm
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
+import data.helpers as data_helpers
 import data.helpers as helpers
 def collect_args(this_project, request):
     entity_filter = request.GET.get('entity')
@@ -662,24 +656,173 @@ class EntitiesList(View):
         entity_classifications = request.POST.get("entity-classifications","") 
         entity_aliases = request.POST.get("entity-aliases","")
         api_key = request.POST.get("api-key", "")
-        print(entity_aliases)
-        print(entity_classifications)
         entity_model = data_models.Entity.objects.create(label=entity_name, 
             language=entity_lang, api_key=api_key)
         entity_model.users.add(user)
-
+        entity_classifications = entity_classifications.split(",")
         for entity_classification in entity_classifications:
             try:
                 classification_model = data_models.Classification.objects.get(
                 label=entity_classification)
                 entity_model.classifications.add(classification_model)
-            except:
-                pass
+            except Exception as e:
+                print(e)
         entity_model.aliases = entity_aliases
         entity_model.save()
         helpers.save_entity_model(entity_model)
         return redirect("entities")
 
+@method_decorator(csrf_exempt, name='dispatch')
+class Entity(View):
+    
+    @method_decorator(login_required)
+    def delete(self, request, entity_id):
+        user = request.user
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=404)
+
+        if data_helpers.delete_entity_model(entity.get()):
+            entity.delete()
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
+
+    @method_decorator(login_required)
+    def get(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+        entity = entity.get()
+        classifications = data_models.Classification.objects.filter(entity=entity)
+        response = {}
+        response["entity_id"] = entity.id
+        response["entity_label"] = entity.label
+        response["entity_lang"] = entity.language
+        response["entity_aliases"] = entity.aliases
+        response["classifications"] = []
+        for classification in classifications:
+            response["classifications"].append({
+                "label":classification.label,
+                })
+        return JsonResponse(response, safe=False)
+    
+    @method_decorator(login_required)
+    def post(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+
+        helpers.delete_entity_model(entity.get())
+        entity.delete()
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications","") 
+        entity_aliases = request.POST.get("entity-aliases","")
+        api_key = request.POST.get("api-key", "")
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+        entity_classifications = entity_classifications.split(",")
+        for entity_classification in entity_classifications:
+            try:
+                classification_model = data_models.Classification.objects.get(
+                label=entity_classification)
+                entity_model.classifications.add(classification_model)
+            except Exception as e:
+                print(e)
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+        return redirect("entities")
+
+    @method_decorator(login_required)
+    def put(self, request, aspect_id):
+        user = request.user
+        aspect  = data_models.AspectModel.objects.filter(users=user, pk=aspect_id)
+        aspect_label = request.POST.get("aspect-label", "")
+        aspect_lang = request.POST.get("aspect-lang", "")
+        rule_names = request.POST.getlist("rule-name")
+        rule_definitions = request.POST.getlist("rule-definition")
+        rule_classifications = request.POST.getlist("rule-classification", "")
+        rules_id = request.POST.getlist("rule-id", "")
+        predefined_rules = request.POST.getlist("predefined-rules", "")
+
+        if aspect.count() == 0:
+            return HttpResponse(status=403)
+
+        aspect = aspect.get()
+        aspect.label = aspect_label
+        aspect.language = aspect_lang
+        aspect.save()
+
+        # get all no predefined rules for aspect model
+        rules = data_models.AspectRule.objects.filter(aspect_model=aspect, predefined=False)
+
+        """
+        if request does not contain the rule id that was already defined 
+        delete it
+        """
+        for rule in rules:
+            rule_name = rule.rule_name
+            if rule_name not in rule_names:
+                rule.delete()
+
+        rules_len = len(rules_id)
+        count = 0
+        """
+        for rule_name in rule_names:
+            if count >= rules_len:
+                data_models.AspectRule.objects.create(
+                        rule_name=rule_names[count], 
+                        definition=rule_definitions[count], 
+                        aspect_model=aspect,
+                        classifications=rule_classifications[count])
+                continue
+            rule_id = rules_id[count]
+            rule_to_change = data_models.AspectRule.objects.filter(aspect_model=aspect, pk=rule_id)
+            if rule_to_change.count() !=0:
+                rule_to_change = rule_to_change.get()
+                rule_to_change.definition = rule_definitions[count]
+                rule_to_change.label = rule_names[count]
+                rule_to_change.classifications = rule_classifications[count]
+                rule_to_change.save()
+            count = count + 1
+        """
+        count = 0
+        for rule_name in rule_names:
+            rule_name_query = data_models.AspectRule.objects.filter(aspect_model=aspect, rule_name=rule_name)
+            if rule_name_query.count() == 0:
+                    data_models.AspectRule.objects.create(
+                        rule_name=rule_names[count], 
+                        definition=rule_definitions[count], 
+                        aspect_model=aspect,
+                        classifications=rule_classifications[count])
+            else:
+                rule_name_object = rule_name_query.get()
+                rule_name_object.definition = rule_definitions[count]
+                rule_name_object.label = rule_names[count]
+                rule_name_object.classifications = rule_classifications[count]
+                rule_name_object.save()
+            count = count + 1
+
+        aspect_predefined_rules = data_models.AspectRule.objects.filter(aspect_model=aspect, predefined=True)
+        for predefined_rule in aspect_predefined_rules:
+            if predefined_rule.rule_name not in predefined_rules:
+                predefined_rule.delete()
+        for predefined_rule in predefined_rules:
+            if data_models.AspectRule.objects.filter(aspect_model=aspect,
+            rule_name=predefined_rule, predefined=True).count()==0:
+                data_models.AspectRule.objects.create(
+                aspect_model=aspect,
+                rule_name=predefined_rule, predefined=True)
+
+        if save_aspect_model(aspect):
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
 
 class SentimentList(View):
 

@@ -21,7 +21,7 @@ urlpatterns = [
     path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),
 
     path('entity/', views.EntitiesList.as_view(), name='entities'),
-    path('entity/<int:entity_id>/', views.Aspect.as_view(), name='entity'),
+    path('entity/<int:entity_id>/', views.Entity.as_view(), name='entity'),
 
     path('sentiment/', views.SentimentList.as_view(), name='sentiment'),
     path('sentiment/<int:sentiment_id>/', views.Sentiment.as_view(), name='sentiment'),
