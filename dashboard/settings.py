@@ -223,6 +223,7 @@ API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
+SERVER_NAME = os.environ.get('SERVER_NAME', SERVER_NAME)
 
 FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
