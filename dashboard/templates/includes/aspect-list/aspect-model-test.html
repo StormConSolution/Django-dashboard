@@ -2,7 +2,7 @@
     class="modal fade"
     id="test-aspect-modal"
     tabindex="-1"
-    aria-label="createaspectLabel"
+    aria-label="testaspectLabel"
 >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -28,12 +28,12 @@
                             <label class="form-label">Aspect Model</label>
                             <select class="custom-select" name="aspect-model">
                                 <optgroup label="Standard Aspect Models">
-                                    {% for aspect in standard_aspect_models %}
+                                    {% for aspect in STANDARD_ASPECT_MODELS %}
                                             <option value="{{aspect.id}}">{{aspect.label}}</option>
                                     {% endfor %}
                                 </optgroup>
                                 <optgroup label="Custom Aspect Models">
-                                    {% for aspect in custom_aspect_models %}
+                                    {% for aspect in CUSTOM_ASPECT_MODELS %}
                                             <option value="{{aspect.id}}">{{aspect.label}}</option>
                                     {% endfor %}
                                 </optgroup>

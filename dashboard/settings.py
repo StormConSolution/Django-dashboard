@@ -172,6 +172,7 @@ STATICFILES_DIRS = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    'dashboard.backends.CaseInsensitiveModelBackend',
     'django.contrib.auth.backends.ModelBackend',
     'dashboard.backends.GuestBackend',
 )
@@ -222,6 +223,7 @@ API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
+SERVER_NAME = os.environ.get('SERVER_NAME', SERVER_NAME)
 
 FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
@@ -259,7 +261,7 @@ SERVER_EMAIL = "Repustate <info@repustate.com>"
 
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'dashboard.urls.api_info',
-    'DEFAULT_API_URL': 'https://dashboard.repustate.com',
+    'DEFAULT_API_URL': 'https://iq.repustate.com',
 }
 
 LOGGING_CONFIG = None
