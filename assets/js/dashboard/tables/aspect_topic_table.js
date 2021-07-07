@@ -15,7 +15,6 @@ function makeTable(page){
     let pageSize = pageSizeDropdown.value
     pagination.innerHTML = ""
     let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
-    console.log(pageSize)
     document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
     fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
     .then((response) => response.json())
