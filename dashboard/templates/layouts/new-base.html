@@ -126,13 +126,13 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> Create Project</a>
+                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> New Project</a>
                 </li>
 				<li class="nav-item">
-                  <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload Data</a>
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export Data</a>
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export</a>
 			    </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'alerts' %}"><i class="fe fe-bell"></i>Alerts</a>
@@ -252,7 +252,8 @@
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 
 <script>
-
+	// Set a global variable for the api host.	
+	window.apiHostName = "{{ API_HOST }}";
 
     document.querySelector("#csvbox-button").addEventListener("click", () => {
 

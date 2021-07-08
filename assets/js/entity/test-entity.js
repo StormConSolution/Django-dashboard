@@ -33,7 +33,7 @@ document.querySelector("#test-entity-form").addEventListener("submit", (e)=>{
     let language = document.querySelector("#test-entity-language").value
     let apiKey = testEntityAPIKeysSelect.value
     let scoreDiv = document.querySelector("#test-entity-model-score")
-    fetch(`https://api.repustate.com/v4/${apiKey}/entities.json`,{
+    fetch(`${window.apiHostName}/v4/${apiKey}/entities.json`,{
         method:"POST",
         body: new URLSearchParams({
             text: text,
@@ -48,7 +48,7 @@ document.querySelector("#test-entity-form").addEventListener("submit", (e)=>{
                 <div class="col-12 prject-card">
                     <div class="prject-card-inner">
                         <div class="data-table table-responsive">
-                            <table class="table table-striped table-borderless">
+                            <table class="mb-5 table table-striped table-borderless">
                                 <thead>
                                     <tr>
                                         <th>Entity</th>
