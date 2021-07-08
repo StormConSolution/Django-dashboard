@@ -42,10 +42,12 @@
 				{% endif %}
             </ul>
             <div style="margin-left:auto; margin-right:1rem;display:flex;justify-content: center; align-content: center;flex-direction: column;" id="tab-loading">Loading...</div>
+			{% if not GUEST_USER %}
             <ul class="d-flex flex-wrap" id="admin-tabs">
 				<li><a title="user management" href="#">User Access</a></li>
 				<li><a data-toggle="modal" data-target="#deleteModal" title="delete project" href="#">Delete <i class="fe fe-trash-2"></i></a></li>
 			</ul>
+			{% endif %}
           </div>
         </div>
       </div>
