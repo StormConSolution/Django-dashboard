@@ -1,6 +1,7 @@
 from urllib import parse
 import hmac
 import json
+from kombu.exceptions import EncodeError
 import requests
 import re
 
@@ -127,3 +128,46 @@ def delete_aspect_model(aspect_model):
 
 def get_project_api_key(project_id):
     return Project.objects.get(id=project_id).api_key
+
+def save_entity_model(entity_model):
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-entities.json".format(entity_model.api_key))
+    aliases = entity_model.aliases.split(",")
+    classifications = []
+
+    for elem in entity_model.classifications.all():
+        classifications.append(elem.label)
+
+    body = {
+        "title": entity_model.label,
+        "lang": entity_model.language,
+        "classifications": classifications
+    }
+    resp = requests.put(
+        url=url,
+        data=body
+    )
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-aliases.json".format(entity_model.api_key))
+    for alias in aliases:
+        resp = requests.put(
+            url=url,
+            params={
+                "title":entity_model.label,
+                "lang": entity_model.language,
+                "alias": alias,
+            },
+        ) 
+    return True
+
+def delete_entity_model(entity_model):
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-entities.json".format(entity_model.api_key))
+
+    requests.delete(
+        url=url,
+        params={
+            "title": entity_model.label
+        }
+    )
+    return True

@@ -84,11 +84,14 @@ class Classification(models.Model):
         return self.label
 
 class Entity(models.Model):
-    label = models.CharField(max_length=80, db_index=True)
+    label = models.CharField(max_length=80, db_index=True, unique=False)
     english_label = models.CharField(max_length=80, db_index=True, default='', 
-            help_text='Non-blank only when language is not english')
+            help_text='Non-blank only when language is not english', unique=False)
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     classifications = models.ManyToManyField(Classification)
+    users = models.ManyToManyField(User, blank=True)
+    aliases = models.TextField(blank=False, default="")
+    api_key = models.TextField(blank=False, default="")
 
     def __str__(self):
         return self.label

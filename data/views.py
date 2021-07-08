@@ -1,18 +1,15 @@
 from datetime import datetime, timedelta
-import collections
 import json
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
-from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -20,16 +17,53 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from requests import api
 from natsort import natsorted
-from requests import status_codes
 import requests
-from requests import status_codes
 
-from data import charts
 from data import models as data_models
 from data.forms import AlertRuleForm
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
+import data.helpers as data_helpers
+import data.helpers as helpers
+def collect_args(this_project, request):
+    entity_filter = request.GET.get('entity')
+    aspect_topic = request.GET.get('aspecttopic')
+    aspect_name = request.GET.get('aspectname')
+
+    # getting list of query params
+    lang = request.GET.getlist('filter_language')
+    src = request.GET.getlist('filter_source')
+    # cleaning up the query params
+    if lang:
+        lang_filter = lang[0].split(",")
+    else:
+        lang_filter = lang
+    if src:
+        source_filter = src[0].split(",")
+    else:
+        source_filter = src
+
+    if this_project.data_set.count() > 0:
+        end = this_project.data_set.latest().date_created
+    else:
+        end = datetime.date.today()
+    start = end - datetime.timedelta(days=30)
+
+    if 'from' in request.GET and 'to' in request.GET:
+        start = datetime.datetime.strptime(request.GET.get('from'), "%Y-%m-%d")
+        end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
+    
+    return dict(
+        project=this_project,
+        entity_filter=entity_filter,
+        aspect_topic=aspect_topic,
+        aspect_name=aspect_name,
+        lang_filter=lang_filter,
+        source_filter=source_filter,
+        start=start,
+        end=end,
+        request=request
+    )
 
 
 def default_encoder(o):
@@ -536,6 +570,122 @@ class Aspect(View):
         if save_aspect_model(aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
+
+class EntitiesList(View):
+
+    @method_decorator(login_required)
+    def get(self, request):
+        user = request.user
+        entity_list = data_models.Entity.objects.filter(users=user).order_by("label", "id")
+        
+        context = {}
+        
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        p = Paginator(entity_list, page_size)
+        page = p.page(page_number)
+       
+        context["entities"] = page.object_list
+
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        apikey = get_api_key(request.user)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+            % apikey["apikeys"][0])
+        context["classifications"] = json.loads(req.text)
+        context["languages"] = settings.LANGUAGES
+        return render(request, "entity-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications", "") 
+        entity_aliases = request.POST.get("entity-aliases", "")
+        api_key = request.POST.get("api-key", "")
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+        entity_classifications = entity_classifications.split(",")
+        for entity_classification in entity_classifications:
+            c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
+            entity_model.classifications.add(c)
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+        return redirect("entities")
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Entity(View):
+    
+    @method_decorator(login_required)
+    def delete(self, request, entity_id):
+        user = request.user
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=404)
+
+        if data_helpers.delete_entity_model(entity.get()):
+            entity.delete()
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
+
+    @method_decorator(login_required)
+    def get(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+        entity = entity.get()
+        classifications = data_models.Classification.objects.filter(entity=entity)
+        response = {}
+        response["entity_id"] = entity.id
+        response["entity_label"] = entity.label
+        response["entity_lang"] = entity.language
+        response["entity_aliases"] = entity.aliases
+        response["classifications"] = []
+        for classification in classifications:
+            response["classifications"].append({
+                "label":classification.label,
+                })
+        return JsonResponse(response, safe=False)
+    
+    @method_decorator(login_required)
+    def post(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+
+        helpers.delete_entity_model(entity.get())
+        entity.delete()
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications", "") 
+        entity_aliases = request.POST.get("entity-aliases", "")
+        api_key = request.POST.get("api-key", "")
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+        
+        entity_classifications = entity_classifications.split(",")
+        for entity_classification in entity_classifications:
+            c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
+            entity_model.classifications.add(c)
+        
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+
+        return redirect("entities")
 
 class SentimentList(View):
 

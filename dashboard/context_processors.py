@@ -20,6 +20,7 @@ def general_context(request):
         custom_aspects = []
     
     return {
+        'API_HOST': settings.API_HOST,
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
         'CUSTOM_LOGO':custom_logo,
