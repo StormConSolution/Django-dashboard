@@ -15,7 +15,7 @@ import data.models as models
 def aspect_model_test(request):
 
     text = request.POST.get("test-aspect-model-text", "")
-    language = request.POST.get("language", "")
+    language = request.POST.get("text-language", "")
     aspect_model_id = request.POST.get("aspect-model")
     api_key = request.POST.get("api-key", "")
     aspect_model = models.AspectModel.objects.get(pk=aspect_model_id)

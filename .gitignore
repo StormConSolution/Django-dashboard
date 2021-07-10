@@ -43,4 +43,6 @@ dashboard/static/assets/js/aspect-guest.js
 dashboard/static/assets/js/sentiment-guest.js
 dashboard/static/assets/js/alerts.js
 dashboard/static/assets/js/alerts-guest.js
+dashboard/static/assets/js/entity.js
+dashboard/static/assets/js/entity-guest.js
 .env

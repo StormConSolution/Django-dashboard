@@ -2,6 +2,7 @@
 export {createTable as entityTable} from './tables/entities_table'
 export {createTable as aspectTopicTable} from './tables/aspect_topic_table'
 export {createTable as topEntitiesPerAspectTable} from './tables/top_entities_per_aspect_table'
+import './tables/modal'
 /* 
 module.exports = {
     dataTable: dataTable,

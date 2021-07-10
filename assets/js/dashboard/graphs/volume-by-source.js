@@ -3,6 +3,8 @@ import {normalFiltersURL, metadataFiltersURL} from "../helpers/filters"
 import {update} from '../helpers/helpers'
 import {createTable as dataTableModalVolumeBySource} from '../tables/data_table_modal'
 import wordCloud from "./word-cloud-modal";
+import {storeGraph} from '../pdf/pdf'
+
 let chart
 let div = document.querySelector("#volume-by-source")
 let mapSourceAndID = {}
@@ -74,7 +76,14 @@ export function createGraph(){
                 div,
                 chartOptions
             );
-            chart.render();
+            chart.render().then(()=>{
+                setTimeout(function() {
+                    chart.dataURI().then(({imgURI,blob})=>{
+                        storeGraph('volume-by-source', imgURI)
+                    })
+                }, 1000) 
+            }
+            );
             update.finishUpdate()
         });    
 }

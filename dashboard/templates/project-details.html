@@ -42,6 +42,10 @@
 				{% endif %}
             </ul>
             <div style="margin-left:auto; margin-right:1rem;display:flex;justify-content: center; align-content: center;flex-direction: column;" id="tab-loading">Loading...</div>
+            <ul class="d-flex flex-wrap" id="admin-tabs">
+				<li><a title="user management" href="#">User Access</a></li>
+				<li><a data-toggle="modal" data-target="#deleteModal" title="delete project" href="#">Delete <i class="fe fe-trash-2"></i></a></li>
+			</ul>
           </div>
         </div>
       </div>
@@ -89,9 +93,7 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">
-							Repustate IQ
-						</h5>
+						<h5 class="modal-title">{{ project.popup_title }}</h5>
 						<button
 							type="button"
 							class="close"
@@ -215,6 +217,7 @@
         </div>
 </div>
 </div>
+{% include "includes/project-details/delete-modal.html" %}
 {% include "includes/project-details/more-filters-modal.html" %}
 <div style="position:fixed;top:0;right:0;left:0;padding:40px;bottom:0;z-index:1000;overflow:auto;display:none;background-color: rgba(220,220,220,0.5);" class="row" id="word-cloud-modal">
     <div class="col-12 project-card" style="overflow:auto;">

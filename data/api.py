@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django.urls import path  # add this
+
 from data import api_views as views
 import data.data_views as data_api_views
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('sentiment-per-aspect/<int:project_id>/', data_api_views.sentiment_per_aspect),
     path('sentiment-trend/<int:project_id>/', data_api_views.sentiment_trend),
     path('source-by-sentiment/<int:project_id>/', data_api_views.source_by_sentiment),
+    path('sources-and-languages-per-project/<int:project_id>/', views.sources_languages_per_project),
     path('source/', views.SourceListAPI.as_view()),
     path('test-aspect-model/', data_api_views.aspect_model_test),
     path('test-sentiment/', data_api_views.sentiment_test),

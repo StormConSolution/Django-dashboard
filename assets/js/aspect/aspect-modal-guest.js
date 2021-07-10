@@ -61,7 +61,7 @@ testAspectButton.addEventListener("click", () => {
                     }
                     testAspectAPIKeysSelect.append(option);
                 }
-                createAspectFirstRun = false;
+                testAspectFirstRun = false;
                 testAspectModalLoading.innerHTML = "";
             });
     }

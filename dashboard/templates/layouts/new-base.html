@@ -126,22 +126,25 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> Create Project</a>
+                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> New Project</a>
                 </li>
 				<li class="nav-item">
-                  <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload Data</a>
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export Data</a>
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export</a>
 			    </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'alerts' %}"> <i class="fe fe-bell"></i> Manage Alerts</a>
+                  <a class="nav-link" href="{% url 'alerts' %}"><i class="fe fe-bell"></i>Alerts</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'aspects' %}"> <i class="fe fe-hash"></i> Manage Aspects</a>
+                  <a class="nav-link" href="{% url 'aspects' %}"><i class="fe fe-hash"></i>Aspects</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'sentiment' %}"> <i class="fe fe-crosshair"></i> Manage Sentiment</a>
+                  <a class="nav-link" href="{% url 'sentiment' %}"><i class="fe fe-crosshair"></i>Sentiment</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'entities' %}"><i class="fe fe-globe"></i>Entities</a>
                 </li>
               </ul>
               <div class="header-right-sidebar d-none d-lg-flex align-items-center ">
@@ -213,9 +216,7 @@
                 <div class="modal-data">
                     <form>
                         <div class="form-group">
-                            <label for="selectaspect1" class="form-label"
-                                >Select Project</label
-                            >
+                            <label for="selectaspect1" class="form-label" >Select Project</label>
                             <select
                                 class="custom-select"
                                 id="csv-upload-select-project"
@@ -251,7 +252,8 @@
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 
 <script>
-
+	// Set a global variable for the api host.	
+	window.apiHostName = "{{ API_HOST }}";
 
     document.querySelector("#csvbox-button").addEventListener("click", () => {
 
@@ -358,12 +360,12 @@
                             >
                                 <option value="-1">Choose From Existing Aspects</option>
                                 <optgroup label="Standard Aspect Models">
-                                    {% for aspect in standard_aspect_models %}
+                                    {% for aspect in STANDARD_ASPECT_MODELS %}
 										<option value="{{aspect.id}}">{{aspect.label}}</option>
                                     {% endfor %}
                                 </optgroup>
                                 <optgroup label="Custom Aspect Models">
-                                    {% for aspect in custom_aspect_models %}
+                                    {% for aspect in CUSTOM_ASPECT_MODELS %}
 										<option value="{{aspect.id}}">{{aspect.label}}</option>
                                     {% endfor %}
                                 </optgroup>
@@ -414,87 +416,81 @@
               <form method="GET" action="/api/export-data/", target="_blank">
                 <div class="form-group">
                   <label for="project" class="form-label">Project</label>
-                  <select class="custom-select" name="project-id">
+                  <select class="custom-select" id="project-export" name="project-id">
+					  <option value="-1">-- choose a project --</option>
                    {% for project in projects_data %}
-                        {% if forloop.first %}
-                            <option value="{{project.id}}" selected>{{project.name}}</option>
-                        {% else %}
-                            <option value="{{project.id}}">{{project.name}}</option>
-                        {% endif %}
+						<option value="{{project.id}}">{{project.name}}</option>
                    {% endfor %}
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="chosedate" class="form-label">From</label>
-                  <div >  
-                    <input type="date" class="form-control" name="date-from" placeholder="Choose Date">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="chosedate" class="form-label">To</label>
-                  <div >  
-                    <input type="date" class="form-control" name="date-to" placeholder="Choose Date">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Languages</label>
-                  <div class="dropdown choose-languages">
-                    <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Choose Languages
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
-                        <div class="choose-lang">
-                          <div class="d-flex checkuncheck">
-                          
-                            <span class="check-all-without-reload">Select All</span>
-                            <span class="uncheck-all-without-reload">Unselect All</span>
-                           
-                          </div>
-                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
-                            {% for language in all_languages %}
-                                {% ifnotequal language.1 "" %}
-                                <div class=" ">
-                                    <input type="checkbox" class="" name="languages[]" value="{{language.0}}" checked onclick="return true">
-                                    <label class="">{{language.1}}</label>
-                                </div>
-                                {% endifnotequal %}
-                            {% endfor %}
-                          </div>
-                        </div>
-                    </div>
-
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Sources</label>
-                  
-                  <div class="dropdown choose-sources">
-                    <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Choose Sources
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="choose-languages">
-                        <div class="choose-lang">
-                          <div class="d-flex checkuncheck">
-                            <span>Select All</span>
-                            <span>Unselect All</span>
-                          </div>
-                          <div class="choose" style="max-height:30vh;overflow-y:scroll">
-                              {% for source in all_sources %}
-                              <div class="">
-                                <input type="checkbox" name="sources[]" class="" value="{{source.id}}" checked>
-                                <label class="">{{source.label}}</label>
-                              </div>
-                              {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                  </div>
-                </div>
-<!--                 <div class="form-group">
-                  <label for="email" class="form-label">Email to send results to</label>
-                  <input type="email" class="form-control email-icon" id="email" aria-describedby="emailHelp">
-                </div> -->
-                <button type="submit" class="btn btn-primary">Download Raw Data <!-- <i class="fe fe-send"></i> --> </button>
+				<div class="form-row">
+					<div class="form-group col-6">
+					  <label for="chosedate" class="form-label">From</label>
+					  <div >  
+						<input type="date" class="form-control" name="date-from" placeholder="Choose Date">
+					  </div>
+					</div>
+					<div class="form-group col-6">
+					  <label for="chosedate" class="form-label">To</label>
+					  <div >  
+						<input type="date" class="form-control" name="date-to" placeholder="Choose Date">
+					  </div>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-6">
+					  <label class="form-label">Languages</label>
+					  <div class="dropdown choose-languages">
+						<button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						  Choose Languages
+						</button>
+						<div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
+							<div class="choose-lang">
+							  <div class="d-flex checkuncheck">
+							  
+								<span class="check-all-without-reload">Select All</span>
+								<span class="uncheck-all-without-reload">Unselect All</span>
+							   
+							  </div>
+							  <div id="languages-export" class="choose" style="max-height:30vh;overflow-y:scroll">
+								  <!--
+									 <div>
+										<input type="checkbox" class="" name="languages[]" value="{{language.0}}" checked onclick="return true">
+										<label class="">{{language.1}}</label>
+									</div>
+								  -->
+							  </div>
+							</div>
+						</div>
+					  </div>
+					</div>
+					<div class="form-group col-6">
+					  <label class="form-label">Sources</label>
+					  
+					  <div class="dropdown choose-sources">
+						<button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						  Choose Sources
+						</button>
+						<div class="dropdown-menu" aria-labelledby="choose-languages">
+							<div class="choose-lang">
+							  <div class="d-flex checkuncheck">
+								<span>Select All</span>
+								<span>Unselect All</span>
+							  </div>
+							  <div id="sources-export" class="choose" style="max-height:30vh;overflow-y:scroll">
+								  <!--
+								  <div>
+									<input type="checkbox" name="sources[]" class="" value="{{source.id}}" checked>
+									<label class="">{{source.label}}</label>
+								  </div>
+								  -->
+							  </div>
+							</div>
+						  </div>
+					  </div>
+					</div>
+				</div>
+                <button type="submit" class="btn btn-primary">Download<i class="fe fe-download-cloud"></i>  </button>
               </form>
           </div>
         </div>
@@ -600,11 +596,39 @@
     </script> -->
 
     <script>
+		document.getElementById("project-export").addEventListener("change", (e) => {
+			let projectId = e.target.value;
+			fetch("/api/sources-and-languages-per-project/" + projectId + "/", {
+				method: "GET",
+				credentials: "include"
+			}).then((response) => response.json()).then((data) => {
+				let langChoice = document.getElementById('languages-export');
+				langChoice.innerHTML = '';
+				data.languages.forEach((el) => {
+					langChoice.innerHTML += `
+						 <div>
+						   <input type="checkbox" class="" name="languages[]" value="${el.code}" checked onclick="return true">
+						   <label class="">${el.label}</label>
+						</div>
+					`
+				});
+
+				let sourceChoice = document.getElementById('sources-export');
+				sourceChoice.innerHTML = '';
+				data.sources.forEach((el) => {
+					sourceChoice.innerHTML += `
+						 <div>
+						   <input type="checkbox" class="" name="sources[]" value="${el.code}" checked onclick="return true">
+						   <label class="">${el.label}</label>
+						</div>
+					`
+				})
+			})
+		});
+
         document.querySelectorAll(".check-all-without-reload").forEach((element) => {
             element.addEventListener("click", (e)=> {
-                
                 let parent = e.target.parentNode.parentNode
-                
                 parent.querySelectorAll("input").forEach((input) => {
                     input.checked = true
                 })

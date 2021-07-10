@@ -84,7 +84,10 @@ def guest_login(request):
 
 @csrf_exempt
 def firebase_login(request):
-    firebase_admin.initialize_app()
+    try:
+        firebase_admin.initialize_app()
+    except:
+        pass
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     token = body["token"]
@@ -96,11 +99,16 @@ def firebase_login(request):
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-    return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
+    #return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
+    return HttpResponse("/project/")
 
 @csrf_exempt
 def firebase_login_api(request):
-    firebase_admin.initialize_app()
+    try:
+        firebase_admin.initialize_app()
+    except:
+        pass
+
     token = request.GET.get("token","")
     decoded_token = auth.verify_id_token(token)
     email = decoded_token["email"]

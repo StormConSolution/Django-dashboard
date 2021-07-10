@@ -1,18 +1,15 @@
 from datetime import datetime, timedelta
-import collections
 import json
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
-from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -20,17 +17,14 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from requests import api
 from natsort import natsorted
-from requests import status_codes
 import requests
-from requests import status_codes
 
-from data import charts
 from data import models as data_models
 from data.forms import AlertRuleForm
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
-
+import data.helpers as data_helpers
+import data.helpers as helpers
 def collect_args(this_project, request):
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
@@ -70,6 +64,7 @@ def collect_args(this_project, request):
         end=end,
         request=request
     )
+
 
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
@@ -113,6 +108,7 @@ def pages(request):
 
 
 class Projects(View):
+    
     @method_decorator(login_required)
     def get(self, request):
         user = request.user
@@ -123,18 +119,8 @@ class Projects(View):
             negative_count=Coalesce(Sum(Case(When(sentiment__lt=0, then=1)), output_field=IntegerField()),0),
             neutral_count=Coalesce(Sum(Case(When(sentiment=0, then=1)), output_field=IntegerField()),0))
             project.update(data)
-        context={}
-        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
-        context["all_languages"] = []
-        for element in languages:
-            for language_tuple in settings.LANGUAGES:
-                if element["language"] == language_tuple[0]:
-                    context["all_languages"].append(language_tuple)
-        context["all_sources"] = []
-        sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
-        for element in sources:
-            context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
         
+        context={}
         context["projects_data"] = projects
         context["projects_count"] = len(projects)
         context["user"] = user
@@ -143,9 +129,6 @@ class Projects(View):
         all_aspects = data_models.AspectModel.objects.filter(users=user).order_by("label")
         for aspect in all_aspects:
             context["all_aspects"].append({"id":aspect.id, "label": aspect.label}) 
-        
-        context["custom_aspect_models"] = data_models.AspectModel.objects.filter(users=user).values('id', 'label')
-        context['standard_aspect_models'] = data_models.AspectModel.objects.filter(standard=True).values('id', 'label')
 
         return render(request, "projects.html", context)
     
@@ -155,17 +138,25 @@ class Projects(View):
         project_name = request.POST.get("project-name")
         aspect_id = request.POST.get("aspect-id")
         api_key = request.POST.get("api-key")
-        print(api_key)
+        
         if aspect_id != "-1":
             aspect = data_models.AspectModel.objects.get(pk=aspect_id)
             project = data_models.Project(aspect_model=aspect, name=project_name)
         else:
             project = data_models.Project(name=project_name)
+
         project.api_key = api_key 
         project.save()
         project.users.add(user)
         project.save()
+
         return redirect("project", project.id)
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
+def delete_project_details(request, project_id):
+    p = get_object_or_404(data_models.Project, pk=project_id)
+    p.delete()
+    return redirect("project")
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def new_project_details(request, project_id):
@@ -185,9 +176,6 @@ def new_project_details(request, project_id):
     context["sourceID"] = []
     context["languages"] = []
     
-    context["custom_aspect_models"] = data_models.AspectModel.objects.filter(users=user).values('id', 'label')
-    context['standard_aspect_models'] = data_models.AspectModel.objects.filter(standard=True).values('id', 'label')
-    
     source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
@@ -195,24 +183,12 @@ def new_project_details(request, project_id):
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     
-    languages = list(data_models.Data.objects.filter(project__users=user).distinct().values("language"))
-    context["all_languages"] = []
-    for element in languages:
-        for language_tuple in settings.LANGUAGES:
-            if element["language"] == language_tuple[0]:
-                context["all_languages"].append(language_tuple)
-        #context["all_languages"].append(element["language"])
     languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).distinct().values("language"))
     context["languages"] = []
     for element in languages:
         for language_tuple in settings.LANGUAGES:
             if element["language"] == language_tuple[0]:
                 context["languages"].append(language_tuple)
-    
-    context["all_sources"] = []
-    sources = data_models.Data.objects.filter(project__users=user).distinct("source__id").values('source__id', "source__label")
-    for element in sources:
-        context["all_sources"].append({"label": element["source__label"], "id":element["source__id"]})
     
     if data_models.Data.objects.filter(project=project_id).count() != 0:
         data = data_models.Data.objects.filter(project=project_id).latest('date_created')
@@ -241,118 +217,6 @@ def new_project_details(request, project_id):
             context["more_filters"].append({"name":row[0], "values":natsorted(metadata_values)})
 
     return render(request, "project-details.html", context)
-
-def entities(request, project_id):
-    """
-    Show the frequency of occurence for the entities for this data set.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    args = collect_args(this_project, request)
-    table = charts.EntityTable(**args)
-    
-    return JsonResponse(table.render_data())
-
-
-def data_entries(request, project_id):
-    """
-    list all data entries for this project.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    args = collect_args(this_project, request)
-    table = charts.DataEntryTable(**args)
-    
-    return JsonResponse(table.render_data())
-
-def aspect_topics(request, project_id):
-    """
-    Show the frequency of occurence for the topics found in the aspects.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    args = collect_args(this_project, request)
-    
-    table = charts.AspectTopicTable(**args)
-
-    return JsonResponse(table.render_data())
-
-
-def aspect_name(request, project_id):
-    """
-    Show the frequency of occurence of the topics related to the given aspect.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-    if this_project.users.filter(pk=request.user.id).count() == 0:
-        # This user does not have permission to view this project.
-        return HttpResponseForbidden()
-
-    args = collect_args(this_project, request)
-
-    table = charts.AspectNameTable(**args)
-
-    return JsonResponse(table.render_data())
-
-def aspect_topic_detail(request, project_id):
-    """
-    Renders sentiment text for topic specified.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-
-    topic = request.GET.get('topic')
-
-    aspects = data_models.Aspect.objects.filter(
-        data__project=this_project,
-        topic=topic
-    )
-
-    if int(request.GET.get('sentiment')) > 0:
-        aspects = aspects.filter(sentiment__gt=0)
-    else:
-        aspects = aspects.filter(sentiment__lt=0)
-    
-    data = []
-    for a in aspects.values('sentiment_text', 'chunk', 'data__text'):
-        for t in a['sentiment_text']:
-            if t and t != topic:
-                data.append([t, a['data__text']])
-    
-    return JsonResponse({"data":data})
-
-def aspect_topic_summary(request, project_id):
-    """
-    Renders sentiment text stats for topic specified.
-    """
-    this_project = get_object_or_404(data_models.Project, pk=project_id)
-
-    topic = request.GET.get('topic')
-
-    aspects = data_models.Aspect.objects.filter(
-        data__project=this_project,
-        topic=topic
-    )
-
-    if int(request.GET.get('sentiment')) > 0:
-        aspects = aspects.filter(sentiment__gt=0)
-    else:
-        aspects = aspects.filter(sentiment__lt=0)
-    
-    data = collections.defaultdict(int)
-    for a in aspects.values('sentiment_text'):
-        for t in a['sentiment_text']:
-            if t != topic:
-                data[t] += 1
-    
-    return JsonResponse({"data":list(data.items())})
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data_per_aspect(request, project_id):
@@ -506,20 +370,10 @@ class AspectsList(View):
         
         context = {}
         context["aspects"] = []
-        context["standard_aspect_models"] = []
-        context["custom_aspect_models"] = []
         
         p = Paginator(aspect_list, page_size)
         page = p.page(page_number)
-        all_aspects = data_models.AspectModel.objects.filter(users=user).order_by("label")
         
-        for aspect in all_aspects:
-            context["custom_aspect_models"].append({"id":aspect.id, "label": aspect.label}) 
-        
-        standard_aspect_models = data_models.AspectModel.objects.filter(standard=True).order_by("label")
-        for aspect in standard_aspect_models:
-            context["standard_aspect_models"].append({"id":aspect.id, "label": aspect.label}) 
-
         for aspect in page.object_list:
             rules_list = []
             rules = data_models.AspectRule.objects.filter(aspect_model=aspect)
@@ -544,15 +398,11 @@ class AspectsList(View):
         apikey = get_api_key(request.user)
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
             % apikey["apikeys"][0])
+        
         context["classifications"] = json.loads(req.text)
         context["languages"] = settings.LANGUAGES
-        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
-        context["all_languages"] = []
         context["predefined_aspect_rules"] = list(data_models.PredefinedAspectRule.objects.all().values())
-        for element in languages:
-            for language_tuple in settings.LANGUAGES:
-                if element["language"] == language_tuple[0]:
-                    context["all_languages"].append(language_tuple)
+
         return render(request, "aspect-list.html", context)
     
     @method_decorator(login_required)
@@ -721,6 +571,122 @@ class Aspect(View):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
 
+class EntitiesList(View):
+
+    @method_decorator(login_required)
+    def get(self, request):
+        user = request.user
+        entity_list = data_models.Entity.objects.filter(users=user).order_by("label", "id")
+        
+        context = {}
+        
+        page_number = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page-size", 10))
+        p = Paginator(entity_list, page_size)
+        page = p.page(page_number)
+       
+        context["entities"] = page.object_list
+
+        projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        context["projects_data"] = projects
+        context["page"] = p.get_page(page_number)
+        context["paginator"] = p
+        context["meta"] = {}
+        context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
+        context["meta"]["page_items_to"] = page_number * 10
+        apikey = get_api_key(request.user)
+        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+            % apikey["apikeys"][0])
+        context["classifications"] = json.loads(req.text)
+        context["languages"] = settings.LANGUAGES
+        return render(request, "entity-list.html", context)
+    
+    @method_decorator(login_required)
+    def post(self, request):
+        user = request.user
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications", "") 
+        entity_aliases = request.POST.get("entity-aliases", "")
+        api_key = request.POST.get("api-key", "")
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+        entity_classifications = entity_classifications.split(",")
+        for entity_classification in entity_classifications:
+            c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
+            entity_model.classifications.add(c)
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+        return redirect("entities")
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Entity(View):
+    
+    @method_decorator(login_required)
+    def delete(self, request, entity_id):
+        user = request.user
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=404)
+
+        if data_helpers.delete_entity_model(entity.get()):
+            entity.delete()
+            return HttpResponse(status=200)
+        return HttpResponse(status=500)
+
+    @method_decorator(login_required)
+    def get(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+        entity = entity.get()
+        classifications = data_models.Classification.objects.filter(entity=entity)
+        response = {}
+        response["entity_id"] = entity.id
+        response["entity_label"] = entity.label
+        response["entity_lang"] = entity.language
+        response["entity_aliases"] = entity.aliases
+        response["classifications"] = []
+        for classification in classifications:
+            response["classifications"].append({
+                "label":classification.label,
+                })
+        return JsonResponse(response, safe=False)
+    
+    @method_decorator(login_required)
+    def post(self, request, entity_id):
+        user = request.user
+
+        entity  = data_models.Entity.objects.filter(users=user, pk=entity_id)
+        if entity.count() == 0:
+            return HttpResponse(status=403)
+
+        helpers.delete_entity_model(entity.get())
+        entity.delete()
+        entity_name = request.POST.get("entity-name", "")
+        entity_lang = request.POST.get("entity-lang", "")
+        entity_classifications = request.POST.get("entity-classifications", "") 
+        entity_aliases = request.POST.get("entity-aliases", "")
+        api_key = request.POST.get("api-key", "")
+        entity_model = data_models.Entity.objects.create(label=entity_name, 
+            language=entity_lang, api_key=api_key)
+        entity_model.users.add(user)
+        
+        entity_classifications = entity_classifications.split(",")
+        for entity_classification in entity_classifications:
+            c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
+            entity_model.classifications.add(c)
+        
+        entity_model.aliases = entity_aliases
+        entity_model.save()
+        helpers.save_entity_model(entity_model)
+
+        return redirect("entities")
+
 class SentimentList(View):
 
     @method_decorator(login_required)
@@ -752,12 +718,7 @@ class SentimentList(View):
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
         context["languages"] = settings.LANGUAGES
-        languages = list(data_models.Data.objects.filter(project__users=user).values("language").distinct().values("language"))
-        context["all_languages"] = []
-        for element in languages:
-            for language_tuple in settings.LANGUAGES:
-                if element["language"] == language_tuple[0]:
-                    context["all_languages"].append(language_tuple)
+
         return render(request, "sentiment-list.html", context)
     
     @method_decorator(login_required)
@@ -879,7 +840,8 @@ def support(request):
         if response.status_code != 201:
             mail_admins(
                 'Zendesk ticket not issued',
-                'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}'.format(request.user, request.POST['question']),
+                'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}\n\nResponse: {}'.format(
+                    request.user, request.POST['question'], response.content),
             )
 
         context['success'] = True

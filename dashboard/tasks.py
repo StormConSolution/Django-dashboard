@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from celery.utils.log import get_task_logger
+from dateutil import parser
 from django.conf import settings
 from django.core.mail import send_mail
 import requests
@@ -22,12 +23,11 @@ def process_data(kwargs):
         # No language set; use language detection.
         try:
             resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
-                HOST=settings.API_HOST, APIKEY=apikey), 
-                data={'text': kwargs["text"]}).json()
-            print(resp)
-            kwargs['lang'] = resp['language']
+                HOST=settings.API_HOST, APIKEY=apikey), data={'text': kwargs["text"]})
+            kwargs['lang'] = resp.json()['language']
         except Exception as e:
-            logger.error("Error detecting language for {}: {}".format(kwargs['text'], e))
+            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}".format(
+                kwargs['text'], e, settings.API_HOST, apikey))
             return
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
@@ -48,11 +48,10 @@ def process_data(kwargs):
 
     project = models.Project.objects.get(pk=kwargs["project_id"])
 
-    date = kwargs.get('date', None)
-    if not date:
+    if not kwargs.get('date'):
         date = datetime.now()
     else:
-        date = datetime.strptime(kwargs["date"], "%Y-%m-%d") 
+        date = parser.parse(kwargs['date'])
     
     data = models.Data.objects.create(
         project=project,
@@ -156,3 +155,21 @@ def notify(alert):
         for phone_number in alert.rule.sms.split(','):
             m = send_sms(body, phone_number)
             logger.warn("Response from sms for alert {}: {}".format(alert, m))
+
+@app.task
+def job_complete(project_id):
+    project = models.Project.objects.get(pk=project_id)
+    
+    logger.info("Data upload complete for project {}".format(project_id))
+
+    # Send an email to all people on this project.
+    if not settings.DEBUG:
+        msg = 'We have completed processing your latest data upload for project "{}"'.format(project.name)
+        
+        send_mail(
+            'Repustate Data Upload Complete',
+            msg,
+            'no-reply@repustate.com',
+            [u.email for u in project.users.all()],
+            fail_silently=False
+        )

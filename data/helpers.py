@@ -1,7 +1,10 @@
 from urllib import parse
 import hmac
 import json
+from kombu.exceptions import EncodeError
 import requests
+import re
+
 from django.conf import settings
 from data.models import Project
 def get_filters_sql(request):
@@ -34,9 +37,9 @@ def get_filters_sql2(request):
         dateFrom = ""
     if not dateTo:
         dateTo = ""
-    if dateFrom != "" :
+    if re.match(r"(\D*\d){6,}", dateFrom):
         where_clauses.append("dd.date_created >= '" + dateFrom + "'")
-    if dateTo != "":
+    if re.match(r"(\D*\d){6,}", dateTo):
         where_clauses.append("dd.date_created <= '" + dateTo + "'")
     if languages != ['']:
         map(lambda x: "''%s''" % x, languages)
@@ -125,3 +128,46 @@ def delete_aspect_model(aspect_model):
 
 def get_project_api_key(project_id):
     return Project.objects.get(id=project_id).api_key
+
+def save_entity_model(entity_model):
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-entities.json".format(entity_model.api_key))
+    aliases = entity_model.aliases.split(",")
+    classifications = []
+
+    for elem in entity_model.classifications.all():
+        classifications.append(elem.label)
+
+    body = {
+        "title": entity_model.label,
+        "lang": entity_model.language,
+        "classifications": classifications
+    }
+    resp = requests.put(
+        url=url,
+        data=body
+    )
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-aliases.json".format(entity_model.api_key))
+    for alias in aliases:
+        resp = requests.put(
+            url=url,
+            params={
+                "title":entity_model.label,
+                "lang": entity_model.language,
+                "alias": alias,
+            },
+        ) 
+    return True
+
+def delete_entity_model(entity_model):
+    url = (settings.API_HOST + 
+    "/v4/{}/custom-entities.json".format(entity_model.api_key))
+
+    requests.delete(
+        url=url,
+        params={
+            "title": entity_model.label
+        }
+    )
+    return True

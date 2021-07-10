@@ -14,23 +14,15 @@ urlpatterns = [
     path('add-data/<int:project_id>/', api_views.add_data, name='add-data'),
     path('alert/toggle/<int:aspect_rule_id>/', views.alert_rule_toggle, name='alert-rule-toggle'),
     
-    path('aspect-topics/<int:project_id>/',
-         views.aspect_topics, name='aspect-topics'),
-    path('aspect-topic-detail/<int:project_id>/',
-         views.aspect_topic_detail, name='aspect-topic-detail'),
-    path('aspect-topic-summary/<int:project_id>/',
-         views.aspect_topic_summary, name='aspect-topic-summary'),
-
-    path('entities/<int:project_id>/', views.entities, name='entities'),
-
-    path('data-entries/<int:project_id>/',
-         views.data_entries, name='data-entries'),
-    #path('data-per-aspect/<int:project_id>/', views.data_per_aspect, name='data-per-aspect'),
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
     path('project/<int:project_id>/', views.new_project_details, name='project'),
+    path('delete-project/<int:project_id>/', views.delete_project_details, name='delete-project'),
     
     path('aspect/', views.AspectsList.as_view(), name='aspects'),
     path('aspect/<int:aspect_id>/', views.Aspect.as_view(), name='aspect'),
+
+    path('entity/', views.EntitiesList.as_view(), name='entities'),
+    path('entity/<int:entity_id>/', views.Entity.as_view(), name='entity'),
 
     path('sentiment/', views.SentimentList.as_view(), name='sentiment'),
     path('sentiment/<int:sentiment_id>/', views.Sentiment.as_view(), name='sentiment'),
