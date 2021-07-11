@@ -14,6 +14,7 @@ from data.helpers import get_project_api_key
 logger = get_task_logger(__name__)
 
 MAX_TWEETS = 3000
+VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 @app.task
 def process_data(kwargs):
@@ -177,22 +178,25 @@ def job_complete(project_id):
         )
 
 @app.task
-def process_twitter_search(twitter_search):
-    ts.status = TwitterSearch.RUNNING
+def process_twitter_search(job_id):
+    ts = models.TwitterSearch.objects.get(pk=job_id)
+    ts.status = models.TwitterSearch.RUNNING
     ts.save()
-    twitter_notify(ts)
         
-    project, _ = Project.objects.get_or_create(name=ts.project_name)
+    project, _ = models.Project.objects.get_or_create(name=ts.project_name)
     project.users.add(ts.created_by)
     project.aspect_model = ts.aspect
+    # NOTE: change this to the user's API key when we introduce this feature to
+    # all users.
+    project.api_key = settings.APIKEY
     project.save()
 
     import twint
     config = twint.Config()
-    c.Limit = MAX_TWEETS
-    c.Store_object = True
-    c.Search = ts.query
-    twint.run.Search(c)
+    config.Limit = MAX_TWEETS
+    config.Store_object = True
+    config.Search = ts.query
+    twint.run.Search(config)
 
     for tweet in twint.output.tweets_list:
         # NOTE: Twitter often does a bad job of detecting language.
@@ -206,12 +210,12 @@ def process_twitter_search(twitter_search):
             date=tweet.datestamp,
             lang=lang,
             url=tweet.link,
-            project.pk,
+            project_id=project.pk,
         )
         
         process_data.delay(post_data)
 
-    ts.status = TwitterSearch.DONE
+    ts.status = models.TwitterSearch.DONE
     ts.save()
 
     job_complete.delay(project.ok)

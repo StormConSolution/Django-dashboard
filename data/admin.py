@@ -109,7 +109,7 @@ class TwitterSearchAdmin(admin.ModelAdmin):
         super(TwitterSearchAdmin, self).save_model(request, obj, form, change)
         if not change:
             # New request for twitter.
-            tasks.process_twitter_search(obj)
+            tasks.process_twitter_search.delay(obj.id)
 
 class SummaryAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'project', )
