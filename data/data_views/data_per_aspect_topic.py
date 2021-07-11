@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import get_where_clauses
+from data.helpers import get_where_clauses, get_order_by
 from data.serialize import serialize_rows
 
 
@@ -75,7 +75,7 @@ def data_per_aspect_topic(request, project_id):
     sql_query = """
     select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id
     from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id
-    where """ + get_where_clauses(request, where_clause) + """ order by dd.date_created desc """
+    where """ + get_where_clauses(request, where_clause) + get_order_by(request)
     
     return serialize_rows(
         request,

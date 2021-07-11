@@ -431,7 +431,10 @@ a { color: #8E92A2; text-decoration: none; font-size: 16px;}
 }
 .width-150 { width: 150px;}
 .table { margin-bottom: 0;}
-.data-short { display: inline-block; vertical-align: middle; margin-left: 12px;
+.data-short { 
+    
+    display: inline-block; vertical-align: middle; margin-left: 12px;
+    cursor:pointer;
   a { display: block; font-size: 12px; line-height: 12px; color: #A0AEC0; text-decoration: none;
     &:hover, &.active {
       color: #7367F0;

@@ -1,7 +1,12 @@
-import {getFilters} from "../helpers/filters"
+import {getFilters, orderFilters} from "../helpers/filters"
+import {manageTableOrderFiltersWithOptions} from '../helpers/helpers'
 import {createPagination} from './utils/utils'
 let optionsState = {}
+
+let table = document.querySelector("#data-items")
 export function createTable(page, options){
+
+manageTableOrderFiltersWithOptions(table, createTable, optionsState)
     optionsState = options
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
@@ -9,7 +14,7 @@ export function createTable(page, options){
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     document.getElementById("data-modal-table-csv").href = options.wordCloudURL
-    fetch(options.dataURL + `&page-size=${pageSize}&page=${page}`)
+    fetch(options.dataURL + `&page-size=${pageSize}&page=${page}` + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {
