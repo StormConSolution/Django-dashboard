@@ -28,13 +28,9 @@ function makeTable(page){
         for (let element of data.data) {
             let tr = document.createElement("tr");
             let row = `
-            <td>
-            <a href="#" class="data-link">${element.topicLabel}</a>
-           </td>
-           <td>
-             ${element.aspectLabel}
-           </td>
-           <td class="text-center">
+            <td>${element.topicLabel}</td>
+            <td>${element.aspectLabel}</td>
+            <td class="text-center">
             <a style="cursor:pointer" class="info-button green" data-aspect="${element.aspectLabel}" data-topic="${element.topicLabel}" data-sentiment="positive">${element.positivesCount}</a>
            </td>
            <td class="text-center">

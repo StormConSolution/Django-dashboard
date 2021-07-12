@@ -35,7 +35,8 @@ BEGIN
 
     EXECUTE 'CREATE INDEX data_entity_aspect_un_' || key || ' ON data_entity_aspect_temp USING GIN (filters)';
 
-    CREATE OR REPLACE VIEW data_entity_aspect AS SELECT * FROM data_entity_aspect_temp;
+    DROP VIEW IF EXISTS data_entity_aspect;
+    CREATE VIEW data_entity_aspect AS SELECT * FROM data_entity_aspect_temp;
 
     DROP TABLE IF EXISTS data_entity_aspect_source;
 

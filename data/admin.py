@@ -9,10 +9,9 @@ from django.utils.text import slugify
 import unicodecsv
 
 from data.models import *
+from dashboard import tasks
 
 # Action for exporting a queryset.
-
-
 def export_selected_objects(modeladmin, request, queryset):
 
     model = queryset.model
@@ -104,8 +103,21 @@ class EntityAdmin(admin.ModelAdmin):
 
 
 class TwitterSearchAdmin(admin.ModelAdmin):
-    list_display = ('query', 'project_name', 'status',)
-
+    list_display = ('query', 'project_name', 'status', 'created_by',)
+    
+    fieldsets = (
+        (None, {
+            'fields':('query', 'project_name', 'aspect', 'status'),
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super(TwitterSearchAdmin, self).save_model(request, obj, form, change)
+        if not change:
+            # New request for twitter.
+            tasks.process_twitter_search.delay(obj.id)
 
 class SummaryAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'project', )

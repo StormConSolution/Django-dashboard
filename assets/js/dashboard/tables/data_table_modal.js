@@ -6,8 +6,9 @@ let optionsState = {}
 let table = document.querySelector("#data-items")
 export function createTable(page, options){
 
-manageTableOrderFiltersWithOptions(table, createTable, optionsState)
     optionsState = options
+    manageTableOrderFiltersWithOptions(table, createTable, optionsState)
+    console.log(options)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");

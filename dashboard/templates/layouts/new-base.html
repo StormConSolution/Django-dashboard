@@ -128,9 +128,11 @@
                 <li class="nav-item">
                         <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> New Project</a>
                 </li>
+				{% if not GUEST_USER %}
 				<li class="nav-item">
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload</a>
                 </li>
+				{% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#exportdata"> <i class="fe fe-download"></i> Export</a>
 			    </li>
@@ -147,6 +149,8 @@
                   <a class="nav-link" href="{% url 'entities' %}"><i class="fe fe-globe"></i>Entities</a>
                 </li>
               </ul>
+
+			  {% if not GUEST_USER %}
               <div class="header-right-sidebar d-none d-lg-flex align-items-center ">
                 <div class="dropdown avatar-dropdown">
                   <a class="menu-avatar d-flex align-items-center dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -171,6 +175,7 @@
                 </a>
               </div>
             </div>
+			{% endif %}
         </nav>
     </header>
     <div class="sidebar">
@@ -442,7 +447,7 @@
 					  <label class="form-label">Languages</label>
 					  <div class="dropdown choose-languages">
 						<button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						  Choose Languages
+						  Languages
 						</button>
 						<div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages">
 							<div class="choose-lang">
@@ -469,7 +474,7 @@
 					  
 					  <div class="dropdown choose-sources">
 						<button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						  Choose Sources
+						  Sources
 						</button>
 						<div class="dropdown-menu" aria-labelledby="choose-languages">
 							<div class="choose-lang">

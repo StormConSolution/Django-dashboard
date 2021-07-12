@@ -10,6 +10,9 @@ from django.conf import settings
 from django.http import HttpResponse
 from firebase_admin import auth
 import firebase_admin
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from .forms import LoginForm, SignUpForm
 
 
@@ -74,12 +77,16 @@ def register_user(request):
 
 def guest_login(request):
     """
-    Automatically sign a user in under the guest@repustate.com account.
+    Automatically sign a user in under the guest@repustate.com account and
+    potentially redirect them to a sample project.
     """
     logout(request)
     user = authenticate(username='guest@repustate.com', password='')
     login(request, user)
-    
+
+    if request.GET.get('project'):
+        return redirect(reverse("project", kwargs={'project_id':request.GET['project']}))
+
     return redirect(reverse("project"))
 
 @csrf_exempt
