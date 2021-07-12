@@ -218,4 +218,4 @@ def process_twitter_search(job_id):
     ts.status = models.TwitterSearch.DONE
     ts.save()
 
-    job_complete.delay(project.ok)
+    job_complete.delay(project.pk)
