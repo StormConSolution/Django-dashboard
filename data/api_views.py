@@ -196,10 +196,13 @@ def add_data(request, project_id):
         "metadata":{},
     }
     
-    for key in ('lang', 'date', 'source', 'url', 'text', 'metadata'):
+    for key in ('lang', 'date', 'source', 'url', 'text',):
         if key in request.POST:
             task_argument[key] = request.POST[key]
     
+    if 'metadata' in request.POST:
+        task_argument['metadata'] = json.loads(request.POST['metadata'])
+
     process_data.delay(task_argument)
 
     return JsonResponse({"status": "OK"})

@@ -200,7 +200,7 @@ def new_project_details(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""
         select distinct (jsonb_object_keys(dd.metadata))
-        from data_data as dd where dd.metadata  <> '""' and dd.project_id = %s
+        from data_data as dd where dd.metadata <> '""' and dd.project_id = %s
         """,
         [project_id])
         rows = cursor.fetchall()
