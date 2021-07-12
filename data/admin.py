@@ -103,9 +103,17 @@ class EntityAdmin(admin.ModelAdmin):
 
 
 class TwitterSearchAdmin(admin.ModelAdmin):
-    list_display = ('query', 'project_name', 'status',)
+    list_display = ('query', 'project_name', 'status', 'created_by',)
+    
+    fieldsets = (
+        (None, {
+            'fields':('query', 'project_name', 'aspect', 'status'),
+        }),
+    )
     
     def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
         super(TwitterSearchAdmin, self).save_model(request, obj, form, change)
         if not change:
             # New request for twitter.

@@ -198,7 +198,7 @@ def add_data(request, project_id):
     
     for key in ('lang', 'date', 'source', 'url', 'text', 'metadata'):
         if key in request.POST:
-            task_argument[key] = element[key]
+            task_argument[key] = request.POST[key]
     
     process_data.delay(task_argument)
 
