@@ -39,11 +39,16 @@ def entity_aspect_for_emotion(request, project_id):
         function_arguments = function_arguments + sources
     
     with connection.cursor() as cursor:
-        cursor.execute("""
-            select * from get_entity_aspect_counts(13, %s """ + function_arguments + """ )
-            where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s """ + function_arguments + """) 
-            group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
-        rows = cursor.fetchall()
+        try:
+            cursor.execute("""
+                select * from get_entity_aspect_counts(13, %s """ + function_arguments + """ )
+                where entity in (SELECT entity FROM get_entity_aspect_counts(13, %s """ + function_arguments + """) 
+                group by (entity, entity_count) ORDER BY entity_count desc limit 10) ORDER BY entity_count desc ;""", [project_id, project_id])
+            rows = cursor.fetchall()
+        except:
+            # TODO: If this data for this project hasn't been calculated, this
+            # function errors out. Needs to be fixed.
+            return JsonResponse([], safe=False)
     
         response = []
         for row in rows:
