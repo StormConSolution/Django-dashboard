@@ -24,7 +24,8 @@ BEGIN
 
     EXECUTE 'CREATE UNIQUE INDEX data_aspectlabel_un_' || key || ' ON data_aspectlabel_temp(project_id, id) INCLUDE (label)';
 
-    CREATE OR REPLACE VIEW data_aspectlabel AS SELECT * FROM data_aspectlabel_temp;
+    DROP VIEW IF EXISTS data_aspectlabel;
+    CREATE VIEW data_aspectlabel AS SELECT * FROM data_aspectlabel_temp;
 
     DROP TABLE IF EXISTS data_aspectlabel_source;
 
@@ -57,7 +58,8 @@ BEGIN
     EXECUTE 'CREATE INDEX data_aspectspresent_date_created_' || key || ' ON data_aspectspresent_temp(project_id, date_created)';
     EXECUTE 'CREATE INDEX data_aspectspresent_language_' || key || ' ON data_aspectspresent_temp(project_id, language)';
 
-    CREATE OR REPLACE VIEW data_aspectspresent AS SELECT * FROM data_aspectspresent_temp;
+	DROP VIEW IF EXISTS data_aspectspresent;
+    CREATE VIEW data_aspectspresent AS SELECT * FROM data_aspectspresent_temp;
 
     DROP TABLE IF EXISTS data_aspectspresent_source;
 

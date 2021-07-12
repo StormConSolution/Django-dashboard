@@ -2,7 +2,7 @@ FROM ubuntu
 RUN apt update
 ENV TZ=Europe/Lisbon
 ENV DEBIAN_FRONTEND=noninteractive
-RUN  apt install python3 python3-pip nginx postgresql postgresql-contrib libpq-dev -y
+RUN  apt install python3 python3-pip nginx postgresql postgresql-contrib git libpq-dev -y
 WORKDIR /myfolder
 COPY ./requirements.txt /myfolder
 RUN python3 -m pip install -r requirements.txt

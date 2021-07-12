@@ -21,9 +21,7 @@ export function createTable(page){
         for (let element of data.data) {
             let tr = document.createElement("tr");
             let row = `
-        <td>
-        <a href="#" class="data-link">${element.entityLabel}</a>
-       </td>
+        <td>${element.entityLabel}</td>
        <td>
          ${element.classificationLabel}
        </td>

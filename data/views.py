@@ -25,6 +25,7 @@ from data.forms import AlertRuleForm
 from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
 import data.helpers as data_helpers
 import data.helpers as helpers
+
 def collect_args(this_project, request):
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
@@ -199,7 +200,7 @@ def new_project_details(request, project_id):
     with connection.cursor() as cursor:
         cursor.execute("""
         select distinct (jsonb_object_keys(dd.metadata))
-        from data_data as dd where dd.metadata  <> '""' and dd.project_id = %s
+        from data_data as dd where dd.metadata <> '""' and dd.project_id = %s
         """,
         [project_id])
         rows = cursor.fetchall()

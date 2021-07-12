@@ -13,6 +13,9 @@ from data.helpers import get_project_api_key
 
 logger = get_task_logger(__name__)
 
+MAX_TWEETS = 3000
+VALID_LANGS = [l[0] for l in settings.LANGUAGES]
+
 @app.task
 def process_data(kwargs):
     apikey = get_project_api_key(kwargs["project_id"])
@@ -160,16 +163,59 @@ def notify(alert):
 def job_complete(project_id):
     project = models.Project.objects.get(pk=project_id)
     
-    logger.info("Data upload complete for project {}".format(project_id))
+    logger.info("Data processing request complete for project {}".format(project_id))
 
     # Send an email to all people on this project.
     if not settings.DEBUG:
-        msg = 'We have completed processing your latest data upload for project "{}"'.format(project.name)
+        msg = 'We have completed processing your latest data processing request for project "{}"'.format(project.name)
         
         send_mail(
-            'Repustate Data Upload Complete',
+            'Repustate Data Processing Complete',
             msg,
             'no-reply@repustate.com',
             [u.email for u in project.users.all()],
             fail_silently=False
         )
+
+@app.task
+def process_twitter_search(job_id):
+    ts = models.TwitterSearch.objects.get(pk=job_id)
+    ts.status = models.TwitterSearch.RUNNING
+    ts.save()
+        
+    project, _ = models.Project.objects.get_or_create(name=ts.project_name)
+    project.users.add(ts.created_by)
+    project.aspect_model = ts.aspect
+    # NOTE: change this to the user's API key when we introduce this feature to
+    # all users.
+    project.api_key = settings.APIKEY
+    project.save()
+
+    import twint
+    config = twint.Config()
+    config.Limit = MAX_TWEETS
+    config.Store_object = True
+    config.Search = ts.query
+    twint.run.Search(config)
+
+    for tweet in twint.output.tweets_list:
+        # NOTE: Twitter often does a bad job of detecting language.
+        lang = tweet.lang
+        if lang not in VALID_LANGS:
+            lang = 'en'
+        
+        post_data = dict(
+            source='Twitter',
+            text=tweet.tweet,
+            date=tweet.datestamp,
+            lang=lang,
+            url=tweet.link,
+            project_id=project.pk,
+        )
+        
+        process_data.delay(post_data)
+
+    ts.status = models.TwitterSearch.DONE
+    ts.save()
+
+    job_complete.delay(project.pk)
