@@ -22,9 +22,7 @@ document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((elemen
     element.addEventListener("click", (e) => {
         $("#edit-sentiment-modal").modal()
         let element = e.currentTarget
-        console.log(element)
         let sentimentID = element.getAttribute("data-sentiment-id")
-        console.log(sentimentID)
         let sentimentValue = element.getAttribute("data-sentiment-sentiment")
         let sentimentLanguage = element.getAttribute("data-sentiment-language")
         let sentimentText = element.getAttribute("data-sentiment-text")

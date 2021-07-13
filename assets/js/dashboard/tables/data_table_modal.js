@@ -8,7 +8,6 @@ export function createTable(page, options){
 
     optionsState = options
     manageTableOrderFiltersWithOptions(table, createTable, optionsState)
-    console.log(options)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
