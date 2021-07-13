@@ -1,5 +1,6 @@
 import csv
 import math
+from urllib import parse
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -48,6 +49,11 @@ def data(request, project_id):
         project_id
     ]
 
+    search_text = parse.unquote(request.GET.get("text-search", ""))
+    if search_text != "":
+        search_text = " UPPER(dd.\"text\") LIKE UPPER('%%{}%%') ".format(search_text)
+        where_clause.append(search_text)
+
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -63,15 +69,15 @@ def data(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """ +\
-                get_where_clauses(request, where_clause), [project_id])
+        select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """  
+            + get_where_clauses(request, where_clause), [project_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
     sql_query = """
     select dd.date_created, dd."text" , dd."url", ds."label", dd.sentiment , dd."language"
     from data_data dd inner join data_source ds on dd.source_id = ds.id
-    where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
+    where """  + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
     return serialize_rows(
         request,
         project_id,

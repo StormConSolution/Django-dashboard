@@ -5,16 +5,15 @@ let optionsState = {}
 
 let table = document.querySelector("#data-items")
 export function createTable(page, options){
-
     optionsState = options
     manageTableOrderFiltersWithOptions(table, createTable, optionsState)
-    console.log(options)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
     let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
-    document.getElementById("data-modal-table-csv").href = options.wordCloudURL
+    //document.getElementById("data-modal-table-csv").href = options.wordCloudURL
+    document.getElementById("data-modal-table-csv").href = options.csvURL
     fetch(options.dataURL + `&page-size=${pageSize}&page=${page}` + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {

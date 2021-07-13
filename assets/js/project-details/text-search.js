@@ -1,0 +1,18 @@
+import {createTable} from '../dashboard/tables/data_table_modal'
+import {metadataFiltersURL, normalFiltersURL} from "../dashboard/helpers/filters";
+
+let inputTextSearch = document.querySelector("#text-search")
+
+
+
+inputTextSearch.addEventListener('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        let text = inputTextSearch.value
+        let urlSearch = new URLSearchParams({"text-search":text})
+        let options = {}
+        options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + metadataFiltersURL()+ "&" + normalFiltersURL() + `&${urlSearch}`
+        options.dataURL =`/api/new-data/project/${window.project_id}/?`+ metadataFiltersURL()+ "&" + normalFiltersURL() + `&${urlSearch}`
+        document.querySelector("#data-table-modal").style.display = "block"
+        createTable(1, options)
+    }
+});

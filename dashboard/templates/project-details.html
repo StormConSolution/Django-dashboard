@@ -42,6 +42,11 @@
 				{% endif %}
             </ul>
             <div style="margin-left:auto; margin-right:1rem;display:flex;justify-content: center; align-content: center;flex-direction: column;" id="tab-loading">Loading...</div>
+            <div class="col-auto">
+                <div class="data-search"  style="padding:0;height:100%;">
+                  <input id="text-search" type="text" class="form-control " placeholder="Search" style="height:100%;">
+                </div>
+            </div>
 			{% if not GUEST_USER %}
             <ul class="d-flex flex-wrap" id="admin-tabs">
 				<li><a title="user management" href="#">User Access</a></li>
