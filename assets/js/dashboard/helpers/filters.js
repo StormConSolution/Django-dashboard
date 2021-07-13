@@ -73,3 +73,24 @@ export function normalFiltersURL(){
     }
     return new URLSearchParams(aux)
 }
+
+function getActiveOrderElement(tableElement){
+    return tableElement.querySelector("[data-order-by].active")
+}
+
+export function orderFilters(tableElement){
+    let aux = {}
+
+    let orderElement = getActiveOrderElement(tableElement)
+    let orderBy = ""
+    let orderRule = ""
+
+    if(orderElement){
+        orderBy = orderElement.getAttribute("data-order-by")
+        orderRule = orderElement.getAttribute("data-order-rule") 
+    }
+
+    aux["order-by"] = orderBy
+    aux["order-rule"] = orderRule
+    return new URLSearchParams(aux)
+}

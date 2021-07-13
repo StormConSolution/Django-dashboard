@@ -45,7 +45,6 @@ let testSentimentModalLoading = document.querySelector(
 );
 let testSentimentFirstRun = true;
 testSentimentButton.addEventListener("click", () => {
-    console.log("test")
     if (testSentimentFirstRun) {
         testSentimentModalLoading.innerHTML = "Loading...";
         fetch("/api/user-api-keys/")

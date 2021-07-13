@@ -1,13 +1,17 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal'
-import {update} from '../helpers/helpers'
+import {update, manageTableOrderFilters} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
-import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
+import { metadataFiltersURL , normalFiltersURL, orderFilters} from "../helpers/filters";
 let content = document.getElementById("top-entities-per-aspect-table-content");
 let firstRun = true
 let aspectLabel = ""
 let selectAspect = document.querySelector("#top-entities-per-aspect-table-aspect")
 let pageSizeDropdown = document.querySelector("#top-entities-per-aspect-table-page-size")
+
+let table = document.querySelector("[data-graph-table='top-entities-per-aspect-table']")
+manageTableOrderFilters(table, createTable)
+
 export function createTable(page){
     if(firstRun){
         update.startUpdate()
@@ -41,7 +45,7 @@ export function createTable(page){
     
         let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
         document.getElementById("top-entities-per-aspect-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&aspect-label${aspectLabel}&` + urlParams
-        fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
+        fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams + "&" + orderFilters(table))
         .then((response) => response.json())
         .then((data) => {
             content.innerHTML = ""

@@ -62,6 +62,24 @@ def get_filters_sql2(request):
         .format(json.dumps(metadata_filters)))
     return where_clauses
 
+
+def get_order_by(request, default_order_by = "", default_order_rule = ""):
+    if default_order_by == "":
+        default_order_by = " dd.date_created"
+    if default_order_rule == "":
+        default_order_rule = "desc"
+
+    order_by = request.GET.get("order-by","")
+    if order_by == "":
+        order_by = default_order_by
+    
+    order_rule = request.GET.get("order-rule","")
+    if order_rule == "":
+        order_rule = default_order_rule
+    
+    return " order by {} {} ".format(order_by, order_rule)
+
+
 def get_where_clauses(request, where_clauses):
     filter_clauses = get_filters_sql2(request)
     where_clauses = where_clauses + filter_clauses

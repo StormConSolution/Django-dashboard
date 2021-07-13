@@ -15,27 +15,36 @@ def export_data(request):
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
+    
     date_from = request.GET.get("date-from")
     date_to = request.GET.get("date-to")
+    
     languages = request.GET.getlist("languages[]")
     sources = request.GET.getlist("sources[]")
+    
     where_clauses = ['dd.project_id=%s'%(project_id)]
+    
     if date_from:
-        where_clauses.append("dd.date_created > '%s'"%(date_from))
+        where_clauses.append("dd.date_created >= '%s'"%(date_from))
+
     if date_to:
-        where_clauses.append("dd.date_created < '%s'"%(date_to))
+        where_clauses.append("dd.date_created <= '%s'"%(date_to))
+
     where_clauses.append("dd.language in ('%s')"%("','".join(languages)))
     where_clauses.append("ds.id in ('%s')"%("','".join(sources)))
     with connection.cursor() as cursor:
         cursor.execute("""
-            select dd.date_created, dd."text" , ds."label"  , dd.sentiment , dd."language" from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + " and ".join(where_clauses) + """ order by dd.date_created desc""")
+            select dd.date_created, dd."text" , ds."label"  , dd.sentiment , dd."language" 
+            from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + " and ".join(where_clauses) + \
+                    """ order by dd.date_created desc""")
         rows = cursor.fetchall()
     
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="data_items.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Date', "Text", "Source", "Weighted", "Raw", "Language"])
+    writer.writerow(['Date', "Text", "Source", "Sentiment", "Language"])
     for row in rows:
-        writer.writerow([row[0], row[1], row[2], row[3], row[4], row[5]])
+        writer.writerow(row)
+    
     return response

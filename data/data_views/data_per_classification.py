@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 import data.models as data_models
-from data.helpers import get_where_clauses, get_filters_sql
+from data.helpers import get_where_clauses, get_order_by
 from data.serialize import serialize_rows
 
 
@@ -81,10 +81,17 @@ def data_per_classification(request, project_id):
         "dc.id = %s"
     ]
     
+    if sentiment == "positive":
+        where_clause.append("dd.sentiment > 0")
+    if sentiment == "negative":
+        where_clause.append("dd.sentiment < 0")
+    if sentiment == "neutral":
+        where_clause.append("dd.sentiment = 0")
+    
     sql_query = """
     select dd.date_created, dd."text", dd."url", ds."label" , dd.sentiment , dd."language"
     from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id
-    where """ + get_where_clauses(request, where_clause) + """ order by dd.date_created desc """
+    where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
     
     return serialize_rows(
         request,

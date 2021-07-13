@@ -103,7 +103,15 @@ class AspectCooccurrence(BaseChart):
         s = {}
         handled = {}
         with connection.cursor() as cursor:
-            cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
+            try:
+                cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
+            except:
+                # TODO: If this data for this project hasn't been calculated, this
+                # function errors out. Needs to be fixed.
+                return {
+                    'aspect_cooccurrence_data':[],
+                }
+
             for row in cursor.fetchall():
                 l1, l2, percent, = row
                 if l1 in OMITTED_LABELS or l2 in OMITTED_LABELS:

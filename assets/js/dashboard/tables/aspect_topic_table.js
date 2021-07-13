@@ -1,14 +1,19 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataModalTable} from './data_table_modal'
-import {update} from '../helpers/helpers'
+import {update, manageTableOrderFilters} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
-import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
-export function createTable(page){
+import { metadataFiltersURL , normalFiltersURL, orderFilters} from "../helpers/filters";
+export function createTable(pageNumber){
     update.startUpdate()
-    makeTable(page)
+    makeTable(pageNumber)
 }
+
 let pageSizeDropdown = document.querySelector("#aspect-topic-table-page-size")
 let content = document.getElementById("aspect-topic-table-content");
+let table = document.querySelector("[data-graph-table='aspect-topic']")
+let orderElements = table.querySelectorAll("[data-order-by]")
+manageTableOrderFilters(table, createTable)
+
 function makeTable(page){
     content.innerHTML = "Loading...";
     let pagination = document.getElementById("aspect-topic-table-pagination");
@@ -16,7 +21,7 @@ function makeTable(page){
     pagination.innerHTML = ""
     let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
-    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
+    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
         content.innerHTML = ""
