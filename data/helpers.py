@@ -7,6 +7,7 @@ import re
 
 from django.conf import settings
 from data.models import Project
+
 def get_filters_sql(request):
     dateFrom = request.GET.get("date-from")
     dateTo = request.GET.get("date-to")
@@ -85,18 +86,26 @@ def get_where_clauses(request, where_clauses):
     where_clauses = where_clauses + filter_clauses
     return " and ".join(where_clauses)
 
+def get_teammates(user):
+    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
+    hashkey = h.hexdigest()
+    
+    resp = requests.get("{}/credentials/teammates/{}/{}/".format(
+        settings.AUTH_HOST,
+        user.email,
+        hashkey)).json()
+
+    return resp
+
 def get_api_key(user):
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
-    resp = requests.get("{}/credentials/fetch/{}/{}/".format(
+    
+    return requests.get("{}/credentials/fetch/{}/{}/".format(
         settings.AUTH_HOST,
         user.email,
         hashkey)).json()
     
-    if len(resp['apikeys']) > 0:
-        return resp
-    return {'apikeys':[]}
-
 def save_aspect_model(aspect_model):
     rules = list(aspect_model.aspectrule_set.all())
 
