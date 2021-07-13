@@ -1,5 +1,4 @@
 import {openGuestModalWithID, openGuestModal} from './guest/modal'
-console.log("test")
 openGuestModalWithID("new-alert-rule")
 document.querySelectorAll('[data-role="delete-alert"]').forEach((e) => {
     e.addEventListener("click", (e) => {

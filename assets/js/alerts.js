@@ -23,7 +23,6 @@ $(function() {
             }
             // Now add options for each possible aspect label for this project.
             for (var i = 0; i < data.length; i++) {
-                console.debug(data[i]);
                 let o = document.createElement('option');
                 o.value = data[i];
                 o.text = data[i];
@@ -75,7 +74,6 @@ document.querySelectorAll('[data-role="edit-alert-button"]').forEach((element) =
                 }
                 // Now add options for each possible aspect label for this project.
                 for (var i = 0; i < data.length; i++) {
-                    console.debug(data[i]);
                     let o = document.createElement('option');
                     o.value = data[i];
                     o.text = data[i];

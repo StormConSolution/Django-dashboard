@@ -1,10 +1,13 @@
 import {createPagination} from './utils/utils'
 import {createTable as dataEntityClassificationTable} from './data_table_modal'
-import {update} from '../helpers/helpers'
+import {update, manageTableOrderFilters} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
-import { metadataFiltersURL , normalFiltersURL} from "../helpers/filters";
+import { metadataFiltersURL , normalFiltersURL, orderFilters} from "../helpers/filters";
 let content = document.getElementById("entity-table-content");
 let pageSizeDropdown = document.getElementById("entity-table-page-size") 
+
+let table = document.querySelector("[data-graph-table='entities-table']")
+manageTableOrderFilters(table, createTable)
 export function createTable(page){
     update.startUpdate()
     content.innerHTML = "Loading...";
@@ -14,7 +17,7 @@ export function createTable(page){
 
     let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     document.getElementById("entities-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&` + urlParams
-    fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
+    fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
         content.innerHTML = ""

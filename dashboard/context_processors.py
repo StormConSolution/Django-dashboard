@@ -19,6 +19,7 @@ def general_context(request):
     else:
         custom_aspects = []
     
+    firebase_auth = settings.FIREBASE_AUTH == "1"
     return {
         'API_HOST': settings.API_HOST,
         'FLATFILE_URL': settings.FLATFILE_URL,
@@ -28,4 +29,5 @@ def general_context(request):
         'GUEST_USER': guest_user,
         "CUSTOM_ASPECT_MODELS": custom_aspects,
         'STANDARD_ASPECT_MODELS': data_models.AspectModel.objects.filter(standard=True).values('id', 'label'),
+        'FIREBASE_AUTH': firebase_auth,
     }

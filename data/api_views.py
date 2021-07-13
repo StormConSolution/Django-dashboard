@@ -25,7 +25,7 @@ from .permissions import IsAllowedAccessToData
 from dashboard.tasks import process_data
 from data import serializers
 from data import weighted
-from data.helpers import get_filters_sql, get_where_clauses, get_api_key
+from data.helpers import get_filters_sql, get_where_clauses, get_order_by
 
 def default_encoder(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
@@ -368,8 +368,7 @@ def entity_classification_count(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*), de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id) order by count(*) desc 
-""" + limit_offset_clause, query_args)
+            select de."label" , dc."label" , count(*) as frequency, de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id)""" + get_order_by(request, "frequency", "desc")  + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     
     if response_format == "csv":
@@ -429,7 +428,7 @@ def aspect_topic(request, project_id):
         query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + get_where_clauses(request, where_clause) + """ group by (da.topic, da."label" ) order by c desc """ + limit_offset_clause, query_args)
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + get_where_clauses(request, where_clause) + """ group by (da.topic, da."label" ) """ + get_order_by(request, "c", "desc")  + limit_offset_clause, query_args)
         rows = cursor.fetchall()
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
