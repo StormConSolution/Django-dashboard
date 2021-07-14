@@ -167,8 +167,10 @@ function showHideGraphsTables() {
             showGraphTable("time-bullying-graph")
             showGraphTable("gender-bullying-graph")
             showGraphTable("school-bullying-trend")
-            showGraphTable("map")
             break
+        case "user-tab":
+            showGraphTable("users")
+			break
     }
 
     activeProjectDetailsTab(currentTab)
@@ -178,6 +180,11 @@ showHideGraphsTables()
 
 document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
+    showHideGraphsTables()
+})
+
+document.querySelector("#user-tab").addEventListener("click", (e)=>{
+    currentTab = "user-tab"
     showHideGraphsTables()
 })
 
