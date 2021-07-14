@@ -51,8 +51,8 @@ def data(request, project_id):
 
     search_text = parse.unquote(request.GET.get("text-search", ""))
     if search_text != "":
-        search_text = " UPPER(dd.\"text\") LIKE UPPER('%%{}%%') ".format(search_text)
-        where_clause.append(search_text)
+        search_text = search_text.replace(" ", " & ")
+        where_clause.append(" dd.\"search\" @@ to_tsquery('{}') ".format(search_text))
 
     if response_format == "word-cloud":
         with connection.cursor() as cursor:

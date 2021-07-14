@@ -1,10 +1,12 @@
 from datetime import datetime
+import requests
 
 from celery.utils.log import get_task_logger
 from dateutil import parser
 from django.conf import settings
 from django.core.mail import send_mail
-import requests
+from django.contrib.postgres.search import SearchVector
+
 
 from .celery import app
 from .sms import send_sms
@@ -22,6 +24,7 @@ def process_data(kwargs):
     
     logger.info("Data received {} in process_data task".format(kwargs))
 
+    search_text = kwargs["text"]
     if not kwargs.get('lang'):
         # No language set; use language detection.
         try:
@@ -76,6 +79,8 @@ def process_data(kwargs):
             english_label=ent['id'],
         )
 
+        search_text = "{} {}".format(search_text, ent["title"])
+
         for clas in ent['classifications']:
             c_instance, created = models.Classification.objects.get_or_create(
                 label=clas
@@ -101,6 +106,7 @@ def process_data(kwargs):
             if key != "status" and aspects['status'] == 'OK':
                 for v in value:
                     aspects_found.add(key)
+                    search_text = "{} {}".format(search_text, key)
                     models.Aspect.objects.create(
                         data=data,
                         label=key,
@@ -109,7 +115,9 @@ def process_data(kwargs):
                         topic=v['sentiment_topic'],
                         sentiment_text=v['sentiment_text']
                     )
-    
+    print(search_text)
+    data.search = search_text
+    data.save()
     # Check if we have to send out any alerts based on the alert rules setup.
     for rule in project.alertrule_set.filter(active=True):
         alert = None
