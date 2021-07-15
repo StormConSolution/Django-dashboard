@@ -74,50 +74,6 @@ export function updateProjectDetailsPage() {
 
 updateProjectDetailsPage()
 
-document.getElementById("date-from").addEventListener("change", (e)=>{
-    updateProjectDetailsPageWithDelay()
-})
-
-document.getElementById("date-to").addEventListener("change", (e)=>{
-    updateProjectDetailsPageWithDelay()
-})
-
-let languagesCheckbox = document.querySelectorAll("#dropdown-languages .choose input")
-for(let languageCheckbox of languagesCheckbox) {
-    languageCheckbox.addEventListener("change", (e)=>{
-        updateProjectDetailsPageWithDelay()
-    })
-}
-
-let sourcesCheckbox = document.querySelectorAll("#dropdown-sources .choose input")
-for(let sourceCheckbox of sourcesCheckbox) {
-    sourceCheckbox.addEventListener("change", (e)=>{
-        updateProjectDetailsPageWithDelay()
-    })
-}
-
-document.querySelectorAll(".check-all").forEach((element) => {
-    element.addEventListener("click", (e)=> {
-        
-        let parent = e.target.parentNode.parentNode
-        
-        parent.querySelectorAll("input").forEach((input) => {
-            input.checked = true
-        })
-        updateProjectDetailsPageWithDelay()
-    })
-})
-
-document.querySelectorAll(".uncheck-all").forEach((element) => {
-    element.addEventListener("click", (e)=> {
-        let parent = e.target.parentNode.parentNode
-        parent.querySelectorAll("input").forEach((input) => {
-            input.checked = false
-        })
-        updateProjectDetailsPageWithDelay()
-    })
-})
-
 function activeProjectDetailsTab(id) {
     document.querySelector(`#${id}`).className="active"
 }
@@ -167,8 +123,10 @@ function showHideGraphsTables() {
             showGraphTable("time-bullying-graph")
             showGraphTable("gender-bullying-graph")
             showGraphTable("school-bullying-trend")
-            showGraphTable("map")
             break
+        case "user-tab":
+            showGraphTable("users")
+			break
     }
 
     activeProjectDetailsTab(currentTab)
@@ -178,6 +136,11 @@ showHideGraphsTables()
 
 document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     currentTab = "overview-tab"
+    showHideGraphsTables()
+})
+
+document.querySelector("#user-tab").addEventListener("click", (e)=>{
+    currentTab = "user-tab"
     showHideGraphsTables()
 })
 

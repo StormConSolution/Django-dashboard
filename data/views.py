@@ -4,6 +4,7 @@ import json
 from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins
 from django.core.paginator import Paginator
@@ -22,9 +23,7 @@ import requests
 
 from data import models as data_models
 from data.forms import AlertRuleForm
-from data.helpers import save_aspect_model, delete_aspect_model, get_api_key
 import data.helpers as data_helpers
-import data.helpers as helpers
 
 def collect_args(this_project, request):
     entity_filter = request.GET.get('entity')
@@ -160,7 +159,7 @@ def delete_project_details(request, project_id):
     return redirect("project")
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
-def new_project_details(request, project_id):
+def project_details(request, project_id):
     user = request.user
     this_project = get_object_or_404(data_models.Project, pk=project_id)
     projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
@@ -196,6 +195,7 @@ def new_project_details(request, project_id):
         context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
         #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
         context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+    
     context["more_filters"] = []
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -216,6 +216,10 @@ def new_project_details(request, project_id):
                 for metadata_row in metadata_rows:
                     metadata_values.append(metadata_row[0])
             context["more_filters"].append({"name":row[0], "values":natsorted(metadata_values)})
+    
+    # Fetch my teammates too.
+    context['teammates'] = data_helpers.get_teammates(user)['teammates']
+    context['access'] = this_project.users.all().values_list('username', flat=True)
 
     return render(request, "project-details.html", context)
 
@@ -396,7 +400,7 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = get_api_key(request.user)
+        apikey = data_helpers.get_api_key(request.user)
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
             % apikey["apikeys"][0])
         
@@ -438,7 +442,7 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
-        save_aspect_model(aspect_model)
+        data_helpers.save_aspect_model(aspect_model)
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -451,7 +455,7 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if delete_aspect_model(aspect.get()):
+        if data_helpers.delete_aspect_model(aspect.get()):
             aspect.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -563,12 +567,12 @@ class Aspect(View):
                 predefined_rule.delete()
         for predefined_rule in predefined_rules:
             if data_models.AspectRule.objects.filter(aspect_model=aspect,
-            rule_name=predefined_rule, predefined=True).count()==0:
-                data_models.AspectRule.objects.create(
-                aspect_model=aspect,
-                rule_name=predefined_rule, predefined=True)
+                rule_name=predefined_rule, predefined=True).count() == 0:
+                    data_models.AspectRule.objects.create(
+                    aspect_model=aspect,
+                    rule_name=predefined_rule, predefined=True)
 
-        if save_aspect_model(aspect):
+        if data_helpers.save_aspect_model(aspect):
             return HttpResponse(status=200)
         return HttpResponse(status=500)
 
@@ -595,7 +599,7 @@ class EntitiesList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = get_api_key(request.user)
+        apikey = data_helpers.get_api_key(request.user)
         req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
             % apikey["apikeys"][0])
         context["classifications"] = json.loads(req.text)
@@ -619,7 +623,7 @@ class EntitiesList(View):
             entity_model.classifications.add(c)
         entity_model.aliases = entity_aliases
         entity_model.save()
-        helpers.save_entity_model(entity_model)
+        data_helpers.save_entity_model(entity_model)
         return redirect("entities")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -666,7 +670,7 @@ class Entity(View):
         if entity.count() == 0:
             return HttpResponse(status=403)
 
-        helpers.delete_entity_model(entity.get())
+        data_helpers.delete_entity_model(entity.get())
         entity.delete()
         entity_name = request.POST.get("entity-name", "")
         entity_lang = request.POST.get("entity-lang", "")
@@ -684,7 +688,7 @@ class Entity(View):
         
         entity_model.aliases = entity_aliases
         entity_model.save()
-        helpers.save_entity_model(entity_model)
+        data_helpers.save_entity_model(entity_model)
 
         return redirect("entities")
 
@@ -848,3 +852,20 @@ def support(request):
         context['success'] = True
     
     return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url=settings.LOGIN_REDIRECT_URL)
+def save_users(request, project_id):
+    this_project = get_object_or_404(data_models.Project, pk=project_id)
+    if this_project.users.filter(pk=request.user.id).count() == 0:
+    # This user does not have permission to view this project.
+        return HttpResponseForbidden()
+    
+    # Remove all users then add back the new values.
+    this_project.users.clear()
+    this_project.users.add(request.user)
+    emails = request.POST.getlist('users')
+    for email in emails:
+        u = User.objects.get(username__iexact=email)
+        this_project.users.add(u)
+
+    return redirect("project", this_project.id)

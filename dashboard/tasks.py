@@ -32,8 +32,8 @@ def process_data(kwargs):
                 HOST=settings.API_HOST, APIKEY=apikey), data={'text': kwargs["text"]})
             kwargs['lang'] = resp.json()['language']
         except Exception as e:
-            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}".format(
-                kwargs['text'], e, settings.API_HOST, apikey))
+            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}. Response: {}".format(
+                kwargs['text'], e, settings.API_HOST, apikey, resp.content))
             return
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(

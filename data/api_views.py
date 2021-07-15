@@ -468,10 +468,14 @@ def sources_languages_per_project(request, project_id):
         for code, label in settings.LANGUAGES:
             if l == code:
                 all_languages.append({'code':code, 'label':label})
+    
+    all_languages = sorted(all_languages, key=lambda x: x['label'])
+    all_sources = list(data_models.Source.objects.filter(
+        pk__in=project.data_set.values_list('source', flat=True).distinct()).values())
+    all_sources = sorted(all_sources, key=lambda x: x['label'])
 
     response = {
-        "sources": list(data_models.Source.objects.filter(
-            pk__in=project.data_set.values_list('source', flat=True).distinct()).values()),
+        "sources": all_sources,
         "languages":all_languages, 
     }
     

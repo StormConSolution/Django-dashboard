@@ -11,11 +11,16 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('project/', views.Projects.as_view(), name='project'),
     path('create-project/', api_views.create_project, name='create-project'),
+    path('project/<int:project_id>/', views.project_details, name='project'),
+
     path('add-data/<int:project_id>/', api_views.add_data, name='add-data'),
+    
     path('alert/toggle/<int:aspect_rule_id>/', views.alert_rule_toggle, name='alert-rule-toggle'),
+
+    path('save-users/<int:project_id>/', views.save_users, name='save-users'),
     
     path('topics-per-aspect/<int:project_id>/', views.topics_per_aspect, name='topics_per_project'),
-    path('project/<int:project_id>/', views.new_project_details, name='project'),
+    
     path('delete-project/<int:project_id>/', views.delete_project_details, name='delete-project'),
     
     path('aspect/', views.AspectsList.as_view(), name='aspects'),

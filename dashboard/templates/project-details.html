@@ -18,12 +18,22 @@
         <div class="col-12">
             </div>
         <div class="col-12">
-          <div class="porject-title align-items-center d-flex flex-wrap">
+          <div class="project-title align-items-center d-flex flex-wrap">
                 <div class="dashboard-title d-flex flex-wrap">
                     {{ project.name }} 
                 </div>
             <a href="#" class="all-data" id="see-all-total-items"></a>
-            {% include "includes/project-details/filters.html" %}
+			<div class="col-auto">
+				<a class="btn btn-secondary" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
+			</div>
+			<div class="col-auto">
+				<div class="input-group">
+					<input id="text-search" type="search" name="search" class="form-control" placeholder="Search {{ project.name }} ..."/>
+					<div class="input-group-append">
+						<button id="text-search-btn" class="btn form-control" type="button"><i class="fe fe-search"></i></button>
+					</div>
+				</div>
+			</div>
           </div>
 
           <div class="project-menu" style="display:flex; flex-direction: row;">
@@ -44,7 +54,7 @@
             <div style="margin-left:auto; margin-right:1rem;display:flex;justify-content: center; align-content: center;flex-direction: column;" id="tab-loading">Loading...</div>
 			{% if not GUEST_USER %}
             <ul class="d-flex flex-wrap" id="admin-tabs">
-				<li><a title="user management" href="#">User Access</a></li>
+				<li><a title="user management" id="user-tab" href="#">User Access</a></li>
 				<li><a data-toggle="modal" data-target="#deleteModal" title="delete project" href="#">Delete <i class="fe fe-trash-2"></i></a></li>
 			</ul>
 			{% endif %}
@@ -84,6 +94,7 @@
        
 	   {% include "includes/graphs/map.html" %} 
 	   {% include "includes/tables/stc-tables.html" %} 
+	   {% include "includes/tables/users.html" %} 
 
        {% include "includes/tables/aspect-topic-breakdown.html" %} 
        {% include "includes/tables/entities-table.html" %} 

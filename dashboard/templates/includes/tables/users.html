@@ -1,0 +1,22 @@
+<div class="col-12 project-card" data-role="graph-table-container" data-graph-table="users">
+  <div class="data-table table-responsive">
+	  <form method="POST" action="{% url 'save-users' project.id %}">
+		{% csrf_token %}
+		<table class="table table-striped mb-5">
+		  <thead>
+			<tr>
+			  <th scope="col">Username</th>
+			  <th scope="col">Project Access</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			  {% for u in teammates %}
+			  <tr><td>{{ u }}</td><td><input type="checkbox" {% if user.username == u %}disabled=true{% endif %} {% if u in access %}checked=true{% endif %} name="users" value="{{ u }}"/></td></tr>
+			  {% endfor %}
+		  </tbody>
+		</table>
+		<a class="btn btn-primary" href="https://www.repustate.com/payment/users/">Add Users</a>
+		<button class="btn btn-primary" type="submit">Save Changes</button>
+	</form>
+  </div>
+</div>
