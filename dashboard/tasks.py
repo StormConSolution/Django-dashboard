@@ -115,9 +115,10 @@ def process_data(kwargs):
                         topic=v['sentiment_topic'],
                         sentiment_text=v['sentiment_text']
                     )
-    print(search_text)
+    
     data.search = search_text
     data.save()
+    
     # Check if we have to send out any alerts based on the alert rules setup.
     for rule in project.alertrule_set.filter(active=True):
         alert = None
