@@ -19,6 +19,7 @@ inputTextSearch.addEventListener('keyup', function (e) {
     if (e.key === 'Enter' || e.keyCode === 13) {
 		search()
     }
+	return false;
 });
 
 inputTextSearchBtn.addEventListener('click', search);
