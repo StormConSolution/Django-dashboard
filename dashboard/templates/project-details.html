@@ -23,7 +23,9 @@
                     {{ project.name }} 
                 </div>
             <a href="#" class="all-data" id="see-all-total-items"></a>
-            {% include "includes/project-details/filters.html" %}
+			<div class="col-auto">
+				<a class="btn btn-secondary" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
+			</div>
           </div>
 
           <div class="project-menu" style="display:flex; flex-direction: row;">

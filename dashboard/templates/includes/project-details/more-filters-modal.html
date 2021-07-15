@@ -1,9 +1,8 @@
-<!-- create-alert modal start -->
 <div
     class="modal fade"
     id="more-filters-modal"
     tabindex="-1"
-    aria-labelledby="createalertLabel"
+    aria-labelledby="createfilterLabel"
     aria-hidden="true"
     aria-modal="true"
     role="dialog"
@@ -11,8 +10,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createalertLabel">
-                    More Filters
+                <h5 class="modal-title" id="createfilterLabel">
+                    Filter Data
                 </h5>
                 <button
                     type="button"
@@ -25,7 +24,43 @@
             </div>
             <div class="modal-body">
                 <div class="modal-data">
-                    <form method="POST" action="{% url 'alerts' %}">
+					<form method="POST" action="#">
+					<div class="form-row">
+						<div class="form-group col-6">
+						  <label for="chosedate" class="form-label">From</label>
+						  <div >  
+							<input type="date" class="form-control" id="date-from" value="{{default_date_from}}">
+						  </div>
+						</div>
+						<div class="form-group col-6">
+						  <label for="chosedate" class="form-label">To</label>
+						  <div >  
+							<input type="date" class="form-control" id="date-to" value="{{default_date_to}}">
+						  </div>
+						</div>
+					</div>
+				<div class="form-row">
+					<div class="form-group col-6">
+					  <label class="form-label">Languages</label>
+					  <div>
+						  <select name="languages[]" id="languages-filter" class="form-control" size="1" multiple="multiple" required>
+							{% for language in languages %}
+								<option value="{{ language.0 }}">{{ language.1 }}</option>
+							{% endfor %}
+						  </select>
+					  </div>
+					</div>
+					<div class="form-group col-6">
+					  <label class="form-label">Sources</label>
+					  <div>
+						  <select name="sources[]" id="sources-filter" class="form-control" size="1" multiple="multiple" required>
+							{% for source in sources %}
+								<option value="{{ source.sourceID }}">{{ source.sourceLabel }}</option>
+							{% endfor %}
+						  </select>
+					  </div>
+					</div>
+				</div>
                         {% for filter in more_filters %}
                         <div class="form-group">
                             <label for="selectaspect" class="form-label"
@@ -56,3 +91,44 @@
         </div>
     </div>
 </div>
+
+<script>
+	$('#languages-filter').multiselect({
+		includeSelectAllOption: true,
+		maxHeight:400,
+		buttonText: function(options) {
+			if (options.length == 0) {
+			  return 'Languages';
+			}
+			else if (options.length > 6) {
+			  return options.length + ' selected';
+			}
+			else {
+			  var selected = '';
+			  options.each(function() {
+				selected += $(this).text() + ', ';
+			  });
+			  return selected.substr(0, selected.length -2);
+			}
+		}
+	});
+	$('#sources-filter').multiselect({
+		includeSelectAllOption: true,
+		maxHeight:400,
+		buttonText: function(options) {
+			if (options.length == 0) {
+			  return 'Sources';
+			}
+			else if (options.length > 6) {
+			  return options.length + ' selected';
+			}
+			else {
+			  var selected = '';
+			  options.each(function() {
+				selected += $(this).text() + ', ';
+			  });
+			  return selected.substr(0, selected.length -2);
+			}
+		}
+	});
+</script>
