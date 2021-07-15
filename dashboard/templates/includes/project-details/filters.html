@@ -61,14 +61,19 @@
             </div>
             </div>
         </div>
- <!--        <div class="col-auto">
-            <a class="btn btn-primary" id="generate-pdf-report">Generate PDF report</a>
-        </div> -->
         {% if more_filters|length %}
         <div class="col-auto">
 			<a class="btn btn-secondary" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
         </div>
         {% endif %}
+		<div class="col-auto">
+			<div class="input-group">
+				<input id="text-search" type="search" name="search" class="form-control" placeholder="Search project ..."/>
+				<div class="input-group-append">
+					<button id="text-search-btn" class="btn form-control" type="button"><i class="fe fe-search"></i></button>
+				</div>
+			</div>
+		</div>
         <script>
         document.getElementById('dropdown-sources').addEventListener('click', (e)=>{
             e.stopPropagation()
