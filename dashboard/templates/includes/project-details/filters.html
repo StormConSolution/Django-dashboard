@@ -1,0 +1,105 @@
+<div class="ml-0 ml-md-auto">
+    <form>
+        <div class="form-row align-items-center">
+        <div class="col-auto" style="display:flex;flex-direction:row">
+            <label style="display:flex;justify-content:center;align-items:center;margin-right:0.5rem">From:</label>
+            <input type="date" class="form-control" id="date-from" value="{{default_date_from}}">
+        </div>
+        <div class="col-auto" style="display:flex;flex-direction:row">
+            <label style="display:flex;justify-content:center;align-items:center;margin-right:.5rem">To:</label>
+            <input type="date" class="form-control" id="date-to" value="{{default_date_to}}">
+        </div>
+        <div class="col-auto">
+            <div class="dropdown choose-languages">
+            <button class="btn dropdown-toggle" type="button" id="choose-languages" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Languages
+            </button>
+            <div class="dropdown-menu" aria-labelledby="choose-languages" id="dropdown-languages-project-details">
+                <div class="choose-lang">
+                <div class="d-flex checkuncheck">
+                
+                    <span class="check-all">Select All</span>
+                    <span class="uncheck-all">Unselect All</span>
+                    
+                </div>
+                <div class="choose" style="max-height:30vh;overflow-y:scroll">
+                    {% for language in languages %}
+                    <div class=" ">
+                    <input type="checkbox" class="" value="{{language.0}}" checked onclick="return true">
+                    <label class="">{{language.1}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="dropdown choose-sources">
+            <button class="btn dropdown-toggle" type="button" id="choose-sources" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Sources
+            </button>
+            <div class="dropdown-menu" aria-labelledby="choose-sources" id="dropdown-sources">
+                <div class="choose-lang">
+                <div class="d-flex checkuncheck">
+                
+                    <span class="check-all">Select All</span>
+                    <span class="uncheck-all">Unselect All</span>
+
+                </div>
+                <div class="choose" style="max-height:30vh;overflow-y:scroll">
+                    {% for source in sources %}
+                    <div class="">
+                    <input type="checkbox" class="" data-id="{{source.sourceID}}" value="{{source.sourceLabel}}" onclick="return true" checked>
+                    <label class="">{{source.sourceLabel}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+            </div>
+            <select id="example-getting-started" multiple="multiple">
+                <option value="cheese">Cheese</option>
+                <option value="tomatoes">Tomatoes</option>
+                <option value="mozarella">Mozzarella</option>
+                <option value="mushrooms">Mushrooms</option>
+                <option value="pepperoni">Pepperoni</option>
+                <option value="onions">Onions</option>
+            </select>
+        </div>
+ <!--        <div class="col-auto">
+            <a class="btn btn-primary" id="generate-pdf-report">Generate PDF report</a>
+        </div> -->
+        {% if more_filters|length %}
+        <div class="col-auto">
+			<a class="btn btn-secondary" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
+        </div>
+        {% endif %}
+        <script>
+        document.getElementById('dropdown-sources').addEventListener('click', (e)=>{
+            e.stopPropagation()
+        })
+        document.getElementById('dropdown-languages-project-details').addEventListener('click', (e)=>{
+            e.stopPropagation()
+        })
+        </script>
+        <!--
+        <div class="col-auto">
+            <a href="#" class="reset-filter">Reset Filter <i class="fe fe-refresh-cw"></i> </a>
+        </div>
+        -->
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#example-getting-started').multiselect({
+            numberDisplayed: -1,
+            buttonText: ()=>{
+                return "Sources"
+            }
+        });
+    });
+</script>

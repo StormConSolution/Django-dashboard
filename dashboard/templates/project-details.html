@@ -5,6 +5,8 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block content %}
+
+<link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css"/>
 	<script>
 	  window.project_id = {{ project.id|safe }}
 	  {% if project.geo_enabled %}
@@ -164,4 +166,5 @@ dataTableModalCloseButton.addEventListener("click", (e) => {
 })
 </script>
 <script src="/static/assets/js/project-details.js"></script>
+<script src="/static/assets/js/bootstrap-multiselect.min.js"></script>
 {% endblock %}
