@@ -53,7 +53,7 @@ def data(request, project_id):
     if search_text != "":
         search_text = search_text.replace(" ", " & ")
         where_clause.append(" dd.\"search\" @@ to_tsquery('{}') ".format(search_text))
-
+    
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
