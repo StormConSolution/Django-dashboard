@@ -190,12 +190,17 @@ def project_details(request, project_id):
             if element["language"] == language_tuple[0]:
                 context["languages"].append(language_tuple)
     
+    earliest = None
+    latest = None
+
     if data_models.Data.objects.filter(project=project_id).count() != 0:
-        data = data_models.Data.objects.filter(project=project_id).latest('date_created')
-        context["default_date_to"] = data.date_created.strftime("%Y-%m-%d")
-        #context["default_date_from"] = datetime.strptime(data.date_created, '%Y/%m/%d')
-        context["default_date_from"] = (data.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
-    
+        d = data_models.Data.objects.filter(project=project_id).latest()
+        latest = d.date_created
+        earliest = data_models.Data.objects.filter(project=project_id).earliest().date_created
+        
+        context["default_date_to"] = d.date_created.strftime("%Y-%m-%d")
+        context["default_date_from"] = (d.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+
     context["more_filters"] = []
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -220,6 +225,8 @@ def project_details(request, project_id):
     # Fetch my teammates too.
     context['teammates'] = data_helpers.get_teammates(user)['teammates']
     context['access'] = this_project.users.all().values_list('username', flat=True)
+    context['earliest'] = earliest
+    context['latest'] = latest
 
     return render(request, "project-details.html", context)
 

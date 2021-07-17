@@ -86,6 +86,9 @@ def process_data(kwargs):
                 label=clas
             )
             entity_instance.classifications.add(c_instance)
+        
+        # TODO add the natural language phrases for each entity/classification
+        # here to our search index column.
 
         data.entities.add(entity_instance)
 
