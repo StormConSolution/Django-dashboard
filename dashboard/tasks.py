@@ -4,13 +4,13 @@ import requests
 from celery.utils.log import get_task_logger
 from dateutil import parser
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib.postgres.search import SearchVector
-
+from django.core.mail import send_mail
+from django.db.models import Value, CharField
 
 from .celery import app
 from .sms import send_sms
-from data import models
+from data import models as data_models
 from data.helpers import get_project_api_key
 
 logger = get_task_logger(__name__)
@@ -24,7 +24,6 @@ def process_data(kwargs):
     
     logger.info("Data received {} in process_data task".format(kwargs))
 
-    search_text = kwargs["text"]
     if not kwargs.get('lang'):
         # No language set; use language detection.
         try:
@@ -47,19 +46,19 @@ def process_data(kwargs):
     sentiment = resp['score']
     keywords = resp['keywords']
     if kwargs["source"] == '':
-        source = models.Source.objects.get_or_create(label="Upload")[0]
+        source = data_models.Source.objects.get_or_create(label="Upload")[0]
     else:
-        source = models.Source.objects.get_or_create(
+        source = data_models.Source.objects.get_or_create(
             label=kwargs["source"])[0]
 
-    project = models.Project.objects.get(pk=kwargs["project_id"])
+    project = data_models.Project.objects.get(pk=kwargs["project_id"])
 
     if not kwargs.get('date'):
         date = datetime.now()
     else:
         date = parser.parse(kwargs['date'])
     
-    data = models.Data.objects.create(
+    data = data_models.Data.objects.create(
         project=project,
         text=kwargs["text"], 
         date_created=date, 
@@ -72,8 +71,11 @@ def process_data(kwargs):
         keywords=keywords,
     )
     
+    # This will store addition text we want to search by.
+    search_text = ''
+
     for ent in resp['entities']:
-        entity_instance, created = models.Entity.objects.get_or_create(
+        entity_instance, created = data_models.Entity.objects.get_or_create(
             label=ent['title'],
             language=kwargs["lang"],
             english_label=ent['id'],
@@ -82,13 +84,14 @@ def process_data(kwargs):
         search_text = "{} {}".format(search_text, ent["title"])
 
         for clas in ent['classifications']:
-            c_instance, created = models.Classification.objects.get_or_create(
+            c_instance, created = data_models.Classification.objects.get_or_create(
                 label=clas
             )
             entity_instance.classifications.add(c_instance)
         
-        # TODO add the natural language phrases for each entity/classification
-        # here to our search index column.
+            # TODO add the natural language phrases for each entity/classification
+            # here to our search index column.
+            search_text = "{} {}".format(search_text, ' '.join(clas.split('.')))
 
         data.entities.add(entity_instance)
 
@@ -109,8 +112,7 @@ def process_data(kwargs):
             if key != "status" and aspects['status'] == 'OK':
                 for v in value:
                     aspects_found.add(key)
-                    search_text = "{} {}".format(search_text, key)
-                    models.Aspect.objects.create(
+                    data_models.Aspect.objects.create(
                         data=data,
                         label=key,
                         chunk=v['chunk'],
@@ -118,8 +120,10 @@ def process_data(kwargs):
                         topic=v['sentiment_topic'],
                         sentiment_text=v['sentiment_text']
                     )
+                    
+                    search_text = "{} {}".format(search_text, key)
     
-    data.search = search_text
+    data.search = SearchVector('text') + SearchVector(Value(search_text, output_field=CharField()))
     data.save()
     
     # Check if we have to send out any alerts based on the alert rules setup.
@@ -128,7 +132,7 @@ def process_data(kwargs):
         if rule.keywords:
             for kw in rule.keywords.split(','):
                 if kw in data.text:
-                    alert = models.Alert.objects.create(
+                    alert = data_models.Alert.objects.create(
                         project=project,
                         data=data,
                         rule=rule,
@@ -138,7 +142,7 @@ def process_data(kwargs):
                     break
          
         if not alert and rule.aspect in aspects_found:
-            alert = models.Alert.objects.create(
+            alert = data_models.Alert.objects.create(
                 project=project,
                 data=data,
                 rule=rule,
@@ -173,7 +177,7 @@ def notify(alert):
 
 @app.task
 def job_complete(project_id):
-    project = models.Project.objects.get(pk=project_id)
+    project = data_models.Project.objects.get(pk=project_id)
     
     logger.info("Data processing request complete for project {}".format(project_id))
 
@@ -191,11 +195,11 @@ def job_complete(project_id):
 
 @app.task
 def process_twitter_search(job_id):
-    ts = models.TwitterSearch.objects.get(pk=job_id)
-    ts.status = models.TwitterSearch.RUNNING
+    ts = data_models.TwitterSearch.objects.get(pk=job_id)
+    ts.status = data_models.TwitterSearch.RUNNING
     ts.save()
         
-    project, _ = models.Project.objects.get_or_create(name=ts.project_name)
+    project, _ = data_models.Project.objects.get_or_create(name=ts.project_name)
     project.users.add(ts.created_by)
     project.aspect_model = ts.aspect
     # NOTE: change this to the user's API key when we introduce this feature to
@@ -227,7 +231,7 @@ def process_twitter_search(job_id):
         
         process_data.delay(post_data)
 
-    ts.status = models.TwitterSearch.DONE
+    ts.status = data_models.TwitterSearch.DONE
     ts.save()
 
     job_complete.delay(project.pk)
