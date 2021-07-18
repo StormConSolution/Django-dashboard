@@ -22,7 +22,6 @@ from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .get_user_api_keys import get_user_api_keys
 
-
 __all__ = [
     'aspect_count',
     'aspect_model_test',

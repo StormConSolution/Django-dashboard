@@ -3,7 +3,7 @@ import * as tables from "./dashboard/tables";
 import {update, hideAllGraphsTables, showGraphTable} from './dashboard/helpers/helpers';
 import "./project-details/filters";
 import {getGraphs, generatePDF} from './dashboard/pdf/pdf';
-
+import "./project-details/text-search"
 import  "./dashboard/countrymap.js";
 
 let timeOut
@@ -194,6 +194,14 @@ document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>
 
 document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=>{
     document.querySelector("#word-cloud-modal").style.display = "none"
+})
+
+document.getElementById('see-all-items').addEventListener("click", (e) => {
+	// Clear the filter form, set the dates to earliest/latest and then refresh.
+	document.getElementById("filter-form").reset()
+	document.getElementById("date-from").value = window.earliest_date
+	document.getElementById("date-to").value = window.latest_date
+	updateProjectDetailsPage()
 })
 
 /* document.querySelector("#generate-pdf-report").addEventListener("click", (e)=>{

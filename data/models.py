@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.urls import reverse
+from django.contrib.postgres.search import SearchVectorField
+
 
 class Sentiment(models.Model):
     label = models.CharField(max_length=80) 
@@ -210,6 +212,7 @@ class Data(models.Model):
     entities = models.ManyToManyField(Entity)
     metadata = JSONField(blank=True, default=dict)
     keywords = JSONField(blank=True, default=dict)
+    search = SearchVectorField(null=True, editable=True)
 
     class Meta:
         verbose_name_plural = 'Data'

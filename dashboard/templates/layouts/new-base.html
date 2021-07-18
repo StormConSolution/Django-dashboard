@@ -295,7 +295,6 @@
             headers.push(headerObject)
             data = headers.concat(data)
             importer.displaySuccess('Your data has been uploaded')
-            
             {% if UPLOAD_CSV_FROM_CLIENT %}
                 fetch("/api/csv/?client=browser&project-id=" + projectId, {
                     method: "POST",
@@ -307,6 +306,9 @@
             {% else %}
             location.reload()
             {% endif %}
+        })
+        .catch((e)=>{
+            alert(e)
         })
     })
 </script>

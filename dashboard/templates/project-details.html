@@ -5,8 +5,12 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block content %}
+
+<link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css"/>
 	<script>
 	  window.project_id = {{ project.id|safe }}
+		window.earliest_date = `{{ earliest|date:"Y-m-d" }}`
+		window.latest_date = `{{ latest|date:"Y-m-d" }}`
 	  {% if project.geo_enabled %}
 	  window.geo_enabled = true;
 	  {% endif %}
@@ -16,15 +20,21 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">
-            </div>
-        <div class="col-12">
-          <div class="porject-title align-items-center d-flex flex-wrap">
+            <div class="project-title align-items-center d-flex flex-wrap">
                 <div class="dashboard-title d-flex flex-wrap">
                     {{ project.name }} 
                 </div>
-            <a href="#" class="all-data" id="see-all-total-items"></a>
-			<div class="col-auto">
-				<a class="btn btn-secondary" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
+            <a href="#" class="ml-3" id="see-all-items">See all data</a>
+			<div class="ml-auto col-auto">
+				<a class="btn btn-info border" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
+			</div>
+			<div class="pr-0 col-6">
+				<div class="input-group">
+					<input id="text-search" type="search" name="search" class="form-control" placeholder="Search {{ project.name }} ..."/>
+					<div class="input-group-append">
+						<button id="text-search-btn" class="btn form-control" type="button"><i class="fe fe-search"></i></button>
+					</div>
+				</div>
 			</div>
           </div>
 
@@ -132,7 +142,7 @@
 {% include "includes/project-details/delete-modal.html" %}
 {% include "includes/project-details/more-filters-modal.html" %}
 
-<div style="position:fixed;top:0;right:0;left:0;padding:40px;bottom:0;z-index:1000;overflow:auto;display:none;background-color: rgba(220,220,220,0.5);" class="row" id="word-cloud-modal">
+<div style="position:fixed;top:0;right:0;left:0;padding:40px;bottom:0;z-index:1000;overflow:auto;display:none;background-color: rgba(51,51,51,0.8);" class="row" id="word-cloud-modal">
     <div class="col-12 project-card" style="overflow:auto;">
         <div class="project-card-inner">
             <div class="chart-title align-items-center d-flex flex-wrap">
@@ -158,4 +168,5 @@ dataTableModalCloseButton.addEventListener("click", (e) => {
 })
 </script>
 <script src="/static/assets/js/project-details.js"></script>
+<script src="/static/assets/js/bootstrap-multiselect.min.js"></script>
 {% endblock %}

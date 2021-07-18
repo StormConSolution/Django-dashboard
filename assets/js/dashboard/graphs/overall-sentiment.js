@@ -85,9 +85,6 @@ function aspectAndSourceCount(data){
         document.querySelector("#overall-sentiment-different-sources").innerHTML = "Different Source"
     }
 }
-function seeAllTotalItems(data){
-    //document.getElementById("see-all-total-items").innerHTML = `See all ${data.positive_count + data.negative_count + data.neutral_count} data items`
-}
 
 let project_id = window.project_id
 export function createGraph(){
@@ -102,7 +99,6 @@ export function createGraph(){
         div.innerHTML = ""
         overallSentiment(data)
         aspectAndSourceCount(data)
-        seeAllTotalItems(data)
         update.finishUpdate()
     })
 }
