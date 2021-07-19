@@ -20,6 +20,7 @@ services:
         volumes: 
             - ./media_root:/var/www/media_root
             - ./certificates:/certificates
+            - ./firebase-credentials.json:/firebase-credentials.json
     database:
         image: postgres
         environment: 
