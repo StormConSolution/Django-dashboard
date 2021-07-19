@@ -44,7 +44,8 @@ export function createTable(page, options){
        </td>
        <td class="text-center">
         <a
-            class="icon-link"
+            class="mr-1 ml-0"
+			style="cursor:pointer;"
             data-toggle="tooltip"
             data-role="edit-data-item"
             data-placement="bottom"
@@ -54,7 +55,8 @@ export function createTable(page, options){
             <i class="fe fe-edit"></i>
         </a>
         <a
-            class="icon-link"
+            class="mr-1 ml-1"
+			style="cursor:pointer;"
             data-toggle="tooltip"
             data-role="refresh-data-item"
             data-placement="bottom"
@@ -64,7 +66,8 @@ export function createTable(page, options){
             <i class="fe fe-refresh-cw"></i>
         </a>
         <a
-            class="icon-link"
+            class="mr-0 ml-1"
+			style="cursor:pointer;"
             data-toggle="tooltip"
             data-role="delete-data-item"
             data-placement="bottom"
