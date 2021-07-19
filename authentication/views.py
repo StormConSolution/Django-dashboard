@@ -14,8 +14,6 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import LoginForm, SignUpForm
-
-
  
 def firebase_logout(request):
     logout(request)
@@ -91,17 +89,14 @@ def guest_login(request):
 
 @csrf_exempt
 def firebase_login(request):
-    try:
-        firebase_admin.initialize_app()
-    except:
-        pass
+    
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     token = body["token"]
     decoded_token = auth.verify_id_token(token)
     email = decoded_token["email"]
     user, created = User.objects.get_or_create(username=email)
-    if not created:
+    if created:
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -111,16 +106,12 @@ def firebase_login(request):
 
 @csrf_exempt
 def firebase_login_api(request):
-    try:
-        firebase_admin.initialize_app()
-    except:
-        pass
 
     token = request.GET.get("token","")
     decoded_token = auth.verify_id_token(token)
     email = decoded_token["email"]
     user, created = User.objects.get_or_create(username=email)
-    if not created:
+    if created:
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')

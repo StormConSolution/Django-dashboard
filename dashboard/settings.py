@@ -219,13 +219,17 @@ except:
     pass
 
 # Used by the add_data view. Set proper values in settings_local
-FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', "0")
+FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', False)
 REPUSTATE_WEBSITE = os.environ.get("REPUSTATE_WEBSITE", "")
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 AUTH_HOST = os.environ.get('AUTH_HOST', AUTH_HOST)
 SERVER_NAME = os.environ.get('SERVER_NAME', SERVER_NAME)
+
+if FIREBASE_AUTH:
+    import firebase_admin
+    firebase_admin.initialize_app()
 
 FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
