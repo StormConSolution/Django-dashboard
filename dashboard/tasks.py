@@ -10,6 +10,7 @@ from django.db.models import Value, CharField
 
 from .celery import app
 from .sms import send_sms
+from .nlp_phrases import nlp_phrase_lookup
 from data import models as data_models
 from data.helpers import get_project_api_key
 
@@ -114,9 +115,10 @@ def process_data(kwargs):
             )
             entity_instance.classifications.add(c_instance)
         
-            # TODO add the natural language phrases for each entity/classification
+            # Add the natural language phrases for each entity/classification
             # here to our search index column.
-            search_text = "{} {}".format(search_text, ' '.join(clas.split('.')))
+            nlp_phrase = nlp_phrase_lookup.get(clas, '')
+            search_text = "{} {} {}".format(search_text, ' '.join(clas.split('.')), nlp_phrase)
 
         data.entities.add(entity_instance)
 
