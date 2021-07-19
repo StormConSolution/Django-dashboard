@@ -102,6 +102,7 @@ def firebase_login(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
     #return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
+    
     return HttpResponse("/project/")
 
 @csrf_exempt
@@ -115,5 +116,6 @@ def firebase_login_api(request):
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    
     return redirect(settings.REPUSTATE_WEBSITE + "/")
 
