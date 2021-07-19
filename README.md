@@ -49,6 +49,11 @@ HTTPS certificates must exist in the folder `./certificates`, this folder is
 mapped to `/certificates` inside the `web` service, this certificates are
 used by the nginx server´.
 
+Firebase credentials should exist in the same folder as `docker-compose.yaml`
+with the name `firebase-credentials.json`, this file is mapped to
+`/firebase-credentials.json` inside the container so the `.env` file for production
+should have the following line `GOOGLE_APPLICATION_CREDENTIALS=/firebase-credentials.json`
+
 The `web` service uses the following image `repustate/dashboard:latest`
 to build this image run `make build` and then push to the docker registry
 with `make push`.
