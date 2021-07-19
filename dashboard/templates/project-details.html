@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css"/>
 	<script>
 	  window.project_id = {{ project.id|safe }}
+		window.earliest_date = `{{ earliest|date:"Y-m-d" }}`
+		window.latest_date = `{{ latest|date:"Y-m-d" }}`
 	  {% if project.geo_enabled %}
 	  window.geo_enabled = true;
 	  {% endif %}
@@ -22,11 +24,11 @@
                 <div class="dashboard-title d-flex flex-wrap">
                     {{ project.name }} 
                 </div>
-            <a href="#" class="all-data" id="see-all-total-items"></a>
-			<div class="col-auto">
+            <a href="#" class="ml-3" id="see-all-items">See all data</a>
+			<div class="ml-auto col-auto">
 				<a class="btn btn-info border" id="open-more-filters-modal"><i class="fe fe-more-horizontal"></i></a>
 			</div>
-			<div class="col-5">
+			<div class="pr-0 col-6">
 				<div class="input-group">
 					<input id="text-search" type="search" name="search" class="form-control" placeholder="Search {{ project.name }} ..."/>
 					<div class="input-group-append">
