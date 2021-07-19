@@ -89,7 +89,7 @@ def data_per_classification(request, project_id):
         where_clause.append("dd.sentiment = 0")
     
     sql_query = """
-    select dd.date_created, dd."text", dd."url", ds."label" , dd.sentiment , dd."language"
+    select dd.date_created, dd."text", dd."url", ds."label" , dd.sentiment , dd."language", dd.id
     from data_classification dc inner join data_entity_classifications dec2 on dc.id = dec2.classification_id inner join data_data_entities dde ON dde.entity_id = dec2.entity_id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on ds.id = dd.source_id
     where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
     

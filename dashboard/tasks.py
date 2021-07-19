@@ -20,8 +20,33 @@ VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 @app.task
 def process_data(kwargs):
-    apikey = get_project_api_key(kwargs["project_id"])
     
+    # If data id is defined just run again the same data item
+    existing_data_item = None
+
+    if kwargs["data_id"]:
+        try:
+            existing_data_item = data_models.Data.objects.get(pk=kwargs["data_id"])
+        except:
+            # Object does not exist.
+            return
+
+        kwargs["lang"] = existing_data_item.language
+        kwargs["text"] = existing_data_item.text
+        kwargs["date"] = existing_data_item.date_created.strftime('%Y-%m-%d')
+        kwargs["project_id"] = existing_data_item.project.id
+        kwargs["metadata"] = existing_data_item.metadata
+        
+        kwargs["source"] = ""
+        if existing_data_item.source:
+            kwargs["source"] = existing_data_item.source.label
+        
+        kwargs["url"] = ""
+        if existing_data_item.url:
+            kwargs["url"] = existing_data_item.url 
+    
+    apikey = get_project_api_key(kwargs["project_id"])
+
     logger.info("Data received {} in process_data task".format(kwargs))
 
     if not kwargs.get('lang'):
@@ -154,6 +179,9 @@ def process_data(kwargs):
         if alert and rule.should_notify():
             notify(alert)
 
+    if existing_data_item:
+        # We delete the old one in the case we're updating an existing data item..
+        existing_data_item.delete()
 
 def notify(alert):
     """

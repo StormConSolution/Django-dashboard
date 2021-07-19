@@ -953,6 +953,7 @@ header h3 {
   font-size: 16px;
   display: inline-block;
   margin: 0 10px;
+  cursor: pointer;
 }
 .icon-link:hover {
   color: #7367F0;

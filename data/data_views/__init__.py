@@ -21,6 +21,7 @@ from .sentiment_trend import sentiment_trend
 from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .get_user_api_keys import get_user_api_keys
+from .data_item import DataItem
 
 __all__ = [
     'aspect_count',
@@ -46,4 +47,5 @@ __all__ = [
     'source_by_sentiment',
     'topics_per_aspect', 
     'get_user_api_keys', 
+    'DataItem',
 ]

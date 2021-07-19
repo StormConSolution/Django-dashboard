@@ -442,6 +442,7 @@ a { color: #8E92A2; text-decoration: none; font-size: 16px;}
   }
 }
 .icon-link { color: #A0AEC0; font-size: 16px; display: inline-block; margin: 0 10px;
+    cursor: pointer;
   &:hover { color: $purpal;}
   &.trash { color: $negative;}
 }
