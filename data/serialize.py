@@ -54,7 +54,8 @@ def serialize_rows(
                 "url": row[2],
                 "sourceLabel": row[3],
                 "sentimentValue": row[4],
-                "languageCode": row[5]
+                "languageCode": row[5],
+                "id": row[6]
             })
 
         return JsonResponse(response, safe=False)

@@ -20,8 +20,30 @@ VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 @app.task
 def process_data(kwargs):
+    #if data id is defined just run again the same data item
+    print(kwargs)
+    if kwargs["data_id"]:
+        data_item = models.Data.objects.get(pk=kwargs["data_id"])
+        kwargs["source"] = ""
+        kwargs["url"] = ""
+        if data_item:
+            kwargs["lang"] = data_item.language
+            kwargs["text"] = data_item.text
+            if data_item.source:
+                kwargs["source"] = data_item.source.label
+            if data_item.url:
+                kwargs["url"] = data_item.url 
+            kwargs["date"] = str(data_item.date_created)
+            kwargs["project_id"] = data_item.project.id
+            kwargs["metadata"] = data_item.metadata
+            data_item.delete()
+        else:
+            return
+    print(kwargs)
     apikey = get_project_api_key(kwargs["project_id"])
     
+
+
     logger.info("Data received {} in process_data task".format(kwargs))
 
     search_text = kwargs["text"]

@@ -25,6 +25,7 @@ urlpatterns = [
     path('keywords/<int:project_id>/', data_api_views.keywords_count),
     path('most-common-chunks/<int:project_id>/', data_api_views.most_common_chunks),
     path('new-data/project/<int:project_id>/', data_api_views.data),
+    path('data-item/<int:data_id>/', data_api_views.DataItem.as_view(), name='data-item'),
     path('project-overview/<int:project_id>/', views.project_overview),
     path('project/', views.ProjectListView.as_view()),
     path('sentiment-per-aspect/<int:project_id>/', data_api_views.sentiment_per_aspect),

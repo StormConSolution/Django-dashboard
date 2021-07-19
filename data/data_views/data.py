@@ -75,7 +75,7 @@ def data(request, project_id):
     total_data = int(row[0])
 
     sql_query = """
-    select dd.date_created, dd."text" , dd."url", ds."label", dd.sentiment , dd."language"
+    select dd.date_created, dd."text" , dd."url", ds."label", dd.sentiment , dd."language", dd.id
     from data_data dd inner join data_source ds on dd.source_id = ds.id
     where """  + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
     return serialize_rows(
