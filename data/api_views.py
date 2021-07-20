@@ -27,6 +27,12 @@ from data import serializers
 from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_order_by
 
+def pagination_details(request):
+    page_size = request.GET.get("page-size") or 10
+    page = request.GET.get("page") or 1
+
+    return int(page), int(page_size)
+
 def get_chart_data(this_project, start, end, entity_filter, 
         aspect_topic, aspect_name, lang_filter, source_filter, request):
 
@@ -306,14 +312,8 @@ def co_occurence(request, project_id):
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
     user = request.user
-    try:
-        page_size = int(request.GET.get("page-size", 10))
-    except:
-        page_size = 10
-    try:
-        page = int(request.GET.get("page", 1))
-    except:
-        page = 1
+    page, page_size = pagination_details(request)
+    
     project = get_object_or_404(data_models.Project, pk=project_id)
     aspect_label = request.GET.get("aspect-label", "") 
     if project.users.filter(pk=request.user.id).count() == 0:
@@ -389,8 +389,9 @@ def entity_classification_count(request, project_id):
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def aspect_topic(request, project_id):
-    page_size = int(request.GET.get("page-size", 10))
-    page = int(request.GET.get("page", 1))
+    
+    page, page_size = pagination_details(request)
+
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
