@@ -29,10 +29,9 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-UPLOAD_CSV_FROM_CLIENT = False
+UPLOAD_CSV_FROM_CLIENT = os.environ.get("UPLOAD_CSV_FROM_CLIENT", False)
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -190,7 +189,7 @@ AUTH_HOST = 'https://www.repustate.com'
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'django-db'
 
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", False)
 
 HMAC_SECRET = ""
 
@@ -218,9 +217,9 @@ try:
 except:
     pass
 
-# Used by the add_data view. Set proper values in settings_local
 FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', False)
 REPUSTATE_WEBSITE = os.environ.get("REPUSTATE_WEBSITE", "")
+REPUSTATE_LOGIN = os.environ.get("REPUSTATE_LOGIN", "")
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)

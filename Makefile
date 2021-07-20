@@ -5,7 +5,7 @@ webpack-production:
 	npm run webpack
 
 celery-web:
-	celery -A dashboard flower
+	celery -A dashboard flower --basic_auth=admin:admin
 
 celery-worker:
 	celery -A dashboard.celery worker --logfile celery.log
