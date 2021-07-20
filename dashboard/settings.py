@@ -29,10 +29,9 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-UPLOAD_CSV_FROM_CLIENT = False
+UPLOAD_CSV_FROM_CLIENT = os.environ.get("UPLOAD_CSV_FROM_CLIENT", False)
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -190,7 +189,7 @@ AUTH_HOST = 'https://www.repustate.com'
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'django-db'
 
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", False)
 
 HMAC_SECRET = ""
 

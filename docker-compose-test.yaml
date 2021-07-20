@@ -59,4 +59,4 @@ services:
         command: >
             /bin/bash -c '
             sleep 3;
-            flower -A dashboard'
+            flower -A dashboard --basic-auth=admin:admin'
