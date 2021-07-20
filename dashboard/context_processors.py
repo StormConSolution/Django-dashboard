@@ -19,7 +19,6 @@ def general_context(request):
     else:
         custom_aspects = []
     
-    firebase_auth = settings.FIREBASE_AUTH == "1"
     
     return {
         'API_HOST': settings.API_HOST,
@@ -30,7 +29,7 @@ def general_context(request):
         'GUEST_USER': guest_user,
         "CUSTOM_ASPECT_MODELS": custom_aspects,
         'STANDARD_ASPECT_MODELS': data_models.AspectModel.objects.filter(standard=True).values('id', 'label'),
-        'FIREBASE_AUTH': firebase_auth,
+        'FIREBASE_AUTH': settings.FIREBASE_AUTH,
         'FIREBASE_API_KEY':settings.FIREBASE_API_KEY,
         'FIREBASE_AUTH_DOMAIN':settings.FIREBASE_AUTH_DOMAIN,
         'FIREBASE_PROJECT_ID':settings.FIREBASE_PROJECT_ID,
