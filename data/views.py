@@ -25,52 +25,6 @@ from data import models as data_models
 from data.forms import AlertRuleForm
 import data.helpers as data_helpers
 
-def collect_args(this_project, request):
-    entity_filter = request.GET.get('entity')
-    aspect_topic = request.GET.get('aspecttopic')
-    aspect_name = request.GET.get('aspectname')
-
-    # getting list of query params
-    lang = request.GET.getlist('filter_language')
-    src = request.GET.getlist('filter_source')
-    # cleaning up the query params
-    if lang:
-        lang_filter = lang[0].split(",")
-    else:
-        lang_filter = lang
-    if src:
-        source_filter = src[0].split(",")
-    else:
-        source_filter = src
-
-    if this_project.data_set.count() > 0:
-        end = this_project.data_set.latest().date_created
-    else:
-        end = datetime.date.today()
-    start = end - datetime.timedelta(days=30)
-
-    if 'from' in request.GET and 'to' in request.GET:
-        start = datetime.datetime.strptime(request.GET.get('from'), "%Y-%m-%d")
-        end = datetime.datetime.strptime(request.GET.get('to'), "%Y-%m-%d")
-    
-    return dict(
-        project=this_project,
-        entity_filter=entity_filter,
-        aspect_topic=aspect_topic,
-        aspect_name=aspect_name,
-        lang_filter=lang_filter,
-        source_filter=source_filter,
-        start=start,
-        end=end,
-        request=request
-    )
-
-
-def default_encoder(o):
-    if isinstance(o, (datetime.date, datetime.datetime)):
-        return o.isoformat()
-
-
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def index(request):
     """

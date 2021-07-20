@@ -83,29 +83,39 @@ class AspectCooccurrence(BaseChart):
             cursor.execute(UNIQUE_ASPECTS_QUERY, (self.project.id, self.start, self.end,))
             for row in cursor.fetchall():
                 aspect_labels.append(row[0])
-
+        
         ASPECT_QUERY = """ 
+            SELECT * 
+            FROM get_aspect_label_percentages(%s , $SQL$ date_created between %s AND %s $SQL$) 
+            ORDER BY label1, label2;
+        """
+
+        ASPECT_QUERY_WITH_WHERE_CLAUSE = """ 
             SELECT * 
             FROM get_aspect_label_percentages(%s , $SQL$ date_created between %s AND %s and {} $SQL$) 
             ORDER BY label1, label2;
         """
 
-        where_clause = []
         query_args = [self.project.id, self.start, self.end]
 
+        where_clause = []
         if self.lang_filter:
             where_clause.append("language IN ('{}')".format("','".join(self.lang_filter)))
         
         if self.source_filter:
             where_clause.append('source_id IN ({})'.format(",".join(self.source_filter)))
-
+    
         series_data = []
         s = {}
         handled = {}
         with connection.cursor() as cursor:
+
             try:
-                cursor.execute(ASPECT_QUERY.format(' AND '.join(where_clause)), query_args)
-            except:
+                if where_clause:
+                    cursor.execute(ASPECT_QUERY_WITH_WHERE_CLAUSE.format(' AND '.join(where_clause)), query_args)
+                else:
+                    cursor.execute(ASPECT_QUERY, query_args)
+            except Exception as e:
                 # TODO: If this data for this project hasn't been calculated, this
                 # function errors out. Needs to be fixed.
                 return {

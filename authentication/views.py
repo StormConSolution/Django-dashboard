@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from firebase_admin import auth
 import firebase_admin
 from django.shortcuts import render, redirect
@@ -103,7 +103,7 @@ def firebase_login(request):
 
     #return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
     
-    return HttpResponse("/project/")
+    return JsonResponse({'url': reverse('project')})
 
 @csrf_exempt
 def firebase_login_api(request):

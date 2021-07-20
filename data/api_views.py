@@ -27,10 +27,6 @@ from data import serializers
 from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_order_by
 
-def default_encoder(o):
-    if isinstance(o, (datetime.date, datetime.datetime)):
-        return o.isoformat()
-
 def get_chart_data(this_project, start, end, entity_filter, 
         aspect_topic, aspect_name, lang_filter, source_filter, request):
 
@@ -39,10 +35,7 @@ def get_chart_data(this_project, start, end, entity_filter,
         "colors": charts.COLORS["contrasts"],
     }
 
-    chart_classes = [
-        
-    ]
-
+    chart_classes = []
     if this_project.aspect_model:
         chart_classes.append(charts.AspectCooccurrence)
 
@@ -280,17 +273,14 @@ def co_occurence(request, project_id):
         end = this_project.data_set.latest().date_created
         start = end - datetime.timedelta(days=30)
 
-    # list of languages in a given project
-    lan_data = list(data_models.Data.objects.filter(
-        project=this_project).values('language').distinct())
-    lang_list = []
-    for lan in lan_data:
-        lang_list.append(lan['language'])
-
-
-    source_filter = request.GET.get('sourcesID', "").split(",")
-    lang_filter = parse.unquote(request.GET.get("languages", "")).split(",")
+    source_filter = request.GET.get('sourcesID')
+    if source_filter:
+        source_filter = source_filter.split(',')
     
+    lang_filter = request.GET.get("languages")
+    if lang_filter:
+        lang_filter = lang_filter.split(',')
+
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
     aspect_name = request.GET.get('aspectname')

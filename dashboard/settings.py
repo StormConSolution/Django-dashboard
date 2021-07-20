@@ -231,6 +231,13 @@ if FIREBASE_AUTH:
     import firebase_admin
     firebase_admin.initialize_app()
 
+FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "")
+FIREBASE_AUTH_DOMAIN = os.environ.get("FIREBASE_AUTH_DOMAIN", "")
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")
+FIREBASE_STORAGE_BUKCET = os.environ.get("FIREBASE_STORAGE_BUKCET", "")
+FIREBASE_MESSAGING_SENDER_ID = os.environ.get("FIREBASE_MESSAGING_SENDER_ID", "")
+FIREBASE_APP_ID = os.environ.get("FIREBASE_APP_ID", "")
+
 FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
 
