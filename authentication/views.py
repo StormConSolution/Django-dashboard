@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from firebase_admin import auth
 import firebase_admin
 from django.shortcuts import render, redirect
@@ -22,7 +22,7 @@ def firebase_logout(request):
 
 def logout_view(request):
     logout(request)
-    if settings.REPUSTATE_LOGIN == "1":
+    if settings.REPUSTATE_LOGIN:
         return redirect(settings.REPUSTATE_WEBSITE + "/firebase-logout/")
     return redirect("/")
         
@@ -102,10 +102,13 @@ def firebase_login(request):
     if created:
         user.set_password(User.objects.make_random_password())
         user.save()
+    
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    if settings.REPUSTATE_LOGIN == "1":
-        return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
-    return HttpResponse("/project/")
+    
+    if settings.REPUSTATE_LOGIN:
+        return JsonResponse({'url':settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token})
+
+    return JsonResponse({'url': reverse('project')})
 
 @csrf_exempt
 def firebase_login_api(request):
@@ -121,5 +124,6 @@ def firebase_login_api(request):
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    
     return redirect(settings.REPUSTATE_WEBSITE + redirect_path)
 

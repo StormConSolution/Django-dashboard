@@ -217,10 +217,9 @@ try:
 except:
     pass
 
-# Used by the add_data view. Set proper values in settings_local
 FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', False)
 REPUSTATE_WEBSITE = os.environ.get("REPUSTATE_WEBSITE", "")
-REPUSTATE_LOGIN = os.environ.get("REPUSTATE_LOGIN", "0")
+REPUSTATE_LOGIN = os.environ.get("REPUSTATE_LOGIN", "")
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
@@ -230,6 +229,13 @@ SERVER_NAME = os.environ.get('SERVER_NAME', SERVER_NAME)
 if FIREBASE_AUTH:
     import firebase_admin
     firebase_admin.initialize_app()
+
+FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "")
+FIREBASE_AUTH_DOMAIN = os.environ.get("FIREBASE_AUTH_DOMAIN", "")
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")
+FIREBASE_STORAGE_BUKCET = os.environ.get("FIREBASE_STORAGE_BUKCET", "")
+FIREBASE_MESSAGING_SENDER_ID = os.environ.get("FIREBASE_MESSAGING_SENDER_ID", "")
+FIREBASE_APP_ID = os.environ.get("FIREBASE_APP_ID", "")
 
 FLATFILE_URL = urllib.parse.urljoin(SERVER_NAME, "/api/csv/")
 HMAC_SECRET = os.environ.get('HMAC_SECRET', HMAC_SECRET)
