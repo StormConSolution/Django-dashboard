@@ -25,7 +25,7 @@ def process_data(kwargs):
     # If data id is defined just run again the same data item
     existing_data_item = None
 
-    if kwargs.get("data_id"):
+    if kwargs.has_key("data_id"):
         try:
             existing_data_item = data_models.Data.objects.get(pk=kwargs["data_id"])
         except:

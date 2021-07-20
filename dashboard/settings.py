@@ -221,6 +221,7 @@ except:
 # Used by the add_data view. Set proper values in settings_local
 FIREBASE_AUTH = os.environ.get('FIREBASE_AUTH', False)
 REPUSTATE_WEBSITE = os.environ.get("REPUSTATE_WEBSITE", "")
+REPUSTATE_LOGIN = os.environ.get("REPUSTATE_LOGIN", "0")
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)
 APIKEY = os.environ.get('REPUSTATE_APIKEY', APIKEY)
 API_HOST = os.environ.get('REPUSTATE_API_HOST', API_HOST)

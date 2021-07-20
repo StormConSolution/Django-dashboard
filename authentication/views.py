@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 import json
+from urllib.parse import unquote 
 
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -21,12 +22,14 @@ def firebase_logout(request):
 
 def logout_view(request):
     logout(request)
-    if settings.REPUSTATE_WEBSITE != "":
+    if settings.REPUSTATE_LOGIN == "1":
         return redirect(settings.REPUSTATE_WEBSITE + "/firebase-logout/")
     return redirect("/")
         
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("/project/")
     form = LoginForm(request.POST or None)
 
     msg = None
@@ -100,14 +103,17 @@ def firebase_login(request):
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
-    #return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
+    if settings.REPUSTATE_LOGIN == "1":
+        return HttpResponse(settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token)
     return HttpResponse("/project/")
 
 @csrf_exempt
 def firebase_login_api(request):
-
+    """
+    endpoint used by repustate to login in both websites
+    """
     token = request.GET.get("token","")
+    redirect_path = unquote(request.GET.get("redirect", "/"))
     decoded_token = auth.verify_id_token(token)
     email = decoded_token["email"]
     user, created = User.objects.get_or_create(username=email)
@@ -115,5 +121,5 @@ def firebase_login_api(request):
         user.set_password(User.objects.make_random_password())
         user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return redirect(settings.REPUSTATE_WEBSITE + "/")
+    return redirect(settings.REPUSTATE_WEBSITE + redirect_path)
 
