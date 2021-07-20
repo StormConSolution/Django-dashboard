@@ -16,9 +16,10 @@ manageTableOrderFilters(table, createTable)
 
 function makeTable(page){
     content.innerHTML = "Loading...";
+    
+	let pagination = document.getElementById("aspect-topic-table-pagination");
     pagination.innerHTML = ""
 
-    let pagination = document.getElementById("aspect-topic-table-pagination");
     let pageSize = pageSizeDropdown.value
     let urlParams = metadataFiltersURL() + "&" + normalFiltersURL()
 
