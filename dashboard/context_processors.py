@@ -19,7 +19,6 @@ def general_context(request):
     else:
         custom_aspects = []
     
-    
     return {
         'API_HOST': settings.API_HOST,
         'FLATFILE_URL': settings.FLATFILE_URL,
