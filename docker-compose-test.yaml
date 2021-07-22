@@ -12,6 +12,8 @@ services:
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
             python3 scripts/twitter_search_v1.py &
+            celery -A dashboard.celery worker &
+            flower -A dashboard flower --basic-auth=admin:admin &
             gunicorn dashboard.wsgi --preload --workers=4 --timeout 300'
         volumes: 
             - ./media_root:/var/www/media_root
@@ -45,18 +47,18 @@ services:
             interval: 10s
             timeout: 3s
             retries: 3
-    celery:
-        image: repustate/dashboard:latest
-        command: >
-            /bin/bash -c '
-            sleep 3;
-            celery -A dashboard.celery worker'
-        depends_on: 
-            redis:
-                condition: service_healthy
-    flower:
-        image: repustate/dashboard:latest
-        command: >
-            /bin/bash -c '
-            sleep 3;
-            flower -A dashboard --basic-auth=admin:admin'
+#    celery:
+#        image: repustate/dashboard:latest
+#        command: >
+#            /bin/bash -c '
+#            sleep 3;
+#            '
+#        depends_on: 
+#            redis:
+#                condition: service_healthy
+#    flower:
+#        image: repustate/dashboard:latest
+#        command: >
+#            /bin/bash -c '
+#            sleep 3;
+#            flower -A dashboard --basic-auth=admin:admin'

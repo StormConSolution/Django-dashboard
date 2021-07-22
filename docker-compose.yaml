@@ -12,6 +12,7 @@ services:
             python3 manage.py collectstatic --noinput &
             python3 manage.py migrate &
             python3 scripts/twitter_search_v1.py &
+            flower -A dashboard --basic-auth=admin:admin &
             gunicorn dashboard.wsgi --preload --workers=4 --timeout 300'
         depends_on: 
             - database
@@ -50,9 +51,9 @@ services:
             celery -A dashboard.celery worker'
         depends_on: 
             - redis
-    flower:
-        image: repustate/dashboard:latest
-        command: >
-            /bin/bash -c '
-            sleep 3;
-            flower -A dashboard --basic-auth=admin:admin'
+#    flower:
+#        image: repustate/dashboard:latest
+#        command: >
+#            /bin/bash -c '
+#            sleep 3;
+#            flower -A dashboard --basic-auth=admin:admin'

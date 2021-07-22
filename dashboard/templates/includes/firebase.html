@@ -22,28 +22,27 @@
         let email = document.querySelector("#inputEmail").value
         let password = document.querySelector("#inputPassword").value
         firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            var user = userCredential.user;
-            firebase.auth().currentUser.getIdToken()
-            .then((idToken) => {
-                fetch("/firebase-login/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ token: idToken }),
-                    credentials: "include"
-                })
-                .then(response => response.json())
-                .then(data => {
-                    window.location = data.url
-                })
+            .then((userCredential) => {
+                var user = userCredential.user;
+                firebase.auth().currentUser.getIdToken()
+                    .then((idToken) => {
+                        fetch("/firebase-login/", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ token: idToken }),
+                            credentials: "include"
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                window.location = data.url
+                            })
+                    })
             })
-        })
-        .catch((error) => {
-				console.debug(error);
+            .catch((error) => {
+                console.debug(error);
                 alert("Incorrect username / password combination")
             })
-        })
     })
 </script>
