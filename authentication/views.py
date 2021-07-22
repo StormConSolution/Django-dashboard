@@ -47,8 +47,10 @@ def login_view(request):
                 return redirect('project')
         else:
             msg = 'Invalid credentials'
+    
     context = {
         "form": form, "msg": msg,
+        "FIREBASE_AUTH": settings.FIREBASE_AUTH,
         'FIREBASE_API_KEY': settings.FIREBASE_API_KEY,
         'FIREBASE_AUTH_DOMAIN': settings.FIREBASE_AUTH_DOMAIN,
         'FIREBASE_PROJECT_ID': settings.FIREBASE_PROJECT_ID,
@@ -56,6 +58,7 @@ def login_view(request):
         'FIREBASE_MESSAGING_SENDER_ID': settings.FIREBASE_MESSAGING_SENDER_ID,
         'FIREBASE_APP_ID': settings.FIREBASE_APP_ID,
     }
+    
     return render(request, "accounts/login.html", context)
 
 
