@@ -92,20 +92,35 @@ def guest_login(request):
 
 @csrf_exempt
 def firebase_login(request):
-    
+    """
+    This view handles client side logins. It expects a JSON token from Firebase.
+    """
     body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    
+    try:
+        body = json.loads(body_unicode)
+    except json.JSONDecodeError as e:
+        # Might be a crawler or bot.
+        return JsonResponse({'error': 'No token found'})
+
     token = body["token"]
     decoded_token = auth.verify_id_token(token)
     email = decoded_token["email"]
-    user, created = User.objects.get_or_create(username=email)
-    if created:
-        user.set_password(User.objects.make_random_password())
-        user.save()
     
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    matches = User.objects.filter(username__iexact=email)
+    if not matches.count():
+        # Create user since they don't exist yet.
+        user, _ = User.objects.create_user(
+                email.lower(),
+                email.lower(),
+                User.objects.make_random_password())
+    else:
+        user = matches[0]
+    
+    login(request, user)
     
     if settings.REPUSTATE_LOGIN:
+        # Redirect the user to the repustate website to log them in there, too.
         return JsonResponse({'url':settings.REPUSTATE_WEBSITE + "/firebase-login-api/?token=" + token})
 
     return JsonResponse({'url': reverse('project')})
@@ -113,16 +128,23 @@ def firebase_login(request):
 @csrf_exempt
 def firebase_login_api(request):
     """
-    endpoint used by repustate to login in both websites
+    Endpoint used by repustate to login in both websites.
     """
     token = request.GET.get("token","")
     redirect_path = unquote(request.GET.get("redirect", "/"))
     decoded_token = auth.verify_id_token(token)
-    email = decoded_token["email"]
-    user, created = User.objects.get_or_create(username=email)
-    if created:
-        user.set_password(User.objects.make_random_password())
-        user.save()
+    email = decoded_token['email']
+    
+    matches = User.objects.filter(username__iexact=email)
+    if not matches.count():
+        # Create user since they don't exist yet.
+        user, _ = User.objects.create_user(
+                email.lower(),
+                email.lower(),
+                User.objects.make_random_password())
+    else:
+        user = matches[0]
+
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     
     return redirect(settings.REPUSTATE_WEBSITE + redirect_path)
