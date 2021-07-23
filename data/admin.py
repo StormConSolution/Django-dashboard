@@ -50,8 +50,8 @@ export_selected_objects.short_description = 'Export search results'
 admin.site.add_action(export_selected_objects)
 
 class DataAdmin(admin.ModelAdmin):
-    list_display = ('date_created', 'text', 'source', 'language', 'sentiment')
-    list_filter = ('project', 'source', 'language')
+    list_display = ('date_created', 'project', 'text', 'source', 'language', 'sentiment')
+    list_filter = ('project', 'language', 'project__aspect_model')
     raw_id_fields = ('project',)
     search_fields = ('text', 'url')
     readonly_fields = ('entities', 'language', 'text', 'source', 'country', 'metadata')
@@ -64,15 +64,16 @@ class AspectAdmin(admin.ModelAdmin):
     search_fields = ('topic', 'chunk',)
 
 class AspectModelAdmin(admin.ModelAdmin):
-    list_display = ('label', 'standard',)
-    list_filter = ('standard',)
+    list_display = ('label', 'standard', 'language')
+    list_filter = ('standard', 'language')
     filter_horizontal = ('users',)
 
 class AspectRuleAdmin(admin.ModelAdmin):
-    list_display = ('rule_name', 'aspect_model',)
+    list_display = ('rule_name', 'aspect_model', 'definition')
+    list_filter = ('aspect_model',)
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'aspect_model', '_data_count', '_view')
+    list_display = ('name', '_aspect_model', '_data_count', '_view')
     filter_horizontal = ('users',)
     search_fields = ('name', 'users__email')
     fieldsets = (
@@ -81,6 +82,17 @@ class ProjectAdmin(admin.ModelAdmin):
                 "api_key", "popup_title", "popup_text"),
         }),
     )
+
+    def _aspect_model(self, obj):
+        if not obj.aspect_model:
+            return ''
+        elif obj.aspect_model.standard:
+            return obj.aspect_model.label
+        else:
+            return mark_safe('<a href="/admin/data/aspectrule/?aspect_model__id={0}">{1}</a>'.format(
+                obj.aspect_model.id, obj.aspect_model.label))
+    _aspect_model.allow_tags = True
+    _aspect_model.short_description = "Aspect model"
 
     def _view(self, obj):
         return mark_safe('<a href="{0}">{1}</a>'.format(

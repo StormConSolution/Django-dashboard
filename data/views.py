@@ -373,7 +373,7 @@ class AspectsList(View):
     
     @method_decorator(login_required)
     def post(self, request):
-        user = request.user
+        
         aspect_label = request.POST.get("aspect-label", "")
         aspect_lang = request.POST.get("aspect-lang", "")
         rule_names = request.POST.getlist("rule-name")
@@ -381,9 +381,13 @@ class AspectsList(View):
         rule_classifications = request.POST.getlist("rule-classification", "")
         predefined_aspect_rules = request.POST.getlist("predefined-rule", "")
         api_key = request.POST.get("api-key", "")
-        aspect_model = data_models.AspectModel.objects.create(label=aspect_label, 
-            language=aspect_lang, api_key=api_key)
-        aspect_model.users.add(user)
+        
+        aspect_model = data_models.AspectModel.objects.create(
+            label=aspect_label.strip(),
+            language=aspect_lang,
+            api_key=api_key)
+
+        aspect_model.users.add(request.user)
 
         count = 0
         for rule_name in rule_names:
@@ -395,6 +399,7 @@ class AspectsList(View):
             ) 
             aspect_definition.save()
             count += 1
+
         for predefined_aspect_rule in predefined_aspect_rules:
             aspect_rule = data_models.AspectRule(
                 rule_name = predefined_aspect_rule,
@@ -403,7 +408,9 @@ class AspectsList(View):
             )
             aspect_rule.save()
         
+        # Sync with the API.
         data_helpers.save_aspect_model(aspect_model)
+
         return redirect("aspects")
 
 @method_decorator(csrf_exempt, name='dispatch')

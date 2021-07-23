@@ -8,7 +8,12 @@
 
 <link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css"/>
 	<script>
-	  window.project_id = {{ project.id|safe }}
+	    window.project_id = {{ project.id|safe }}
+		{% if project.aspect_model %}
+			window.has_aspects = true
+		{% else %}
+			window.has_aspects = false
+		{% endif %}
 		window.earliest_date = `{{ earliest|date:"Y-m-d" }}`
 		window.latest_date = `{{ latest|date:"Y-m-d" }}`
 	  {% if project.geo_enabled %}

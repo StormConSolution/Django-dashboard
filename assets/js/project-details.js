@@ -158,7 +158,7 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
     if (tabLoadingCounter == 0) {
         tabLoadingDiv.innerHTML = ""
     }
-    if (data.length != 0) {
+    if (window.has_aspects) {
         liContainer.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
         document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
             currentTab = "aspect-tab"
