@@ -121,7 +121,7 @@ def firebase_login(request):
     matches = User.objects.filter(username__iexact=email)
     if not matches.count():
         # Create user since they don't exist yet.
-        user, _ = User.objects.create_user(
+        user = User.objects.create_user(
                 email.lower(),
                 email.lower(),
                 User.objects.make_random_password())
@@ -149,7 +149,7 @@ def firebase_login_api(request):
     matches = User.objects.filter(username__iexact=email)
     if not matches.count():
         # Create user since they don't exist yet.
-        user, _ = User.objects.create_user(
+        user = User.objects.create_user(
                 email.lower(),
                 email.lower(),
                 User.objects.make_random_password())

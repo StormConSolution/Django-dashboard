@@ -24,8 +24,8 @@ BEGIN
 
     EXECUTE 'CREATE UNIQUE INDEX data_aspectlabel_un_' || key || ' ON data_aspectlabel_temp(project_id, id) INCLUDE (label)';
 
-    DROP VIEW IF EXISTS data_aspectlabel;
-    CREATE VIEW data_aspectlabel AS SELECT * FROM data_aspectlabel_temp;
+    DROP TABLE IF EXISTS data_aspectlabel;
+    CREATE TABLE data_aspectlabel AS SELECT * FROM data_aspectlabel_temp;
 
     DROP TABLE IF EXISTS data_aspectlabel_source;
 
