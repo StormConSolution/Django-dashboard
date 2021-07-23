@@ -128,7 +128,7 @@ def firebase_login(request):
     else:
         user = matches[0]
     
-    login(request, user)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     
     if settings.REPUSTATE_LOGIN:
         # Redirect the user to the repustate website to log them in there, too.
