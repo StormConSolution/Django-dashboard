@@ -13,19 +13,15 @@ from django.db import connection
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
 
 import data.charts as charts
 import data.models as data_models
-from .permissions import IsAllowedAccessToData
 from dashboard.tasks import process_data
 from data import serializers
 from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_order_by
+
+MAX_PAGE_SIZE = 100
 
 def pagination_details(request):
     page_size = request.GET.get("page-size") or 10
@@ -33,148 +29,46 @@ def pagination_details(request):
 
     return int(page), int(page_size)
 
-def get_chart_data(this_project, start, end, entity_filter, 
-        aspect_topic, aspect_name, lang_filter, source_filter, request):
-
-    result = {
-        "status": "OK",
-        "colors": charts.COLORS["contrasts"],
-    }
-
-    chart_classes = []
-    if this_project.aspect_model:
-        chart_classes.append(charts.AspectCooccurrence)
-
-    for chart_class in chart_classes:
-        instance = chart_class(
-            this_project,
-            start,
-            end,
-            entity_filter,
-            aspect_topic,
-            aspect_name,
-            lang_filter,
-            source_filter,
-            request
-        )
-        
-        chart_data = instance.render_data()
-        result.update(chart_data)
-    
-    return result
-
-class DataViewSet(viewsets.ModelViewSet):
-    queryset = data_models.Data.objects.all()
-    serializer_class = serializers.DataSerializer
-    permission_classes = [IsAllowedAccessToData]
-
-
-country_param = openapi.Parameter('country', in_=openapi.IN_QUERY, description='Filter By Country',
-                                  type=openapi.TYPE_STRING)
-source_param = openapi.Parameter('source', in_=openapi.IN_QUERY, description='Filter By Source',
-                                 type=openapi.TYPE_STRING)
-language_param = openapi.Parameter('language', in_=openapi.IN_QUERY, description='Filter By Language',
-                                   type=openapi.TYPE_STRING)
-date_created_param = openapi.Parameter('date_created',
-                                       in_=openapi.IN_QUERY,
-                                       description='Filter By Created Period. Example: :start_date,:end_date. Here '
-                                                   'start_date and end_date can be empty', type=openapi.TYPE_STRING)
-
-
-class ProjectDataListView(ListAPIView):
-    serializer_class = serializers.DataSerializer
-    permission_classes = [IsAllowedAccessToData]
-
-    def get_queryset(self):
-        filters = {
-            'project_id': self.request.parser_context.get('kwargs', {}).get('project_id')
-        }
-
-        if self.request.query_params.get('country'):
-            filters['country__label'] = self.request.query_params.get(
-                'country')
-
-        if self.request.query_params.get('source'):
-            filters['source__label'] = self.request.query_params.get('source')
-
-        if self.request.query_params.get('date_created'):
-            start_date, end_date = self.request.query_params.get(
-                'date_created').split(',')
-
-            if start_date:
-                filters['date_created__gt'] = start_date
-            if end_date:
-                filters['date_created__lt'] = end_date
-
-        if self.request.query_params.get('language'):
-            filters['language'] = self.request.query_params.get('language')
-
-        return data_models.Data.objects.filter(**filters)
-
-    @swagger_auto_schema(manual_parameters=[country_param, source_param, language_param, date_created_param])
-    def get(self, request, *args, **kwargs):
-        return super(ProjectDataListView, self).get(request, *args, **kwargs)
-
-
-class SourceListAPI(ListAPIView):
-    queryset = data_models.Source.objects.all()
-    serializer_class = serializers.SourceSerializer
-
-
-class CountryListAPI(ListAPIView):
-    queryset = data_models.Country.objects.all()
-    serializer_class = serializers.CountrySerializer
-
-
-class ProjectListView(ListAPIView):
-    serializer_class = serializers.ProjectSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return data_models.Project.objects.filter(users=self.request.user)
-
-
 @csrf_exempt
-def create_project(request, api_key):
+def project_operations(request, api_key):
     """
-    API endpoint for creating a project. May need some work as we go.
-
-    `name`: the name of the Project. If it doesn't exist, create it.
-    `username`: the user name to add to this project. User is assumed to exist.
-    `aspect_model`: the aspect model this project will use.
+    API endpoint for creating a new project or fetching existing projects.
     """
-    if 'name' not in request.POST or 'username' not in request.POST:
-        return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
+    if request.method == 'POST':
+        if 'name' not in request.POST or 'username' not in request.POST:
+            return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
 
-    proj, _ = data_models.Project.objects.get_or_create(
-        api_key=api_key,
-        name=request.POST['name'],
-    )
-
-    if 'aspect_model' in request.POST:
-        m, _ = data_models.AspectModel.objects.get_or_create(
+        proj, _ = data_models.Project.objects.get_or_create(
             api_key=api_key,
-            label=request.POST['aspect_model'])
-        proj.aspect_model = m
-        proj.save()
-    
-    try:
-        user = User.objects.get(username__iexact=request.POST['username'])
-    except User.DoesNotExist as e:
-        return JsonResponse({
-            "status":"Fail",
-            "description":"Username not found",
-            "title":"Project could not be added"})
-    
-    proj.users.add(user)
+            name=request.POST['name'],
+        )
 
-    return JsonResponse({"status": "OK", "project_id": proj.id})
+        if 'aspect_model' in request.POST:
+            m, _ = data_models.AspectModel.objects.get_or_create(
+                api_key=api_key,
+                label=request.POST['aspect_model'])
+            proj.aspect_model = m
+            proj.save()
+        
+        try:
+            user = User.objects.get(username__iexact=request.POST['username'])
+        except User.DoesNotExist as e:
+            return JsonResponse({
+                "status":"Fail",
+                "description":"Username not found",
+                "title":"Project could not be added"})
+        
+        proj.users.add(user)
 
+        return JsonResponse({"status": "OK", "project_id": proj.id})
+    elif request.method == 'GET':
+        projects = data_models.Project.objects.filter(api_key=api_key).values('name', 'aspect_model', 'id')
+        return JsonResponse({"status": "OK", "projects": list(projects)})
 
 @csrf_exempt
-def add_data(request, api_key, project_id):
+def data_operations(request, api_key, project_id):
     """
-    API endpoint for loading data. May need some work as we go.
+    API endpoint for adding or fetching data.
 
     Required: 
         text: the text itself
@@ -185,45 +79,88 @@ def add_data(request, api_key, project_id):
         source: where did the text come from, create if doesn't exist
         url: URL of the original data source
     """
-    for key in ('text', 'source'):
-        if key not in request.POST:
+    if request.method == 'POST':
+        for key in ('text', 'source'):
+            if key not in request.POST:
+                return JsonResponse({
+                    "status": "Fail",
+                    "title": "Data not added",
+                    "description": "Missing required field `{}`".format(key)
+                })
+        
+        # Make sure apikey is valid for project.
+        try:
+            p = Project.objects.get(pk=project_id)
+        except Project.DoesNotExist as e:
             return JsonResponse({
                 "status": "Fail",
                 "title": "Data not added",
-                "description": "Missing required field `{}`".format(key)
+                "description": "Project not found",
             })
-    
-    # Make sure apikey is valid for project.
-    try:
-        p = Project.objects.get(pk=project_id)
-    except Project.DoesNotExist as e:
-        return JsonResponse({
-            "status": "Fail",
-            "title": "Data not added",
-            "description": "Project not found",
-        })
-    
-    if p.api_key != api_key:
-        return JsonResponse({
-            "status": "Fail",
-            "title": "Data not added",
-            "description": "Permission denied",
-        })
+        
+        if p.api_key != api_key:
+            return JsonResponse({
+                "status": "Fail",
+                "title": "Data not added",
+                "description": "Permission denied",
+            })
 
-    task_argument = {
-        "project_id": project_id,
-        "metadata":{},
-    }
-    
-    for key in ('lang', 'date', 'source', 'url', 'text',):
-        task_argument[key] = request.POST.get(key, '')
-    
-    if 'metadata' in request.POST:
-        task_argument['metadata'] = json.loads(request.POST['metadata'])
+        task_argument = {
+            "project_id": project_id,
+            "metadata":{},
+        }
+        
+        for key in ('lang', 'date', 'source', 'url', 'text',):
+            task_argument[key] = request.POST.get(key, '')
+        
+        if 'metadata' in request.POST:
+            task_argument['metadata'] = json.loads(request.POST['metadata'])
 
-    process_data.delay(task_argument)
+        process_data.delay(task_argument)
+        return JsonResponse({"status": "OK"})
 
-    return JsonResponse({"status": "OK"})
+    elif request.method == 'GET':
+        page, page_size = pagination_details(request)
+        page_size = min(page_size, MAX_PAGE_SIZE)
+
+        query = {'project__api_key':api_key}
+        
+        if request.GET.get('date-from'):
+            query['date_created__gte'] = request.GET['date-from']
+
+        if request.GET.get('date-to'):
+            query['date_created__lte'] = request.GET['date-to']
+        
+        total = data_models.Data.objects.filter(**query).count()
+        data = data_models.Data.objects.filter(
+                **query).prefetch_related(
+                'entities', 'aspect_set').order_by(
+                '-date_created')[page*page_size:page*page_size+page_size]
+
+        # Return data as JSON.
+        json_data = {'status':'OK', 'total':total, 'data':[]}
+        for obj in data:
+            d = {
+                'text':obj.text,
+                'url':obj.url,
+                'date_created':obj.date_created.strftime('%Y-%m-%d'),
+                'source':obj.source.label,
+                'sentiment':obj.sentiment,
+                'language':obj.language,
+                'metadata':obj.metadata,
+                'aspects':list(obj.aspect_set.values('label', 'sentiment', 'chunk', 'topic', 'sentiment_text')),
+                'entities':[],
+            }
+
+            for e in obj.entities.all():
+                d['entities'].append({
+                    'title':e.label,
+                    'classifications':','.join([c.label for c in e.classifications.all()])
+                })
+            
+            json_data['data'].append(d)
+
+        return JsonResponse(json_data)
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
@@ -274,6 +211,37 @@ def volume_by_source(request, project_id):
         aux["sourceCount"] = row[2]
         response.append(aux)
     return JsonResponse(response, safe=False)
+
+def get_chart_data(this_project, start, end, entity_filter, 
+        aspect_topic, aspect_name, lang_filter, source_filter, request):
+
+    result = {
+        "status": "OK",
+        "colors": charts.COLORS["contrasts"],
+    }
+
+    chart_classes = []
+    if this_project.aspect_model:
+        chart_classes.append(charts.AspectCooccurrence)
+
+    for chart_class in chart_classes:
+        instance = chart_class(
+            this_project,
+            start,
+            end,
+            entity_filter,
+            aspect_topic,
+            aspect_name,
+            lang_filter,
+            source_filter,
+            request
+        )
+        
+        chart_data = instance.render_data()
+        result.update(chart_data)
+    
+    return result
+
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def co_occurence(request, project_id):
