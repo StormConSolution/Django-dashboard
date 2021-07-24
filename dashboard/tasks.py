@@ -75,8 +75,8 @@ def process_data(kwargs):
     if kwargs["source"] == '':
         source = data_models.Source.objects.get_or_create(label="Upload")[0]
     else:
-        source = data_models.Source.objects.get_or_create(
-            label=kwargs["source"])[0]
+        source, _ = data_models.Source.objects.get_or_create(
+            label=kwargs["source"])
 
     project = data_models.Project.objects.get(pk=kwargs["project_id"])
 

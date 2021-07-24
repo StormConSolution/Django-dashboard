@@ -135,7 +135,7 @@ class ProjectListView(ListAPIView):
 
 
 @csrf_exempt
-def create_project(request):
+def create_project(request, api_key):
     """
     API endpoint for creating a project. May need some work as we go.
 
@@ -147,57 +147,76 @@ def create_project(request):
         return JsonResponse({"status": "Fail", "description": "Both `name` and `username` are required"})
 
     proj, _ = data_models.Project.objects.get_or_create(
-        name=request.POST['name'])
+        api_key=api_key,
+        name=request.POST['name'],
+    )
 
     if 'aspect_model' in request.POST:
         m, _ = data_models.AspectModel.objects.get_or_create(
+            api_key=api_key,
             label=request.POST['aspect_model'])
         proj.aspect_model = m
-        proj.api_key = request.POST.get("api-key")
         proj.save()
-
-    user, _ = User.objects.get_or_create(username=request.POST['username'])
+    
+    try:
+        user = User.objects.get(username__iexact=request.POST['username'])
+    except User.DoesNotExist as e:
+        return JsonResponse({
+            "status":"Fail",
+            "description":"Username not found",
+            "title":"Project could not be added"})
+    
     proj.users.add(user)
 
     return JsonResponse({"status": "OK", "project_id": proj.id})
 
 
 @csrf_exempt
-def add_data(request, project_id):
+def add_data(request, api_key, project_id):
     """
     API endpoint for loading data. May need some work as we go.
 
     Required: 
         text: the text itself
-        source: where did the text come from, create if doesn't exist
 
     Optional:
-        country: the country this data came from
-        with_entities=0/1: should we extract entities
-        lang: language of the text
-        url: URL of the original data source
         date: date this item was created, defaults today
-        weight_args: the arguments to supply to the weighting formula, varies
-            based on weight_type. Supplied as a JSON string.
+        lang: language of the text
+        source: where did the text come from, create if doesn't exist
+        url: URL of the original data source
     """
     for key in ('text', 'source'):
         if key not in request.POST:
             return JsonResponse({
                 "status": "Fail",
-                "message": "Missing required field `{}`".format(key)
+                "title": "Data not added",
+                "description": "Missing required field `{}`".format(key)
             })
+    
+    # Make sure apikey is valid for project.
+    try:
+        p = Project.objects.get(pk=project_id)
+    except Project.DoesNotExist as e:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Data not added",
+            "description": "Project not found",
+        })
+    
+    if p.api_key != api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Data not added",
+            "description": "Permission denied",
+        })
 
     task_argument = {
         "project_id": project_id,
-        "lang":'',
-        "url":'',
-        "source":'',
         "metadata":{},
     }
     
     for key in ('lang', 'date', 'source', 'url', 'text',):
-        if key in request.POST:
-            task_argument[key] = request.POST[key]
+        task_argument[key] = request.POST.get(key, '')
     
     if 'metadata' in request.POST:
         task_argument['metadata'] = json.loads(request.POST['metadata'])
