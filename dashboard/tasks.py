@@ -6,6 +6,7 @@ from dateutil import parser
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector
 from django.core.mail import send_mail
+from django.db import connection
 from django.db.models import Value, CharField
 
 from .celery import app
@@ -152,6 +153,11 @@ def process_data(kwargs):
     
     data.search = SearchVector('text') + SearchVector(Value(search_text, output_field=CharField()))
     data.save()
+
+    # Update our co-occurrence tables.
+    with connection.cursor() as cursor:
+        cursor.execute("select update_data_entity_aspect(%s)", [data.id])
+        cursor.execute("select update_data_aspectspresent(%s)", [data.id])
     
     # Check if we have to send out any alerts based on the alert rules setup.
     for rule in project.alertrule_set.filter(active=True):

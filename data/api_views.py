@@ -223,14 +223,7 @@ def project_overview(request, project_id):
     data["positivesCount"] = row[0] or 0
     data["negativesCount"] = row[1] or 0
     data["neutralsCount"] = row[2] or 0
-
-    where_clauses = []
-    where_clauses.append("das.project_id = %s")
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            select count(*) from data_aspectlabel_source das where """ + " and ".join(where_clauses), [project.id])
-        rows = cursor.fetchall()
-    data["aspectCount"] = rows[0][0]
+    data["aspectCount"] = data_models.Aspect.objects.filter(data__project=project_id).distinct('label').count()
 
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
