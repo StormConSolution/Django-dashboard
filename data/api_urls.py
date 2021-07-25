@@ -40,4 +40,5 @@ urlpatterns = [
     # External API calls.
     path('project/<str:api_key>/', views.project_operations, name='project_operations'),
     path('data/<str:api_key>/<int:project_id>/', views.data_operations, name='data_operations'),
+    path('metadata/<str:api_key>/<int:project_id>/', views.metadata),
 ]

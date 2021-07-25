@@ -29,6 +29,27 @@ def pagination_details(request):
 
     return int(page), int(page_size)
 
+def validate_api_call(api_key, project_id):
+    
+    # Make sure apikey is valid for project.
+    try:
+        p = data_models.Project.objects.get(pk=project_id)
+    except Project.DoesNotExist as e:
+        return False, JsonResponse({
+            "status": "Fail",
+            "title": "Permission denied",
+            "description": "You do not have access to this data"
+        })
+    
+    if p.api_key != api_key:
+        return False, JsonResponse({
+            "status": "Fail",
+            "title": "Permission denied",
+            "description": "You do not have access to this data"
+        })
+
+    return True, None
+
 @csrf_exempt
 def project_operations(request, api_key):
     """
@@ -88,22 +109,9 @@ def data_operations(request, api_key, project_id):
                     "description": "Missing required field `{}`".format(key)
                 })
         
-        # Make sure apikey is valid for project.
-        try:
-            p = Project.objects.get(pk=project_id)
-        except Project.DoesNotExist as e:
-            return JsonResponse({
-                "status": "Fail",
-                "title": "Data not added",
-                "description": "Project not found",
-            })
-        
-        if p.api_key != api_key:
-            return JsonResponse({
-                "status": "Fail",
-                "title": "Data not added",
-                "description": "Permission denied",
-            })
+        has_permission, error = validate_api_call(api_key, project_id)
+        if not has_permission:
+            return error
 
         task_argument = {
             "project_id": project_id,
@@ -123,7 +131,7 @@ def data_operations(request, api_key, project_id):
         page, page_size = pagination_details(request)
         page_size = min(page_size, MAX_PAGE_SIZE)
 
-        query = {'project__api_key':api_key}
+        query = {'project':project_id}
         
         if request.GET.get('date-from'):
             query['date_created__gte'] = request.GET['date-from']
@@ -161,6 +169,44 @@ def data_operations(request, api_key, project_id):
             json_data['data'].append(d)
 
         return JsonResponse(json_data)
+
+@csrf_exempt
+def metadata(request, api_key, project_id):
+
+    # Make sure this project belongs to this API key.
+    has_permission, error = validate_api_call(api_key, project_id)
+    if not has_permission:
+        return error
+    
+    key = request.GET.get("key")
+    if not key:
+        # Return all possible keys.
+        with connection.cursor() as cursor:
+            cursor.execute("""select distinct (jsonb_object_keys(dd.metadata))
+            from data_data as dd where  dd.project_id = %s""", [project_id])
+            rows = cursor.fetchall()
+        
+        response = {
+            'status':'OK',
+            'keys':[k[0] for k in rows],
+        }
+        
+        return JsonResponse(response)
+    
+    # A specific key was supplied, return the values for that key.
+    with connection.cursor() as cursor:
+        cursor.execute("""SELECT distinct(dd.metadata ->> %s)
+        FROM data_data dd where dd.project_id = %s;
+        """, [key, project_id])
+        rows = cursor.fetchall()
+
+    response = {
+        'status':'OK',
+        'key':key,
+        'values':[v[0] for v in rows]
+    }
+    
+    return JsonResponse(response)
 
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
