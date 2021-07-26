@@ -22,6 +22,8 @@ from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .get_user_api_keys import get_user_api_keys
 from .data_item import DataItem
+from .export_comments import export_comments
+from .metadata_keys import metadata_keys
 
 __all__ = [
     'aspect_count',
@@ -48,4 +50,6 @@ __all__ = [
     'topics_per_aspect', 
     'get_user_api_keys', 
     'DataItem',
+    'export_comments',
+    'metada_keys',
 ]
