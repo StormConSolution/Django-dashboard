@@ -137,23 +137,22 @@ def project_details(request, project_id):
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     
-    languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).distinct().values("language"))
     context["languages"] = []
-    for element in languages:
-        for language_tuple in settings.LANGUAGES:
-            if element["language"] == language_tuple[0]:
-                context["languages"].append(language_tuple)
+    languages = data_models.Data.objects.filter(
+        project_id=project_id
+    ).distinct('language').values_list("language", flat=True)
     
-    earliest = None
-    latest = None
-
+    for code, label in settings.LANGUAGES:
+        if code in languages:
+            context["languages"].append((code, label))
+    
     if data_models.Data.objects.filter(project=project_id).count() != 0:
         d = data_models.Data.objects.filter(project=project_id).latest()
         latest = d.date_created
         earliest = data_models.Data.objects.filter(project=project_id).earliest().date_created
         
-        context["default_date_to"] = d.date_created.strftime("%Y-%m-%d")
-        context["default_date_from"] = (d.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+        context["default_date_to"] = latest.strftime("%Y-%m-%d")
+        context["default_date_from"] = earliest.strftime("%Y-%m-%d")
 
     context["more_filters"] = []
     with connection.cursor() as cursor:
@@ -179,8 +178,6 @@ def project_details(request, project_id):
     # Fetch my teammates too.
     context['teammates'] = data_helpers.get_teammates(user)['teammates']
     context['access'] = this_project.users.all().values_list('username', flat=True)
-    context['earliest'] = earliest
-    context['latest'] = latest
 
     return render(request, "project-details.html", context)
 

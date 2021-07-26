@@ -71,13 +71,13 @@ export function createGraph() {
                 chartOptions.xaxis.categories = categories;
 
                 document.getElementById("sentiment-trend-total").innerHTML =
-                    totalPositives + totalNegatives;
+                    (totalPositives + totalNegatives).toLocaleString();
                 document.getElementById(
                     "sentiment-trend-total-positives"
-                ).innerHTML = totalPositives;
+                ).innerHTML = totalPositives.toLocaleString();
                 document.getElementById(
                     "sentiment-trend-total-negatives"
-                ).innerHTML = totalNegatives;
+                ).innerHTML = totalNegatives.toLocaleString();
                 div.innerHTML = "";
                 chart = new ApexCharts(div, chartOptions);
 
