@@ -47,6 +47,9 @@ class AspectRule(models.Model):
     classifications = models.TextField(blank=True)
     predefined = models.BooleanField(default=False)
     
+    def __str__(self):
+        return self.rule_name
+    
     class Meta:
         unique_together=('rule_name', 'aspect_model')
         ordering = ('rule_name',)

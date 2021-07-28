@@ -7,12 +7,12 @@ $(function() {
         $('#createalert').modal()
     });
 
-    document.querySelector('[name=project]').addEventListener('change', function(e) {
+    document.querySelector('#alert-project').addEventListener('change', function(e) {
         // For the selected project, fetch possible aspect labels.
         el = e.target;
         projValue = el.value;
         fetch("/api/aspects-per-project/" + projValue + "/", { method: "GET" }).then(response => response.json()).then(data => {
-            alertSelect = document.querySelector('[name=aspect]');
+            alertSelect = document.querySelector('#alert-aspect');
             options = alertSelect.querySelectorAll('option');
             for (var i = 0; i < options.length; i++) {
                 let o = options[i];
