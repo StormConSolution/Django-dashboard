@@ -82,5 +82,5 @@ rules = [
 ]
 
 def run():
-    for mode, rule in rules:
+    for model, rule in rules:
         AspectRule.objects.get_or_create(rule_name=rule, aspect_model=AspectModel.objects.get(label=model))
