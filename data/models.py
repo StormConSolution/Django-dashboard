@@ -269,3 +269,4 @@ class TwitterSearch(models.Model):
 class ExportComments(models.Model):
     guid = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Source, on_delete=models.CASCADE, default=False)

@@ -24,6 +24,7 @@ from .get_user_api_keys import get_user_api_keys
 from .data_item import DataItem
 from .export_comments import export_comments
 from .metadata_keys import metadata_keys
+from .export_comments_api import export_comments_api
 
 __all__ = [
     'aspect_count',
@@ -52,4 +53,5 @@ __all__ = [
     'DataItem',
     'export_comments',
     'metada_keys',
+    'export_comments_api',
 ]

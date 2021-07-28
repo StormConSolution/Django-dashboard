@@ -182,6 +182,7 @@
 			{% endif %}
         </nav>
     </header>
+
     <div class="sidebar">
         <a href="#" id="sidemenu">
             <i class="fe fe-menu"></i>
@@ -556,6 +557,19 @@
             }
         })(document);
     </script>
+{% if messages %}
+   {% for message in messages %}
+	   {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert  alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div> 
+       {% endif %}
+    {% endfor %}
+{% endif %}
+
     {% block content %}
     {% endblock %}
  
