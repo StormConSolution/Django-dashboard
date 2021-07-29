@@ -584,16 +584,21 @@ class EntitiesList(View):
         entity_classifications = request.POST.get("entity-classifications", "") 
         entity_aliases = request.POST.get("entity-aliases", "")
         api_key = request.POST.get("api-key", "")
-        entity_model = data_models.Entity.objects.create(label=entity_name, 
+        
+        entity_model, _ = data_models.Entity.objects.get_or_create(label=entity_name, 
             language=entity_lang, api_key=api_key)
         entity_model.users.add(user)
+        
         entity_classifications = entity_classifications.split(",")
         for entity_classification in entity_classifications:
             c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
             entity_model.classifications.add(c)
+        
         entity_model.aliases = entity_aliases
         entity_model.save()
+
         data_helpers.save_entity_model(entity_model)
+
         return redirect("entities")
 
 @method_decorator(csrf_exempt, name='dispatch')
