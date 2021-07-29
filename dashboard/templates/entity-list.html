@@ -216,7 +216,12 @@
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-classifications" class="form-label">Entity Classifications {{ "Comma-separated list of classifications for the new entity"|tooltip }}</label>
-                            <input type="text" id="entity-classifications" class="tagify-entity-classifications" name="entity-classifications" placeholder="Enter Classifications">
+                            <input type="text" 
+									id="entity-classifications"
+									required=true 
+									class="tagify-entity-classifications"
+									name="entity-classifications"
+									placeholder="Enter Classifications">
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-aliases" class="form-label">Entity Aliases {{ "Comma-separated list of aliases for this new entity"|tooltip }}</label>
