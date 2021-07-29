@@ -283,6 +283,7 @@
                                 name="sentiment-label"
                                 type="text"
                                 class="form-control"
+								required=true
                                 placeholder="Enter Rule Name"
                             />
                         </div>
@@ -292,12 +293,13 @@
                                 name="sentiment-definition"
                                 type="text"
                                 class="form-control"
+								required=true
                                 placeholder="Sentiment Rule Definition"
                             />
                         </div>
                         <div class="form-group">
 							<label class="form-label">Sentiment {{ "The sentiment that this rule should return when matched"|tooltip }}</label>
-                            <select class="custom-select" name="sentiment">
+                            <select class="custom-select" name="sentiment" required=true>
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
                                 <option value="neutral">Neutral</option>
@@ -305,7 +307,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Language</label>
-                            <select class="custom-select" id="selectaspect" name="sentiment-language">
+                            <select class="custom-select" id="selectaspect" name="sentiment-language" required=true>
                                 {% for language in languages %}
                                 <option value="{{language.0}}">{{language.1}}</option>
                                 {% endfor %}
@@ -320,6 +322,7 @@
                                 class="custom-select"
                                 id="create-sentiment-rule-api-key-select"
                                 name="api-key"
+								required=true
                             >
                             </select>
                         </div>

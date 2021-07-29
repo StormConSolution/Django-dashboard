@@ -699,40 +699,46 @@ class SentimentList(View):
     @method_decorator(login_required)
     def post(self, request):
         user = request.user
-        sentiment_label = request.POST.get("sentiment-label", "")
-        text_definition = request.POST.get("sentiment-definition", "")
-        sentiment = request.POST.get("sentiment", "")
-        sentiment_language = request.POST.get("sentiment-language", "")
+        
+        sentiment_label = request.POST.get("sentiment-label")
+        text_definition = request.POST.get("sentiment-definition")
+        sentiment = request.POST.get("sentiment")
+        sentiment_language = request.POST.get("sentiment-language")
         api_key = request.POST.get("api-key")
-        if sentiment_label == "":
-            return HttpResponse("Sentiment Name is empty", status = 400)
+        
+        for val in (sentiment_label, text_definition, sentiment, sentiment_language, api_key):
+            if not val:
+                return HttpResponse("Some fields are missing values", status = 400)
+        
         text_definition_count = len(text_definition.split())
-        if text_definition_count < 1 or text_definition_count > 3:
-            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
+        if text_definition_count < 1 or text_definition_count > 5:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 5 words", status = 400)
         if sentiment == "positive":
             sentiment_value = "pos"
         elif sentiment == "negative":
             sentiment_value = "neg"
         elif sentiment == "neutral":
             sentiment_value = "neu"
+        
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data)
-        json_data = json.loads(req.text)
-        sentiment_model = data_models.Sentiment(
-            label=sentiment_label,
-            definition=text_definition,
-            sentiment=sentiment,
-            language=sentiment_language,
-            rule_id = json_data["rule_id"],
-            api_key=api_key,
-        )
-        sentiment_model.save() 
-        sentiment_model.users.add(user)
+        
+        try:
+            resp = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data).json()
+            s = data_models.Sentiment.objects.create(
+                label=sentiment_label,
+                definition=text_definition,
+                sentiment=sentiment,
+                language=sentiment_language,
+                rule_id = resp["rule_id"],
+                api_key=api_key,
+            )
+            s.users.add(user)
+        except:
+            return HttpResponse("Unable to add rule", status = 500)
 
         return redirect("sentiment")
 
@@ -748,6 +754,7 @@ class Sentiment(View):
             (settings.API_HOST, sentiment.api_key, sentiment.rule_id))
 
         sentiment.delete()
+
         return HttpResponse(status=200)
 
     @method_decorator(login_required)
