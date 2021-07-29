@@ -358,9 +358,9 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
+        
         apikeys = data_helpers.get_api_keys(request.user)
-
-        if apikeys:
+        if apikeys.get("apikeys"):
             req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
                 % apikeys["apikeys"][0])
             context["classifications"] = json.loads(req.text)
@@ -568,7 +568,7 @@ class EntitiesList(View):
         context["meta"]["page_items_to"] = page_number * 10
         
         apikeys = data_helpers.get_api_keys(request.user)
-        if apikeys:
+        if apikeys.get("apikeys"):
             req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
                 % apikeys["apikeys"][0])
             context["classifications"] = json.loads(req.text)
@@ -808,7 +808,7 @@ def support(request):
         # Create zendesk ticket.
         # Package the data in a dictionary matching the expected JSONdata = 
         ticket = {'ticket': {
-                'subject': 'New ticket from {}'.format(request.user.email),
+                'subject': 'New ticket from {}'.format(request.user.username),
                 'comment': {'body': request.POST['question']}
             }
         }
