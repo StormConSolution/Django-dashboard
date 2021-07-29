@@ -97,7 +97,7 @@ def get_teammates(user):
 
     return resp
 
-def get_api_key(user):
+def get_api_keys(user):
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     

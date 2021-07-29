@@ -358,11 +358,13 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = data_helpers.get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-            % apikey["apikeys"][0])
-        
-        context["classifications"] = json.loads(req.text)
+        apikeys = data_helpers.get_api_keys(request.user)
+
+        if apikeys:
+            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+                % apikeys["apikeys"][0])
+            context["classifications"] = json.loads(req.text)
+
         context["languages"] = settings.LANGUAGES
         context["predefined_aspect_rules"] = list(data_models.PredefinedAspectRule.objects.all().values())
 
@@ -564,10 +566,13 @@ class EntitiesList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = data_helpers.get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-            % apikey["apikeys"][0])
-        context["classifications"] = json.loads(req.text)
+        
+        apikeys = data_helpers.get_api_keys(request.user)
+        if apikeys:
+            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+                % apikeys["apikeys"][0])
+            context["classifications"] = json.loads(req.text)
+
         context["languages"] = settings.LANGUAGES
         return render(request, "entity-list.html", context)
     
