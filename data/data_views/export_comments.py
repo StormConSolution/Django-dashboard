@@ -19,7 +19,7 @@ def export_comments(request):
 
     source = get_source(url)
     if not source:
-        messages.add_message(request, messages.ERROR, 'Fetch only supports YouTube')
+        messages.add_message(request, messages.ERROR, 'Fetch only supports YouTube, Twitter, Instagram and TikTok')
         return redirect("project", project_id)
     project = models.Project.objects.get(pk=project_id)
     export_comment = models.ExportComments(
