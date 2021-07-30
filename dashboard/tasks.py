@@ -22,7 +22,6 @@ VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 @app.task
 def process_data(kwargs):
-    print("task argumetn", kwargs) 
     # If data id is defined just run again the same data item
     existing_data_item = None
 

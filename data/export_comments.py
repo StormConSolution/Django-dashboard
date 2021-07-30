@@ -95,13 +95,28 @@ def process_twitch(export_comments_response, project_id, source):
     return task_arguments
 
 
+def process_vimeo(response, project_id, source):
+    task_arguments = []
+    for elem in response:
+        print(elem)
+        task_argument = {
+            "project_id": project_id,
+            "text": elem["message"],
+            "date": elem["time"].split(" ")[0],
+            "source": source,
+        }
+        task_arguments.append(task_argument)
+    return task_arguments
+
+
 source_names = {
     "twitter": {"source": "Twitter", "func": process_twitter},
     "youtu": {"source": "YouTube", "func": process_youtube},
     'facebook':{'source':'Facebook','func':process_facebook},
-    "instagram": {"source": "Instagram", "func": process_instagram},
+    'instagram': {"source": "Instagram", "func": process_instagram},
     'tiktok':{'source':'TikTok','func':process_tiktok},
     'twitch':{'source':'Twitch','func':process_twitch},
+    'vimeo':{'source':'Vimeo','func':process_vimeo},
 }
 
 
