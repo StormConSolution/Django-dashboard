@@ -395,6 +395,7 @@ document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
     let editEntityAliases = document.querySelector("#edit-entity-aliases")
     let editEntityClassifications = document.querySelector("#edit-entity-classifications")
     let editEntityLanguage = document.querySelector("#edit-entity-lang")
+    let editEntityKey = document.querySelector("#edit-entity-api-key-select")
 
     document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
         e.addEventListener("click", (e) => {
@@ -405,6 +406,7 @@ document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
                 editEntityForm.setAttribute("action", "/entity/" + entityID + "/")
                 editEntityName.value = resp.entity_label
                 editAliases.addTags(resp.entity_aliases)
+				editEntityKey.value = resp.entity_api_key
                 editEntityLanguage.value = resp.entity_lang
                 let classifications = []
                 for(classification of resp.classifications){

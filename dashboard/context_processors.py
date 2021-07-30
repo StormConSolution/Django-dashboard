@@ -24,6 +24,7 @@ def general_context(request):
             apikeys = []
     else:
         custom_aspects = []
+        apikeys = []
     
     return {
         'API_HOST': settings.API_HOST,

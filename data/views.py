@@ -353,6 +353,7 @@ class AspectsList(View):
                 "label": aspect.label,
                 "lang":aspect.language,
                 "rules":rules_list,
+                "api_key":aspect.api_key,
                 "projects":projects,
             })
 
@@ -445,6 +446,7 @@ class Aspect(View):
         response["aspect_id"] = aspect.id
         response["aspect_label"] = aspect.label
         response["aspect_lang"] = aspect.language
+        response["aspect_api_key"] = aspect.api_key
         response["rules"] = []
         for rule in rules:
             response["rules"].append({
@@ -630,16 +632,21 @@ class Entity(View):
             return HttpResponse(status=403)
         entity = entity.get()
         classifications = data_models.Classification.objects.filter(entity=entity)
+        
         response = {}
+        
         response["entity_id"] = entity.id
         response["entity_label"] = entity.label
         response["entity_lang"] = entity.language
+        response["entity_api_key"] = entity.api_key
         response["entity_aliases"] = entity.aliases
         response["classifications"] = []
+        
         for classification in classifications:
             response["classifications"].append({
                 "label":classification.label,
                 })
+        
         return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)
@@ -686,16 +693,18 @@ class SentimentList(View):
         page = p.page(page_number)
         for sentiment in page.object_list:
             context['sentiments'].append({
-                "label":sentiment.label,
+                "label": sentiment.label,
                 "text": sentiment.definition,
                 "language": sentiment.language,
-                "sentiment":sentiment.sentiment,
+                "sentiment": sentiment.sentiment,
                 "rule_id": sentiment.rule_id,
-                "id":sentiment.id
+                "api_key": sentiment.api_key,
+                "id": sentiment.id,
             })
+
         p = Paginator(sentiment_list, page_size)
         projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
-        context["projects_data"] = projects
+
         context["projects_data"] = projects
         context["page"] = p.get_page(page_number)
         context["paginator"] = p

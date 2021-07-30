@@ -391,13 +391,15 @@
 <script>
 
 let edit_aspect_rule_count = 1
-function resetEditAspectForm(){
+
+	function resetEditAspectForm(){
     document.querySelector('#edit-aspect').style.display='none'
     document.querySelectorAll("[data-role='edit-aspect-group']").forEach(element=>{
         element.remove()
     })
     aspectPredefinedRulesDiv.innerHTML = ""
 }
+
 document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
     let currentElement = e.currentTarget
         let parent = currentElement.parentNode
@@ -473,6 +475,8 @@ function createAspectEditModal(id){
 
 		document.querySelector("#edit-aspect-name").value = data.aspect_label
 		document.querySelector("#edit-aspect-lang").value = data.aspect_lang
+		document.querySelector("#edit-aspect-model-api-key-select").value = data.aspect_api_key
+
         let predefinedRules = {{predefined_aspect_rules | safe}}
         let aspectPredefinedRules = data.rules.filter(x => x.predefined)
         for(predefinedRule of predefinedRules){
