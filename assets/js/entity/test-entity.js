@@ -1,29 +1,8 @@
 let testEntityButton = document.querySelector("#test-entity-button")
 let testEntityModalLoading = document.querySelector("#test-entity-modal-loading")
-let testEntityFirstRun = true;
 let testEntityModal = document.querySelector("#test-entity-modal")
-let testEntityAPIKeysSelect = document.querySelector("#test-entity-api-key-select")
+
 testEntityButton.addEventListener("click", () => {
-    if (testEntityFirstRun) {
-        testEntityModalLoading.innerHTML = "Loading...";
-        fetch("/api/user-api-keys/")
-            .then((data) => data.json())
-            .then((data) => {
-                let firstAPIKey = true
-                for (let APIKey of data["apikeys"]) {
-                    let option = document.createElement("option");
-                    option.innerHTML = APIKey;
-                    option.value = APIKey;
-                    if(firstAPIKey){
-                        option.selected = firstAPIKey
-                        firstAPIKey = false
-                    }
-                    testEntityAPIKeysSelect.append(option);
-                }
-                testEntityFirstRun = false;
-                testEntityModalLoading.innerHTML = "";
-            });
-    }
     $("#test-entity-modal").modal()
 });
 

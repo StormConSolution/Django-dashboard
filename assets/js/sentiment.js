@@ -1,5 +1,3 @@
-import "./sentiment/create-modal"
-
 document.querySelector("#create-sentiment-button").addEventListener("click", (e)=>{
     $('#create-sentiment-modal').modal()
 })

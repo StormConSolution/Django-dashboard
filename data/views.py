@@ -121,7 +121,7 @@ def project_details(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    context={}
+    context = {}
     
     context["projects_data"] = projects
     context["project"] = this_project
@@ -130,10 +130,15 @@ def project_details(request, project_id):
     context["sourceID"] = []
     context["languages"] = []
     
-    source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    source_query = """
+        select distinct (ds.id) , ds."label", count(ds.id), ds.id 
+        from data_source ds inner join data_data dd on ds.id = dd.source_id 
+        where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
         rows = cursor.fetchall()
+    
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     

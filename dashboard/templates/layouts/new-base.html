@@ -349,7 +349,7 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="projectname" class="form-label"
-                                >Name of new project</label
+                                >Project Name</label
                             >
 
                             <input
@@ -363,7 +363,7 @@
                         </div>
                         <div class="form-group">
                             <label for="selectaspect" class="form-label"
-                                >Select Aspect</label
+                                >Aspect Model</label
                             >
                             <select
                                 class="custom-select"
@@ -393,7 +393,7 @@
                         </div>
                         <div class="form-group">
                             <label for="create-project-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
@@ -401,6 +401,7 @@
                                 name="api-key"
 								required=true
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="create-project-modal-loading"></div>

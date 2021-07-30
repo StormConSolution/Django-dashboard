@@ -2,6 +2,7 @@ from django.conf import settings
 
 from customize.models import Setting
 from data import models as data_models
+from data import helpers as data_helpers
 
 def general_context(request):
     """
@@ -16,11 +17,17 @@ def general_context(request):
     
     if request.user.is_authenticated:
         custom_aspects = data_models.AspectModel.objects.filter(users=request.user).values('id', 'label')
+        # Fetch my apikeys.
+        try:
+            apikeys = data_helpers.get_api_keys(request.user)['apikeys']
+        except Exception as e:
+            apikeys = []
     else:
         custom_aspects = []
     
     return {
         'API_HOST': settings.API_HOST,
+        'APIKEYS': apikeys,
         'FLATFILE_URL': settings.FLATFILE_URL,
         'LANGUAGE_CODES':'|'.join([l[0] for l in settings.LANGUAGES]),
         'CUSTOM_LOGO':custom_logo,
