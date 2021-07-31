@@ -4,6 +4,12 @@ import time
 
 from data.models import Source
 
+"""
+Each function below is responsible for handling data ingested from that
+particular source. While similar, they do all differ slightly in the name of
+arguments they receive.
+"""
+
 def process_youtube(export_comments_response, project_id, source):
     
     task_arguments = []
@@ -121,6 +127,9 @@ source_names = {
 
 
 def get_source(url):
+    """
+    Map a URL to an existing Source object.
+    """
     for key, value in source_names.items():
         if re.search(key, url):
             return Source.objects.get_or_create(label=value["source"])
@@ -128,6 +137,9 @@ def get_source(url):
 
 
 def get_function(source_name):
+    """
+    Dispatcher that maps a source name to a source function.
+    """
     for key, value in source_names.items():
         if re.search(key, source_name.lower()):
             return value["func"]

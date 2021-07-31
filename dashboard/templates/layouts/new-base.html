@@ -481,41 +481,44 @@
       </div>
     </div>
   </div>
+
 <div class="modal fade show" id="export-comments-modal" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exportdataLabel">Analyze Comments</h5>
+          <h5 class="modal-title" id="exportdataLabel">Fetch Social Data</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <i class="fe fe-x-circle"></i>
           </button>
         </div>
         <div class="modal-body">
-            <form action="{% url 'export-comments' %}" method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label class="form-label">URL:</label>
-                    <input type="text" class="form-control" name="export-comments-url" placeholder="URL">
-                </div>
-                <div class="form-group">
-                    <label for="selectaspect1" class="form-label" >Select Project</label>
-                    <select
-                        class="custom-select"
-                        name="project-id"
-                    >
-                        {% for element in projects_data %}
-                            {% if element.id == project.id %}
-                            <option value="{{element.id}}" selected>{{element.name}}</option>
-                            {% else %}
-                            <option value="{{element.id}}">{{element.name}}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="btn btn-primary" value="Submit url">
-                </div>
-            </form>
+			<div class="modal-data">
+				<form action="{% url 'export-comments' %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="selectaspect1" class="form-label" >Project</label>
+						<select
+							class="custom-select"
+							name="project-id"
+						>
+							{% for element in projects_data %}
+								{% if element.id == project.id %}
+								<option value="{{element.id}}" selected>{{element.name}}</option>
+								{% else %}
+								<option value="{{element.id}}">{{element.name}}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">URL:</label>
+						<input type="text" class="form-control" name="export-comments-url" placeholder="URL">
+					</div>
+					<div class="form-group">
+						<input type="submit" class="btn btn-primary" value="Fetch">
+					</div>
+				</form>
+			</div>
         </div>
       </div>
     </div>
