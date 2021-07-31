@@ -1,13 +1,13 @@
-import re
 import json
+import re
 import time
+
 from data.models import Source
 
-
 def process_youtube(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for elem in response:
+    for elem in export_comments_response:
         task_argument = {
             "project_id": project_id,
             "text": elem["commentBody"],
@@ -22,9 +22,9 @@ def process_youtube(export_comments_response, project_id, source):
 
 
 def process_twitter(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for k, elem in response.items():
+    for k, elem in export_comments_response.items():
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -37,9 +37,9 @@ def process_twitter(export_comments_response, project_id, source):
 
 
 def process_instagram(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for elem in response:
+    for elem in export_comments_response:
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -52,9 +52,9 @@ def process_instagram(export_comments_response, project_id, source):
 
 
 def process_tiktok(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for elem in response:
+    for elem in export_comments_response:
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -66,9 +66,9 @@ def process_tiktok(export_comments_response, project_id, source):
     return task_arguments
 
 def process_facebook(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for elem in response:
+    for elem in export_comments_response:
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -81,9 +81,9 @@ def process_facebook(export_comments_response, project_id, source):
 
 
 def process_twitch(export_comments_response, project_id, source):
-    response = export_comments_response
+    
     task_arguments = []
-    for k, elem in response.items():
+    for k, elem in export_comments_response.items():
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -95,10 +95,10 @@ def process_twitch(export_comments_response, project_id, source):
     return task_arguments
 
 
-def process_vimeo(response, project_id, source):
+def process_vimeo(export_comments_response, project_id, source):
+    
     task_arguments = []
-    for elem in response:
-        print(elem)
+    for elem in export_comments_response:
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],

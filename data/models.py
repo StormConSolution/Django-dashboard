@@ -270,6 +270,6 @@ class TwitterSearch(models.Model):
         verbose_name_plural = 'Twitter Searches'
 
 class ExportComments(models.Model):
-    guid = models.TextField()
+    guid = models.CharField(max_length=128)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     source = models.ForeignKey(Source, on_delete=models.CASCADE, default=False)
