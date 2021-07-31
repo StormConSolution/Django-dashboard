@@ -196,11 +196,15 @@ document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=
     document.querySelector("#word-cloud-modal").style.display = "none"
 })
 
-document.getElementById('see-all-items').addEventListener("click", (e) => {
+document.getElementById('reset-filters').addEventListener("click", (e) => {
 	// Clear the filter form, set the dates to earliest/latest and then refresh.
 	document.getElementById("filter-form").reset()
 	document.getElementById("date-from").value = window.earliest_date
 	document.getElementById("date-to").value = window.latest_date
+	let openFilterBtn = document.getElementById('open-more-filters-modal')
+	openFilterBtn.classList.remove('btn-info');
+	openFilterBtn.classList.add('btn-secondary');
+	e.target.classList.add('d-none')
 	updateProjectDetailsPage()
 })
 

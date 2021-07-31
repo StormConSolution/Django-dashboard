@@ -195,6 +195,7 @@
                                 name="entity-name"
                                 type="text"
                                 class="form-control"
+								required=true
                                 id="entity-name"
                                 placeholder="Enter entity name"
                             />
@@ -203,6 +204,7 @@
                             <label for="entity-lang" class="form-label">Entity language</label>
                             <select
                                 name="entity-lang"
+								required=true
                                 type="text"
                                 class="form-control"
                                 id="entity-lang"
@@ -214,7 +216,12 @@
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-classifications" class="form-label">Entity Classifications {{ "Comma-separated list of classifications for the new entity"|tooltip }}</label>
-                            <input type="text" id="entity-classifications" class="tagify-entity-classifications" name="entity-classifications" placeholder="Enter Classifications">
+                            <input type="text" 
+									id="entity-classifications"
+									required=true 
+									class="tagify-entity-classifications"
+									name="entity-classifications"
+									placeholder="Enter Classifications">
                         </div>
                         <div class="form-group" style="position: relative">
                             <label for="entity-aliases" class="form-label">Entity Aliases {{ "Comma-separated list of aliases for this new entity"|tooltip }}</label>
@@ -222,13 +229,15 @@
                         </div>
                         <div class="form-group">
                             <label for="create-entity-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
                                 id="create-entity-api-key-select"
                                 name="api-key"
+								required=true
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="create-entity-modal-loading"></div>
@@ -301,13 +310,14 @@
                         </div>
                         <div class="form-group">
                             <label for="edit-entity-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
                                 id="edit-entity-api-key-select"
                                 name="api-key"
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="edit-entity-modal-loading"></div>
@@ -350,7 +360,8 @@ document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
             highlightFirst: true
         }
         }); 
-    document.querySelectorAll(".tagify-entity-classifications").forEach((e)=>{
+    
+	document.querySelectorAll(".tagify-entity-classifications").forEach((e)=>{
         new Tagify((e),{
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
         whitelist:[
@@ -368,54 +379,26 @@ document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
         }
         }); 
     })
-    document.querySelectorAll(".entity-aliases").forEach((e)=>{
+    
+	document.querySelectorAll(".entity-aliases").forEach((e)=>{
         new Tagify((e),{
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
         })
     })
-    let editAliases = new Tagify((document.querySelector("#edit-entity-aliases")),{
+    
+	let editAliases = new Tagify((document.querySelector("#edit-entity-aliases")),{
                 originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
         })
-    let editEntityButton = document.querySelector(
-        "#edit-entity-button"
-    );
-    let editEntityAPIKeysSelect = document.querySelector(
-        "#edit-entity-api-key-select"
-    );
-    let editEntityModalLoading = document.querySelector(
-        "#edit-entity-modal-loading"
-    );
-    let editEntityFirstRun = true;
-    function editEntityAPIKeys(){
-        if (editEntityFirstRun) {
-            editEntityModalLoading.innerHTML = "Loading...";
-            fetch("/api/user-api-keys/")
-                .then((data) => data.json())
-                .then((data) => {
-                    let firstAPIKey = true
-                    for (let APIKey of data["apikeys"]) {
-                        let option = document.createElement("option");
-                        option.innerHTML = APIKey;
-                        option.value = APIKey;
-                        if(firstAPIKey){
-                            option.selected = firstAPIKey
-                            firstAPIKey = false
-                        }
-                        editEntityAPIKeysSelect.append(option);
-                    }
-                    editEntityFirstRun = false;
-                    editEntityModalLoading.innerHTML = "";
-                });
-        }
-    }
-    let editEntityForm = document.querySelector("#edit-entity-form")
+    
+	let editEntityForm = document.querySelector("#edit-entity-form")
     let editEntityName = document.querySelector("#edit-entity-name")
     let editEntityAliases = document.querySelector("#edit-entity-aliases")
     let editEntityClassifications = document.querySelector("#edit-entity-classifications")
     let editEntityLanguage = document.querySelector("#edit-entity-lang")
+    let editEntityKey = document.querySelector("#edit-entity-api-key-select")
+
     document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
         e.addEventListener("click", (e) => {
-            editEntityAPIKeys()
             tagEditClassifications.removeAllTags()
             editAliases.removeAllTags()
             let entityID = e.currentTarget.getAttribute("data-entity-id")
@@ -423,6 +406,7 @@ document.querySelectorAll('[data-role="edit-entity-button"]').forEach((e) => {
                 editEntityForm.setAttribute("action", "/entity/" + entityID + "/")
                 editEntityName.value = resp.entity_label
                 editAliases.addTags(resp.entity_aliases)
+				editEntityKey.value = resp.entity_api_key
                 editEntityLanguage.value = resp.entity_lang
                 let classifications = []
                 for(classification of resp.classifications){

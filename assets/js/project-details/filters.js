@@ -8,19 +8,20 @@ function applyFilter(){
     convertFiltersToURL(filters)
     updateProjectDetailsPage()
 }
-applyMoreFilters.addEventListener("click", ()=>{
+
+applyMoreFilters.addEventListener("click", (e)=>{
     applyFilter()
+	let openFilterBtn = document.getElementById('open-more-filters-modal')
+	openFilterBtn.classList.remove('btn-secondary');
+	openFilterBtn.classList.add('btn-info');
+
+	let resetBtn = document.getElementById('reset-filters')
+	resetBtn.classList.remove('d-none')
     $("#more-filters-modal").modal("hide")
 })
-/*
-document
-    .querySelector("#close-more-filters-modal")
-    .addEventListener("click", () => {
-        moreFiltersModal.style.display = "none";
-    });
- */
+
 if (openMoreFiltersModal) {
-    openMoreFiltersModal.addEventListener("click", () => {
+    openMoreFiltersModal.addEventListener("click", (e) => {
         $("#more-filters-modal").modal()
     });
 }

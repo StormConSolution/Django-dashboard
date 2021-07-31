@@ -14,8 +14,8 @@
 		{% else %}
 			window.has_aspects = false
 		{% endif %}
-		window.earliest_date = `{{ earliest|date:"Y-m-d" }}`
-		window.latest_date = `{{ latest|date:"Y-m-d" }}`
+		window.earliest_date = `{{ default_date_to|date:"Y-m-d" }}`
+		window.latest_date = `{{ default_date_from|date:"Y-m-d" }}`
 	  {% if project.geo_enabled %}
 	  window.geo_enabled = true;
 	  {% endif %}
@@ -29,9 +29,9 @@
                 <div class="dashboard-title d-flex flex-wrap">
                     {{ project.name }} 
                 </div>
-            <a href="#" class="ml-3" id="see-all-items">See all data</a>
 			<div class="ml-auto col-auto">
-				<a class="btn btn-info border" id="open-more-filters-modal"><i class="fe fe-filter"></i></a>
+				<a class="btn btn-secondary border" id="open-more-filters-modal"><i class="fe fe-filter"></i></a>
+				<a href="#" class="ml-3 d-none" id="reset-filters">reset filters</a>
 			</div>
 			<div class="pr-0 col-6">
 				<div class="input-group">

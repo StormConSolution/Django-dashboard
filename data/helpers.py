@@ -87,23 +87,23 @@ def get_where_clauses(request, where_clauses):
     return " and ".join(where_clauses)
 
 def get_teammates(user):
-    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
+    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.username, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     
     resp = requests.get("{}/credentials/teammates/{}/{}/".format(
         settings.AUTH_HOST,
-        user.email,
+        user.username,
         hashkey)).json()
 
     return resp
 
-def get_api_key(user):
-    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.email, 'utf8'), 'sha256')
+def get_api_keys(user):
+    h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.username, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
     
     return requests.get("{}/credentials/fetch/{}/{}/".format(
         settings.AUTH_HOST,
-        user.email,
+        user.username,
         hashkey)).json()
     
 def save_aspect_model(aspect_model):

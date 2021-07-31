@@ -2,75 +2,81 @@
 <html lang="en">
 
 <head>
-    <!-- Required meta tags --><style>
-.wrapper {
-  height: 100vh;
-  /* This part is important for centering the content */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* End center */
-  background: -webkit-linear-gradient(to right, #834d9b, #d04ed6);
-  background: linear-gradient(to right, #834d9b, #d04ed6);
-}
-
-.wrapper a {
-  display: inline-block;
-  text-decoration: none;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 3px;
-  text-transform: uppercase;
-  color: #585858;
-  font-family: 'Roboto', sans-serif;
-}
-
-.modal1 {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(77, 77, 77, .7);
-  transition: all .4s;
-}
-
-.modal1:target {
-  visibility: visible;
-  opacity: 1;
-}
-
-.modal__content {
-  border-radius: 4px;
-  position: relative;
-  width: 500px;
-  max-width: 90%;
-  background: #fff;
-  padding: 1em 2em;
-}
-
-.modal__close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  color: #585858;
-  text-decoration: none;
-}
-
-.modal {
-    background-color: rgba(51,51,51,0.8);
-}
-</style>
+    <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 	<title>Repustate IQ | {% block title %}Home{% endblock %}</title>
+	 
+	<style>
+		.wrapper {
+		  height: 100vh;
+		  /* This part is important for centering the content */
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  /* End center */
+		  background: -webkit-linear-gradient(to right, #834d9b, #d04ed6);
+		  background: linear-gradient(to right, #834d9b, #d04ed6);
+		}
+
+		.wrapper a {
+		  display: inline-block;
+		  text-decoration: none;
+		  padding: 15px;
+		  background-color: #fff;
+		  border-radius: 3px;
+		  text-transform: uppercase;
+		  color: #585858;
+		  font-family: 'Roboto', sans-serif;
+		}
+
+		.modal1 {
+		  visibility: hidden;
+		  opacity: 0;
+		  position: absolute;
+		  top: 0;
+		  right: 0;
+		  bottom: 0;
+		  left: 0;
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  background: rgba(77, 77, 77, .7);
+		  transition: all .4s;
+		}
+
+		.modal1:target {
+		  visibility: visible;
+		  opacity: 1;
+		}
+
+		.modal__content {
+		  border-radius: 4px;
+		  position: relative;
+		  width: 500px;
+		  max-width: 90%;
+		  background: #fff;
+		  padding: 1em 2em;
+		}
+
+		.modal__close {
+		  position: absolute;
+		  top: 10px;
+		  right: 10px;
+		  color: #585858;
+		  text-decoration: none;
+		}
+
+		.modal {
+			background-color: rgba(51,51,51,0.8);
+		}
+
+		.custom-select {
+			padding-right:2.75rem!important;
+		}
+	</style>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
@@ -127,7 +133,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> New Project</a>
+                        <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> Project</a>
                 </li>
 				{% if not GUEST_USER %}
 				<li class="nav-item">
@@ -347,7 +353,7 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="projectname" class="form-label"
-                                >Name of new project</label
+                                >Project Name</label
                             >
 
                             <input
@@ -355,12 +361,13 @@
                                 name="project-name"
                                 class="form-control"
                                 id="projectname"
+								required=true
                                 placeholder="Enter Name"
                             />
                         </div>
                         <div class="form-group">
                             <label for="selectaspect" class="form-label"
-                                >Select Aspect</label
+                                >Aspect Model</label
                             >
                             <select
                                 class="custom-select"
@@ -390,13 +397,15 @@
                         </div>
                         <div class="form-group">
                             <label for="create-project-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
                                 id="create-project-api-key-select"
                                 name="api-key"
+								required=true
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="create-project-modal-loading"></div>

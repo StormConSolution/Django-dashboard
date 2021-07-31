@@ -1,5 +1,3 @@
-import "./sentiment/create-modal"
-
 document.querySelector("#create-sentiment-button").addEventListener("click", (e)=>{
     $('#create-sentiment-modal').modal()
 })
@@ -21,17 +19,21 @@ document.querySelectorAll("[data-role='delete-sentiment']").forEach((element) =>
 document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((element) => {
     element.addEventListener("click", (e) => {
         $("#edit-sentiment-modal").modal()
-        let element = e.currentTarget
+        
+		let element = e.currentTarget
         let sentimentID = element.getAttribute("data-sentiment-id")
         let sentimentValue = element.getAttribute("data-sentiment-sentiment")
         let sentimentLanguage = element.getAttribute("data-sentiment-language")
         let sentimentText = element.getAttribute("data-sentiment-text")
         let sentimentLabel = element.getAttribute("data-sentiment-label")
-        document.querySelector("#edit-sentiment-label").value = sentimentLabel
+		let apikey = element.getAttribute("data-sentiment-api-key")
+        
+		document.querySelector("#edit-sentiment-label").value = sentimentLabel
         document.querySelector("#edit-sentiment-text").value = sentimentText
         document.querySelector("#edit-sentiment-value").value = sentimentValue
         document.querySelector("#edit-sentiment-language").value = sentimentLanguage
         document.querySelector("#edit-sentiment-id").value = sentimentID
+        document.querySelector("#edit-sentiment-rule-api-key-select").value = apikey
     })
 })
 document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=>{

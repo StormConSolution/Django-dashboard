@@ -121,7 +121,7 @@ def project_details(request, project_id):
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-    context={}
+    context = {}
     
     context["projects_data"] = projects
     context["project"] = this_project
@@ -130,30 +130,34 @@ def project_details(request, project_id):
     context["sourceID"] = []
     context["languages"] = []
     
-    source_query = """select distinct (ds.id) , ds."label", count(ds.id), ds.id from data_source ds inner join data_data dd on ds.id = dd.source_id where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    source_query = """
+        select distinct (ds.id) , ds."label", count(ds.id), ds.id 
+        from data_source ds inner join data_data dd on ds.id = dd.source_id 
+        where dd.project_id = %s group by ds.id order by count(ds.id) desc;"""
+    
     with connection.cursor() as cursor:
         cursor.execute(source_query, [project_id])
         rows = cursor.fetchall()
+    
     for row in rows:
         context["sources"].append({"sourceLabel":row[1], "sourceID":row[3]})
     
-    languages = list(data_models.Data.objects.filter(project__users=user, project_id=project_id).distinct().values("language"))
     context["languages"] = []
-    for element in languages:
-        for language_tuple in settings.LANGUAGES:
-            if element["language"] == language_tuple[0]:
-                context["languages"].append(language_tuple)
+    languages = data_models.Data.objects.filter(
+        project_id=project_id
+    ).distinct('language').values_list("language", flat=True)
     
-    earliest = None
-    latest = None
-
+    for code, label in settings.LANGUAGES:
+        if code in languages:
+            context["languages"].append((code, label))
+    
     if data_models.Data.objects.filter(project=project_id).count() != 0:
         d = data_models.Data.objects.filter(project=project_id).latest()
         latest = d.date_created
         earliest = data_models.Data.objects.filter(project=project_id).earliest().date_created
         
-        context["default_date_to"] = d.date_created.strftime("%Y-%m-%d")
-        context["default_date_from"] = (d.date_created - timedelta(days=90)).strftime("%Y-%m-%d")
+        context["default_date_to"] = latest.strftime("%Y-%m-%d")
+        context["default_date_from"] = earliest.strftime("%Y-%m-%d")
 
     context["more_filters"] = []
     with connection.cursor() as cursor:
@@ -179,8 +183,6 @@ def project_details(request, project_id):
     # Fetch my teammates too.
     context['teammates'] = data_helpers.get_teammates(user)['teammates']
     context['access'] = this_project.users.all().values_list('username', flat=True)
-    context['earliest'] = earliest
-    context['latest'] = latest
 
     return render(request, "project-details.html", context)
 
@@ -351,6 +353,7 @@ class AspectsList(View):
                 "label": aspect.label,
                 "lang":aspect.language,
                 "rules":rules_list,
+                "api_key":aspect.api_key,
                 "projects":projects,
             })
 
@@ -361,11 +364,13 @@ class AspectsList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = data_helpers.get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-            % apikey["apikeys"][0])
         
-        context["classifications"] = json.loads(req.text)
+        apikeys = data_helpers.get_api_keys(request.user)
+        if apikeys.get("apikeys"):
+            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+                % apikeys["apikeys"][0])
+            context["classifications"] = json.loads(req.text)
+
         context["languages"] = settings.LANGUAGES
         context["predefined_aspect_rules"] = list(data_models.PredefinedAspectRule.objects.all().values())
 
@@ -441,6 +446,7 @@ class Aspect(View):
         response["aspect_id"] = aspect.id
         response["aspect_label"] = aspect.label
         response["aspect_lang"] = aspect.language
+        response["aspect_api_key"] = aspect.api_key
         response["rules"] = []
         for rule in rules:
             response["rules"].append({
@@ -567,10 +573,13 @@ class EntitiesList(View):
         context["meta"] = {}
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1 
         context["meta"]["page_items_to"] = page_number * 10
-        apikey = data_helpers.get_api_key(request.user)
-        req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-            % apikey["apikeys"][0])
-        context["classifications"] = json.loads(req.text)
+        
+        apikeys = data_helpers.get_api_keys(request.user)
+        if apikeys.get("apikeys"):
+            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
+                % apikeys["apikeys"][0])
+            context["classifications"] = json.loads(req.text)
+
         context["languages"] = settings.LANGUAGES
         return render(request, "entity-list.html", context)
     
@@ -582,16 +591,21 @@ class EntitiesList(View):
         entity_classifications = request.POST.get("entity-classifications", "") 
         entity_aliases = request.POST.get("entity-aliases", "")
         api_key = request.POST.get("api-key", "")
-        entity_model = data_models.Entity.objects.create(label=entity_name, 
+        
+        entity_model, _ = data_models.Entity.objects.get_or_create(label=entity_name, 
             language=entity_lang, api_key=api_key)
         entity_model.users.add(user)
+        
         entity_classifications = entity_classifications.split(",")
         for entity_classification in entity_classifications:
             c, _ = data_models.Classification.objects.get_or_create(label=entity_classification)
             entity_model.classifications.add(c)
+        
         entity_model.aliases = entity_aliases
         entity_model.save()
+
         data_helpers.save_entity_model(entity_model)
+
         return redirect("entities")
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -618,16 +632,21 @@ class Entity(View):
             return HttpResponse(status=403)
         entity = entity.get()
         classifications = data_models.Classification.objects.filter(entity=entity)
+        
         response = {}
+        
         response["entity_id"] = entity.id
         response["entity_label"] = entity.label
         response["entity_lang"] = entity.language
+        response["entity_api_key"] = entity.api_key
         response["entity_aliases"] = entity.aliases
         response["classifications"] = []
+        
         for classification in classifications:
             response["classifications"].append({
                 "label":classification.label,
                 })
+        
         return JsonResponse(response, safe=False)
     
     @method_decorator(login_required)
@@ -674,16 +693,18 @@ class SentimentList(View):
         page = p.page(page_number)
         for sentiment in page.object_list:
             context['sentiments'].append({
-                "label":sentiment.label,
+                "label": sentiment.label,
                 "text": sentiment.definition,
                 "language": sentiment.language,
-                "sentiment":sentiment.sentiment,
+                "sentiment": sentiment.sentiment,
                 "rule_id": sentiment.rule_id,
-                "id":sentiment.id
+                "api_key": sentiment.api_key,
+                "id": sentiment.id,
             })
+
         p = Paginator(sentiment_list, page_size)
         projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
-        context["projects_data"] = projects
+
         context["projects_data"] = projects
         context["page"] = p.get_page(page_number)
         context["paginator"] = p
@@ -697,40 +718,46 @@ class SentimentList(View):
     @method_decorator(login_required)
     def post(self, request):
         user = request.user
-        sentiment_label = request.POST.get("sentiment-label", "")
-        text_definition = request.POST.get("sentiment-definition", "")
-        sentiment = request.POST.get("sentiment", "")
-        sentiment_language = request.POST.get("sentiment-language", "")
+        
+        sentiment_label = request.POST.get("sentiment-label")
+        text_definition = request.POST.get("sentiment-definition")
+        sentiment = request.POST.get("sentiment")
+        sentiment_language = request.POST.get("sentiment-language")
         api_key = request.POST.get("api-key")
-        if sentiment_label == "":
-            return HttpResponse("Sentiment Name is empty", status = 400)
+        
+        for val in (sentiment_label, text_definition, sentiment, sentiment_language, api_key):
+            if not val:
+                return HttpResponse("Some fields are missing values", status = 400)
+        
         text_definition_count = len(text_definition.split())
-        if text_definition_count < 1 or text_definition_count > 3:
-            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status = 400)
+        if text_definition_count < 1 or text_definition_count > 5:
+            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 5 words", status = 400)
         if sentiment == "positive":
             sentiment_value = "pos"
         elif sentiment == "negative":
             sentiment_value = "neg"
         elif sentiment == "neutral":
             sentiment_value = "neu"
+        
         data = {
             "text":text_definition,
             "sentiment":sentiment_value,
             "lang": sentiment_language
         }
-        #aspect_definition = data_models.AspectDefinition(aspect_model=aspect_model)
-        req = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data)
-        json_data = json.loads(req.text)
-        sentiment_model = data_models.Sentiment(
-            label=sentiment_label,
-            definition=text_definition,
-            sentiment=sentiment,
-            language=sentiment_language,
-            rule_id = json_data["rule_id"],
-            api_key=api_key,
-        )
-        sentiment_model.save() 
-        sentiment_model.users.add(user)
+        
+        try:
+            resp = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data).json()
+            s = data_models.Sentiment.objects.create(
+                label=sentiment_label,
+                definition=text_definition,
+                sentiment=sentiment,
+                language=sentiment_language,
+                rule_id = resp["rule_id"],
+                api_key=api_key,
+            )
+            s.users.add(user)
+        except:
+            return HttpResponse("Unable to add rule", status = 500)
 
         return redirect("sentiment")
 
@@ -746,6 +773,7 @@ class Sentiment(View):
             (settings.API_HOST, sentiment.api_key, sentiment.rule_id))
 
         sentiment.delete()
+
         return HttpResponse(status=200)
 
     @method_decorator(login_required)
@@ -794,7 +822,7 @@ def support(request):
         # Create zendesk ticket.
         # Package the data in a dictionary matching the expected JSONdata = 
         ticket = {'ticket': {
-                'subject': 'New ticket from {}'.format(request.user.email),
+                'subject': 'New ticket from {}'.format(request.user.username),
                 'comment': {'body': request.POST['question']}
             }
         }

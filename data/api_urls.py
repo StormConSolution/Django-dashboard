@@ -13,6 +13,7 @@ urlpatterns = [
     path('classification-by-sentiment/<int:project_id>/', data_api_views.classification_by_sentiment),
     path('co-occurence/<int:project_id>/', views.co_occurence),
     path('csv/', data_api_views.csv_upload),
+    path('data-item/<int:data_id>/', data_api_views.DataItem.as_view(), name='data-item'),
     path('data-per-aspect-topic/<int:project_id>/', data_api_views.data_per_aspect_topic),
     path('data-per-aspect/<int:project_id>/', data_api_views.data_per_aspect),
     path('data-per-classification-and-entity/<int:project_id>/', data_api_views.data_per_classification_and_entity),

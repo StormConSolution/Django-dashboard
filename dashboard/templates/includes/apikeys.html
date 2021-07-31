@@ -1,0 +1,7 @@
+{% if APIKEYS|length > 1 %}
+<option value="">-- choose a key --</option>
+{% endif %}
+
+{% for key in APIKEYS %}
+<option value="{{ key }}">{{ key }}</option>
+{% endfor %}

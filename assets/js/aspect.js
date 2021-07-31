@@ -1,7 +1,4 @@
-import "./aspect/aspect-modal"
-
 document.querySelectorAll('[data-role="edit-aspect-button"]').forEach((element) => {
-
     element.addEventListener("click", (e) => {
         let modal = document.querySelector("#edit-aspect")
         modal.style.display = "block"

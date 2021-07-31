@@ -213,7 +213,7 @@
                         </div>
                         <div class="form-group">
                             <label for="alert-project" class="form-label">Projects</label>
-							<select class="form-control" name="project">
+							<select class="form-control" id="alert-project" name="project">
 								<option value="-1">-- choose a project --</option>
 								{% for proj in projects_data %}
 								<option value="{{ proj.id }}">{{ proj.name }}</option>
@@ -237,7 +237,7 @@
                         </div>
                         <div class="form-group">
                             <label for="alert-aspect" class="form-label">Aspect</label>
-							<select class="form-control" name="aspect">
+							<select class="form-control" id="alert-aspect" name="aspect">
 								<option value="-1">-- choose a project first --</option>
 							</select>
                         </div>

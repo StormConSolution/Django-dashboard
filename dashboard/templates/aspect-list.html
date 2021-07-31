@@ -62,7 +62,7 @@
                                     <td class="text-center">
                                         <a
                                             href="#"
-                                            class="icon-link"
+                                            class="icon-link edit-aspect-btn"
                                             data-toggle="tooltip"
                                             data-role="edit-aspect-button"
                                             data-placement="bottom"
@@ -207,6 +207,7 @@
                                 name="aspect-label"
                                 type="text"
                                 class="form-control"
+								required=true
                                 id="aspect-name"
                                 placeholder="Enter aspect model name"
                             />
@@ -216,6 +217,7 @@
                             <select
                                 name="aspect-lang"
                                 type="text"
+								required=true
                                 class="form-control"
                                 id="aspect-lang"
 							>
@@ -224,7 +226,18 @@
 							{% endfor %}
 							</select>
                         </div>
-                        <div class="form-check form-switch aspect-group">
+                        <div class="form-group">
+                            <label for="create-aspect-model-api-key-select" class="form-label">API key</label>
+                            <select
+                                class="custom-select"
+                                id="create-aspect-model-api-key-select"
+                                name="api-key"
+								required=true
+                            >
+							{% include 'includes/apikeys.html' %}
+                            </select>
+                        </div>
+                        <div class="form-check form-switch aspect-group mt-4">
 							<label class="form-label">Select predefined aspect rules {{ "These are prebuilt machine learned aspect sentiment models. Select as many as you like."|tooltip }}</label>
                             <div class="form-check form-switch"  >
                         {% for predefined_aspect_rule in predefined_aspect_rules %}
@@ -234,7 +247,7 @@
                         {% endfor %}
                             </div>
                         </div>
-                        <div class="aspect-group" style="position: relative">
+                        <div class="aspect-group mt-4" style="position: relative">
                             <div class="form-group">
                                 <p
                                     style="
@@ -275,25 +288,14 @@
                         <button
                             type="button"
                             data-role="add-aspect-rule"
-                            class="btn btn-outline-primary mr-2 mt-2 mb-2"
+                            class="btn btn-outline-primary ml-0 mr-2 mt-2 mb-2"
                         >
                             Add New Aspect
                         </button>
-                        <div class="form-group">
-                            <label for="create-aspect-model-api-key-select" class="form-label"
-                            >Select API key</label
-                            >
-                            <select
-                                class="custom-select"
-                                id="create-aspect-model-api-key-select"
-                                name="api-key"
-                            >
-                            </select>
-                        </div>
-                        <div id="create-aspect-model-modal-loading"></div>
-                        <button type="submit" class="btn btn-primary mt-2">
+                        <button type="submit" class="btn btn-primary mt-2 mb-2">
                             Save And Close
                         </button>
+                        <div id="create-aspect-model-modal-loading"></div>
                     </form>
                 </div>
             </div>
@@ -305,7 +307,7 @@
     class="modal fade show"
     id="edit-aspect"
     tabindex="-1"
-    aria-label="createaspectLabel"
+    aria-label="editAspectModel"
     style="overflow-y:scroll;"
 >
     <div class="modal-dialog">
@@ -327,6 +329,7 @@
             <div class="modal-body" style="overflow-y:visible;position:relative">
                 <div class="modal-data">
                     <form method="PUT" id="edit-aspect-form" data-aspect-id="NaN">
+                        <input type="hidden" name = "_method" value="PUT"></input>
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="aspect-name" class="form-label">Aspect model name</label>
@@ -346,18 +349,26 @@
                                 class="form-control"
                                 id="edit-aspect-lang"
 							>
-							{% for code, label in languages %}
-							<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
-							{% endfor %}
+								{% for code, label in languages %}
+								<option {% ifequal code "en" %}selected="selected"{% endifequal %} value="{{ code }}">{{ label }}</option>
+								{% endfor %}
 							</select>
-                            <div class="form-check form-switch aspect-group" >
-                                <p>Select predefined aspect rule</p>
-                                <div class="form-check form-switch" id="edit-aspect-predefined-rules" >
-
-                                </div>
-                            </div>
+						</div>
+                        <div class="form-group">
+                            <label for="edit-aspect-model-api-key-select" class="form-label">API key</label>
+                            <select
+                                class="custom-select"
+                                id="edit-aspect-model-api-key-select"
+                                name="api-key"
+								required=true
+                            >
+							{% include 'includes/apikeys.html' %}
+                            </select>
                         </div>
-                        <input type="hidden" name = "_method" value="PUT"></input>
+						<div class="form-check form-switch aspect-group mt-4" >
+							<p>Select predefined aspect rule</p>
+							<div class="form-check form-switch" id="edit-aspect-predefined-rules" ></div>
+						</div>
                         <button
                             type="button"
                             id="edit-add-aspect-rule"
@@ -368,6 +379,7 @@
                         <button type="submit" class="btn btn-primary mt-2">
                             Save And Close
                         </button>
+                        <div id="edit-aspect-model-modal-loading"></div>
                     </form>
                 </div>
             </div>
@@ -379,19 +391,21 @@
 <script>
 
 let edit_aspect_rule_count = 1
-function resetEditAspectForm(){
+
+	function resetEditAspectForm(){
     document.querySelector('#edit-aspect').style.display='none'
     document.querySelectorAll("[data-role='edit-aspect-group']").forEach(element=>{
         element.remove()
     })
     aspectPredefinedRulesDiv.innerHTML = ""
 }
+
 document.querySelector("#edit-add-aspect-rule").addEventListener("click", (e)=>{
     let currentElement = e.currentTarget
         let parent = currentElement.parentNode
         let div = document.createElement("div")
         div.setAttribute("data-role", "edit-aspect-group")
-        div.className = "aspect-group"
+        div.className = "aspect-group mt-4"
         div.style.position = "relative"
         let element =
             `
@@ -461,6 +475,8 @@ function createAspectEditModal(id){
 
 		document.querySelector("#edit-aspect-name").value = data.aspect_label
 		document.querySelector("#edit-aspect-lang").value = data.aspect_lang
+		document.querySelector("#edit-aspect-model-api-key-select").value = data.aspect_api_key
+
         let predefinedRules = {{predefined_aspect_rules | safe}}
         let aspectPredefinedRules = data.rules.filter(x => x.predefined)
         for(predefinedRule of predefinedRules){
@@ -489,7 +505,7 @@ function createAspectEditModal(id){
         for(rule of data.rules){
             if(!rule.predefined){
                 let div = document.createElement("div")
-                div.className = "aspect-group"
+                div.className = "aspect-group mt-4"
                 div.style.position = "relative"
                 div.setAttribute("data-role", "edit-aspect-group")
                 let element=`                            
@@ -548,7 +564,7 @@ document.querySelector("[data-role='add-aspect-rule']").addEventListener("click"
     let parent = currentElement.parentNode
     count_rules++
     let div = document.createElement("div")
-    div.className = "aspect-group"
+    div.className = "aspect-group mt-4"
     div.style.position = "relative"
     let element =
         `

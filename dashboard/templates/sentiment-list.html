@@ -62,11 +62,6 @@
                                         {{sentiment.sentiment}}
                                     </td>
                                     <td class="text-center">
-                                        <!--
-                      <a href="#" class="icon-link" data-toggle="modal" data-target="#testaspect" >
-                        <i class="fe fe-eye" data-toggle="tooltip" data-placement="bottom" title="Test Aspect"></i>
-                      </a>
--->
                                         <a
                                             href="#"
                                             class="icon-link"
@@ -79,6 +74,7 @@
                                             data-sentiment-sentiment="{{sentiment.sentiment}}"
                                             data-sentiment-language="{{sentiment.language}}"
                                             data-sentiment-id="{{sentiment.id}}"
+                                            data-sentiment-api-key="{{sentiment.api_key}}"
                                         >
                                             <i class="fe fe-edit"></i>
                                         </a>
@@ -226,13 +222,14 @@
                         </div>
                         <div class="form-group">
                             <label for="test-sentiment-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
                                 id="test-sentiment-api-key-select"
                                 name="api-key"
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="test-sentiment-modal-loading"></div>
@@ -283,6 +280,7 @@
                                 name="sentiment-label"
                                 type="text"
                                 class="form-control"
+								required=true
                                 placeholder="Enter Rule Name"
                             />
                         </div>
@@ -292,12 +290,13 @@
                                 name="sentiment-definition"
                                 type="text"
                                 class="form-control"
+								required=true
                                 placeholder="Sentiment Rule Definition"
                             />
                         </div>
                         <div class="form-group">
 							<label class="form-label">Sentiment {{ "The sentiment that this rule should return when matched"|tooltip }}</label>
-                            <select class="custom-select" name="sentiment">
+                            <select class="custom-select" name="sentiment" required=true>
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
                                 <option value="neutral">Neutral</option>
@@ -305,7 +304,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Language</label>
-                            <select class="custom-select" id="selectaspect" name="sentiment-language">
+                            <select class="custom-select" id="selectaspect" name="sentiment-language" required=true>
                                 {% for language in languages %}
                                 <option value="{{language.0}}">{{language.1}}</option>
                                 {% endfor %}
@@ -314,13 +313,15 @@
 <!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
                         <div class="form-group">
                             <label for="create-sentiment-rule-api-key-select" class="form-label"
-                            >Select API key</label
+                            >API key</label
                             >
                             <select
                                 class="custom-select"
                                 id="create-sentiment-rule-api-key-select"
                                 name="api-key"
+								required=true
                             >
+							{% include 'includes/apikeys.html' %}
                             </select>
                         </div>
                         <div id="create-sentiment-rule-modal-loading"></div>
@@ -397,7 +398,19 @@
                                 {% endfor %}
                             </select>
                         </div>
-<!--                         <input type="hidden" name = "_method" value="PUT"></input> -->
+                        <div class="form-group">
+                            <label for="edit-sentiment-rule-api-key-select" class="form-label"
+                            >API key</label
+                            >
+                            <select
+                                class="custom-select"
+                                id="edit-sentiment-rule-api-key-select"
+                                name="api-key"
+								required=true
+                            >
+							{% include 'includes/apikeys.html' %}
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-primary mt-2">
                             Edit Sentiment
                         </button>
