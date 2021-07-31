@@ -30,7 +30,7 @@ def process_youtube(export_comments_response, project_id, source):
 def process_twitter(export_comments_response, project_id, source):
     
     task_arguments = []
-    for k, elem in export_comments_response.items():
+    for elem in export_comments_response.values():
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -89,7 +89,7 @@ def process_facebook(export_comments_response, project_id, source):
 def process_twitch(export_comments_response, project_id, source):
     
     task_arguments = []
-    for k, elem in export_comments_response.items():
+    for elem in export_comments_response.values():
         task_argument = {
             "project_id": project_id,
             "text": elem["message"],
@@ -116,13 +116,13 @@ def process_vimeo(export_comments_response, project_id, source):
 
 
 source_names = {
-    "twitter": {"source": "Twitter", "func": process_twitter},
-    "youtu": {"source": "YouTube", "func": process_youtube},
-    'facebook':{'source':'Facebook','func':process_facebook},
-    'instagram': {"source": "Instagram", "func": process_instagram},
-    'tiktok':{'source':'TikTok','func':process_tiktok},
-    'twitch':{'source':'Twitch','func':process_twitch},
-    'vimeo':{'source':'Vimeo','func':process_vimeo},
+    "twitter": {"source": "Twitter Comments", "func": process_twitter},
+    "youtu": {"source": "YouTube Comments", "func": process_youtube},
+    'facebook':{'source':'Facebook Comments','func':process_facebook},
+    'instagram': {"source": "Instagram Comments", "func": process_instagram},
+    'tiktok':{'source':'TikTok Comments','func':process_tiktok},
+    'twitch':{'source':'Twitch Comments','func':process_twitch},
+    'vimeo':{'source':'Vimeo Comments','func':process_vimeo},
 }
 
 
