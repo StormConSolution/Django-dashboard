@@ -110,6 +110,11 @@ def process_data(kwargs):
 
         search_text = "{} {}".format(search_text, ent["title"])
 
+        english_title = ent['id'].replace('_', ' ')
+        if english_title != ent['title']:
+            # Store the English too for non-english.
+            search_text = "{} {}".format(search_text, english_title)
+
         for clas in ent['classifications']:
             c_instance, created = data_models.Classification.objects.get_or_create(
                 label=clas
