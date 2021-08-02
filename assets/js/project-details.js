@@ -199,8 +199,12 @@ document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=
 document.getElementById('reset-filters').addEventListener("click", (e) => {
 	// Clear the filter form, set the dates to earliest/latest and then refresh.
 	document.getElementById("filter-form").reset()
+    $("#filter-form select[multiple='multiple']").multiselect('refresh')
 	document.getElementById("date-from").value = window.earliest_date
 	document.getElementById("date-to").value = window.latest_date
+
+	// TODO: Clear all of our metadata filters.
+	
 	let openFilterBtn = document.getElementById('open-more-filters-modal')
 	openFilterBtn.classList.remove('btn-info');
 	openFilterBtn.classList.add('btn-secondary');
