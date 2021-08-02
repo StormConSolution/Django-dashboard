@@ -61,25 +61,21 @@
 					  </div>
 					</div>
 				</div>
-                        {% for filter in more_filters %}
-                        <div class="form-group">
-                            <label for="selectaspect" class="form-label"
-                                >{{filter.name}}</label
-                            >
-                            <select
-                                class="custom-select"
-                                id="selectaspect"
-                                aria-placeholder=""
-                                name="{{filter.name}}"
-                                data-role="more-filters-select"
-                            >
-                            <option></option>
-                            {% for value in filter.values %}
-                            <option value="{{value}}">{{value}}</option>
-                            {% endfor %}
+                <div class="row">
+                    {% for filter in more_filters %}
+                        
+                    <div class="form-group col-6">
+                        <label class="form-label">{{filter.name}}</label>
+                        <div>
+                            <select name="{{filter.name}}" data-role="metadata-filter" data-target="metadata-filters" class="form-control" size="1" multiple="multiple" required>
+                                {% for value in filter.values %}
+                                <option value="{{value}}">{{value}}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        {% endfor %}
+                      </div>
+                    {% endfor %}
+                </div>
                     </form>
                     <div class="d-flex flex-wrap align-items-center mt-4">
                         <button class="btn btn-primary" id="apply-more-filters">
@@ -96,6 +92,7 @@
 	$('#languages-filter').multiselect({
 		includeSelectAllOption: true,
 		maxHeight:400,
+		buttonWidth:'100%',
 		buttonText: function(options) {
 			if (options.length == 0) {
 			  return 'Languages';
@@ -115,9 +112,30 @@
 	$('#sources-filter').multiselect({
 		includeSelectAllOption: true,
 		maxHeight:400,
+		buttonWidth:'100%',
 		buttonText: function(options) {
 			if (options.length == 0) {
 			  return 'Sources';
+			}
+			else if (options.length > 6) {
+			  return options.length + ' selected';
+			}
+			else {
+			  var selected = '';
+			  options.each(function() {
+				selected += $(this).text() + ', ';
+			  });
+			  return selected.substr(0, selected.length -2);
+			}
+		}
+	});
+    $('[data-role="metadata-filter"]').multiselect({
+		includeSelectAllOption: true,
+		maxHeight:400,
+		buttonWidth:'100%',
+		buttonText: function(options) {
+			if (options.length == 0) {
+			  return 'Values';
 			}
 			else if (options.length > 6) {
 			  return options.length + ' selected';

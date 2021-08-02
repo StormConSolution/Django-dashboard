@@ -51,16 +51,17 @@ def get_filters_sql2(request):
         #map(lambda x: "''%s''" % x, sources)
         #where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
         where_clauses.append('ds.id in (%s)' % (",".join(sourcesID)))
-    metadata_filters = {}
 
     # get parameters for metadata start all with prefix "filter_"
     for key, value in request.GET.items():
         if key.startswith("filter_"):
             key = parse.unquote(key[len("filter_"):])
-            metadata_filters[key] = parse.unquote(value)
-    if len(metadata_filters) > 0:
-        where_clauses.append("dd.metadata @> '{}'"
-        .format(json.dumps(metadata_filters)))
+            values = parse.unquote(value).split(",")
+            if len(values) > 0:
+                or_statements = []
+                for value in values:
+                    or_statements.append("dd.metadata @> '{}'".format(json.dumps({key:value})))
+                where_clauses.append("(" + " or ".join(or_statements) + ")")
     return where_clauses
 
 

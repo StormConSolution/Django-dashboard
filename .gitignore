@@ -47,3 +47,5 @@ dashboard/static/assets/js/entity.js
 dashboard/static/assets/js/entity-guest.js
 .env
 firebase-credentials.json
+
+data.csv
