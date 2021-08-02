@@ -14,12 +14,22 @@ export function getFilters(){
 }
 
 export function getMetadataFilters(){
-    let moreFiltersSelects = document.querySelectorAll("[data-role='more-filters-select']")
+/*     let moreFiltersSelects = document.querySelectorAll("[data-role='more-filters-select']")
     let moreFiltersValues = {}
     for(let element of moreFiltersSelects){
         let filterValue = element.value
         if (filterValue != ""){
             moreFiltersValues["filter_" + element.name] = filterValue
+        }
+    }
+ */
+
+    let moreFiltersSelects = document.querySelectorAll("[data-role='metadata-filter']")
+    let moreFiltersValues = {}
+    for(let element of moreFiltersSelects){
+        let filterValue = $(element).val()
+        if (filterValue != ""){
+            moreFiltersValues["filter_" + element.name] = filterValue.join(",")
         }
     }
     return moreFiltersValues
@@ -28,6 +38,7 @@ export function getMetadataFilters(){
 export function convertFiltersToURL(filters){
     let aux = {}
     for(let key in filters){
+        
         aux[encodeURIComponent(key)] = encodeURIComponent(filters[key])
     }
     let URLParams = new URLSearchParams(aux)
