@@ -52,6 +52,10 @@
                 </li>
                 <li id="li-entity-tab">
                 </li>
+                {% if project.aspect_model %}
+                <li id="li-scoreboard-tab">
+                </li>
+                {% endif %}
 				{% if project.geo_enabled %}
                 <li id="li-geo-tab">
 					<a style="cursor:pointer;" id="geo-tab">Geodata</a>
@@ -98,6 +102,7 @@
        {% include "includes/graphs/entity-by-sentiment.html" %} 
        {% include "includes/graphs/classification-by-sentiment.html" %} 
        {% include "includes/graphs/most-common-chunks.html" %} 
+       {% include "includes/graphs/scoreboard.html" %} 
        
 	   {% include "includes/graphs/map.html" %} 
 	   {% include "includes/tables/stc-tables.html" %} 

@@ -11,9 +11,13 @@ def aspects_per_project(request, project_id):
     project = get_object_or_404(data_models.Project, pk=project_id)
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
-    
     aspects = []
     if project.aspect_model is not None:
-        aspects = list(project.aspect_model.aspectrule_set.values_list('rule_name', flat=True))
-
+        aspects = project.aspect_model.aspectrule_set.all()
+        for aspect in aspects:
+            aspects.append({
+                'id': aspect.pk,
+                'rule_name':aspect.rule_name,
+                'weight':aspect.weight,
+            })
     return JsonResponse(aspects, safe=False)

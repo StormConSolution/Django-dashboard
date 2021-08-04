@@ -46,6 +46,7 @@ class AspectRule(models.Model):
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
     classifications = models.TextField(blank=True)
     predefined = models.BooleanField(default=False)
+    weight = models.IntegerField(default=5)
     
     def __str__(self):
         return self.rule_name

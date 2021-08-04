@@ -24,8 +24,8 @@ $(function() {
             // Now add options for each possible aspect label for this project.
             for (var i = 0; i < data.length; i++) {
                 let o = document.createElement('option');
-                o.value = data[i];
-                o.text = data[i];
+                o.value = data[i].rule_name;
+                o.text = data[i].rule_name;
                 alertSelect.appendChild(o);
             }
         })
@@ -75,8 +75,8 @@ document.querySelectorAll('[data-role="edit-alert-button"]').forEach((element) =
                 // Now add options for each possible aspect label for this project.
                 for (var i = 0; i < data.length; i++) {
                     let o = document.createElement('option');
-                    o.value = data[i];
-                    o.text = data[i];
+                    o.value = data[i].rule_name;
+                    o.text = data[i].rule_name;
                     alertSelect.appendChild(o);
                     if (o.value == targetAspect) {
                         o.selected = true;

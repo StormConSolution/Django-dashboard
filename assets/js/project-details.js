@@ -14,6 +14,7 @@ if (window.geo_enabled) {
 }
 let renderAspect = true
 let renderEntity = true
+let scoreBoard = true
 let tabLoadingCounter = 2
 let tabLoadingDiv = document.querySelector("#tab-loading")
 let showEmotionAspectCoOccurrence = true
@@ -33,6 +34,9 @@ function updateProjectTables() {
 }
 
 function updateGraphs() {
+    if(window.has_aspects){
+        graphs.scoreboard()
+    }
     if (renderAspect) {
         graphs.aspectBySentimentPercentageGraph()
         graphs.aspectBySentimentAbsoluteGraph()
@@ -127,6 +131,9 @@ function showHideGraphsTables() {
         case "user-tab":
             showGraphTable("users")
 			break
+        case "scoreboard-tab":
+            showGraphTable("scoreboard")
+			break
     }
 
     activeProjectDetailsTab(currentTab)
@@ -162,6 +169,11 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
         liContainer.innerHTML = '<a style="cursor:pointer;" id="aspect-tab">Aspects</a>'
         document.querySelector("#aspect-tab").addEventListener("click", (e)=>{
             currentTab = "aspect-tab"
+            showHideGraphsTables()
+        })
+        $("#li-scoreboard-tab").html('<a style="cursor:pointer;" id="scoreboard-tab">Scoreboard</a>')
+        $("#scoreboard-tab").click((e)=>{
+            currentTab = "scoreboard-tab"
             showHideGraphsTables()
         })
     } else {
