@@ -143,7 +143,7 @@ def data_operations(request, api_key, project_id):
         data = data_models.Data.objects.filter(
                 **query).prefetch_related(
                 'entities', 'aspect_set').order_by(
-                '-date_created')[page*page_size:page*page_size+page_size]
+                '-date_created')[(page-1)*page_size:(page-1)*page_size+page_size]
 
         # Return data as JSON.
         json_data = {'status':'OK', 'total':total, 'data':[]}
