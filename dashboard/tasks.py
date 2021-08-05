@@ -13,7 +13,7 @@ from .celery import app
 from .sms import send_sms
 from .nlp_phrases import nlp_phrase_lookup
 from data import models as data_models
-from data.helpers import get_project_api_key
+from data.helpers import get_project_api_key, get_api_keys
 
 logger = get_task_logger(__name__)
 
@@ -239,13 +239,18 @@ def process_twitter_search(job_id):
     ts = data_models.TwitterSearch.objects.get(pk=job_id)
     ts.status = data_models.TwitterSearch.RUNNING
     ts.save()
+    
+    apikeys = get_api_keys(ts.created_by)
+    if not apikeys.get("apikeys"):
+        logger.error("No API keys found for {}".format(ts.created_by))
+        return
         
-    project, _ = data_models.Project.objects.get_or_create(name=ts.project_name)
+    project = data_models.Project.objects.create(
+        name=ts.project_name,
+        aspect_model=ts.aspect,
+        api_key=apikeys['apikeys'][0]
+    )
     project.users.add(ts.created_by)
-    project.aspect_model = ts.aspect
-    # NOTE: change this to the user's API key when we introduce this feature to
-    # all users.
-    project.api_key = settings.APIKEY
     project.save()
 
     import twint

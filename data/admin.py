@@ -73,7 +73,7 @@ class AspectRuleAdmin(admin.ModelAdmin):
     list_filter = ('aspect_model',)
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', '_aspect_model', '_data_count', '_view')
+    list_display = ('name', 'date_created', '_aspect_model', '_data_count', '_view')
     filter_horizontal = ('users',)
     search_fields = ('name', 'users__email')
     fieldsets = (
