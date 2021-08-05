@@ -1,5 +1,4 @@
 from datetime import datetime
-import requests
 
 from celery.utils.log import get_task_logger
 from dateutil import parser
@@ -8,6 +7,7 @@ from django.contrib.postgres.search import SearchVector
 from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
+import requests
 
 from .celery import app
 from .sms import send_sms
@@ -276,6 +276,9 @@ def process_twitter_search(job_id):
         )
         
         process_data.delay(post_data)
+    
+    # TODO: Temporary hack until we get a better solution.
+    twint.output.clean_lists()
 
     ts.status = data_models.TwitterSearch.DONE
     ts.save()
