@@ -83,8 +83,15 @@ def project_operations(request, api_key):
 
         return JsonResponse({"status": "OK", "project_id": proj.id})
     elif request.method == 'GET':
-        projects = data_models.Project.objects.filter(api_key=api_key).values('name', 'aspect_model', 'id')
-        return JsonResponse({"status": "OK", "projects": list(projects)})
+        projects = []
+        for p in data_models.Project.objects.filter(api_key=api_key):
+            projects.append({
+                'name':p.name,
+                'aspect_model':p.aspect_model and p.aspect_model.label or '',
+                'id':p.id,
+            })
+
+        return JsonResponse({"status": "OK", "projects": projects})
 
 @csrf_exempt
 def data_operations(request, api_key, project_id):
