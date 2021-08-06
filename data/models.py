@@ -269,3 +269,11 @@ class TwitterSearch(models.Model):
 
     class Meta:
         verbose_name_plural = 'Twitter Searches'
+
+class AspectWeight(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    aspect_rule = models.ForeignKey(AspectRule, on_delete=models.CASCADE)
+    weight = models.IntegerField(default=5)
+
+    class Meta:
+        unique_together = ('project', 'aspect_rule')

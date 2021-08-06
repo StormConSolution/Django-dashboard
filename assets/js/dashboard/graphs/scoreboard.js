@@ -3,16 +3,19 @@ import {
     showLoadingScreen,
     hideLoadingScreen,
 } from "../../common/loading-screen";
+let total_data = 0
+
 export function createGraph() {
     update.startUpdate();
-    fetch(`/api/aspects-per-project/${window.project_id}/`)
+    fetch(`/api/aspect-weight-scoreboard/${window.project_id}/`)
         .then((response) => response.json())
         .then((data) => {
             let weightsDiv = document.querySelector("#scoreboard-weight");
-            for (let aspect of data) {
+            total_data = parseInt(data.data.total_aspects_data)
+            for (let aspect of data.data.aspect_weights) {
                 let html = `<div class="row col-12"><label class="form-label">${aspect.rule_name}</label>
                 <div class="row col-12">
-                <input class="col-10" type="range" class="form-range" min="0" max="10" data-aspect-rule-id="${aspect.id}" data-aspect-rule-weight="${aspect.weight}" value="${aspect.weight}" oninput="this.nextElementSibling.value = this.value" step="1"><output class="col-2">${aspect.weight}</output>
+                <input class="col-10" type="range" class="form-range" min="0" max="10" data-aspect-weigth-id="${aspect.id}" data-total-aspect-positives="${aspect.total_positives}" data-total-aspect-data="${aspect.total_aspect_data}" data-aspect-weight="${aspect.weight}" value="${aspect.weight}" oninput="this.nextElementSibling.value = this.value" step="1"><output class="col-2">${aspect.weight}</output>
                 </div>
             </div>`;
                 weightsDiv.innerHTML += html;
@@ -22,9 +25,9 @@ export function createGraph() {
                 .forEach((element) => {
                     element.addEventListener("change", (e) => {
                         let input = e.currentTarget
-                        let aspect_rule_id = input.getAttribute("data-aspect-rule-id")
+                        let aspect_weight_id = input.getAttribute("data-aspect-weigth-id")
                         showLoadingScreen();
-                        fetch(`/api/update-aspect-rule-weight/${aspect_rule_id}/?weight=${input.value}`, {
+                        fetch(`/api/update-aspect-rule-weight/${aspect_weight_id}/?weight=${input.value}`, {
                             method:"POST",
                         })
                         .then(resp => {})
@@ -40,7 +43,7 @@ export function createGraph() {
                 });
             document.querySelector(
                 "#scoreboard-max-score"
-            ).innerHTML = `Maximum score = ${data.length * 100}`;
+            ).innerHTML = `Maximum score = ${data.data.aspect_weights.length * 100}`;
             scoreboardScore();
             update.finishUpdate();
         })
@@ -55,7 +58,9 @@ function scoreboardScore() {
     document
         .querySelectorAll("#scoreboard-weight input[type='range']")
         .forEach((e) => {
-            totalScore += parseInt(e.value/10*100);
+            let total_aspect_positives = parseInt(e.getAttribute("data-total-aspect-positives"))
+            let total_aspect_data = parseInt(e.getAttribute("data-total-aspect-data"))
+            totalScore += (total_aspect_positives/total_aspect_data*parseInt(e.value)/10*100);
         });
-    document.querySelector("#scoreboard-score").innerHTML = totalScore;
+    document.querySelector("#scoreboard-score").innerHTML = totalScore.toFixed(2);
 }

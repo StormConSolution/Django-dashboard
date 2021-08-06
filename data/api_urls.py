@@ -37,7 +37,8 @@ urlpatterns = [
     path('topics-per-aspect/<int:project_id>/', data_api_views.topics_per_aspect),
     path('volume-by-source/<int:project_id>/', views.volume_by_source),
     path('user-api-keys/', data_api_views.get_user_api_keys),
-    path('update-aspect-rule-weight/<int:aspect_rule_id>/', data_api_views.update_aspect_rule_weight),
+    path('update-aspect-rule-weight/<int:aspect_weight_id>/', data_api_views.update_aspect_rule_weight),
+    path('aspect-weight-scoreboard/<int:project_id>/', data_api_views.aspect_weights_scoreboard),
    
     # External API calls.
     path('project/<str:api_key>/', views.project_operations, name='project_operations'),

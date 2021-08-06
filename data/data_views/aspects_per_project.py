@@ -13,11 +13,10 @@ def aspects_per_project(request, project_id):
         raise PermissionDenied
     aspects = []
     if project.aspect_model is not None:
-        aspects = project.aspect_model.aspectrule_set.all()
-        for aspect in aspects:
+        aspect_rules = project.aspect_model.aspectrule_set.all()
+        for aspect in aspect_rules:
             aspects.append({
                 'id': aspect.pk,
                 'rule_name':aspect.rule_name,
-                'weight':aspect.weight,
             })
     return JsonResponse(aspects, safe=False)

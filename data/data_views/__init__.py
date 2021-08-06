@@ -23,6 +23,7 @@ from .topics_per_aspect import topics_per_aspect
 from .get_user_api_keys import get_user_api_keys
 from .data_item import DataItem
 from .update_aspect_rule_weight import update_aspect_rule_weight
+from .aspect_weights_scoreboard import aspect_weights_scoreboard
 
 __all__ = [
     'aspect_count',
@@ -50,4 +51,5 @@ __all__ = [
     'get_user_api_keys', 
     'DataItem',
     'update_aspect_rule_weight',
+    'aspect_weights_scoreboard',
 ]
