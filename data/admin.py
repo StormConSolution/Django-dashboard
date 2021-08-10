@@ -73,7 +73,7 @@ class AspectRuleAdmin(admin.ModelAdmin):
     list_filter = ('aspect_model',)
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', '_aspect_model', '_data_count', '_view')
+    list_display = ('name', 'date_created', '_aspect_model', '_data_count', '_view')
     filter_horizontal = ('users',)
     search_fields = ('name', 'users__email')
     fieldsets = (
@@ -139,6 +139,10 @@ class AlertAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'project', )
     raw_id_fields = ('project', 'data',)
 
+class AlertRuleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'aspect', 'frequency', 'period', 'active')
+    raw_id_fields = ('project',)
+
 class SourceAdmin(admin.ModelAdmin):
     search_fields = ('label',)
 
@@ -158,5 +162,5 @@ admin.site.register(Country)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(Summary, SummaryAdmin)
 admin.site.register(Alert, AlertAdmin)
-admin.site.register(AlertRule)
+admin.site.register(AlertRule, AlertRuleAdmin)
 admin.site.register(PredefinedAspectRule, PredefinedAspectRuleAdmin)

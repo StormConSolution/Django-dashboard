@@ -165,6 +165,9 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
 MEDIA_URL = '/media/'
 
+# Max number of objects that can be deleted through the admin.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'dashboard/static'),

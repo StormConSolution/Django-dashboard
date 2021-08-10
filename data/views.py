@@ -367,8 +367,7 @@ class AspectsList(View):
         
         apikeys = data_helpers.get_api_keys(request.user)
         if apikeys.get("apikeys"):
-            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-                % apikeys["apikeys"][0])
+            req = requests.get("{0}/v4/{1}/classifications.json".format(settings.API_HOST, apikeys["apikeys"][0]))
             context["classifications"] = json.loads(req.text)
 
         context["languages"] = settings.LANGUAGES
@@ -576,8 +575,7 @@ class EntitiesList(View):
         
         apikeys = data_helpers.get_api_keys(request.user)
         if apikeys.get("apikeys"):
-            req = requests.get("https://api.repustate.com/v4/%s/classifications.json"
-                % apikeys["apikeys"][0])
+            req = requests.get("{0}/v4/{1}/classifications.json".format(settings.API_HOST, apikeys["apikeys"][0]))
             context["classifications"] = json.loads(req.text)
 
         context["languages"] = settings.LANGUAGES

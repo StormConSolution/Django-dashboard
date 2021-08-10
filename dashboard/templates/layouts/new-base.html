@@ -239,7 +239,7 @@
                             <select
                                 class="custom-select"
                                 id="csv-upload-select-project"
-                                aria-placeholder="Choose From Existing Aspects"
+                                aria-placeholder="Select Project"
                             >
                                 {% for element in projects_data %}
                                     {% if element.id == project.id %}
@@ -375,10 +375,10 @@
                             <select
                                 class="custom-select"
                                 id="selectaspect"
-                                aria-placeholder="Choose From Existing Aspects"
+                                aria-placeholder="Choose From Existing Aspect Models"
                                 name="aspect-id"
                             >
-                                <option value="-1">Choose From Existing Aspects</option>
+                                <option value="-1">Choose From Existing Aspect Models</option>
                                 <optgroup label="Standard Aspect Models">
                                     {% for aspect in STANDARD_ASPECT_MODELS %}
 										<option value="{{aspect.id}}">{{aspect.label}}</option>
@@ -386,7 +386,7 @@
                                 </optgroup>
                                 <optgroup label="Custom Aspect Models">
                                     {% for aspect in CUSTOM_ASPECT_MODELS %}
-										<option value="{{aspect.id}}">{{aspect.label}}</option>
+									<option value="{{aspect.id}}">{{aspect.label}} ({{ aspect.language }})</option>
                                     {% endfor %}
                                 </optgroup>
                             </select>

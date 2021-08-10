@@ -34,7 +34,7 @@
                                 </optgroup>
                                 <optgroup label="Custom Aspect Models">
                                     {% for aspect in CUSTOM_ASPECT_MODELS %}
-                                            <option value="{{aspect.id}}">{{aspect.label}}</option>
+										<option value="{{aspect.id}}">{{aspect.label}} ({{ aspect.language }})</option>
                                     {% endfor %}
                                 </optgroup>
                             </select>

@@ -54,7 +54,7 @@ def get_filters_sql2(request):
         # where_clauses.append('ds."label" in (%s)' % ("'" + "','".join(sources) + "'"))
         where_clauses.append('ds.id in (%s)' % (",".join(sources_id)))
 
-    # get parameters for metadata start all with prefix "filter_"
+    # GET parameters for metadata start all with prefix "filter_"
     for key, value in request.GET.items():
         if key.startswith("filter_"):
             key = parse.unquote(key[len("filter_"):])

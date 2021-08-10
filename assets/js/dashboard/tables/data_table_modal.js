@@ -19,7 +19,7 @@ export function createTable(page, options){
     .then((data) => {
         for (let element of data.data) {
             let tr = document.createElement("tr");
-            var length = 150;
+            const length = 150;
             let text = "";
             if(element.text.length > length){
                 text = element.text.substring(0, length) + "...";
@@ -27,56 +27,57 @@ export function createTable(page, options){
                 text = element.text
             }
             let row = `
-        <td>
-        <small>${element.dateCreated}</small>
-       </td>
-       <td>
-         ${text}
-       </td>
-       <td >
-        <b><a href="${element.url}">${element.sourceLabel}</a></b>
-       </td>
-       <td class="text-center">
-         ${element.sentimentValue.toFixed(4)}
-       </td>
-       <td class="text-center">
-         <a href="#" class="info-button">${element.languageCode}</a>
-       </td>
-       <td class="text-center">
-        <a
-            class="mr-1 ml-0"
-			style="cursor:pointer;"
-            data-toggle="tooltip"
-            data-role="edit-data-item"
-            data-placement="bottom"
-            title="Edit"
-            data-item-id="${element.id}"
-        >
-            <i class="fe fe-edit"></i>
-        </a>
-        <a
-            class="mr-1 ml-1"
-			style="cursor:pointer;"
-            data-toggle="tooltip"
-            data-role="refresh-data-item"
-            data-placement="bottom"
-            data-item-id="${element.id}"
-            title="Re-analyze"
-        >
-            <i class="fe fe-refresh-cw"></i>
-        </a>
-        <a
-            class="mr-0 ml-1"
-			style="cursor:pointer;"
-            data-toggle="tooltip"
-            data-role="delete-data-item"
-            data-placement="bottom"
-            data-item-id="${element.id}"
-            title="Delete"
-        >
-            <i class="fe fe-trash-2"></i>
-        </a>
-        </td>
+               <td>
+                 <input class="form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
+                <small>${element.dateCreated}</small>
+               </td>
+               <td>
+                 ${text}
+               </td>
+               <td >
+                <b><a href="${element.url}">${element.sourceLabel}</a></b>
+               </td>
+               <td class="text-center">
+                 ${element.sentimentValue.toFixed(4)}
+               </td>
+               <td class="text-center">
+                 <a href="#" class="info-button">${element.languageCode}</a>
+               </td>
+               <td class="text-center">
+                <a
+                    class="mr-1 ml-0"
+                    style="cursor:pointer;"
+                    data-toggle="tooltip"
+                    data-role="edit-data-item"
+                    data-placement="bottom"
+                    title="Edit"
+                    data-item-id="${element.id}"
+                >
+                    <i class="fe fe-edit"></i>
+                </a>
+                <a
+                    class="mr-1 ml-1"
+                    style="cursor:pointer;"
+                    data-toggle="tooltip"
+                    data-role="refresh-data-item"
+                    data-placement="bottom"
+                    data-item-id="${element.id}"
+                    title="Re-analyze"
+                >
+                    <i class="fe fe-refresh-cw"></i>
+                </a>
+                <a
+                    class="mr-0 ml-1"
+                    style="cursor:pointer;"
+                    data-toggle="tooltip"
+                    data-role="delete-data-item"
+                    data-placement="bottom"
+                    data-item-id="${element.id}"
+                    title="Delete"
+                >
+                    <i class="fe fe-trash-2"></i>
+                </a>
+                </td>
         `;
             tr.innerHTML = row;
             content.append(tr);
@@ -135,31 +136,49 @@ export function createTable(page, options){
                 })
             })
         })
-        $("#edit-data-item-modal-save-and-close").click(function(e){
-            var text = $("#edit-data-item-modal-text").val()
-            var language = $("#edit-data-item-modal-language").val()
-            var sentiment = $("#edit-data-item-modal-sentiment").val()
-            var id = $("#edit-data-item-modal-id").val()
-            var form = new FormData
-            form.set("text", text)
-            form.set("sentiment", sentiment)
-            form.set("language", language)
-            fetch(`/api/data-item/${id}/`,{
-                credentials:"include",
-                body:form,
-                method:"POST",
-            })
-            .then(function(resp){
-                if(resp.status === 200){
-                    location.reload()
-                } else {
-                    alert("error editing data")
-                }
-            })
-        })
     });
 }
 
+$("#edit-data-item-modal-save-and-close").click(function(e){
+    let text = $("#edit-data-item-modal-text").val()
+    let language = $("#edit-data-item-modal-language").val()
+    let sentiment = $("#edit-data-item-modal-sentiment").val()
+    let id = $("#edit-data-item-modal-id").val()
+    let form = new FormData
+    form.set("text", text)
+    form.set("sentiment", sentiment)
+    form.set("language", language)
+    fetch(`/api/data-item/${id}/`,{
+        credentials:"include",
+        body:form,
+        method:"POST",
+    })
+        .then(function(resp){
+            if(resp.status === 200){
+                location.reload()
+            } else {
+                alert("error editing data")
+            }
+        })
+})
 document.getElementById("data-table-modal-page-size").addEventListener("change",()=>{
     createTable(1, optionsState)
+})
+
+document.querySelector("#button-bulk-action").addEventListener("click", evt => {
+    let ids = []
+    document.querySelectorAll("[data-role='checkbox-bulk-action']:checked").forEach(element =>{
+        const dataItem = element.getAttribute("data-item-id")
+        ids.push(dataItem)
+    })
+    fetch(`/api/data-item/?data-items=${ids.join(",")}`, {
+        method: "PUT",
+        credentials: "include",
+    }).then(resp => {
+        if(resp.status !== 200){
+            alert("Error re-analyzing data items")
+        } else {
+            location.reload()
+        }
+    })
 })

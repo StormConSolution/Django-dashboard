@@ -215,8 +215,6 @@ document.getElementById('reset-filters').addEventListener("click", (e) => {
 	document.getElementById("date-from").value = window.earliest_date
 	document.getElementById("date-to").value = window.latest_date
 
-	// TODO: Clear all of our metadata filters.
-	
 	let openFilterBtn = document.getElementById('open-more-filters-modal')
 	openFilterBtn.classList.remove('btn-info');
 	openFilterBtn.classList.add('btn-secondary');
