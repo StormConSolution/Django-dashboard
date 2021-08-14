@@ -60,6 +60,7 @@
                                         {{aspect.rules | length}}
                                     </td>
                                     <td class="text-center">
+										{% if not aspect.managed %}
                                         <a
                                             href="#"
                                             class="icon-link edit-aspect-btn"
@@ -83,6 +84,9 @@
                                         >
                                             <i class="fe fe-trash-2"></i>
                                         </a>
+										{% else %}
+											Managed by Repustate
+										{% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

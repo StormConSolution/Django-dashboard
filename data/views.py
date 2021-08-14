@@ -354,6 +354,7 @@ class AspectsList(View):
                 "lang":aspect.language,
                 "rules":rules_list,
                 "api_key":aspect.api_key,
+                "managed":aspect.managed,
                 "projects":projects,
             })
 

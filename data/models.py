@@ -15,7 +15,7 @@ class Sentiment(models.Model):
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
-    api_key = models.TextField(blank=False, default="")
+    api_key = models.CharField(blank=False, max_length=80)
 
 class ChartType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
@@ -29,7 +29,8 @@ class AspectModel(models.Model):
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     users = models.ManyToManyField(User, blank=True)
     standard = models.BooleanField(default=False)
-    api_key = models.TextField(blank=False, default="")
+    managed = models.BooleanField(default=False, help_text='Does Repustate manage this model for them')
+    api_key = models.CharField(blank=False, max_length=80)
     
     def __str__(self):
         return self.label
@@ -62,7 +63,7 @@ class Project(models.Model):
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE, null=True, blank=True)
     sentiment = models.ManyToManyField(Sentiment, blank=True)
     geo_enabled = models.BooleanField(default=False)
-    api_key = models.CharField(max_length=80, blank=False, default="")
+    api_key = models.CharField(max_length=80, blank=False)
     popup_title = models.CharField(max_length=80, blank=True, default="")
     popup_text = models.TextField(blank=True, default="", help_text='Content for an initial popup. Markdown format supported')
 
@@ -96,7 +97,7 @@ class Entity(models.Model):
     classifications = models.ManyToManyField(Classification)
     users = models.ManyToManyField(User, blank=True)
     aliases = models.TextField(blank=False, default="")
-    api_key = models.TextField(blank=False, default="")
+    api_key = models.CharField(max_length=80, blank=False)
 
     def __str__(self):
         return self.label
