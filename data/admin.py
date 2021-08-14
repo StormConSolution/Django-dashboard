@@ -64,8 +64,8 @@ class AspectAdmin(admin.ModelAdmin):
     search_fields = ('topic', 'chunk',)
 
 class AspectModelAdmin(admin.ModelAdmin):
-    list_display = ('label', 'standard', 'language')
-    list_filter = ('standard', 'language')
+    list_display = ('label', 'standard', 'managed', 'language')
+    list_filter = ('standard', 'language', 'managed')
     filter_horizontal = ('users',)
 
 class AspectRuleAdmin(admin.ModelAdmin):
