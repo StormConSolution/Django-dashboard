@@ -9,13 +9,14 @@ from django.contrib.postgres.search import SearchVectorField
 
 
 class Sentiment(models.Model):
-    label = models.CharField(max_length=80) 
+    label = models.CharField(max_length=80)
     definition = models.TextField()
     rule_id = models.TextField()
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     sentiment = models.CharField(max_length=80)
     users = models.ManyToManyField(User)
     api_key = models.TextField(blank=False, default="")
+
 
 class ChartType(models.Model):
     label = models.CharField(max_length=80, blank=False, unique=True)
@@ -24,21 +25,24 @@ class ChartType(models.Model):
     def __str__(self):
         return self.label
 
+
 class AspectModel(models.Model):
     label = models.CharField(max_length=80, blank=False)
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     users = models.ManyToManyField(User, blank=True)
     standard = models.BooleanField(default=False)
     api_key = models.TextField(blank=False, default="")
-    
+
     def __str__(self):
         return self.label
-    
+
     class Meta:
         ordering = ('label',)
 
+
 class PredefinedAspectRule(models.Model):
     label = models.CharField(max_length=80, blank=False)
+
 
 class AspectRule(models.Model):
     rule_name = models.CharField(max_length=80, blank=False)
@@ -46,13 +50,15 @@ class AspectRule(models.Model):
     aspect_model = models.ForeignKey(AspectModel, on_delete=models.CASCADE)
     classifications = models.TextField(blank=True)
     predefined = models.BooleanField(default=False)
-    
+    weight = models.IntegerField(default=5)
+
     def __str__(self):
         return self.rule_name
-    
+
     class Meta:
-        unique_together=('rule_name', 'aspect_model')
+        unique_together = ('rule_name', 'aspect_model')
         ordering = ('rule_name',)
+
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
@@ -64,7 +70,8 @@ class Project(models.Model):
     geo_enabled = models.BooleanField(default=False)
     api_key = models.CharField(max_length=80, blank=False, default="")
     popup_title = models.CharField(max_length=80, blank=True, default="")
-    popup_text = models.TextField(blank=True, default="", help_text='Content for an initial popup. Markdown format supported')
+    popup_text = models.TextField(blank=True, default="",
+                                  help_text='Content for an initial popup. Markdown format supported')
 
     def __str__(self):
         return self.name
@@ -75,12 +82,13 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return reverse('project', kwargs={'project_id': self.id})
-    
+
     def most_recent_date(self):
         # Get the date of my most recent data item.
         if self.data_set.count():
             return self.data_set.latest().date_created
         return None
+
 
 class Classification(models.Model):
     label = models.CharField(max_length=80, db_index=True)
@@ -88,10 +96,11 @@ class Classification(models.Model):
     def __str__(self):
         return self.label
 
+
 class Entity(models.Model):
     label = models.CharField(max_length=80, db_index=True, unique=False)
-    english_label = models.CharField(max_length=80, db_index=True, default='', 
-            help_text='Non-blank only when language is not english', unique=False)
+    english_label = models.CharField(max_length=80, db_index=True, default='',
+                                     help_text='Non-blank only when language is not english', unique=False)
     language = models.CharField(max_length=2, default='en', choices=settings.LANGUAGES)
     classifications = models.ManyToManyField(Classification)
     users = models.ManyToManyField(User, blank=True)
@@ -103,7 +112,7 @@ class Entity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Entities'
-        unique_together=('label', 'english_label', 'language')
+        unique_together = ('label', 'english_label', 'language')
 
 
 class Source(models.Model):
@@ -114,6 +123,7 @@ class Source(models.Model):
 
     class Meta:
         ordering = ('label',)
+
 
 class Keyword(models.Model):
     label = models.CharField(
@@ -134,6 +144,7 @@ class Country(models.Model):
     def __str__(self):
         return self.label
 
+
 class Summary(models.Model):
     date_created = models.DateField(auto_now=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -142,6 +153,7 @@ class Summary(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class AlertRule(models.Model):
     """
@@ -156,16 +168,17 @@ class AlertRule(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=80)
     aspect = models.CharField(max_length=80, default='')
-    frequency = models.IntegerField(help_text='How many times should the data appear before sending an alert', default=0)
+    frequency = models.IntegerField(help_text='How many times should the data appear before sending an alert',
+                                    default=0)
     period = models.CharField(max_length=80, choices=PERIOD, default='daily')
     keywords = models.TextField(blank=True)
     emails = models.TextField(blank=True)
     sms = models.TextField(blank=True)
     active = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         ordering = ('name',)
 
@@ -180,13 +193,14 @@ class AlertRule(models.Model):
                 date_created__gte=today).count() >= self.frequency:
             return True
         elif self.period == 'weekly' and self.alert_set.filter(
-                date_created__gte=today-datetime.timedelta(7)).count() >= self.frequency:
+                date_created__gte=today - datetime.timedelta(7)).count() >= self.frequency:
             return True
         elif self.period == 'monthly' and self.alert_set.filter(
-                date_created__gte=today-datetime.timedelta(30)).count() >= self.frequency:
+                date_created__gte=today - datetime.timedelta(30)).count() >= self.frequency:
             return True
-        
+
         return False
+
 
 class Alert(models.Model):
     """
@@ -201,6 +215,7 @@ class Alert(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class Data(models.Model):
     date_created = models.DateField(db_index=True)
@@ -224,6 +239,7 @@ class Data(models.Model):
     def __str__(self):
         return self.text
 
+
 class Aspect(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE)
     label = models.CharField(max_length=80, blank=True, db_index=True)
@@ -234,6 +250,7 @@ class Aspect(models.Model):
 
     def __str__(self):
         return self.label
+
 
 class TwitterSearch(models.Model):
     NOT_RUNNING = 0
@@ -251,15 +268,15 @@ class TwitterSearch(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     query = models.CharField(max_length=80,
-         help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
+                             help_text='See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/premium-operators for info on setting up queries')
     project_name = models.CharField(max_length=80)
-    
+
     aspect = models.ForeignKey(AspectModel,
-       default=None,
-       null=True,  # test
-       blank=True,
-       limit_choices_to={'standard':True},
-       help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
+                               default=None,
+                               null=True,  # test
+                               blank=True,
+                               limit_choices_to={'standard': True},
+                               help_text='Which aspect model to use? (optional)', on_delete=models.CASCADE)
 
     status = models.IntegerField(choices=STATUSES, default=NOT_RUNNING)
 
@@ -268,3 +285,12 @@ class TwitterSearch(models.Model):
 
     class Meta:
         verbose_name_plural = 'Twitter Searches'
+
+
+class AspectWeight(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    aspect_rule = models.ForeignKey(AspectRule, on_delete=models.CASCADE)
+    weight = models.IntegerField(default=5)
+
+    class Meta:
+        unique_together = ('project', 'aspect_rule')

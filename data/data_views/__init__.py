@@ -22,6 +22,9 @@ from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .get_user_api_keys import get_user_api_keys
 from .data_item import DataItem
+from .update_aspect_rule_weight import update_aspect_rule_weight
+from .aspect_weights_scoreboard import aspect_weights_scoreboard
+from .data_items import DataItems
 
 __all__ = [
     'aspect_count',
@@ -48,4 +51,7 @@ __all__ = [
     'topics_per_aspect', 
     'get_user_api_keys', 
     'DataItem',
+    'update_aspect_rule_weight',
+    'aspect_weights_scoreboard',
+    'DataItems',
 ]
