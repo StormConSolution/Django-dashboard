@@ -134,7 +134,7 @@ def data_operations(request, api_key, project_id):
         process_data.delay(task_argument)
         return JsonResponse({"status": "OK"})
 
-    elif request.method == 'GET':
+    elif request.method in ('GET', 'DELETE'):
         page, page_size = pagination_details(request)
         page_size = min(page_size, MAX_PAGE_SIZE)
 
@@ -146,13 +146,22 @@ def data_operations(request, api_key, project_id):
         if request.GET.get('date-to'):
             query['date_created__lte'] = request.GET['date-to']
 
-        if request.GET.get("metadata_keys"):
-            values = request.GET.get("metadata_keys").split(",")
-            query["metadata__has_keys"] = values
+        if request.GET.get("metadata_key"):
+            key = request.GET['metadata_key']
+            if request.GET.get("metadata_value"):
+                # A specific metadata value must match.
+                query["metadata__{}".format(key)] = request.GET['metadata_value']
+            else:
+                # Checking to see the key is present regardless of value.
+                query["metadata__has_key"] = key
 
         if request.GET.get("sources"):
             sources = request.GET.get("sources").split(",")
             query["source__label__in"] = sources
+
+        if request.method == 'DELETE':
+            total, _ = data_models.Data.objects.filter(**query).delete()
+            return JsonResponse({'status':'OK', 'total':total})
 
         total = data_models.Data.objects.filter(**query).count()
         data = data_models.Data.objects.filter(
