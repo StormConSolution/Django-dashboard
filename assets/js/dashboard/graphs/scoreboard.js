@@ -43,7 +43,7 @@ export function createGraph() {
                 });
             document.querySelector(
                 "#scoreboard-max-score"
-            ).innerHTML = `Maximum score = ${data.data.aspect_weights.length * 100}`;
+            ).innerHTML = `Maximum score = ${data.data.max_score}`;
             scoreboardScore();
             update.finishUpdate();
         })
@@ -55,12 +55,15 @@ export function createGraph() {
 // calculates score and put it on screen
 function scoreboardScore() {
     let totalScore = 0;
+	let maxScore = 0;
     document
         .querySelectorAll("#scoreboard-weight input[type='range']")
         .forEach((e) => {
             let total_aspect_positives = parseInt(e.getAttribute("data-total-aspect-positives"))
             let total_aspect_data = parseInt(e.getAttribute("data-total-aspect-data"))
-            totalScore += (total_aspect_positives/total_aspect_data*parseInt(e.value)/10*100);
+            totalScore += (total_aspect_positives/total_aspect_data)*parseInt(e.value)
+			maxScore += parseInt(e.value)
         });
     document.querySelector("#scoreboard-score").innerHTML = totalScore.toFixed(2);
+	document.querySelector("#scoreboard-max-score").innerHTML = `Maximum score = ${maxScore}`;
 }
