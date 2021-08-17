@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
 import requests
-import pycld3
+import cld3
 
 from .celery import app
 from .sms import send_sms

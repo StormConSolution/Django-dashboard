@@ -28,7 +28,9 @@ export function createTable(page, options){
             }
             let row = `
                <td>
-                 <input class="form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
+                 <input class="ml-auto form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
+			   </td>
+			   <td>
                 <small>${element.dateCreated}</small>
                </td>
                <td>
