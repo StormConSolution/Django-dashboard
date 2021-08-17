@@ -25,6 +25,8 @@ from data import models as data_models
 from data.forms import AlertRuleForm
 import data.helpers as data_helpers
 
+MAX_METADATA_UNIQUE_VALUES = 250
+
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def index(request):
     """
@@ -158,7 +160,8 @@ def project_details(request, project_id):
         
         context["default_date_to"] = latest.strftime("%Y-%m-%d")
         context["default_date_from"] = earliest.strftime("%Y-%m-%d")
-
+    
+    # Populate the metadata filters dropdowns.
     context["more_filters"] = []
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -169,6 +172,17 @@ def project_details(request, project_id):
         rows = cursor.fetchall()
         for row in rows:
             with connection.cursor() as metadata_cursor:
+                metadata_cursor.execute("""
+                select count (distinct (dd.metadata ->> %s))
+                from data_data as dd where dd.project_id = %s
+                """,
+                [row[0], project_id])
+
+                possible_metadata_values = metadata_cursor.fetchone()[0]
+                if possible_metadata_values > MAX_METADATA_UNIQUE_VALUES:
+                    # Too many values to put in a dropdown.
+                    continue
+
                 metadata_cursor.execute("""
                 select distinct (dd.metadata ->> %s)
                 from data_data as dd where dd.project_id = %s
