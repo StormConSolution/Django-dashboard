@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
 import requests
+import pycld3
 
 from .celery import app
 from .sms import send_sms
@@ -53,14 +54,8 @@ def process_data(kwargs):
 
     if not kwargs.get('lang'):
         # No language set; use language detection.
-        try:
-            resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
-                HOST=settings.API_HOST, APIKEY=apikey), data={'text': kwargs["text"]})
-            kwargs['lang'] = resp.json()['language']
-        except Exception as e:
-            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}. Response: {}".format(
-                kwargs['text'], e, settings.API_HOST, apikey, resp.content))
-            return
+        prediction = cld3.get_language(kwargs['text'])
+        kwargs['lang'] = prediction.language
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
         HOST=settings.API_HOST, APIKEY=apikey), 
