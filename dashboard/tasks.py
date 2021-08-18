@@ -54,8 +54,11 @@ def process_data(kwargs):
 
     if not kwargs.get('lang'):
         # No language set; use language detection.
-        prediction = cld3.get_language(kwargs['text'])
-        kwargs['lang'] = prediction.language
+        try:
+            prediction = cld3.get_language(kwargs['text'])
+            kwargs['lang'] = prediction.language
+        except Exception as e:
+            logger.error("Error detecting language {}: {}".format(kwargs, e))
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
         HOST=settings.API_HOST, APIKEY=apikey), 

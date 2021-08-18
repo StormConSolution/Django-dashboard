@@ -167,6 +167,7 @@ MEDIA_URL = '/media/'
 
 # Max number of objects that can be deleted through the admin.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 10
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (

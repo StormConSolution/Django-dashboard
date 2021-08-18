@@ -11,6 +11,9 @@ from django.shortcuts import get_object_or_404
 import data.models as data_models
 from data.helpers import get_where_clauses
 
+def _similar_sentiment(x, y):
+    return x['positiveCount'] > x['negativeCount'] and y['positiveCount'] > y['negativeCount']
+
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def most_common_chunks(request, project_id):
     project = get_object_or_404(data_models.Project, pk=project_id)
@@ -43,7 +46,7 @@ def most_common_chunks(request, project_id):
             from 
                 data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id
             where 
-                da.chunk != ''  and (dd.sentiment > 0 or dd.sentiment < 0) and {}
+                da.chunk != '' and (da.sentiment > 0 or da.sentiment < 0) and {}
             group by 
                 lower(da.chunk) order by count(lower(da.chunk)) desc limit {}""".format(where_clause, upper_limit), [project_id])
         rows = cursor.fetchall()
@@ -65,7 +68,7 @@ def most_common_chunks(request, project_id):
     temp_response = sorted(temp_response, key = lambda i: len(i['chunk']))
     for idx, t in enumerate(temp_response):
         for next_one in temp_response[idx+1:]:
-            if next_one['valid'] and t['valid'] and next_one['chunk'].find(t['chunk']) >= 0:
+            if next_one['valid'] and t['valid'] and next_one['chunk'].find(t['chunk']) >= 0 and _similar_sentiment(t, next_one):
                 next_one['positiveCount'] += t['positiveCount']
                 next_one['negativeCount'] += t['negativeCount']
                 next_one['total'] += t['total']
