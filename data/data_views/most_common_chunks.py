@@ -12,7 +12,21 @@ import data.models as data_models
 from data.helpers import get_where_clauses
 
 def _similar_sentiment(x, y):
-    return x['positiveCount'] > x['negativeCount'] and y['positiveCount'] > y['negativeCount']
+    """
+    Check if both chunks have the same polarity.
+    """
+    return (x['positiveCount'] > x['negativeCount'] and y['positiveCount'] > y['negativeCount']) or\
+           (x['positiveCount'] < x['negativeCount'] and y['positiveCount'] < y['negativeCount'])
+
+def _obvious_sentiment(t):
+    """
+    Check if one sentiment or another is sufficiently dominant.
+    """
+    eps = 0.7
+    pos = t['positiveCount']
+    neg = t['negativeCount']
+    total = t['total']
+    return float(pos) / float(total) >= eps or float(neg) / float(total) > eps
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def most_common_chunks(request, project_id):
@@ -40,7 +54,7 @@ def most_common_chunks(request, project_id):
         cursor.execute("""
             select 
                 count(*),
-                lower(da.chunk),
+                da.chunk,
                 sum(case when da.sentiment > 0 then 1 else 0 end) as pos,
                 sum(case when da.sentiment < 0 then 1 else 0 end) as neg 
             from 
@@ -48,7 +62,8 @@ def most_common_chunks(request, project_id):
             where 
                 da.chunk != '' and (da.sentiment > 0 or da.sentiment < 0) and {}
             group by 
-                lower(da.chunk) order by count(lower(da.chunk)) desc limit {}""".format(where_clause, upper_limit), [project_id])
+                da.chunk
+            order by count(lower(da.chunk)) desc limit {}""".format(where_clause, upper_limit), [project_id])
         rows = cursor.fetchall()
     
     temp_response = []
@@ -57,26 +72,33 @@ def most_common_chunks(request, project_id):
         if row[2] > 0 or row[3] > 0:
             temp_response.append({
                 "total": row[0],
-                "chunk": re.sub(r'\bi\b', 'I', row[1].strip(string.punctuation)),
+                "chunk": row[1].strip(string.punctuation),
                 "positiveCount": row[2],
                 "negativeCount": row[3],
-                "valid":True,
             })
 
     # Before we return, collate chunks based on substring match. First sort by
-    # length of chunk, smalles to largest.
-    temp_response = sorted(temp_response, key = lambda i: len(i['chunk']))
+    # length of chunk, smallest to largest.
+    temp_response = sorted(temp_response, key = lambda i: len(i['chunk']), reverse=True)
+    merged_chunks = []
+
     for idx, t in enumerate(temp_response):
-        for next_one in temp_response[idx+1:]:
-            if next_one['valid'] and t['valid'] and next_one['chunk'].find(t['chunk']) >= 0 and _similar_sentiment(t, next_one):
-                next_one['positiveCount'] += t['positiveCount']
-                next_one['negativeCount'] += t['negativeCount']
-                next_one['total'] += t['total']
-                t['valid'] = False
+        merged = False
+        for other in merged_chunks:
+            if t['chunk'].lower() in other['chunk'].lower() and _similar_sentiment(t, other):
+                other['positiveCount'] += t['positiveCount']
+                other['negativeCount'] += t['negativeCount']
+                other['total'] += t['total']
+                merged = True
+                break
+
+        if not merged:
+            print("appending", t)
+            merged_chunks.append(t)
     
-    # Now remove any that are not valid, sort again by count and return that final list.
-    response = list(filter(lambda x: x['valid'], temp_response))
-    response = sorted(response, key = lambda i: i['total'])
-    response.reverse()
+    # Now remove any that are not valid, sort again by count and return that
+    # final list.
+    response = filter(lambda x: _obvious_sentiment(x), merged_chunks)
+    response = sorted(response, key = lambda i: i['total'], reverse=True)
 
     return JsonResponse(response[:limit], safe=False)
