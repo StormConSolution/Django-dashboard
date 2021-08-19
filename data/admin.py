@@ -149,6 +149,9 @@ class SourceAdmin(admin.ModelAdmin):
 class PredefinedAspectRuleAdmin(admin.ModelAdmin):
     list_display = ("label",)
 
+class ExportCommentsAdmin(admin.ModelAdmin):
+    list_display = ('guid', 'project', 'source', 'url')
+
 admin.site.register(Data, DataAdmin)
 admin.site.register(Aspect, AspectAdmin)
 admin.site.register(AspectRule, AspectRuleAdmin)
@@ -164,3 +167,4 @@ admin.site.register(Summary, SummaryAdmin)
 admin.site.register(Alert, AlertAdmin)
 admin.site.register(AlertRule, AlertRuleAdmin)
 admin.site.register(PredefinedAspectRule, PredefinedAspectRuleAdmin)
+admin.site.register(ExportComments, ExportCommentsAdmin)

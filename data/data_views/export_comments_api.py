@@ -1,11 +1,11 @@
 import json
-import requests
 
 from django.conf import settings
 from django.http.response import HttpResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from exportcomments import ExportComments
+import requests
 
 from data import models as data_models
 from data.data_views.export_comments import export_comments

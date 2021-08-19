@@ -34,6 +34,7 @@ def export_comments(request):
     export_comment = data_models.ExportComments.objects.create(
         project=project,
         source=source[0],
+        url=url,
         guid=exportcomments_response.body["data"]["guid"])
     
     return redirect("project", project_id)
