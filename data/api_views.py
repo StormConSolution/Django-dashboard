@@ -2,8 +2,6 @@ import datetime
 import csv
 import json
 import math
-from urllib import parse
-import requests
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -13,15 +11,15 @@ from django.db import connection
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
 
 import data.charts as charts
 import data.models as data_models
 from dashboard.tasks import process_data
-from data import serializers
-from data import weighted
 from data.helpers import get_filters_sql, get_where_clauses, get_order_by
 
 MAX_PAGE_SIZE = 100
+
 
 def pagination_details(request):
     page_size = request.GET.get("page-size") or 10
@@ -29,8 +27,8 @@ def pagination_details(request):
 
     return int(page), int(page_size)
 
+
 def validate_api_call(api_key, project_id):
-    
     # Make sure apikey is valid for project.
     try:
         p = data_models.Project.objects.get(pk=project_id)
@@ -40,7 +38,7 @@ def validate_api_call(api_key, project_id):
             "title": "Permission denied",
             "description": "You do not have access to this data"
         })
-    
+
     if p.api_key != api_key:
         return False, JsonResponse({
             "status": "Fail",
@@ -49,6 +47,7 @@ def validate_api_call(api_key, project_id):
         })
 
     return True, None
+
 
 @csrf_exempt
 def project_operations(request, api_key):
@@ -70,21 +69,29 @@ def project_operations(request, api_key):
                 label=request.POST['aspect_model'])
             proj.aspect_model = m
             proj.save()
-        
+
         try:
             user = User.objects.get(username__iexact=request.POST['username'])
         except User.DoesNotExist as e:
             return JsonResponse({
-                "status":"Fail",
-                "description":"Username not found",
-                "title":"Project could not be added"})
-        
+                "status": "Fail",
+                "description": "Username not found",
+                "title": "Project could not be added"})
+
         proj.users.add(user)
 
         return JsonResponse({"status": "OK", "project_id": proj.id})
     elif request.method == 'GET':
-        projects = data_models.Project.objects.filter(api_key=api_key).values('name', 'aspect_model', 'id')
-        return JsonResponse({"status": "OK", "projects": list(projects)})
+        projects = []
+        for p in data_models.Project.objects.filter(api_key=api_key):
+            projects.append({
+                'name':p.name,
+                'aspect_model':p.aspect_model and p.aspect_model.label or '',
+                'id':p.id,
+            })
+
+        return JsonResponse({"status": "OK", "projects": projects})
+
 
 @csrf_exempt
 def data_operations(request, api_key, project_id):
@@ -108,76 +115,93 @@ def data_operations(request, api_key, project_id):
                     "title": "Data not added",
                     "description": "Missing required field `{}`".format(key)
                 })
-        
+
         has_permission, error = validate_api_call(api_key, project_id)
         if not has_permission:
             return error
 
         task_argument = {
             "project_id": project_id,
-            "metadata":{},
+            "metadata": {},
         }
-        
+
         for key in ('lang', 'date', 'source', 'url', 'text',):
             task_argument[key] = request.POST.get(key, '')
-        
+
         if 'metadata' in request.POST:
             task_argument['metadata'] = json.loads(request.POST['metadata'])
 
         process_data.delay(task_argument)
         return JsonResponse({"status": "OK"})
 
-    elif request.method == 'GET':
+    elif request.method in ('GET', 'DELETE'):
         page, page_size = pagination_details(request)
         page_size = min(page_size, MAX_PAGE_SIZE)
 
-        query = {'project':project_id}
-        
+        query = {'project': project_id}
+
         if request.GET.get('date-from'):
             query['date_created__gte'] = request.GET['date-from']
 
         if request.GET.get('date-to'):
             query['date_created__lte'] = request.GET['date-to']
-        
+
+        if request.GET.get("metadata_key"):
+            key = request.GET['metadata_key']
+            if request.GET.get("metadata_value"):
+                # A specific metadata value must match.
+                query["metadata__{}".format(key)] = request.GET['metadata_value']
+            else:
+                # Checking to see the key is present regardless of value.
+                query["metadata__has_key"] = key
+
+        if request.GET.get("sources"):
+            sources = request.GET.get("sources").split(",")
+            query["source__label__in"] = sources
+
+        if request.method == 'DELETE':
+            total, _ = data_models.Data.objects.filter(**query).delete()
+            return JsonResponse({'status':'OK', 'total':total})
+
         total = data_models.Data.objects.filter(**query).count()
         data = data_models.Data.objects.filter(
-                **query).prefetch_related(
-                'entities', 'aspect_set').order_by(
-                '-date_created')[page*page_size:page*page_size+page_size]
+            **query).prefetch_related(
+            'entities', 'aspect_set').order_by(
+            '-date_created')[(page - 1) * page_size:(page - 1) * page_size + page_size]
 
         # Return data as JSON.
-        json_data = {'status':'OK', 'total':total, 'data':[]}
+        json_data = {'status': 'OK', 'total': total, 'data': []}
         for obj in data:
             d = {
-                'text':obj.text,
-                'url':obj.url,
-                'date_created':obj.date_created.strftime('%Y-%m-%d'),
-                'source':obj.source.label,
-                'sentiment':obj.sentiment,
-                'language':obj.language,
-                'metadata':obj.metadata,
-                'aspects':list(obj.aspect_set.values('label', 'sentiment', 'chunk', 'topic', 'sentiment_text')),
-                'entities':[],
+                'text': obj.text,
+                'url': obj.url,
+                'date_created': obj.date_created.strftime('%Y-%m-%d'),
+                'source': obj.source.label,
+                'sentiment': obj.sentiment,
+                'language': obj.language,
+                'metadata': obj.metadata,
+                'aspects': list(obj.aspect_set.values('label', 'sentiment', 'chunk', 'topic', 'sentiment_text')),
+                'entities': [],
             }
 
             for e in obj.entities.all():
                 d['entities'].append({
-                    'title':e.label,
-                    'classifications':','.join([c.label for c in e.classifications.all()])
+                    'title': e.label,
+                    'classifications': ','.join([c.label for c in e.classifications.all()])
                 })
-            
+
             json_data['data'].append(d)
 
         return JsonResponse(json_data)
 
+
 @csrf_exempt
 def metadata(request, api_key, project_id):
-
     # Make sure this project belongs to this API key.
     has_permission, error = validate_api_call(api_key, project_id)
     if not has_permission:
         return error
-    
+
     key = request.GET.get("key")
     if not key:
         # Return all possible keys.
@@ -185,14 +209,14 @@ def metadata(request, api_key, project_id):
             cursor.execute("""select distinct (jsonb_object_keys(dd.metadata))
             from data_data as dd where  dd.project_id = %s""", [project_id])
             rows = cursor.fetchall()
-        
+
         response = {
-            'status':'OK',
-            'keys':[k[0] for k in rows],
+            'status': 'OK',
+            'keys': [k[0] for k in rows],
         }
-        
+
         return JsonResponse(response)
-    
+
     # A specific key was supplied, return the values for that key.
     with connection.cursor() as cursor:
         cursor.execute("""SELECT distinct(dd.metadata ->> %s)
@@ -201,11 +225,11 @@ def metadata(request, api_key, project_id):
         rows = cursor.fetchall()
 
     response = {
-        'status':'OK',
-        'key':key,
-        'values':[v[0] for v in rows]
+        'status': 'OK',
+        'key': key,
+        'values': [v[0] for v in rows]
     }
-    
+
     return JsonResponse(response)
 
 
@@ -218,7 +242,8 @@ def project_overview(request, project_id):
     where_clauses = []
     where_clauses.append("dd.project_id = %s")
     query = """
-            select distinct sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(request, where_clauses)
+            select distinct sum(case when dd.sentiment > 0 then 1 else 0 end) as positives ,sum(case when dd.sentiment < 0 then 1 else 0 end) as negatives, sum(case when dd.sentiment = 0 then 1 else 0 end) as neutrals from data_data dd inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(
+        request, where_clauses)
     with connection.cursor() as cursor:
         cursor.execute(query, [project_id])
         row = cursor.fetchone()
@@ -231,10 +256,12 @@ def project_overview(request, project_id):
     where_clauses.append("dd.project_id = %s")
     with connection.cursor() as cursor:
         cursor.execute("""
-            select count(distinct ds."label") from data_source ds inner join data_data dd on ds.id = dd.source_id where """ + " and ".join(where_clauses), [project.id])
+            select count(distinct ds."label") from data_source ds inner join data_data dd on ds.id = dd.source_id where """ + " and ".join(
+            where_clauses), [project.id])
         rows = cursor.fetchall()
     data["sourceCount"] = rows[0][0]
     return JsonResponse(data, safe=False)
+
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def volume_by_source(request, project_id):
@@ -243,11 +270,12 @@ def volume_by_source(request, project_id):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     where_clauses = [
-       "dd.project_id = %s"
+        "dd.project_id = %s"
     ]
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clauses) + """ group by ds.id order by count(ds.id) desc limit 10;""", [project.id])
+            select distinct ds.id, ds."label" ,count(ds.id) from data_data dd inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(
+            request, where_clauses) + """ group by ds.id order by count(ds.id) desc limit 10;""", [project.id])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -258,9 +286,9 @@ def volume_by_source(request, project_id):
         response.append(aux)
     return JsonResponse(response, safe=False)
 
-def get_chart_data(this_project, start, end, entity_filter, 
-        aspect_topic, aspect_name, lang_filter, source_filter, request):
 
+def get_chart_data(this_project, start, end, entity_filter,
+                   aspect_topic, aspect_name, lang_filter, source_filter, request):
     result = {
         "status": "OK",
         "colors": charts.COLORS["contrasts"],
@@ -282,10 +310,10 @@ def get_chart_data(this_project, start, end, entity_filter,
             source_filter,
             request
         )
-        
+
         chart_data = instance.render_data()
         result.update(chart_data)
-    
+
     return result
 
 
@@ -298,7 +326,7 @@ def co_occurence(request, project_id):
 
     if data_models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
-    
+
     start = request.GET.get("date-from")
     end = request.GET.get("date-to")
     if not start or not end:
@@ -308,7 +336,7 @@ def co_occurence(request, project_id):
     source_filter = request.GET.get('sourcesID')
     if source_filter:
         source_filter = source_filter.split(',')
-    
+
     lang_filter = request.GET.get("languages")
     if lang_filter:
         lang_filter = lang_filter.split(',')
@@ -316,7 +344,7 @@ def co_occurence(request, project_id):
     entity_filter = request.GET.get('entity')
     aspect_topic = request.GET.get('aspecttopic')
     aspect_name = request.GET.get('aspectname')
-    
+
     chart_data = get_chart_data(
         this_project,
         start,
@@ -329,26 +357,26 @@ def co_occurence(request, project_id):
         request,
     )
     if "aspect_cooccurrence_data" in chart_data:
-        response  = chart_data["aspect_cooccurrence_data"]
+        response = chart_data["aspect_cooccurrence_data"]
     else:
-        response =  {}
-    
+        response = {}
+
     return JsonResponse(response, safe=False)
+
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def entity_classification_count(request, project_id):
     user = request.user
     page, page_size = pagination_details(request)
-    
+
     project = get_object_or_404(data_models.Project, pk=project_id)
-    aspect_label = request.GET.get("aspect-label", "") 
+    aspect_label = request.GET.get("aspect-label", "")
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
 
-
     filtersSQL = get_filters_sql(request)
     where_clause = [
-        "dd.project_id = %s"    
+        "dd.project_id = %s"
     ]
     query_args = [project_id]
 
@@ -360,7 +388,8 @@ def entity_classification_count(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join + """ where """ + get_where_clauses(request, where_clause), query_args)
+        select count(distinct (dec2.classification_id , dec2.entity_id ) ) from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(
+            request, where_clause), query_args)
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -375,7 +404,6 @@ def entity_classification_count(request, project_id):
         aspect_inner_join = 'inner join data_aspect da on da.data_id = dd.id'
         query_args.append(aspect_label)
 
-
     limit_offset_clause = ""
     if response_format != "csv":
         limit_offset_clause = """limit %s offset %s;"""
@@ -384,9 +412,13 @@ def entity_classification_count(request, project_id):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            select de."label" , dc."label" , count(*) as frequency, de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id)""" + get_order_by(request, "frequency", "desc")  + limit_offset_clause, query_args)
+            select de."label" , dc."label" , count(*) as frequency, de.id, dc.id  from data_entity de inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dc.id = dec2.classification_id inner join data_data_entities dde on dde.entity_id = de.id inner join data_data dd on dd.id = dde.data_id inner join data_source ds on dd.source_id = ds.id """ + aspect_inner_join + """ where """ + get_where_clauses(
+            request, where_clause) + """ group by (de."label" , dc."label", de.id, dc.id)""" + get_order_by(request,
+                                                                                                            "frequency",
+                                                                                                            "desc") + limit_offset_clause,
+                       query_args)
         rows = cursor.fetchall()
-    
+
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="data_items_entities_classification_frequency.csv"'
@@ -396,7 +428,7 @@ def entity_classification_count(request, project_id):
         for row in rows:
             writer.writerow([row[0], row[1], row[2]])
         return response
-    response={}
+    response = {}
     response["data"] = []
     response["currentPage"] = page
     response["total"] = total
@@ -413,9 +445,9 @@ def entity_classification_count(request, project_id):
 
     return JsonResponse(response, safe=False)
 
+
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def aspect_topic(request, project_id):
-    
     page, page_size = pagination_details(request)
 
     project = get_object_or_404(data_models.Project, pk=project_id)
@@ -428,7 +460,8 @@ def aspect_topic(request, project_id):
     ]
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where da.topic != '' and """ + get_where_clauses(request, where_clause), [ project.id])
+        select count(distinct (da."label", da.topic)) from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where da.topic != '' and """ + get_where_clauses(
+            request, where_clause), [project.id])
         row = cursor.fetchone()
     total = int(row[0])
 
@@ -445,7 +478,10 @@ def aspect_topic(request, project_id):
         query_args.append(offset)
     with connection.cursor() as cursor:
         cursor.execute("""
-            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + get_where_clauses(request, where_clause) + """ group by (da.topic, da."label" ) """ + get_order_by(request, "c", "desc")  + limit_offset_clause, query_args)
+            select distinct da."label", da.topic, count(dd.sentiment ) as c , sum (case when dd.sentiment > 0 then 1 else 0 end) as positives, sum (case when dd.sentiment < 0 then 1 else 0 end) as negatives from data_aspect da inner join data_data dd on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where da.topic != '' and """ + get_where_clauses(
+            request, where_clause) + """ group by (da.topic, da."label" ) """ + get_order_by(request, "c",
+                                                                                             "desc") + limit_offset_clause,
+                       query_args)
         rows = cursor.fetchall()
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
@@ -456,7 +492,7 @@ def aspect_topic(request, project_id):
         for row in rows:
             writer.writerow([row[1], row[0], row[3], row[4]])
         return response
-    response={}
+    response = {}
     response["data"] = []
     response["currentPage"] = page
     response["total"] = total
@@ -472,6 +508,7 @@ def aspect_topic(request, project_id):
 
     return JsonResponse(response, safe=False)
 
+
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def sources_languages_per_project(request, project_id):
     """
@@ -479,13 +516,13 @@ def sources_languages_per_project(request, project_id):
     """
     project = data_models.Project.objects.get(pk=project_id)
     languages = list(project.data_set.values_list('language', flat=True).distinct())
-    
+
     all_languages = []
     for l in languages:
         for code, label in settings.LANGUAGES:
             if l == code:
-                all_languages.append({'code':code, 'label':label})
-    
+                all_languages.append({'code': code, 'label': label})
+
     all_languages = sorted(all_languages, key=lambda x: x['label'])
     all_sources = list(data_models.Source.objects.filter(
         pk__in=project.data_set.values_list('source', flat=True).distinct()).values())
@@ -493,7 +530,7 @@ def sources_languages_per_project(request, project_id):
 
     response = {
         "sources": all_sources,
-        "languages":all_languages, 
+        "languages": all_languages,
     }
-    
+
     return JsonResponse(response, safe=False)

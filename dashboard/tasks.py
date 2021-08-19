@@ -1,5 +1,4 @@
 from datetime import datetime
-import requests
 
 from celery.utils.log import get_task_logger
 from dateutil import parser
@@ -8,12 +7,14 @@ from django.contrib.postgres.search import SearchVector
 from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
+import requests
+import cld3
 
 from .celery import app
 from .sms import send_sms
 from .nlp_phrases import nlp_phrase_lookup
 from data import models as data_models
-from data.helpers import get_project_api_key
+from data.helpers import get_project_api_key, get_api_keys
 
 logger = get_task_logger(__name__)
 
@@ -53,13 +54,10 @@ def process_data(kwargs):
     if not kwargs.get('lang'):
         # No language set; use language detection.
         try:
-            resp = requests.post('{HOST}/v4/{APIKEY}/detect-language.json'.format(
-                HOST=settings.API_HOST, APIKEY=apikey), data={'text': kwargs["text"]})
-            kwargs['lang'] = resp.json()['language']
+            prediction = cld3.get_language(kwargs['text'])
+            kwargs['lang'] = prediction.language
         except Exception as e:
-            logger.error("Error detecting language for {}: {}. HOST = {} APIKEY = {}. Response: {}".format(
-                kwargs['text'], e, settings.API_HOST, apikey, resp.content))
-            return
+            logger.error("Error detecting language {}: {}".format(kwargs, e))
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
         HOST=settings.API_HOST, APIKEY=apikey), 
@@ -108,6 +106,11 @@ def process_data(kwargs):
         )
 
         search_text = "{} {}".format(search_text, ent["title"])
+
+        english_title = ent['id'].replace('_', ' ')
+        if english_title != ent['title']:
+            # Store the English too for non-english.
+            search_text = "{} {}".format(search_text, english_title)
 
         for clas in ent['classifications']:
             c_instance, created = data_models.Classification.objects.get_or_create(
@@ -233,13 +236,18 @@ def process_twitter_search(job_id):
     ts = data_models.TwitterSearch.objects.get(pk=job_id)
     ts.status = data_models.TwitterSearch.RUNNING
     ts.save()
+    
+    apikeys = get_api_keys(ts.created_by)
+    if not apikeys.get("apikeys"):
+        logger.error("No API keys found for {}".format(ts.created_by))
+        return
         
-    project, _ = data_models.Project.objects.get_or_create(name=ts.project_name)
+    project = data_models.Project.objects.create(
+        name=ts.project_name,
+        aspect_model=ts.aspect,
+        api_key=apikeys['apikeys'][0]
+    )
     project.users.add(ts.created_by)
-    project.aspect_model = ts.aspect
-    # NOTE: change this to the user's API key when we introduce this feature to
-    # all users.
-    project.api_key = settings.APIKEY
     project.save()
 
     import twint
@@ -265,6 +273,9 @@ def process_twitter_search(job_id):
         )
         
         process_data.delay(post_data)
+    
+    # TODO: Temporary hack until we get a better solution.
+    twint.output.clean_lists()
 
     ts.status = data_models.TwitterSearch.DONE
     ts.save()

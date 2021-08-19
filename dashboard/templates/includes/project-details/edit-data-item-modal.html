@@ -8,24 +8,26 @@
           </button>
         </div>
         <div class="modal-body">
-            <div class="col-12 form-group">
-                <label>Text</label>
-                <textarea rows="3" class="form-control" id="edit-data-item-modal-text" placeholder="Text">
-                </textarea>
-            </div>
-            <div class="col-12 form-group">
-                <label>Sentiment</label>
-                <input type="number" class="form-control" min="-1" max="1" step="0.01" id="edit-data-item-modal-sentiment">
-            </div>
-            <div class="col-12 form-group">
-                <label>Language</label>
-                <select type="dropdown" class="form-control" id="edit-data-item-modal-language">
-                    {% for language in languages %}
-                    <option value="{{language.0}}">{{language.1}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <input type="hidden" id="edit-data-item-modal-id">
+			<div class="modal-data">
+				<div class="col-12 form-group">
+					<label>Text</label>
+					<textarea rows="3" class="form-control" id="edit-data-item-modal-text" placeholder="Text">
+					</textarea>
+				</div>
+				<div class="col-12 form-group">
+					<label>Sentiment</label>
+					<input type="number" class="form-control" min="-1" max="1" step="0.01" id="edit-data-item-modal-sentiment">
+				</div>
+				<div class="col-12 form-group">
+					<label>Language</label>
+					<select type="dropdown" class="form-control" id="edit-data-item-modal-language">
+						{% for language in languages %}
+						<option value="{{language.0}}">{{language.1}}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<input type="hidden" id="edit-data-item-modal-id">
+			</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

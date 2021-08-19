@@ -13,6 +13,7 @@ urlpatterns = [
     path('classification-by-sentiment/<int:project_id>/', data_api_views.classification_by_sentiment),
     path('co-occurence/<int:project_id>/', views.co_occurence),
     path('csv/', data_api_views.csv_upload),
+    path('data-item/', data_api_views.DataItems.as_view(), name='data-items'),
     path('data-item/<int:data_id>/', data_api_views.DataItem.as_view(), name='data-item'),
     path('data-per-aspect-topic/<int:project_id>/', data_api_views.data_per_aspect_topic),
     path('data-per-aspect/<int:project_id>/', data_api_views.data_per_aspect),
@@ -38,6 +39,8 @@ urlpatterns = [
     path('volume-by-source/<int:project_id>/', views.volume_by_source),
     path('user-api-keys/', data_api_views.get_user_api_keys),
     path('export-comments/', data_api_views.export_comments_api),
+    path('update-aspect-rule-weight/<int:aspect_weight_id>/', data_api_views.update_aspect_rule_weight),
+    path('aspect-weight-scoreboard/<int:project_id>/', data_api_views.aspect_weights_scoreboard),
 
     # External API calls.
     path('project/<str:api_key>/', views.project_operations, name='project_operations'),

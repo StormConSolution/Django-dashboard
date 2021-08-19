@@ -14,4 +14,5 @@ export {createGraph as sourceBySentimentGraph} from "./graphs/source-by-sentimen
 export {createGraph as entityBySentimentGraph} from "./graphs/entity-by-sentiment";
 export {createGraph as classificationBySentimentGraph} from "./graphs/classification-by-sentiment";
 export {createGraph as mostCommonChunks} from "./graphs/most-common-chunks";
+export {createGraph as scoreboard} from "./graphs/scoreboard";
 //import './graphs/word-cloud'

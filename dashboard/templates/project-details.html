@@ -48,6 +48,10 @@
                 <li>
                     <a style="cursor:pointer;" class="active" id="overview-tab">Overview</a>
                 </li>
+                {% if project.aspect_model %}
+                <li id="li-scoreboard-tab">
+                </li>
+                {% endif %}
                 <li id="li-aspect-tab">
                 </li>
                 <li id="li-entity-tab">
@@ -98,6 +102,7 @@
        {% include "includes/graphs/entity-by-sentiment.html" %} 
        {% include "includes/graphs/classification-by-sentiment.html" %} 
        {% include "includes/graphs/most-common-chunks.html" %} 
+       {% include "includes/graphs/scoreboard.html" %} 
        
 	   {% include "includes/graphs/map.html" %} 
 	   {% include "includes/tables/stc-tables.html" %} 

@@ -16,7 +16,7 @@ def general_context(request):
     guest_user = request.user.username == "guest@repustate.com"
     
     if request.user.is_authenticated:
-        custom_aspects = data_models.AspectModel.objects.filter(users=request.user).values('id', 'label')
+        custom_aspects = data_models.AspectModel.objects.filter(users=request.user).values('id', 'label', 'language')
         # Fetch my apikeys.
         try:
             apikeys = data_helpers.get_api_keys(request.user)['apikeys']

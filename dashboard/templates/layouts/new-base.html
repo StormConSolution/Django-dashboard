@@ -76,6 +76,11 @@
 		.custom-select {
 			padding-right:2.75rem!important;
 		}
+
+		.per-page .custom-select {
+			margin: 0 5px!important;
+			max-width:100px!important;
+		}
 	</style>
 
     <!-- Bootstrap CSS -->
@@ -116,6 +121,13 @@
 </head>
 
 <body style="position:relative">
+    <div id="loading-screen" class="" style="position:absolute;left: 0;top: 0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none; z-index:1000;">
+        <div class="d-flex vh-100 justify-content-center align-items-center">
+            <div class="spinner-border align-self-center" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
     <header>
         <nav class="navbar navbar-expand-lg navbar-main navbar-light ">
 			{% if CUSTOM_LOGO %}
@@ -236,7 +248,7 @@
                             <select
                                 class="custom-select"
                                 id="csv-upload-select-project"
-                                aria-placeholder="Choose From Existing Aspects"
+                                aria-placeholder="Select Project"
                             >
                                 {% for element in projects_data %}
                                     {% if element.id == project.id %}
@@ -372,10 +384,10 @@
                             <select
                                 class="custom-select"
                                 id="selectaspect"
-                                aria-placeholder="Choose From Existing Aspects"
+                                aria-placeholder="Choose From Existing Aspect Models"
                                 name="aspect-id"
                             >
-                                <option value="-1">Choose From Existing Aspects</option>
+                                <option value="-1">Choose From Existing Aspect Models</option>
                                 <optgroup label="Standard Aspect Models">
                                     {% for aspect in STANDARD_ASPECT_MODELS %}
 										<option value="{{aspect.id}}">{{aspect.label}}</option>
@@ -383,7 +395,7 @@
                                 </optgroup>
                                 <optgroup label="Custom Aspect Models">
                                     {% for aspect in CUSTOM_ASPECT_MODELS %}
-										<option value="{{aspect.id}}">{{aspect.label}}</option>
+									<option value="{{aspect.id}}">{{aspect.label}} ({{ aspect.language }})</option>
                                     {% endfor %}
                                 </optgroup>
                             </select>
@@ -663,7 +675,7 @@
 					`
 				});
 				$('#languages-export').multiselect('destroy');
-				$('#languages-export').multiselect({includeSelectAllOption: true, maxHeight:400});
+				$('#languages-export').multiselect({includeSelectAllOption: true, buttonWidth:'100%', maxHeight:400});
 
 				let sourceChoice = document.getElementById('sources-export');
 				sourceChoice.innerHTML = '<option value="multiselect-all">Select all</option>';
@@ -673,7 +685,7 @@
 					`
 				})
 				$('#sources-export').multiselect('destroy');
-				$('#sources-export').multiselect({includeSelectAllOption: true, maxHeight:400});
+				$('#sources-export').multiselect({includeSelectAllOption: true, buttonWidth:'100%', maxHeight:400});
 			})
 		});
 

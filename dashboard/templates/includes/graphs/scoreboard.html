@@ -1,0 +1,29 @@
+{% load data_filters %}
+
+<div class="col-12 project-card h-100" data-role="graph-table-container" data-graph-table="scoreboard">
+    <div class="project-card-inner">
+      <div class="chart-title  align-items-center d-flex flex-wrap">
+        <h4>Scoreboard</h4>
+      </div>
+      <div class="chart-wrap">
+        <div id="scoreboard" class="row" >
+            <div class="col-6">
+				<h5>Score {{ "This score is a composite score based on the % positive sentiment for each aspect multiplied by the weighting for each aspect "|tooltip }}</h5>
+                <div class="col-12 d-flex flex-column h-100" >
+                    <div class="row mt-5 d-flex justify-content-center">
+                        <h3 id="scoreboard-score" style="font-size:6.5rem!important;"></h3>
+                    </div>
+                    <div class="row align-self-center mb-1">
+                        <p id="scoreboard-max-score"></p>
+                    </div>
+                </div>
+            
+            </div>
+            <div class="col-6">
+                <h5>Weights {{ "Each aspect has a weighting out of 10 which indicates how much it contributes to the final score"|tooltip }}</h5>
+                <div class="col-12" id="scoreboard-weight"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>

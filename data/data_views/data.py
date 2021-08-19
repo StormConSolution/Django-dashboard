@@ -1,5 +1,3 @@
-import csv
-import math
 from urllib import parse
 
 from django.conf import settings
@@ -12,6 +10,7 @@ from django.shortcuts import get_object_or_404
 import data.models as data_models
 from data.helpers import get_where_clauses, get_order_by
 from data.serialize import serialize_rows
+
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def data(request, project_id):
@@ -43,7 +42,7 @@ def data(request, project_id):
         where_clause.append("dd.sentiment < 0")
     if sentiment == "neutral":
         where_clause.append("dd.sentiment = 0")
-    
+
     response_format = request.GET.get("format", "")
     query_args = [
         project_id
@@ -57,27 +56,30 @@ def data(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                with counts as ( SELECT keyword, ct::int from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clause) + """order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""", query_args)
+                with counts as ( SELECT "keyword", ct::int from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(
+                request,
+                where_clause) + "order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50",
+                           query_args)
             rows = cursor.fetchall()
             response = []
             for row in rows:
                 response.append({
-                    'keyword':row[0],
-                    'keywordCount':row[1],
+                    'keyword': row[0],
+                    'keywordCount': row[1],
                 })
             return JsonResponse(response, safe=False)
 
     with connection.cursor() as cursor:
         cursor.execute("""
-        select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """  
-            + get_where_clauses(request, where_clause), [project_id])
+        select count(*) from data_data dd inner join data_source ds on ds.id = dd.source_id where """
+                       + get_where_clauses(request, where_clause), [project_id])
         row = cursor.fetchone()
     total_data = int(row[0])
 
     sql_query = """
     select dd.date_created, dd."text" , dd."url", ds."label", dd.sentiment , dd."language", dd.id
     from data_data dd inner join data_source ds on dd.source_id = ds.id
-    where """  + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
+    where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
     return serialize_rows(
         request,
         project_id,
