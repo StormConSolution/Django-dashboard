@@ -46,7 +46,7 @@ def serialize_rows(
         response["totalPages"] = total_pages
         response["pageSize"] = page_size
         response.update(extra_context)
-        
+
         for row in rows:
             response["data"].append({
                 "dateCreated": row[0],
