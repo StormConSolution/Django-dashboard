@@ -35,7 +35,7 @@ class AspectModel(models.Model):
     api_key = models.CharField(blank=False, max_length=80)
 
     def __str__(self):
-        return self.label
+        return '{} ({})'.format(self.label, self.language)
 
     class Meta:
         ordering = ('label',)
