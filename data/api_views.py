@@ -140,11 +140,11 @@ def data_operations(request, api_key, project_id):
 
         query = {'project': project_id}
 
-        if request.GET.get('date-from'):
-            query['date_created__gte'] = request.GET['date-from']
+        if request.GET.get('date_from'):
+            query['date_created__gte'] = request.GET['date_from']
 
-        if request.GET.get('date-to'):
-            query['date_created__lte'] = request.GET['date-to']
+        if request.GET.get('date_to'):
+            query['date_created__lte'] = request.GET['date_to']
 
         if request.GET.get("metadata_key"):
             key = request.GET['metadata_key']
@@ -327,8 +327,8 @@ def co_occurence(request, project_id):
     if data_models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
 
-    start = request.GET.get("date-from")
-    end = request.GET.get("date-to")
+    start = request.GET.get("date_from")
+    end = request.GET.get("date_to")
     if not start or not end:
         end = this_project.data_set.latest().date_created
         start = end - datetime.timedelta(days=30)
