@@ -32,7 +32,7 @@ def validate_api_call(api_key, project_id):
     # Make sure apikey is valid for project.
     try:
         p = data_models.Project.objects.get(pk=project_id)
-    except Project.DoesNotExist as e:
+    except data_models.Project.DoesNotExist as e:
         return False, JsonResponse({
             "status": "Fail",
             "title": "Permission denied",
