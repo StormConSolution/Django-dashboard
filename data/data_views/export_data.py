@@ -16,8 +16,8 @@ def export_data(request):
     if project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
     
-    date_from = request.GET.get("date-from")
-    date_to = request.GET.get("date-to")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
     
     languages = request.GET.getlist("languages[]")
     sources = request.GET.getlist("sources[]")

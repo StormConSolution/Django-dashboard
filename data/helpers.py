@@ -10,8 +10,8 @@ from data.models import Project
 
 
 def get_filters_sql(request):
-    dateFrom = request.GET.get("date-from")
-    dateTo = request.GET.get("date-to")
+    dateFrom = request.GET.get("date_from")
+    dateTo = request.GET.get("date_to")
     if not dateFrom:
         dateFrom = ""
     if not dateTo:
@@ -31,8 +31,8 @@ def get_filters_sql(request):
 
 def get_filters_sql2(request):
     where_clauses = []
-    date_from = request.GET.get("date-from")
-    date_to = request.GET.get("date-to")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
     languages = parse.unquote(request.GET.get("languages", "")).split(",")
     # sources = parse.unquote(request.GET.get("sources", "")).split(",")
     sources_id = request.GET.get("sourcesID", "").split(",")

@@ -22,7 +22,7 @@ MAX_PAGE_SIZE = 100
 
 
 def pagination_details(request):
-    page_size = request.GET.get("page-size") or 10
+    page_size = request.GET.get("page_size") or 10
     page = request.GET.get("page") or 1
 
     return int(page), int(page_size)

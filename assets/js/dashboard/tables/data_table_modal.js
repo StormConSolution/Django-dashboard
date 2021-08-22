@@ -14,7 +14,7 @@ export function createTable(page, options){
     let pageSize = document.getElementById("data-table-modal-page-size").value
     //document.getElementById("data-modal-table-csv").href = options.wordCloudURL
     document.getElementById("data-modal-table-csv").href = options.csvURL
-    fetch(options.dataURL + `&page-size=${pageSize}&page=${page}` + "&" + orderFilters(table))
+    fetch(options.dataURL + `&page_size=${pageSize}&page=${page}` + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
         for (let element of data.data) {

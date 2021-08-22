@@ -38,7 +38,6 @@ export function getMetadataFilters(){
 export function convertFiltersToURL(filters){
     let aux = {}
     for(let key in filters){
-        
         aux[encodeURIComponent(key)] = encodeURIComponent(filters[key])
     }
     let URLParams = new URLSearchParams(aux)
@@ -56,10 +55,10 @@ export function normalFiltersURL(){
     for(let key in filters){
         switch(key){
             case "dateFrom":
-                aux["date-from"] = filters[key]
+                aux["date_from"] = filters[key]
                 break
             case "dateTo":
-                aux["date-to"] = filters[key]
+                aux["date_to"] = filters[key]
                 break
             case "languages":
                 aux["languages"] = filters[key]
