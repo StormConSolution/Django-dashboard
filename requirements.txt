@@ -111,3 +111,4 @@ webencodings==0.5.1
 whitenoise==5.1.0
 -e git://github.com/twintproject/twint.git@origin/master#egg=twint
 pycld3
+exportcomments
