@@ -14,7 +14,7 @@ PROJECT_DIR = Path(__file__).parent
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_NAME = "dashboard_sessionid"
-# load production server from .env
+
 ALLOWED_HOSTS = ['*']
 
 ADMINS = (
