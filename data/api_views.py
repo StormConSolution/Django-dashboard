@@ -48,6 +48,44 @@ def validate_api_call(api_key, project_id):
 
     return True, None
 
+@csrf_exempt
+def project_operations_with_header(request):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return project_operations(request, api_key)
+
+@csrf_exempt
+def data_operations_with_header(request, project_id):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return data_operations(request, api_key, project_id)
+
+@csrf_exempt
+def metadata_with_header(request, project_id):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return metadata(request, api_key, project_id)
 
 @csrf_exempt
 def project_operations(request, api_key):
