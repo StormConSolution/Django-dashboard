@@ -287,9 +287,11 @@ class TwitterSearch(models.Model):
     class Meta:
         verbose_name_plural = 'Twitter Searches'
 
+
 class ExportComments(models.Model):
 
     guid = models.CharField(max_length=128)
+    date = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     source = models.ForeignKey(Source, on_delete=models.CASCADE, default=False)
     url = models.URLField(blank=True, null=True, db_index=True)
@@ -301,6 +303,7 @@ class ExportComments(models.Model):
 
     def __str__(self):
         return self.guid
+
 
 class AspectWeight(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

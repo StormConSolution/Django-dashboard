@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 	<title>Repustate IQ | {% block title %}Home{% endblock %}</title>
-	 
+
 	<style>
 		.wrapper {
 		  height: 100vh;
@@ -141,7 +141,7 @@
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <i class="fe fe-menu"></i>
             </button>
-      
+
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
@@ -183,11 +183,12 @@
                     </span>
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="https://repustate.com/payment/myaccount/"><i class="fe fe-user"></i> My Account</a>
+                    <a class="dropdown-item" href="https://repustate.com/payment/myaccount/"><i class="fe fe-user"></i>My Account</a>
                     {% if user.is_staff %}
                     <a class="dropdown-item" href="/admin/"><i class="fe fe-user"></i>Admin</a>
                     {% endif %}
-					<a class="dropdown-item" href="{% url 'support' %}"><i class="fe fe-at-sign"></i>Support</a>
+                    <a class="dropdown-item" href="{% url 'transactions' %}"><i class="fe fe-clipboard"></i>Transactions</a>
+                    <a class="dropdown-item" href="{% url 'support' %}"><i class="fe fe-at-sign"></i>Support</a>
                     <a class="dropdown-item" href="/logout/"><i class="fe fe-log-out"></i> Logout</a>
                   </div>
                 </div>
@@ -276,7 +277,7 @@
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 
 <script>
-	// Set a global variable for the api host.	
+	// Set a global variable for the api host.
 	window.apiHostName = "{{ API_HOST }}";
 
     document.querySelector("#csvbox-button").addEventListener("click", () => {
@@ -286,11 +287,11 @@
             type: "imports",
             fields: [
                 {key: "text", label: "Text (required)", validators:[{validate:"required"}]},
-				{key: "lang", label: "Language (optional)", 
-					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]}, 
+				{key: "lang", label: "Language (optional)",
+					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]},
                 {key: "date", label: "Date (optional)",
-						validators:[{validate:"regex_matches", 
-								     regex:'^[ -~]+$', 
+						validators:[{validate:"regex_matches",
+								     regex:'^[ -~]+$',
 								     error:"Dates must only contain English letters and numbers"}]},
                 {key: "url", label: "URL (optional)"},
                 {key: "source", label: "Source (optional)"},
@@ -306,13 +307,13 @@
             {% endif %}
         });
         importer.setCustomer({userId: projectId});
-        importer.requestDataFromUser().then(function(results) { 
+        importer.requestDataFromUser().then(function(results) {
             //console.log(results.headersMatched)
             let data = results.allData
             let headers = []
             let headerObject = {}
             for(let element of results.headersMatched){
-                headerObject[element.matched_key] = element.matched_key 
+                headerObject[element.matched_key] = element.matched_key
             }
             headers.push(headerObject)
             data = headers.concat(data)
@@ -399,7 +400,7 @@
                                     {% endfor %}
                                 </optgroup>
                             </select>
-   
+
                             <small
                                 id="emailHelp"
                                 class="form-text extra-text text-right"
@@ -442,7 +443,7 @@
           </button>
         </div>
         <div class="modal-body">
-          
+
           <div class="modal-data">
               <form id="export-form" method="GET" action="/api/export-data/" target="_blank">
                 <div class="form-group">
@@ -457,13 +458,13 @@
 				<div class="form-row">
 					<div class="form-group col-6">
 					  <label for="chosedate" class="form-label">From</label>
-					  <div >  
+					  <div >
 						<input type="date" class="form-control" name="date-from" placeholder="Choose Date">
 					  </div>
 					</div>
 					<div class="form-group col-6">
 					  <label for="chosedate" class="form-label">To</label>
-					  <div >  
+					  <div >
 						<input type="date" class="form-control" name="date-to" placeholder="Choose Date">
 					  </div>
 					</div>
@@ -562,7 +563,7 @@
           </button>
         </div>
         <div class="modal-body">
-          
+
           <div class="modal-data">
               <div>This account is read mode only</div>
           </div>
@@ -604,14 +605,14 @@
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
-        </div> 
+        </div>
        {% endif %}
     {% endfor %}
 {% endif %}
 
     {% block content %}
     {% endblock %}
- 
+
   <script>
     // if IE, add IE tagify's polyfills
     !function( d ) {

@@ -48,4 +48,5 @@ dashboard/static/assets/js/entity-guest.js
 .env
 firebase-credentials.json
 
+database-backup/
 data.csv
