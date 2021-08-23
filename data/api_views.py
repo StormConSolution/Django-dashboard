@@ -129,7 +129,13 @@ def data_operations(request, api_key, project_id):
             task_argument[key] = request.POST.get(key, '')
 
         if 'metadata' in request.POST:
-            task_argument['metadata'] = json.loads(request.POST['metadata'])
+            try:
+                task_argument['metadata'] = json.loads(request.POST['metadata'])
+            except Exception as e:
+                return JsonResponse({
+                    "status": "Fail", 
+                    "title":"Improperly formatted metadata", 
+                    "description":"Your metadata was not valid JSON"})
 
         process_data.delay(task_argument)
         return JsonResponse({"status": "OK"})
@@ -139,6 +145,10 @@ def data_operations(request, api_key, project_id):
         page_size = min(page_size, MAX_PAGE_SIZE)
 
         query = {'project': project_id}
+        
+        has_permission, error = validate_api_call(api_key, project_id)
+        if not has_permission:
+            return error
 
         if request.GET.get('date_from'):
             query['date_created__gte'] = request.GET['date_from']
@@ -191,8 +201,10 @@ def data_operations(request, api_key, project_id):
                 })
 
             json_data['data'].append(d)
-
+        
         return JsonResponse(json_data)
+    
+    return HttpResponse(status=405)
 
 
 @csrf_exempt
