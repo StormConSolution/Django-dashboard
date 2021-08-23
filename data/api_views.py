@@ -130,6 +130,7 @@ def project_operations(request, api_key):
 
         return JsonResponse({"status": "OK", "projects": projects})
 
+    return HttpResponse(status=405)
 
 @csrf_exempt
 def data_operations(request, api_key, project_id):
