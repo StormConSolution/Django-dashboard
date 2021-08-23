@@ -7,6 +7,17 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.postgres.search import SearchVectorField
 
+NOT_RUNNING = 0
+RUNNING = 1
+ERROR = 2
+DONE = 3
+
+STATUSES = (
+    (NOT_RUNNING, 'Not Running'),
+    (RUNNING, 'Running'),
+    (ERROR, 'Error'),
+    (DONE, 'Done'),
+)
 
 class Sentiment(models.Model):
     label = models.CharField(max_length=80)
@@ -254,17 +265,6 @@ class Aspect(models.Model):
 
 
 class TwitterSearch(models.Model):
-    NOT_RUNNING = 0
-    RUNNING = 1
-    ERROR = 2
-    DONE = 3
-
-    STATUSES = (
-        (NOT_RUNNING, 'Not Running'),
-        (RUNNING, 'Running'),
-        (ERROR, 'Error'),
-        (DONE, 'Done'),
-    )
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -286,6 +286,23 @@ class TwitterSearch(models.Model):
 
     class Meta:
         verbose_name_plural = 'Twitter Searches'
+
+
+class ExportComments(models.Model):
+
+    guid = models.CharField(max_length=128)
+    date = models.DateTimeField(auto_now_add=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Source, on_delete=models.CASCADE, default=False)
+    url = models.URLField(blank=True, null=True, db_index=True)
+    status = models.IntegerField(choices=STATUSES, default=NOT_RUNNING)
+    total = models.IntegerField(default=0)
+    
+    class Meta:
+        verbose_name_plural = 'Export Comments'
+
+    def __str__(self):
+        return self.guid
 
 
 class AspectWeight(models.Model):

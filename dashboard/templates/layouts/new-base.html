@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 	<title>Repustate IQ | {% block title %}Home{% endblock %}</title>
-	 
+
 	<style>
 		.wrapper {
 		  height: 100vh;
@@ -141,13 +141,16 @@
               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <i class="fe fe-menu"></i>
             </button>
-      
+
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                         <a class="nav-link" href="#" data-toggle="modal" id="open-create-project-modal" > <i class="fe fe-plus"></i> Project</a>
                 </li>
 				{% if not GUEST_USER %}
+				<li class="nav-item">
+                  <a class="nav-link" href="#" data-toggle="modal" data-target="#export-comments-modal"> <i class="fe fe-activity"></i>Fetch</a>
+                </li>
 				<li class="nav-item">
                   <a class="nav-link" href="#" data-toggle="modal" data-target="#uploaddata"> <i class="fe fe-upload"></i> Upload</a>
                 </li>
@@ -180,11 +183,12 @@
                     </span>
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="https://repustate.com/payment/myaccount/"><i class="fe fe-user"></i> My Account</a>
+                    <a class="dropdown-item" href="https://repustate.com/payment/myaccount/"><i class="fe fe-user"></i>My Account</a>
                     {% if user.is_staff %}
                     <a class="dropdown-item" href="/admin/"><i class="fe fe-user"></i>Admin</a>
                     {% endif %}
-					<a class="dropdown-item" href="{% url 'support' %}"><i class="fe fe-at-sign"></i>Support</a>
+                    <a class="dropdown-item" href="{% url 'transactions' %}"><i class="fe fe-clipboard"></i>Transactions</a>
+                    <a class="dropdown-item" href="{% url 'support' %}"><i class="fe fe-at-sign"></i>Support</a>
                     <a class="dropdown-item" href="/logout/"><i class="fe fe-log-out"></i> Logout</a>
                   </div>
                 </div>
@@ -197,6 +201,7 @@
 			{% endif %}
         </nav>
     </header>
+
     <div class="sidebar">
         <a href="#" id="sidemenu">
             <i class="fe fe-menu"></i>
@@ -272,7 +277,7 @@
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 
 <script>
-	// Set a global variable for the api host.	
+	// Set a global variable for the api host.
 	window.apiHostName = "{{ API_HOST }}";
 
     document.querySelector("#csvbox-button").addEventListener("click", () => {
@@ -282,11 +287,11 @@
             type: "imports",
             fields: [
                 {key: "text", label: "Text (required)", validators:[{validate:"required"}]},
-				{key: "lang", label: "Language (optional)", 
-					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]}, 
+				{key: "lang", label: "Language (optional)",
+					validators:[{validate:"regex_matches", regex:'^(?:{{ LANGUAGE_CODES }})$'}]},
                 {key: "date", label: "Date (optional)",
-						validators:[{validate:"regex_matches", 
-								     regex:'^[ -~]+$', 
+						validators:[{validate:"regex_matches",
+								     regex:'^[ -~]+$',
 								     error:"Dates must only contain English letters and numbers"}]},
                 {key: "url", label: "URL (optional)"},
                 {key: "source", label: "Source (optional)"},
@@ -302,13 +307,13 @@
             {% endif %}
         });
         importer.setCustomer({userId: projectId});
-        importer.requestDataFromUser().then(function(results) { 
+        importer.requestDataFromUser().then(function(results) {
             //console.log(results.headersMatched)
             let data = results.allData
             let headers = []
             let headerObject = {}
             for(let element of results.headersMatched){
-                headerObject[element.matched_key] = element.matched_key 
+                headerObject[element.matched_key] = element.matched_key
             }
             headers.push(headerObject)
             data = headers.concat(data)
@@ -395,7 +400,7 @@
                                     {% endfor %}
                                 </optgroup>
                             </select>
-   
+
                             <small
                                 id="emailHelp"
                                 class="form-text extra-text text-right"
@@ -438,7 +443,7 @@
           </button>
         </div>
         <div class="modal-body">
-          
+
           <div class="modal-data">
               <form id="export-form" method="GET" action="/api/export-data/" target="_blank">
                 <div class="form-group">
@@ -453,7 +458,7 @@
 				<div class="form-row">
 					<div class="form-group col-6">
 					  <label for="chosedate" class="form-label">From</label>
-					  <div >  
+					  <div>  
 						<input type="date" class="form-control" name="date_from" placeholder="Choose Date">
 					  </div>
 					</div>
@@ -489,8 +494,63 @@
       </div>
     </div>
   </div>
-<!-- create-project modal End -->
 
+<div class="modal fade show" id="export-comments-modal" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportdataLabel">Fetch Social Data</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="fe fe-x-circle"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+			<div class="modal-data">
+				<form action="{% url 'export-comments' %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="selectaspect1" class="form-label" >Project</label>
+						<select
+							class="custom-select"
+							name="project-id"
+						>
+							{% for element in projects_data %}
+								{% if element.id == project.id %}
+								<option value="{{element.id}}" selected>{{element.name}}</option>
+								{% else %}
+								<option value="{{element.id}}">{{element.name}}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Source:</label>
+                        <select
+                        class="custom-select"
+                        id="export-comments-source"
+                        name="export-comments-source"
+                    >
+							<option value="" data-placeholder="Select a source first">-- choose a source --</option>
+                            <option value="Facebook Comments" data-placeholder="https://www.facebook.com/photo.php?fbid=123456789">Facebook Comments</option>
+                            <option value="Instagram Comments" data-placeholder="https://www.instagram.com/p/123456/">Instagram Comments</option>
+                            <option value="TikTok Comments" data-placeholder="https://www.tiktok.com/@user/video/123456789">TikTok Comments</option>
+							<option value="Vimeo Comments" data-placeholder="https://vimeo.com/12356789">Vimeo Comments</option>
+                            <option value="YouTube Comments" data-placeholder="https://youtu.be/123456">YouTube Comments</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">URL:</label>
+						<input type="text" class="form-control" name="export-comments-url" id="export-comments-url" placeholder="https://youtu.be/123456">
+					</div>
+					<div class="form-group">
+						<input type="submit" class="btn btn-primary" value="Fetch">
+					</div>
+				</form>
+			</div>
+        </div>
+      </div>
+    </div>
+</div>
 
 <!-- Guest modal message -->
 <div class="modal fade show" id="guest-modal-message" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
@@ -503,14 +563,14 @@
           </button>
         </div>
         <div class="modal-body">
-          
+
           <div class="modal-data">
               <div>This account is read mode only</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+</div>
 <!-- Guest message modal end -->
 
     <!-- js -->
@@ -537,9 +597,22 @@
             }
         })(document);
     </script>
+{% if messages %}
+   {% for message in messages %}
+	   {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert  alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+       {% endif %}
+    {% endfor %}
+{% endif %}
+
     {% block content %}
     {% endblock %}
- 
+
   <script>
     // if IE, add IE tagify's polyfills
     !function( d ) {
