@@ -93,7 +93,6 @@ def most_common_chunks(request, project_id):
                 break
 
         if not merged:
-            print("appending", t)
             merged_chunks.append(t)
     
     # Now remove any that are not valid, sort again by count and return that

@@ -24,7 +24,7 @@ function makeTable(page){
     let urlParams = metadataFiltersURL() + "&" + normalFiltersURL()
 
     document.getElementById("aspect-topic-table-csv").href= `/api/aspect-topic/project/${window.project_id}/?format=csv&` + urlParams
-    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams + "&" + orderFilters(table))
+    fetch(`/api/aspect-topic/project/${window.project_id}/?page=${page}&page_size=${pageSize}&` + urlParams + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
         content.innerHTML = ""

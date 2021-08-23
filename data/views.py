@@ -346,7 +346,7 @@ class AspectsList(View):
     @method_decorator(login_required)
     def get(self, request):
         page_number = int(request.GET.get("page", 1))
-        page_size = int(request.GET.get("page-size", 10))
+        page_size = int(request.GET.get("page_size", 10))
         user = request.user
         aspect_list = data_models.AspectModel.objects.filter(users=user).order_by("label", "id")
         
@@ -574,7 +574,7 @@ class EntitiesList(View):
         context = {}
         
         page_number = int(request.GET.get("page", 1))
-        page_size = int(request.GET.get("page-size", 10))
+        page_size = int(request.GET.get("page_size", 10))
         p = Paginator(entity_list, page_size)
         page = p.page(page_number)
        
@@ -697,7 +697,7 @@ class SentimentList(View):
     @method_decorator(login_required)
     def get(self, request):
         page_number = int(request.GET.get("page", 1))
-        page_size = int(request.GET.get("page-size", 10))
+        page_size = int(request.GET.get("page_size", 10))
         user = request.user
         sentiment_list = data_models.Sentiment.objects.filter(users=user).order_by('-id')
         context = {}

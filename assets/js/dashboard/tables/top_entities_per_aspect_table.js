@@ -45,7 +45,7 @@ export function createTable(page){
     
         let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
         document.getElementById("top-entities-per-aspect-table-csv").href = `/api/entity-classification-count/${window.project_id}/?format=csv&aspect-label${aspectLabel}&` + urlParams
-        fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams + "&" + orderFilters(table))
+        fetch(`/api/entity-classification-count/${window.project_id}/?page=${page}&page_size=${pageSize}&` + urlParams + "&" + orderFilters(table))
         .then((response) => response.json())
         .then((data) => {
             content.innerHTML = ""

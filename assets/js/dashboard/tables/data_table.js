@@ -11,7 +11,7 @@ export function createTable(page){
     let pageSize = document.getElementById("data-table-page-size").value
     let urlParams = metadataFiltersURL()+ "&" + normalFiltersURL()
     document.getElementById("data-items-table-csv").href = `/api/new-data/project/${window.project_id}/?format=csv&` + urlParams
-    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page-size=${pageSize}&` + urlParams)
+    fetch(`/api/new-data/project/${window.project_id}/?page=${page}&page_size=${pageSize}&` + urlParams)
     .then((response) => response.json())
     .then((data) => {
         content.innerHTML = "";

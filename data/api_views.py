@@ -22,7 +22,7 @@ MAX_PAGE_SIZE = 100
 
 
 def pagination_details(request):
-    page_size = request.GET.get("page-size") or 10
+    page_size = request.GET.get("page_size") or 10
     page = request.GET.get("page") or 1
 
     return int(page), int(page_size)
@@ -32,7 +32,7 @@ def validate_api_call(api_key, project_id):
     # Make sure apikey is valid for project.
     try:
         p = data_models.Project.objects.get(pk=project_id)
-    except Project.DoesNotExist as e:
+    except data_models.Project.DoesNotExist as e:
         return False, JsonResponse({
             "status": "Fail",
             "title": "Permission denied",
@@ -48,6 +48,44 @@ def validate_api_call(api_key, project_id):
 
     return True, None
 
+@csrf_exempt
+def project_operations_with_header(request):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return project_operations(request, api_key)
+
+@csrf_exempt
+def data_operations_with_header(request, project_id):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return data_operations(request, api_key, project_id)
+
+@csrf_exempt
+def metadata_with_header(request, project_id):
+
+    api_key = request.META.get('HTTP_X_API_KEY')
+    if not api_key:
+        return JsonResponse({
+            "status": "Fail",
+            "title": "Bad Request",
+            "description": "Missing x-api-key header"
+        })
+    
+    return metadata(request, api_key, project_id)
 
 @csrf_exempt
 def project_operations(request, api_key):
@@ -92,6 +130,7 @@ def project_operations(request, api_key):
 
         return JsonResponse({"status": "OK", "projects": projects})
 
+    return HttpResponse(status=405)
 
 @csrf_exempt
 def data_operations(request, api_key, project_id):
@@ -129,7 +168,13 @@ def data_operations(request, api_key, project_id):
             task_argument[key] = request.POST.get(key, '')
 
         if 'metadata' in request.POST:
-            task_argument['metadata'] = json.loads(request.POST['metadata'])
+            try:
+                task_argument['metadata'] = json.loads(request.POST['metadata'])
+            except Exception as e:
+                return JsonResponse({
+                    "status": "Fail", 
+                    "title":"Improperly formatted metadata", 
+                    "description":"Your metadata was not valid JSON"})
 
         process_data.delay(task_argument)
         return JsonResponse({"status": "OK"})
@@ -139,12 +184,16 @@ def data_operations(request, api_key, project_id):
         page_size = min(page_size, MAX_PAGE_SIZE)
 
         query = {'project': project_id}
+        
+        has_permission, error = validate_api_call(api_key, project_id)
+        if not has_permission:
+            return error
 
-        if request.GET.get('date-from'):
-            query['date_created__gte'] = request.GET['date-from']
+        if request.GET.get('date_from'):
+            query['date_created__gte'] = request.GET['date_from']
 
-        if request.GET.get('date-to'):
-            query['date_created__lte'] = request.GET['date-to']
+        if request.GET.get('date_to'):
+            query['date_created__lte'] = request.GET['date_to']
 
         if request.GET.get("metadata_key"):
             key = request.GET['metadata_key']
@@ -191,8 +240,10 @@ def data_operations(request, api_key, project_id):
                 })
 
             json_data['data'].append(d)
-
+        
         return JsonResponse(json_data)
+    
+    return HttpResponse(status=405)
 
 
 @csrf_exempt
@@ -327,8 +378,8 @@ def co_occurence(request, project_id):
     if data_models.Data.objects.filter(project_id=project_id).count() == 0:
         return JsonResponse({}, safe=False)
 
-    start = request.GET.get("date-from")
-    end = request.GET.get("date-to")
+    start = request.GET.get("date_from")
+    end = request.GET.get("date_to")
     if not start or not end:
         end = this_project.data_set.latest().date_created
         start = end - datetime.timedelta(days=30)

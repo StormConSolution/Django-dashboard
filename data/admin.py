@@ -2,6 +2,7 @@
 import datetime
 
 from django.contrib import admin
+from django.contrib import messages
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -49,7 +50,26 @@ def export_selected_objects(modeladmin, request, queryset):
 export_selected_objects.short_description = 'Export search results'
 admin.site.add_action(export_selected_objects)
 
+def make_positive(modeladmin, request, queryset):
+    """
+    Set sentiment to positive.
+    """
+    queryset.update(sentiment=0.775)
+    Aspect.objects.filter(data__in=queryset, sentiment__lt=0).update(sentiment=0.755)
+    
+    messages.add_message(request, messages.SUCCESS, 'Positive sentiment has been set.')
+
+def make_negative(modeladmin, request, queryset):
+    """
+    Set sentiment to negative.
+    """
+    queryset.update(sentiment=-0.775)
+    Aspect.objects.filter(data__in=queryset, sentiment__gt=0).update(sentiment=-0.755)
+
+    messages.add_message(request, messages.SUCCESS, 'Negative sentiment has been set.')
+
 class DataAdmin(admin.ModelAdmin):
+    actions = (make_positive, make_negative,)
     list_display = ('date_created', 'project', 'text', 'source', 'language', 'sentiment')
     list_filter = ('project', 'language', 'project__aspect_model')
     raw_id_fields = ('project',)

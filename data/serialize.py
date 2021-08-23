@@ -14,7 +14,7 @@ def serialize_rows(
         filename,
         **extra_context):
     
-    page_size = int(request.GET.get("page-size", 10))
+    page_size = int(request.GET.get("page_size", 10))
     page = int(request.GET.get("page", 1))
     offset = (page - 1) * page_size
     total_pages = math.ceil(total_data / page_size)
@@ -46,7 +46,7 @@ def serialize_rows(
         response["totalPages"] = total_pages
         response["pageSize"] = page_size
         response.update(extra_context)
-        
+
         for row in rows:
             response["data"].append({
                 "dateCreated": row[0],

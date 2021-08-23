@@ -43,6 +43,13 @@ urlpatterns = [
     path('aspect-weight-scoreboard/<int:project_id>/', data_views.aspect_weights_scoreboard),
 
     # External API calls.
+
+    # Version without API key in the URL, but assumed to be in the header.
+    path('project/', views.project_operations_with_header),
+    path('data/<int:project_id>/', views.data_operations_with_header),
+    path('metadata/<int:project_id>/', views.metadata_with_header),
+
+    # Versions where API key in the URL already.
     path('project/<str:api_key>/', views.project_operations, name='project_operations'),
     path('data/<str:api_key>/<int:project_id>/', views.data_operations, name='data_operations'),
     path('metadata/<str:api_key>/<int:project_id>/', views.metadata),
