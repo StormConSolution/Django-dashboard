@@ -23,13 +23,14 @@ def export_comments_api(request):
     body_unicode = request.body.decode('utf-8')
     export_request = json.loads(body_unicode)
     guid = export_request["guid"]
+    
     if export_request["status"] == "done":
         project = data_models.Project.objects.get(exportcomments__guid=guid)
         source = data_models.Source.objects.get(exportcomments__guid=guid)
-        export_comment = data_models.ExportComments.objects.get(guid=guid)
-        export_comment.status = data_models.DONE
-        export_comment.save()
-
+        e = data_models.ExportComments.objects.get(guid=guid)
+        e.status = data_models.DONE
+        e.total = export_request["total_exported"]
+        e.save()
 
         ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
         export = ex.exports.check(guid).body
@@ -40,6 +41,7 @@ def export_comments_api(request):
         task_arguments = func(response, project.id, source.label)
         for task_argument in task_arguments:
             process_data.delay(task_argument)
+
     elif export_request["status"] == "error":
         export_comment = data_models.objects.get(guid=guid)
         export_comment.status = data_models.ExportComments.ERROR

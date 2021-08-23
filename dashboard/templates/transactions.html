@@ -41,21 +41,19 @@
                                 <th scope="col" class="text-center">
                                     Status
                                 </th>
+                                <th scope="col" class="text-center">
+                                    Total
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for export_comments in export_comments_list %}
                             <tr>
-                                <td>{{export_comments.date}}</td>
-
-                                <td>
-                                    {{export_comments.source.label}}
-                                </td>
-
-                                <td class="text-center">{{export_comments.url}}</td>
-                                <td class="text-center">
-                                    {{export_comments.get_status_display}}
-                                </td>
+                                <td>{{ export_comments.date }}</td>
+                                <td>{{ export_comments.source.label }}</td>
+                                <td class="text-center">{{ export_comments.url }}</td>
+                                <td class="text-center">{{ export_comments.get_status_display }}</td>
+                                <td class="text-center">{{ export_comments.total }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
