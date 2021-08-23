@@ -27,6 +27,7 @@ from .sentiment_trend import sentiment_trend
 from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .update_aspect_rule_weight import update_aspect_rule_weight
+from .transactions import transactions
 
 __all__ = [
     'aspect_count',
@@ -58,4 +59,5 @@ __all__ = [
     'update_aspect_rule_weight',
     'aspect_weights_scoreboard',
     'DataItems',
+    'transactions',
 ]

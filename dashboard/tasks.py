@@ -62,7 +62,7 @@ def process_data(kwargs):
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
         HOST=settings.API_HOST, APIKEY=apikey), 
         data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
-    
+
     if 'score' not in resp:
         logger.error("Error processing {}: {}".format(kwargs, resp))
         return

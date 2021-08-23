@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'authentication',  # Enable the inner app
     "customize",
     "markdownify",
-    #'debug_toolbar',
+    # 'debug_toolbar',
     'django_celery_results',
 ]
 
@@ -57,14 +57,14 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 ROOT_URLCONF = 'dashboard.urls'
 CORS_ORIGIN_ALLOW_ALL = True
-LOGIN_REDIRECT_URL = "/login/"   # Route defined in data/urls.py
+LOGIN_REDIRECT_URL = "/login/"  # Route defined in data/urls.py
 LOGOUT_REDIRECT_URL = "/login/"  # Route defined in data/urls.py
 
 TEMPLATE_DIR = os.path.join(
@@ -111,7 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -124,7 +123,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 LANGUAGES = (
     ('en', 'English'),
@@ -212,8 +210,8 @@ ZENDESK_USER = ''
 ZENDESK_PASSWORD = ''
 
 MARKDOWNIFY_WHITELIST_TAGS = {
- 'a', 'p', 'h1', 'h2', 'h3','h4', 'h5', 'h6', 'h7', 'ul', 'li', 'span', 'img',
- 'div', 'abbr', 'acronym', 'em', 'blockquote', 'i', 'strong', 'ol', 'b', 'code'
+    'a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'ul', 'li', 'span', 'img',
+    'div', 'abbr', 'acronym', 'em', 'blockquote', 'i', 'strong', 'ol', 'b', 'code'
 }
 
 EXPORTCOMMENTS_API_KEY = ''
@@ -234,6 +232,7 @@ SERVER_NAME = os.environ.get('SERVER_NAME', SERVER_NAME)
 
 if FIREBASE_AUTH:
     import firebase_admin
+
     firebase_admin.initialize_app()
 
 FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "")
@@ -326,4 +325,5 @@ LOGGING = {
 }
 
 import logging.config
+
 logging.config.dictConfig(LOGGING)

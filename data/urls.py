@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('sentiment/', views.SentimentList.as_view(), name='sentiment'),
     path('export-comments/', data_views.export_comments, name='export-comments'),
+    path('transactions/', data_views.transactions, name='transactions'),
     path('sentiment/<int:sentiment_id>/', views.Sentiment.as_view(), name='sentiment'),
     path('sentiment-per-entity/<int:project_id>/', views.sentiment_per_entity, name="sentiment-per-entity"),
 

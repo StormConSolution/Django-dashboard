@@ -10,8 +10,8 @@ particular source. While similar, they do all differ slightly in the name of
 arguments they receive.
 """
 
+
 def process_youtube(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response:
         task_argument = {
@@ -28,7 +28,6 @@ def process_youtube(export_comments_response, project_id, source):
 
 
 def process_twitter(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response.values():
         task_argument = {
@@ -43,7 +42,6 @@ def process_twitter(export_comments_response, project_id, source):
 
 
 def process_instagram(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response:
         task_argument = {
@@ -58,7 +56,6 @@ def process_instagram(export_comments_response, project_id, source):
 
 
 def process_tiktok(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response:
         task_argument = {
@@ -71,8 +68,8 @@ def process_tiktok(export_comments_response, project_id, source):
         task_arguments.append(task_argument)
     return task_arguments
 
+
 def process_facebook(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response:
         task_argument = {
@@ -87,7 +84,6 @@ def process_facebook(export_comments_response, project_id, source):
 
 
 def process_twitch(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response.values():
         task_argument = {
@@ -102,7 +98,6 @@ def process_twitch(export_comments_response, project_id, source):
 
 
 def process_vimeo(export_comments_response, project_id, source):
-    
     task_arguments = []
     for elem in export_comments_response:
         task_argument = {
@@ -118,11 +113,11 @@ def process_vimeo(export_comments_response, project_id, source):
 source_names = {
     "twitter": {"source": "Twitter Comments", "func": process_twitter},
     "youtu": {"source": "YouTube Comments", "func": process_youtube},
-    'facebook':{'source':'Facebook Comments','func':process_facebook},
+    'facebook': {'source': 'Facebook Comments', 'func': process_facebook},
     'instagram': {"source": "Instagram Comments", "func": process_instagram},
-    'tiktok':{'source':'TikTok Comments','func':process_tiktok},
-    'twitch':{'source':'Twitch Comments','func':process_twitch},
-    'vimeo':{'source':'Vimeo Comments','func':process_vimeo},
+    'tiktok': {'source': 'TikTok Comments', 'func': process_tiktok},
+    'twitch': {'source': 'Twitch Comments', 'func': process_twitch},
+    'vimeo': {'source': 'Vimeo Comments', 'func': process_vimeo},
 }
 
 
