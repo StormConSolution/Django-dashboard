@@ -184,3 +184,10 @@ document.querySelector("#button-bulk-action").addEventListener("click", evt => {
         }
     })
 })
+
+document.querySelector("#select-all-modal-data-items").addEventListener("click", ()=>{
+    document.querySelectorAll("input[data-role='checkbox-bulk-action']").forEach((e)=>{
+        e.checked = true
+    })
+})
+
