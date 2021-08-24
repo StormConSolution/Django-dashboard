@@ -41,8 +41,11 @@
                     })
             })
             .catch((error) => {
-                console.debug(error);
-                alert("Incorrect username / password combination")
+				if (error.errorCode === 'auth/wrong-password') {
+					alert("Incorrect username / password combination")
+				} else {
+					alert('Login error')
+				}
             })
     })
 </script>
