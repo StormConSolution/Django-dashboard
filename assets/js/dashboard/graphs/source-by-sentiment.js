@@ -29,17 +29,19 @@ export function createGraph() {
                     let options = {}
                     options.sourceID = mapSourceAndID[source]
                     options.sentiment = sentiment.toLowerCase()
+                    let filtersToOverWrite = {
+                        "sentiment": sentiment,
+                        "sourcesID": options.sourceID,
+                    }
                     document.querySelector("#data-table-modal").style.display = "block"
-                    let wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
-                        "sentiment": encodeURIComponent(options.sentiment),
-                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
-                    options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
-                        "sentiment": options.sentiment
-                    })+ "&" +  metadataFiltersURL() + "&" + normalFiltersURL()
-                    options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
-                        "sentiment": options.sentiment
-                    })+ "&" +  metadataFiltersURL() + "&" + normalFiltersURL()
-                    wordCloud(wordCloudURL)
+                    options.wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` +
+                        metadataFiltersURL()+ "&" + normalFiltersURL(filtersToOverWrite)
+                    options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` +
+                        metadataFiltersURL() + "&" + normalFiltersURL(filtersToOverWrite)
+                    options.dataURL =`/api/new-data/project/${window.project_id}/?` +
+                        metadataFiltersURL() + "&" + normalFiltersURL(filtersToOverWrite)
+                    wordCloud(options.wordCloudURL)
+                    console.log(options)
                     dataTableModalVolumeBySource(1, options)
                 }            
             },

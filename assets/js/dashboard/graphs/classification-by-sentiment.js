@@ -1,12 +1,14 @@
 import config from "../config";
-import { normalFiltersURL, metadataFiltersURL } from "../helpers/filters";
-import { update } from "../helpers/helpers";
-import { createTable as dataTableModalEntityBySentiment } from "../tables/data_table_modal";
+import {normalFiltersURL, metadataFiltersURL} from "../helpers/filters";
+import {update} from "../helpers/helpers";
+import {createTable as dataTableModalEntityBySentiment} from "../tables/data_table_modal";
 import wordCloud from "./word-cloud-modal";
+
 let chart;
 let graphContainer = document.querySelector("#classification-by-sentiment");
 let limit = document.querySelector("#classification-by-sentiment-limit");
 let mapClassificationAndID = {};
+
 export function createGraph() {
     update.startUpdate();
     if (chart) {
@@ -92,7 +94,7 @@ export function createGraph() {
         fill: {
             opacity: 1,
         },
-        legend: { show: false },
+        legend: {show: false},
         colors: [config.positive, config.neutral, config.negative],
     };
     let urlParams =

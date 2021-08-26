@@ -81,6 +81,8 @@ def data(request, project_id):
     from data_data dd inner join data_source ds on dd.source_id = ds.id
     where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc")
 
+    return_all_ids = int(request.GET.get("all-ids", "0"))
+
     return serialize_rows(
         request,
         project_id,
@@ -90,4 +92,5 @@ def data(request, project_id):
         query_args,
         response_format,
         "data_items.csv",
+        return_all_ids=return_all_ids
     )

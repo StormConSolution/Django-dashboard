@@ -36,6 +36,16 @@ def get_filters_sql2(request):
     languages = parse.unquote(request.GET.get("languages", "")).split(",")
     # sources = parse.unquote(request.GET.get("sources", "")).split(",")
     sources_id = request.GET.get("sourcesID", "").split(",")
+    sentiment = request.GET.get("sentiment", "").lower()
+
+    if sentiment == "positive":
+        where_clauses.append("dd.sentiment > 0")
+    elif sentiment == "neutral":
+        where_clauses.append("dd.sentiment = 0")
+    elif sentiment == "negative":
+        where_clauses.append("dd.sentiment < 0")
+
+
     if not date_from:
         date_from = ""
     if not date_to:
@@ -80,7 +90,6 @@ def get_order_by(request, default_order_by="", default_order_rule=""):
     order_rule = request.GET.get("order-rule", "")
     if order_rule == "":
         order_rule = default_order_rule
-
     return " order by {} {} ".format(order_by, order_rule)
 
 
