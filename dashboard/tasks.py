@@ -214,10 +214,15 @@ def notify(alert):
             logger.warn("Response from sms for alert {}: {}".format(alert, m))
 
 @app.task
-def job_complete(project_id):
-    project = data_models.Project.objects.get(pk=project_id)
+def job_complete(guid):
+    ex = data_models.ExportComments.objects.get(guid=guid)
     
-    logger.info("Data processing request complete for project {}".format(project_id))
+    ex.status = data_models.DONE
+    ex.save()
+    
+    project = ex.project
+    
+    logger.info("Data processing request complete for project {}".format(project.id))
 
     # Send an email to all people on this project.
     if not settings.DEBUG:
