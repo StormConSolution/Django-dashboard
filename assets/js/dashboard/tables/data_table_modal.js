@@ -28,8 +28,10 @@ export function createTable(page, options){
                 text = element.text
             }
             let row = `
+				<td>
+				 <input class="ml-auto form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
+			   </td>
                <td>
-                 <input class="mr-1 form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
                 <small>${element.dateCreated}</small>
                </td>
                <td>
@@ -145,6 +147,7 @@ export function createTable(page, options){
 
 document.querySelector("#modal-select-all-data-items").addEventListener("click", (e)=>{
     let checked = e.currentTarget.checked
+	document.querySelector("#select-all-modal-data-items").checked = checked;
     toggleSelectAllDataItemsOnPage(checked)
 })
 
