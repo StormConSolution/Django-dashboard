@@ -196,13 +196,22 @@ def data_operations(request, api_key, project_id):
             query['date_created__lte'] = request.GET['date_to']
 
         if request.GET.get("metadata_key"):
-            key = request.GET['metadata_key']
-            if request.GET.get("metadata_value"):
-                # A specific metadata value must match.
-                query["metadata__{}".format(key)] = request.GET['metadata_value']
-            else:
-                # Checking to see the key is present regardless of value.
-                query["metadata__has_key"] = key
+            # Checking to see the key is present regardless of value.
+            query["metadata__has_key"] = request.GET['metadata_key']
+        
+        if request.GET.get("metadata"):
+            # This is assumed to be a JSON blob with 1 or more k/v pairs.
+            try:
+                metadata_query = json.loads(request.GET['metadata'])
+
+            except:
+                return JsonResponse({
+                    "status": "Fail", 
+                    "title":"Improperly formatted metadata", 
+                    "description":"Your metadata query was not valid JSON"})
+
+            for k, v in metadata_query.items():
+                query["metadata__{}".format(k)] = v
 
         if request.GET.get("sources"):
             sources = request.GET.get("sources").split(",")
