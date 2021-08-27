@@ -27,15 +27,16 @@ export function createGraph(){
                     let options = {}
                     options.sourceID = mapSourceAndID[source]
                     let wordCloudURL = `/api/new-data/project/${window.project_id}/?format=word-cloud&` + new URLSearchParams({
-                        "sentiment": encodeURIComponent(options.sentiment),
-                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
+                        "sourcesID": encodeURIComponent(options.sourceID),
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL({"sourcesID":options.sourceID})
                     options.csvURL =`/api/new-data/project/${window.project_id}/?format=csv&` + new URLSearchParams({
-                        "sentiment": options.sentiment
-                    })+ "&" +  metadataFiltersURL() + "&" + normalFiltersURL()
+                        "sourcesID": encodeURIComponent(options.sourceID),
+                    })+ "&" +  metadataFiltersURL() + "&" + normalFiltersURL({"sourcesID":options.sourceID})
                     options.dataURL =`/api/new-data/project/${window.project_id}/?` + new URLSearchParams({
-                        "sentiment": options.sentiment
-                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL()
-                    wordCloud(wordCloudURL) 
+                        "sourcesID": encodeURIComponent(options.sourceID),
+                    })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL({"sourcesID":options.sourceID})
+                    wordCloud(wordCloudURL)
+                    console.log(options)
                     document.querySelector("#data-table-modal").style.display = "block"
                     dataTableModalVolumeBySource(1, options)
                 }            

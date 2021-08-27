@@ -1,4 +1,4 @@
-import {getFilters, orderFilters} from "../helpers/filters"
+import {orderFilters} from "../helpers/filters"
 import {manageTableOrderFiltersWithOptions} from '../helpers/helpers'
 import {createPagination} from './utils/utils'
 let optionsState = {}
@@ -17,6 +17,7 @@ export function createTable(page, options){
     fetch(options.dataURL + `&page_size=${pageSize}&page=${page}` + "&" + orderFilters(table))
     .then((response) => response.json())
     .then((data) => {
+        document.querySelector("#modal-select-all-data-items-label").innerHTML = `Select all ${data.total} data items`
         for (let element of data.data) {
             let tr = document.createElement("tr");
             const length = 150;
@@ -27,10 +28,10 @@ export function createTable(page, options){
                 text = element.text
             }
             let row = `
-               <td>
-                 <input class="ml-auto form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
+				<td>
+				 <input class="ml-auto form-check-input" type="checkbox" data-role="checkbox-bulk-action" data-item-id="${element.id}">
 			   </td>
-			   <td>
+               <td>
                 <small>${element.dateCreated}</small>
                </td>
                <td>
@@ -138,8 +139,18 @@ export function createTable(page, options){
                 })
             })
         })
+        let checked = document.querySelector("#modal-select-all-data-items").checked
+        toggleSelectAllDataItemsOnPage(checked)
     });
 }
+
+
+document.querySelector("#modal-select-all-data-items").addEventListener("click", (e)=>{
+    let checked = e.currentTarget.checked
+	document.querySelector("#select-all-modal-data-items").checked = checked;
+    toggleSelectAllDataItemsOnPage(checked)
+})
+
 
 $("#edit-data-item-modal-save-and-close").click(function(e){
     let text = $("#edit-data-item-modal-text").val()
@@ -169,10 +180,29 @@ document.getElementById("data-table-modal-page-size").addEventListener("change",
 
 document.querySelector("#button-bulk-action").addEventListener("click", evt => {
     let ids = []
-    document.querySelectorAll("[data-role='checkbox-bulk-action']:checked").forEach(element =>{
-        const dataItem = element.getAttribute("data-item-id")
-        ids.push(dataItem)
-    })
+
+    let selectAllDataItems = document.querySelector("#modal-select-all-data-items").checked
+    if(selectAllDataItems){
+        fetch(optionsState.dataURL + "&all-ids=1")
+            .then(response => response.json())
+            .then(data => {
+                for(let id of data.data.ids){
+                    ids.push(id)
+                }
+                console.log(data)
+                reanalyzeDataItems(ids)
+            })
+    } else {
+        document.querySelectorAll("[data-role='checkbox-bulk-action']:checked").forEach(element =>{
+            const dataItem = element.getAttribute("data-item-id")
+            ids.push(dataItem)
+        })
+        reanalyzeDataItems(ids)
+    }
+})
+
+
+function reanalyzeDataItems(ids){
     fetch(`/api/data-item/?data-items=${ids.join(",")}`, {
         method: "PUT",
         credentials: "include",
@@ -183,4 +213,25 @@ document.querySelector("#button-bulk-action").addEventListener("click", evt => {
             location.reload()
         }
     })
+}
+
+/**
+ * @function toggleSelectAllDataItemsOnPage
+ * @param {bool} checked
+ */
+function toggleSelectAllDataItemsOnPage(checked){
+    document.querySelectorAll("input[data-role='checkbox-bulk-action']").forEach((e)=>{
+        if(checked){
+            e.checked = true
+        } else {
+            e.checked = false
+        }
+    })
+}
+
+
+document.querySelector("#select-all-modal-data-items").addEventListener("click", (e)=>{
+    let checked = e.currentTarget.checked
+    toggleSelectAllDataItemsOnPage(checked)
 })
+

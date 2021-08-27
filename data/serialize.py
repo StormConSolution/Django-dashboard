@@ -3,9 +3,10 @@ import csv
 from django.db import connection
 from django.http import JsonResponse, HttpResponse
 
+
 def serialize_rows(
-        request, 
-        project_id, 
+        request,
+        project_id,
         total_data,
         sql_query,
         where_clause,
@@ -13,22 +14,33 @@ def serialize_rows(
         response_format,
         filename,
         **extra_context):
-    
+
+    if extra_context.get("return_all_ids", False):
+        response = {'data': {
+            'ids': []
+        }}
+        with connection.cursor() as cursor:
+            cursor.execute(sql_query, query_args)
+            rows = cursor.fetchall()
+            for row in rows:
+                response["data"]["ids"].append(row[6])
+            return JsonResponse(response, safe=False)
+
     page_size = int(request.GET.get("page_size", 10))
     page = int(request.GET.get("page", 1))
     offset = (page - 1) * page_size
     total_pages = math.ceil(total_data / page_size)
-    
+
     limit_offset_clause = ""
     if response_format == "":
         limit_offset_clause = """ limit %s offset %s;"""
         query_args.append(page_size)
         query_args.append(offset)
-    
+
     with connection.cursor() as cursor:
         cursor.execute(sql_query + limit_offset_clause, query_args)
         rows = cursor.fetchall()
-        
+
         if response_format == "csv":
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)

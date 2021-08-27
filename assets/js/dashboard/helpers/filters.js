@@ -49,7 +49,7 @@ export function metadataFiltersURL(){
     return convertFiltersToURL(filters)
 }
 
-export function normalFiltersURL(){
+export function normalFiltersURL(filtersToOverwrite){
     let filters = getFilters()
     let aux = {}
     for(let key in filters){
@@ -70,6 +70,9 @@ export function normalFiltersURL(){
                 aux["sourcesID"] = filters[key]
                 break
         }
+    }
+    for(let filter in filtersToOverwrite){
+        aux[filter] = filtersToOverwrite[filter]
     }
     return new URLSearchParams(aux)
 }
