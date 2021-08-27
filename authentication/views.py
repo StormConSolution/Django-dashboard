@@ -157,6 +157,9 @@ def firebase_login_api(request):
         user = matches[0]
 
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+    if redirect_path.startswith('http'):
+        return redirect(redirect_path)
     
     return redirect(settings.REPUSTATE_WEBSITE + redirect_path)
 
