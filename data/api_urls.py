@@ -41,6 +41,8 @@ urlpatterns = [
     path('export-comments/', data_views.export_comments_api),
     path('update-aspect-rule-weight/<int:aspect_weight_id>/', data_views.update_aspect_rule_weight),
     path('aspect-weight-scoreboard/<int:project_id>/', data_views.aspect_weights_scoreboard),
+    path('search-metadata-filter-values/<int:project_id>/', data_views.search_metadata_filter_values),
+
 
     # External API calls.
 

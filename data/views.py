@@ -175,6 +175,7 @@ def project_details(request, project_id):
         """,
                        [project_id])
         rows = cursor.fetchall()
+        context["more_filters_with_many_values"] = []
         for row in rows:
             with connection.cursor() as metadata_cursor:
                 metadata_cursor.execute("""
@@ -186,6 +187,7 @@ def project_details(request, project_id):
                 possible_metadata_values = metadata_cursor.fetchone()[0]
                 if possible_metadata_values > MAX_METADATA_UNIQUE_VALUES:
                     # Too many values to put in a dropdown.
+                    context["more_filters_with_many_values"].append({"name": row[0]})
                     continue
 
                 metadata_cursor.execute("""

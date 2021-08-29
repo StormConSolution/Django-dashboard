@@ -1,11 +1,12 @@
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 <div
-    class="modal fade"
-    id="more-filters-modal"
-    tabindex="-1"
-    aria-labelledby="createfilterLabel"
-    aria-hidden="true"
-    aria-modal="true"
-    role="dialog"
+        aria-hidden="true"
+        aria-labelledby="createfilterLabel"
+        aria-modal="true"
+        class="modal fade"
+        id="more-filters-modal"
+        role="dialog"
+        tabindex="-1"
 >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -14,68 +15,86 @@
                     Filter Data
                 </h5>
                 <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
+                        aria-label="Close"
+                        class="close"
+                        data-dismiss="modal"
+                        type="button"
                 >
                     <i class="fe fe-x-circle"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="modal-data">
-					<form id="filter-form" method="POST" action="#">
-					<div class="form-row">
-						<div class="form-group col-6">
-						  <label for="chosedate" class="form-label">From</label>
-						  <div >  
-							<input type="date" class="form-control" id="date-from" value="{{default_date_from}}">
-						  </div>
-						</div>
-						<div class="form-group col-6">
-						  <label for="chosedate" class="form-label">To</label>
-						  <div >  
-							<input type="date" class="form-control" id="date-to" value="{{default_date_to}}">
-						  </div>
-						</div>
-					</div>
-				<div class="form-row">
-					<div class="form-group col-6">
-					  <label class="form-label">Languages</label>
-					  <div>
-						  <select name="languages[]" id="languages-filter" class="form-control" size="1" multiple="multiple" required>
-							{% for language in languages %}
-								<option value="{{ language.0 }}">{{ language.1 }}</option>
-							{% endfor %}
-						  </select>
-					  </div>
-					</div>
-					<div class="form-group col-6">
-					  <label class="form-label">Sources</label>
-					  <div>
-						  <select name="sources[]" id="sources-filter" class="form-control" size="1" multiple="multiple" required>
-							{% for source in sources %}
-								<option value="{{ source.sourceID }}">{{ source.sourceLabel }}</option>
-							{% endfor %}
-						  </select>
-					  </div>
-					</div>
-				</div>
-                <div class="row">
-                    {% for filter in more_filters %}
-                        
-                    <div class="form-group col-6">
-                        <label class="form-label">{{filter.name}}</label>
-                        <div>
-                            <select name="{{filter.name}}" data-role="metadata-filter" data-target="metadata-filters" class="form-control" size="1" multiple="multiple" required>
-                                {% for value in filter.values %}
-                                <option value="{{value}}">{{value}}</option>
-                                {% endfor %}
-                            </select>
+                    <form action="#" id="filter-form" method="POST">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label class="form-label" for="chosedate">From</label>
+                                <div>
+                                    <input class="form-control" id="date-from" type="date"
+                                           value="{{default_date_from}}">
+                                </div>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="form-label" for="chosedate">To</label>
+                                <div>
+                                    <input class="form-control" id="date-to" type="date" value="{{default_date_to}}">
+                                </div>
+                            </div>
                         </div>
-                      </div>
-                    {% endfor %}
-                </div>
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label class="form-label">Languages</label>
+                                <div>
+                                    <select class="form-control" id="languages-filter" multiple="multiple" name="languages[]"
+                                            required size="1">
+                                        {% for language in languages %}
+                                        <option value="{{ language.0 }}">{{ language.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-6">
+                                <label class="form-label">Sources</label>
+                                <div>
+                                    <select class="form-control" id="sources-filter" multiple="multiple" name="sources[]"
+                                            required size="1">
+                                        {% for source in sources %}
+                                        <option value="{{ source.sourceID }}">{{ source.sourceLabel }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            {% for filter in more_filters %}
+
+                            <div class="form-group col-6">
+                                <label class="form-label">{{filter.name}}</label>
+                                <div>
+                                    <select class="form-control" data-role="metadata-filter"
+                                            data-target="metadata-filters" multiple="multiple" name="{{filter.name}}"
+                                            required size="1">
+                                        {% for value in filter.values %}
+                                        <option value="{{value}}">{{value}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% for filter in more_filters_with_many_values %}
+
+                            <div class="form-group col-6">
+                                <label class="form-label">{{filter.name}}</label>
+                                <div>
+                                    <input class="form-control" data-role="metadata-filter-many-values" data-target="metadata-filter"
+                                           list="data-list-{{filter.name}}" name="{{filter.name}}"
+                                           type="text"/>
+                                    <datalist id="data-list-{{filter.name}}" open="open">
+                                  </datalist>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </form>
                     <div class="d-flex flex-wrap align-items-center mt-4">
                         <button class="btn btn-primary" id="apply-more-filters">
@@ -89,64 +108,110 @@
 </div>
 
 <script>
-	$('#languages-filter').multiselect({
-		includeSelectAllOption: true,
-		maxHeight:400,
-		buttonWidth:'100%',
-		buttonText: function(options) {
-			if (options.length == 0) {
-			  return 'Languages';
-			}
-			else if (options.length > 6) {
-			  return options.length + ' selected';
-			}
-			else {
-			  var selected = '';
-			  options.each(function() {
-				selected += $(this).text() + ', ';
-			  });
-			  return selected.substr(0, selected.length -2);
-			}
-		}
-	});
-	$('#sources-filter').multiselect({
-		includeSelectAllOption: true,
-		maxHeight:400,
-		buttonWidth:'100%',
-		buttonText: function(options) {
-			if (options.length == 0) {
-			  return 'Sources';
-			}
-			else if (options.length > 6) {
-			  return options.length + ' selected';
-			}
-			else {
-			  var selected = '';
-			  options.each(function() {
-				selected += $(this).text() + ', ';
-			  });
-			  return selected.substr(0, selected.length -2);
-			}
-		}
-	});
+    $('#languages-filter').multiselect({
+        includeSelectAllOption: true,
+        maxHeight: 400,
+        buttonWidth: '100%',
+        buttonText: function (options) {
+            if (options.length == 0) {
+                return 'Languages';
+            } else if (options.length > 6) {
+                return options.length + ' selected';
+            } else {
+                var selected = '';
+                options.each(function () {
+                    selected += $(this).text() + ', ';
+                });
+                return selected.substr(0, selected.length - 2);
+            }
+        }
+    });
+    $('#sources-filter').multiselect({
+        includeSelectAllOption: true,
+        maxHeight: 400,
+        buttonWidth: '100%',
+        buttonText: function (options) {
+            if (options.length == 0) {
+                return 'Sources';
+            } else if (options.length > 6) {
+                return options.length + ' selected';
+            } else {
+                var selected = '';
+                options.each(function () {
+                    selected += $(this).text() + ', ';
+                });
+                return selected.substr(0, selected.length - 2);
+            }
+        }
+    });
     $('[data-role="metadata-filter"]').multiselect({
-		includeSelectAllOption: true,
-		maxHeight:400,
-		buttonWidth:'100%',
-		buttonText: function(options) {
-			if (options.length == 0) {
-			  return 'Values';
-			}
-			else if (options.length > 6) {
-			  return options.length + ' selected';
-			}
-			else {
-			  var selected = '';
-			  options.each(function() {
-				selected += $(this).text() + ', ';
-			  });
-			  return selected.substr(0, selected.length -2);
-			}
-		}
-	});
+        includeSelectAllOption: true,
+        maxHeight: 400,
+        buttonWidth: '100%',
+        buttonText: function (options) {
+            if (options.length == 0) {
+                return 'Values';
+            } else if (options.length > 6) {
+                return options.length + ' selected';
+            } else {
+                var selected = '';
+                options.each(function () {
+                    selected += $(this).text() + ', ';
+                });
+                return selected.substr(0, selected.length - 2);
+            }
+        }
+    });
+    /*
+    let values = ["test1", "test2", "test3"]
+    $('[data-role="metadata-filter-many-values"]').autocomplete({
+        source: values
+    })
+    */
+    document.querySelectorAll("[data-role=metadata-filter-many-values]").forEach((element)=>{
+        let timeout
+        let abortController  = new AbortController()
+        let signal = abortController.signal
+        let metadataKey = element.getAttribute("name")
+        let value = element.value
+        fetch(`/api/search-metadata-filter-values/${window.project_id}/?` + new URLSearchParams({
+            "metadata-filter-key": "",
+            "metadata-filter-value": encodeURIComponent(value)
+        }),{signal})
+            .then(resp => resp.json())
+            .then(data => {
+                let innerHTML = ""
+                let values = data.data.values
+                for(let value of values){
+                    innerHTML += `<option value="${value}">${value}</option>`
+                }
+                let list = element.getAttribute("list")
+                let dataList = document.querySelector(`#${list}`)
+                dataList.innerHTML = innerHTML
+                element.addEventListener('input', (e)=>{
+                    if (timeout) {
+                        abortController.abort()
+                        abortController = new AbortController()
+                        signal = abortController.signal
+                        clearTimeout(timeout)
+                    }
+                    timeout = setTimeout(() => {
+                        fetch(`/api/search-metadata-filter-values/${window.project_id}/?` + new URLSearchParams({
+                            "metadata-filter-key": encodeURIComponent(metadataKey),
+                            "metadata-filter-value": encodeURIComponent(value)
+                        }),{signal})
+                            .then(resp => resp.json())
+                            .then(data => {
+                                let innerHTML = ""
+                                let values = data.data.values
+                                for(let value of values){
+                                    innerHTML += `<option value="${value}">${value}</option>`
+                                }
+                                let dataList = document.querySelector(`#${list}`)
+                                dataList.innerHTML = innerHTML
+                            })
+                    }, 1000)
+                })
+            })
+    })
 </script>

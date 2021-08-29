@@ -41,7 +41,6 @@ export function createGraph() {
                     options.dataURL =`/api/new-data/project/${window.project_id}/?` +
                         metadataFiltersURL() + "&" + normalFiltersURL(filtersToOverWrite)
                     wordCloud(options.wordCloudURL)
-                    console.log(options)
                     dataTableModalVolumeBySource(1, options)
                 }            
             },
