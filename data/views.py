@@ -169,20 +169,18 @@ def project_details(request, project_id):
     # Populate the metadata filters dropdowns.
     context["more_filters"] = []
     with connection.cursor() as cursor:
-        cursor.execute("""
-        select distinct (jsonb_object_keys(dd.metadata))
-        from data_data as dd where dd.metadata <> '""' and dd.project_id = %s
-        """,
-                       [project_id])
+        cursor.execute(""" select distinct (jsonb_object_keys(dd.metadata))
+        from data_data as dd where dd.metadata <> '""' and
+        dd.project_id = %s """, [project_id])
+
         rows = cursor.fetchall()
         context["more_filters_with_many_values"] = []
         for row in rows:
             with connection.cursor() as metadata_cursor:
                 metadata_cursor.execute("""
                 select count (distinct (dd.metadata ->> %s))
-                from data_data as dd where dd.project_id = %s
-                """,
-                                        [row[0], project_id])
+                from data_data as dd where dd.project_id = %s """, 
+                [row[0], project_id])
 
                 possible_metadata_values = metadata_cursor.fetchone()[0]
                 if possible_metadata_values > MAX_METADATA_UNIQUE_VALUES:
@@ -192,9 +190,7 @@ def project_details(request, project_id):
 
                 metadata_cursor.execute("""
                 select distinct (dd.metadata ->> %s)
-                from data_data as dd where dd.project_id = %s
-                """,
-                                        [row[0], project_id])
+                from data_data as dd where dd.project_id = %s """, [row[0], project_id])
                 metadata_rows = metadata_cursor.fetchall()
                 metadata_values = []
                 for metadata_row in metadata_rows:
@@ -221,16 +217,22 @@ def data_per_aspect(request, project_id):
     with connection.cursor() as cursor:
         if sentiment == 'neutral':
             cursor.execute("""
-                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment = 0 and da."label" = %s""",
-                           [this_project.id, aspect_label])
+                select distinct dd.sentiment , dd."text", da."label" from
+                data_aspect da inner join data_data dd on da.data_id = dd.id
+                where dd.project_id = %s and dd.sentiment = 0 and da."label" =
+                %s""", [this_project.id, aspect_label])
         elif sentiment == 'negative':
             cursor.execute("""
-                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment < 0 and da."label" = %s""",
-                           [this_project.id, aspect_label])
+                select distinct dd.sentiment , dd."text", da."label" from
+                data_aspect da inner join data_data dd on da.data_id = dd.id
+                where dd.project_id = %s and dd.sentiment < 0 and da."label" =
+                %s""", [this_project.id, aspect_label])
         elif sentiment == 'positive':
             cursor.execute("""
-                select distinct dd.sentiment , dd."text", da."label" from data_aspect da inner join data_data dd on da.data_id = dd.id where dd.project_id = %s and dd.sentiment > 0 and da."label" = %s""",
-                           [this_project.id, aspect_label])
+                select distinct dd.sentiment , dd."text", da."label" from
+                data_aspect da inner join data_data dd on da.data_id = dd.id
+                where dd.project_id = %s and dd.sentiment > 0 and da."label" =
+                %s""", [this_project.id, aspect_label])
         rows = cursor.fetchall()
     return JsonResponse(rows, safe=False)
 
@@ -244,8 +246,11 @@ def sentiment_per_entity(request, project_id):
     entities_limit = request.GET.get("max-entities", 8)
     with connection.cursor() as cursor:
         cursor.execute("""
-        select dde.entity_id, de."label" , count(dde.entity_id) from data_data_entities dde inner join data_data dd on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id where dd.project_id = %s group by (dde.entity_id, de."label") order by count(dde.entity_id) desc limit %s;
-        """, [this_project.id, entities_limit])
+        select dde.entity_id, de."label" , count(dde.entity_id) from
+        data_data_entities dde inner join data_data dd on dd.id = dde.data_id
+        inner join data_entity de on dde.entity_id = de.id where dd.project_id
+        = %s group by (dde.entity_id, de."label") order by count(dde.entity_id)
+        desc limit %s; """, [this_project.id, entities_limit])
         rows = cursor.fetchall()
     response = []
     for row in rows:
@@ -276,8 +281,10 @@ def topics_per_aspect(request, project_id):
     with connection.cursor() as cursor:
 
         cursor.execute("""
-            select da."label" ,da.topic, count(*) from data_aspect da inner join data_data dd on dd.id = da.data_id where dd.project_id = %s group by (da.topic, da."label") order by  da."label" ,count(*) desc;""",
-                       [project_id])
+            select da."label" ,da.topic, count(*) from data_aspect da inner
+            join data_data dd on dd.id = da.data_id where dd.project_id = %s
+            group by (da.topic, da."label") order by  da."label" ,count(*)
+            desc;""", [project_id])
         rows = cursor.fetchall()
     for row in rows:
         if row[0] not in response_data['aspects']:

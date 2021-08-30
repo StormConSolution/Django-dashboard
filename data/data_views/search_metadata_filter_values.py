@@ -17,8 +17,9 @@ def search_metadata_filter_values(request, project_id):
     }}
     with connection.cursor() as cursor:
         cursor.execute(
-            "select dd.metadata->>%s from data_data dd where dd.project_id = %s and dd.metadata->>%s like %s order by dd.date_created desc limit 200",
-        [metadata_filter_key, project_id, metadata_filter_key, metadata_filter_value])
+            """select dd.metadata->>%s from data_data dd where dd.project_id = %s
+            and dd.metadata->>%s like %s order by dd.date_created desc limit
+            200""", [metadata_filter_key, project_id, metadata_filter_key, metadata_filter_value])
         rows = cursor.fetchall()
 
         for row in rows:
