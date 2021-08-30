@@ -24,12 +24,16 @@ export function getMetadataFilters(){
     }
  */
 
-    let moreFiltersSelects = document.querySelectorAll("[data-role='metadata-filter']")
+    let moreFiltersSelects = document.querySelectorAll("[data-target='metadata-filter']")
     let moreFiltersValues = {}
     for(let element of moreFiltersSelects){
         let filterValue = $(element).val()
         if (filterValue != ""){
-            moreFiltersValues["filter_" + element.name] = filterValue.join(",")
+            if(Array.isArray(filterValue)){
+                moreFiltersValues["filter_" + element.name] = filterValue.join(",")
+            } else {
+                moreFiltersValues["filter_" + element.name] = filterValue
+            }
         }
     }
     return moreFiltersValues

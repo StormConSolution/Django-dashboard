@@ -28,6 +28,7 @@ from .source_by_sentiment import source_by_sentiment
 from .topics_per_aspect import topics_per_aspect
 from .update_aspect_rule_weight import update_aspect_rule_weight
 from .transactions import transactions
+from. search_metadata_filter_values import search_metadata_filter_values
 
 __all__ = [
     'aspect_count',
@@ -60,4 +61,5 @@ __all__ = [
     'aspect_weights_scoreboard',
     'DataItems',
     'transactions',
+    'search_metadata_filter_values',
 ]

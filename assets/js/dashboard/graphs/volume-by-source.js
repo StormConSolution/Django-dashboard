@@ -36,7 +36,6 @@ export function createGraph(){
                         "sourcesID": encodeURIComponent(options.sourceID),
                     })+ "&" +  metadataFiltersURL()+ "&" + normalFiltersURL({"sourcesID":options.sourceID})
                     wordCloud(wordCloudURL)
-                    console.log(options)
                     document.querySelector("#data-table-modal").style.display = "block"
                     dataTableModalVolumeBySource(1, options)
                 }            
