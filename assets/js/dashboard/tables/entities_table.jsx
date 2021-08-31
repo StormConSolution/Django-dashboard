@@ -62,7 +62,7 @@ export function createTable(page){
             <Pagination
                 firstElement={firstElement}
                 lastElement={lastElement}
-                totalElement={ data.total}
+                totalElements={ data.total}
                 totalPages={data.totalPages}
                 currentPageNumber={data.currentPage}
                 callBack={createTable}
