@@ -6,12 +6,12 @@ import React from 'react'
 let optionsState = {}
 import Pagination from '../../components/Pagination'
 let table = document.querySelector("#data-items")
+let pagination = document.getElementById("data-table-modal-pagination");
 export function createTable(page, options){
     optionsState = options
     manageTableOrderFiltersWithOptions(table, createTable, optionsState)
     let content = document.getElementById("data-table-modal-content");
     content.innerHTML = "";
-    let pagination = document.getElementById("data-table-modal-pagination");
     pagination.innerHTML = ""
     let pageSize = document.getElementById("data-table-modal-page-size").value
     //document.getElementById("data-modal-table-csv").href = options.wordCloudURL
@@ -248,5 +248,11 @@ function toggleSelectAllDataItemsOnPage(checked){
 document.querySelector("#select-all-modal-data-items").addEventListener("click", (e)=>{
     let checked = e.currentTarget.checked
     toggleSelectAllDataItemsOnPage(checked)
+})
+let dataTableModalCloseButton = document.querySelector("#close-data-table-modal")
+dataTableModalCloseButton.addEventListener("click", (e) => {
+    reactDom.unmountComponentAtNode(pagination)
+    dataTableModalContainer.style.display = 'none'
+    document.querySelector("#word-cloud-modal-container").innerHTML = ""
 })
 
