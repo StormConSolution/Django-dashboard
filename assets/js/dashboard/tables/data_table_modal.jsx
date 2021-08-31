@@ -1,8 +1,10 @@
 import {orderFilters} from "../helpers/filters"
 import {manageTableOrderFiltersWithOptions} from '../helpers/helpers'
 import {createPagination} from './utils/utils'
+import reactDom from 'react-dom'
+import React from 'react'
 let optionsState = {}
-
+import Pagination from '../../components/Pagination'
 let table = document.querySelector("#data-items")
 export function createTable(page, options){
     optionsState = options
@@ -87,7 +89,20 @@ export function createTable(page, options){
         }
         let firstElement = data.pageSize * (data.currentPage - 1) + 1;
         let lastElement = firstElement + data.pageSize - 1;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, options);
+        reactDom.render(
+            <Pagination
+                firstElement={firstElement}
+                lastElement={lastElement}
+                totalElement={ data.total}
+                totalPages={data.totalPages}
+                currentPageNumber={data.currentPage}
+                callBack={createTable}
+                options={options}
+                divElement={pagination}
+            />,
+            pagination
+        )
+        //createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable, options);
         document.querySelectorAll("[data-role='delete-data-item']")
         .forEach(element=> {
             element.addEventListener("click", (e)=>{
