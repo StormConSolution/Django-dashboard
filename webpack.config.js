@@ -34,6 +34,7 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.jsx'],
     },
+    devtool: 'source-map',
     externals: {
         react: {
             root: 'React',

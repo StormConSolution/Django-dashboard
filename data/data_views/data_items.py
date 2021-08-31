@@ -24,5 +24,4 @@ class DataItems(View):
                                           project__users=request.user)
             if data_item:
                 process_data.delay({"data_id": data_item.id})
-
         return HttpResponse()
