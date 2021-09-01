@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+import codecs
 import datetime
 
 from django.contrib import admin
@@ -17,8 +18,9 @@ def export_selected_objects(modeladmin, request, queryset):
 
     model = queryset.model
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
-        model.__name__)
+    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(model.__name__)
+    response.write(codecs.BOM_UTF8)
+
     writer = unicodecsv.writer(response, encoding='utf-8')
 
     # Write headers to CSV file

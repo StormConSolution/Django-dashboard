@@ -1,5 +1,6 @@
-import datetime
+import codecs
 import csv
+import datetime
 import json
 import math
 
@@ -482,6 +483,7 @@ def entity_classification_count(request, project_id):
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="data_items_entities_classification_frequency.csv"'
+        response.write(codecs.BOM_UTF8)
 
         writer = csv.writer(response)
         writer.writerow(['Entity', "Classification", "Frequency"])
@@ -546,6 +548,7 @@ def aspect_topic(request, project_id):
     if response_format == "csv":
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="aspect_topic_breakdown.csv"'
+        response.write(codecs.BOM_UTF8)
 
         writer = csv.writer(response)
         writer.writerow(['Topic', "Aspect", "Positives", "Negatives"])

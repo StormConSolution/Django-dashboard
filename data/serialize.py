@@ -1,8 +1,9 @@
-import math
+import codecs
 import csv
+import math
+
 from django.db import connection
 from django.http import JsonResponse, HttpResponse
-
 
 def serialize_rows(
         request,
@@ -44,6 +45,7 @@ def serialize_rows(
         if response_format == "csv":
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            response.write(codecs.BOM_UTF8)
 
             writer = csv.writer(response)
             writer.writerow(['Date', "Text", "URL", "Source", "Sentiment", "Language"])
