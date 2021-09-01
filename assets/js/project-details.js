@@ -171,7 +171,7 @@ fetch(`/api/aspect-count/${window.project_id}/`).then(response=>response.json())
             currentTab = "aspect-tab"
             showHideGraphsTables()
         })
-        $("#li-scoreboard-tab").html('<a style="cursor:pointer;" id="scoreboard-tab">Scoreboard</a>')
+        $("#li-scoreboard-tab").html('<a style="cursor:pointer;" id="scoreboard-tab">Scorecard <span class="badge badge-warning">beta</span></a>')
         $("#scoreboard-tab").click((e)=>{
             currentTab = "scoreboard-tab"
             showHideGraphsTables()
