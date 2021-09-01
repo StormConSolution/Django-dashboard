@@ -1,3 +1,4 @@
+import codecs
 import csv
 
 from django.contrib.auth.decorators import login_required
@@ -40,7 +41,8 @@ def export_data(request):
         rows = cursor.fetchall()
     
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="data_items.csv"'
+    response['Content-Disposition'] = 'attachment; filename="{}_data_export.csv"'.format(project_id)
+    response.write(codecs.BOM_UTF8)
 
     writer = csv.writer(response)
     writer.writerow(['Date', "Text", "Source", "Sentiment", "Language"])
