@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/mywork-dragon/dashboard#readme",
   "devDependencies": {
+    "@babel/preset-react": "^7.14.5",
     "autoprefixer": "^10.2.5",
     "cssnano": "^5.0.2",
     "postcss-cli": "^8.3.1",
@@ -30,11 +31,15 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.15.0",
     "apexcharts": "^3.26.0",
+    "babel-loader": "^8.2.2",
     "d3": "^6.7.0",
     "d3-cloud": "^1.2.5",
     "d3-dispatch": "^1.0.6",
-    "jspdf": "^2.3.1"
+    "jspdf": "^2.3.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "browserslist": [
     "Android 2.3",

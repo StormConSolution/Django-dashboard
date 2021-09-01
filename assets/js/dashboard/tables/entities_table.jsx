@@ -1,8 +1,11 @@
 import {createPagination} from './utils/utils'
-import {createTable as dataEntityClassificationTable} from './data_table_modal'
+import {createTable as dataEntityClassificationTable} from './data_table_modal.jsx'
 import {update, manageTableOrderFilters} from '../helpers/helpers'
 import wordCloud from '../graphs//word-cloud-modal'
 import { metadataFiltersURL , normalFiltersURL, orderFilters} from "../helpers/filters";
+import reactDom from "react-dom";
+import Pagination from "../../components/Pagination";
+import React from "react";
 let content = document.getElementById("entity-table-content");
 let pageSizeDropdown = document.getElementById("entity-table-page-size") 
 
@@ -55,7 +58,20 @@ export function createTable(page){
         }
         let firstElement = data.pageSize * (data.currentPage - 1) + 1;
         let lastElement = firstElement + data.pageSize - 1;
-        createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+        reactDom.render(
+            <Pagination
+                firstElement={firstElement}
+                lastElement={lastElement}
+                totalElements={ data.total}
+                totalPages={data.totalPages}
+                currentPageNumber={data.currentPage}
+                callBack={createTable}
+                options={options}
+                divElement={pagination}
+            />,
+            pagination
+        )
+        //createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
         update.finishUpdate()
     });
 }

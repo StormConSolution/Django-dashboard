@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require("webpack");
 
 module.exports = {
     mode: 'development',
@@ -15,12 +16,41 @@ module.exports = {
         'alerts':'./assets/js/alerts.js',
         'alerts-guest':'./assets/js/alerts-guest.js',
     },
+    module: {
+        rules: [{
+            test: /\.(jsx)$/,
+            exclude: path.resolve(__dirname, "node_modules"),
+            use: ['babel-loader']
+        }]
+    },
     output: {
+        libraryTarget: "umd",
         filename: '[name].js',
         path: path.resolve(__dirname, 'dashboard/static/assets/js'),
-        publicPath: '/dist'
     },
     devServer:{
         contentBase: path.join(__dirname),
-    }
+    },
+    resolve: {
+        extensions: ['.js', '.jsx'],
+    },
+    devtool: 'source-map',
+    externals: {
+        react: {
+            root: 'React',
+            commonjs2: 'react',
+            commonjs: 'react',
+            amd: 'React'
+        },
+        'react-dom': {
+            root: 'ReactDOM',
+            commonjs2: 'react-dom',
+            commonjs: 'react-dom',
+            amd: 'ReactDOM'
+        },
+
+    },
+    externalsPresets: {
+        node: true,
+    },
 };

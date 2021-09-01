@@ -5,7 +5,7 @@ import "./project-details/filters";
 import {getGraphs, generatePDF} from './dashboard/pdf/pdf';
 import "./project-details/text-search"
 import  "./dashboard/countrymap.js";
-
+import "./components/Pagination";
 let timeOut
 let timeOutUpdateDelay
 let currentTab = "overview-tab"

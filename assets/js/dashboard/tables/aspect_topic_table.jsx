@@ -1,8 +1,11 @@
 import {createPagination} from './utils/utils'
-import {createTable as dataModalTable} from './data_table_modal'
+import {createTable as dataModalTable} from './data_table_modal.jsx'
 import {update, manageTableOrderFilters} from '../helpers/helpers'
 import wordCloud from '../graphs/word-cloud-modal'
 import { metadataFiltersURL , normalFiltersURL, orderFilters} from "../helpers/filters";
+import reactDom from 'react-dom'
+import React from 'react'
+import Pagination from '../../components/Pagination'
 export function createTable(pageNumber){
     update.startUpdate()
     makeTable(pageNumber)
@@ -74,7 +77,20 @@ function makeTable(page){
 		}
 		let firstElement = data.pageSize * (data.currentPage - 1) + 1;
 		let lastElement = firstElement + data.pageSize - 1;
-		createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
+		reactDom.render(
+			<Pagination
+				firstElement={firstElement}
+				lastElement={lastElement}
+				totalElements={ data.total}
+				totalPages={data.totalPages}
+				currentPageNumber={data.currentPage}
+				callBack={createTable}
+				options={options}
+				divElement={pagination}
+			/>,
+			pagination
+		)
+		//createPagination(firstElement, lastElement, data.total, data.currentPage, data.totalPages, pagination, createTable);
 		update.finishUpdate()
     });
 }
