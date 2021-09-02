@@ -146,10 +146,12 @@ document.querySelector("#overview-tab").addEventListener("click", (e)=>{
     showHideGraphsTables()
 })
 
-document.querySelector("#user-tab").addEventListener("click", (e)=>{
-    currentTab = "user-tab"
-    showHideGraphsTables()
-})
+if (document.getElementById("user-tab")) {
+	document.querySelector("#user-tab").addEventListener("click", (e)=>{
+		currentTab = "user-tab"
+		showHideGraphsTables()
+	})
+}
 
 if (document.getElementById("geo-tab")) {
 	document.getElementById('geo-tab').addEventListener("click", (e)=> {
