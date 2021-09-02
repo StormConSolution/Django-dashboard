@@ -566,12 +566,12 @@
     </div>
 </div>
 
+<!-- Guest modal message -->
+{% if GUEST_USER %}
 <div class="fixed-bottom text-center" id="guest-footer">
 	<a class="mt-3 btn btn-primary" href="https://www.repustate.com/trial-api/">Start Your Free Trial</a>
 </div>
 
-<!-- Guest modal message -->
-{% if GUEST_USER %}
 <div class="modal fade show" id="guest-modal-message" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">

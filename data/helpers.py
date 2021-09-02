@@ -120,7 +120,6 @@ def get_api_keys(user):
         user.username,
         hashkey)).json()
 
-
 def save_aspect_model(aspect_model):
     rules = list(aspect_model.aspectrule_set.all())
 
