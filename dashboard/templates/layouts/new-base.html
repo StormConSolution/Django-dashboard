@@ -82,6 +82,16 @@
 			margin: 0 5px!important;
 			max-width:100px!important;
 		}
+		
+		{% if GUEST_USER %}
+			#guest-footer {
+				background: #051c31;
+				background: -webkit-linear-gradient(bottom left, #051c31, #2c6699);
+				background: -moz-linear-gradient(bottom left, #051c31, #2c6699);
+				background: linear-gradient(to top right, #051c31, #2c6699);
+				height:80px;
+			}
+		{% endif %}
 	</style>
 
     <!-- Bootstrap CSS -->
@@ -556,7 +566,12 @@
     </div>
 </div>
 
+<div class="fixed-bottom text-center" id="guest-footer">
+	<a class="mt-3 btn btn-primary" href="https://www.repustate.com/trial-api/">Start Your Free Trial</a>
+</div>
+
 <!-- Guest modal message -->
+{% if GUEST_USER %}
 <div class="modal fade show" id="guest-modal-message" tabindex="-1" aria-labelledby="exportdataLabel" style="display: none; padding-right: 15px;" aria-modal="true" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -579,6 +594,7 @@
       </div>
     </div>
 </div>
+{% endif %}
 <!-- Guest message modal end -->
 
     <!-- js -->
