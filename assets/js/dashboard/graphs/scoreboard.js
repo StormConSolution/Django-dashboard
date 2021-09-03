@@ -61,8 +61,10 @@ function scoreboardScore() {
         .forEach((e) => {
             let total_aspect_positives = parseInt(e.getAttribute("data-total-aspect-positives"))
             let total_aspect_data = parseInt(e.getAttribute("data-total-aspect-data"))
-            totalScore += (total_aspect_positives/total_aspect_data)*parseInt(e.value)
-			maxScore += parseInt(e.value)
+			if (total_aspect_data > 0) {
+				totalScore += (total_aspect_positives/total_aspect_data)*parseInt(e.value)
+				maxScore += parseInt(e.value)
+			} 
         });
     document.querySelector("#scoreboard-score").innerHTML = totalScore.toFixed(2);
 	document.querySelector("#scoreboard-max-score").innerHTML = `Maximum score = ${maxScore}`;

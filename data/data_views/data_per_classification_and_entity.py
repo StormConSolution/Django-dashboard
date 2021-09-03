@@ -58,9 +58,20 @@ def data_per_classification_and_entity(request, project_id):
                 })
             return JsonResponse(response, safe=False)
 
+    # Do a sub-select to ensure unique rows.
     sql_query = """
-        select dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id
-        from data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id inner join data_source ds on dd.source_id = ds.id """+ aspect_inner_join+""" where """ + get_where_clauses(request, where_clause) + get_order_by(request, "dd.date_created", "desc") 
+    SELECT dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id 
+    FROM data_data dd inner join data_source ds on dd.source_id = ds.id
+    WHERE dd.id in 
+    (   
+        SELECT dd.id
+        FROM data_data dd inner join data_data_entities dde on dd.id = dde.data_id inner join data_entity de on dde.entity_id = de.id inner join data_entity_classifications dec2 on de.id = dec2.entity_id inner join data_classification dc on dec2.classification_id = dc.id {aspect_inner_join}
+        WHERE {where_clause} 
+    ) {order_by_clause}""".format(
+            aspect_inner_join=aspect_inner_join,
+            where_clause=get_where_clauses(request, where_clause),
+            order_by_clause=get_order_by(request, "dd.date_created", "desc")
+    )
 
     extra_context = {
         "entity":entity,
@@ -75,6 +86,6 @@ def data_per_classification_and_entity(request, project_id):
         where_clause,
         query_args,
         response_format,
-        "data_items.csv",
+        "data_items_per_classification.csv",
         **extra_context
     )

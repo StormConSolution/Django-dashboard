@@ -54,7 +54,7 @@ def data_per_aspect_topic(request, project_id):
     if response_format == "word-cloud":
         with connection.cursor() as cursor:
             cursor.execute("""
-                        WITH counts AS (
+            WITH counts AS (
             SELECT keyword, ct::INT from data_data dd CROSS JOIN LATERAL jsonb_each_text(keywords) AS k(keyword, ct) inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id where """ + get_where_clauses(request, where_clause) + """ order by date_created desc ) SELECT keyword, SUM(ct)::INT keyword_count FROM counts GROUP BY keyword ORDER BY keyword_count desc limit 50""", query_args)
             rows = cursor.fetchall()
             response = []
@@ -66,16 +66,25 @@ def data_per_aspect_topic(request, project_id):
             return JsonResponse(response, safe=False)
     
     with connection.cursor() as cursor:
-        cursor.execute("""select count(*) from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on ds.id = dd.source_id where """ + get_where_clauses(request, where_clause),
-                       query_args)
+        cursor.execute("""select count(*) from data_data dd inner join
+            data_aspect da on dd.id = da.data_id inner join data_source ds
+            on ds.id = dd.source_id where """ + get_where_clauses(request, where_clause), query_args)
 
         row = cursor.fetchone()
     total_data = int(row[0])
-
+    
+    # Do a sub-select to ensure unique rows.
     sql_query = """
-    select dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id
-    from data_data dd inner join data_aspect da on dd.id = da.data_id inner join data_source ds on dd.source_id = ds.id
-    where """ + get_where_clauses(request, where_clause) + get_order_by(request)
+    SELECT dd.date_created, dd."text" , dd."url", ds."label"  , dd.sentiment , dd."language", dd.id 
+    FROM data_data dd inner join data_source ds on dd.source_id = ds.id
+    WHERE dd.id in 
+    (   SELECT distinct dd.id 
+        FROM data_data dd inner join data_aspect da on da.data_id = dd.id
+        WHERE {where_clause} 
+    ) {order_by_clause}""".format(
+            where_clause=get_where_clauses(request, where_clause),
+            order_by_clause=get_order_by(request)
+    )
     
     return serialize_rows(
         request,

@@ -20,8 +20,10 @@ def sentiment_per_aspect(request, project_id):
         limit_clause = ""
     else:
         query_args.append(limit)
+    
     if this_project.users.filter(pk=request.user.id).count() == 0:
         raise PermissionDenied
+    
     where_clause = [
         'dd.source_id = ds.id ',
         'da.data_id = dd.id',
@@ -42,4 +44,5 @@ def sentiment_per_aspect(request, project_id):
             'negativeCount': row[3],
             'neutralCount': row[4],
         })
+    
     return JsonResponse(response, safe=False)
