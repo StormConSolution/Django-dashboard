@@ -21,7 +21,11 @@ def export_comments_api(request):
     our celery queue.
     """
     body_unicode = request.body.decode('utf-8')
-    export_request = json.loads(body_unicode)
+    try:
+        export_request = json.loads(body_unicode)
+    except json.JSONDecodeError:
+        return HttpResponse(status=400)
+
     guid = export_request["guid"]
     
     if export_request["status"] == "done":
