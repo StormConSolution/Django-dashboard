@@ -21,24 +21,37 @@ def export_comments(request):
         messages.add_message(request, messages.ERROR, 'URL and project ID are required')
         return redirect("project")
 
-    ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
-    exportcomments_response = ex.exports.create(
-        url=url, replies='false', twitterType='Tweets'
-    )
+    project = data_models.Project.objects.get(pk=project_id)
+    
     source = get_source(url)
     if not source:
         messages.add_message(request, messages.ERROR,
                              'Fetch only supports YouTube, Twitter, Instagram, TikTok and Vimeo')
         return redirect("project", project_id)
 
-    project = data_models.Project.objects.get(pk=project_id)
-
-    export_comment = data_models.ExportComments.objects.create(
-        project=project,
-        source=source[0],
-        url=url,
-        guid=exportcomments_response.body["data"]["guid"],
-        status=data_models.RUNNING
+    ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
+    exportcomments_response = ex.exports.create(
+        url=url, replies='false', twitterType='Tweets'
     )
+    
+    try:
+        guid = exportcomments_response.body["data"]["guid"]
+        export_comment = data_models.ExportComments.objects.create(
+            project=project,
+            source=source[0],
+            url=url,
+            guid=exportcomments_response.body["data"]["guid"],
+            status=data_models.RUNNING,
+        )
+    except KeyError:
+        # The export wasn't created properly. Put this in a queue to process
+        # later.
+        export_comment = data_models.ExportComments.objects.create(
+            project=project,
+            source=source[0],
+            url=url,
+            guid=exportcomments_response.body["data"]["guid"],
+            status=data_models.QUEUED
+        )
 
     return redirect("project", project_id)

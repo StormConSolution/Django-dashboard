@@ -11,12 +11,14 @@ NOT_RUNNING = 0
 RUNNING = 1
 ERROR = 2
 DONE = 3
+QUEUED = 4
 
 STATUSES = (
     (NOT_RUNNING, 'Not Running'),
     (RUNNING, 'Running'),
     (ERROR, 'Error'),
     (DONE, 'Done'),
+    (QUEUED, 'Queued'),
 )
 
 class Sentiment(models.Model):
