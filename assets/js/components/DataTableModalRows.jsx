@@ -2,6 +2,7 @@ import React from 'react';
 
 const DataTableModalRows = (props) => {
     let dataItems = []
+    let index = 0
     for (let element of props.data) {
         const length = 150;
         let text = "";
@@ -11,7 +12,7 @@ const DataTableModalRows = (props) => {
             text = element.text
         }
         dataItems.push(
-            <tr key={element.id}>
+            <tr key={index}>
                 <td>
                     <input className="ml-auto form-check-input" type="checkbox" data-role="checkbox-bulk-action"
                            data-item-id={element.id}/>
@@ -49,6 +50,7 @@ const DataTableModalRows = (props) => {
                     </a>
                 </td>
             </tr>)
+        index++
         }
     return (
         <>
