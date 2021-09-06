@@ -3,5 +3,5 @@
 {% endif %}
 
 {% for key in APIKEYS %}
-<option value="{{ key }}">{% if key.nickname %}{{ key.nickname }}{% else  %}{{ key.key }}{% endif %}</option>
+<option value="{{ key.key }}">{% if key.nickname %}{{ key.nickname }}{% else  %}{{ key.key }}{% endif %}</option>
 {% endfor %}
