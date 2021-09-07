@@ -5,7 +5,7 @@ import uuid
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -62,6 +62,6 @@ def csv_upload(request):
                 # This is the last page of results.
                 job_complete.delay(guid)
     except Exception as e:
-        return JSONResponse({"status":"Fail", "title":"Upload failed", "description":e}, status=500)
+        return JsonResponse({"status":"Fail", "title":"Upload failed", "description":e}, status=500)
     
-    return JSONResponse({"status":"OK"})
+    return JsonResponse({"status":"OK"})
