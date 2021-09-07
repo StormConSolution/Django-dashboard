@@ -337,8 +337,12 @@
                     method: "POST",
                     body: JSON.stringify(data),
                     credentials: "include"
-                }).then(response => {
-                    location.reload()
+				}).then((response) => response.json()).then((data) => {
+					if (data.status === "OK") {
+						location.reload()
+					} else {
+						alert(data.title + ": " + data.description)
+					}
                 })
             {% else %}
             location.reload()

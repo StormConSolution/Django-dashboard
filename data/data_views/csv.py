@@ -61,8 +61,7 @@ def csv_upload(request):
             if seq['length'] - 1 == seq['index']:
                 # This is the last page of results.
                 job_complete.delay(guid)
-
     except Exception as e:
-        return HttpResponseBadRequest("error in file upload: {}".format(e))
+        return JSONResponse({"status":"Fail", "title":"Upload failed", "description":e}, status=500)
     
-    return HttpResponse("OK")
+    return JSONResponse({"status":"OK"})
