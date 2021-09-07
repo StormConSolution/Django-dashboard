@@ -52,3 +52,4 @@ database-backup/
 data.csv
 **.map
 **vendors-node_modules**
+./logs

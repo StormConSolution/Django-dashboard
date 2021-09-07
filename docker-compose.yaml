@@ -22,6 +22,8 @@ services:
             - ./media_root:/var/www/media_root
             - ./certificates:/certificates
             - ./firebase-credentials.json:/firebase-credentials.json
+            - ./logs/nginx:/var/log/nginx
+
     database:
         image: postgres
         environment: 
