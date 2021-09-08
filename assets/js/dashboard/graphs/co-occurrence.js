@@ -18,42 +18,43 @@ export function createGraph(){
                 colorScale: {
                     ranges: [
                         {
-                            from: 0,
+                            from: -10,
                             to: 20,
-                            name: "0-20",
+                            name: "0-20 %",
                             color: "#E2E0FB",
                         },
                         {
                             from: 20,
                             to: 40,
-                            name: "20-40",
+                            name: "20-40 %",
                             color: "#D4D0FA",
                         },
                         {
                             from: 40,
                             to: 60,
-                            name: "40-60 ",
+                            name: "40-60 %",
                             color: "#C6C1F8",
                         },
                         {
                             from: 60,
                             to: 80,
-                            name: "60-80",
+                            name: "60-80 %",
                             color: "#968DF3",
                         },
                         {
                             from: 80,
-                            to: 99,
-                            name: "80-99",
-                            color: "#8075F1",
-                        },
-                        {
-                            from: 100,
                             to: 100,
-                            name: "100",
-                            color: "#7367F0",
-                        },
+                            name: "80-100 %",
+                            color: "#8075F1",
+                        }
                     ],
+                },
+            },
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val+'%';
                 },
             },
         },
