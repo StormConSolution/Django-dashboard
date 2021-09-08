@@ -219,8 +219,8 @@ MARKDOWNIFY_WHITELIST_TAGS = {
 
 EXPORTCOMMENTS_API_KEY = ''
 
-# Default location in Docker image.
-FASTTEXT_MODEL = '/var/www/lid.176.bin'
+# Default location in Docker image when mounted to /models/
+FASTTEXT_MODEL = '/models/lid.176.bin'
 
 try:
     from .settings_local import *

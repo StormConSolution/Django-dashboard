@@ -14,5 +14,4 @@ COPY ./customize /var/www/customize
 COPY ./scripts /var/www/scripts
 COPY ./authentication /var/www/authentication
 COPY ./docker/nginx.conf /etc/nginx/sites-available/default
-COPY ./lid.176.bin /var/www/
 WORKDIR /var/www/
