@@ -10,6 +10,7 @@ COPY ./docker/script.sh /myfolder
 COPY ./dashboard /var/www/dashboard
 COPY ./manage.py /var/www/manage.py
 COPY ./data /var/www/data
+COPY ./models /var/www/models
 COPY ./customize /var/www/customize
 COPY ./scripts /var/www/scripts
 COPY ./authentication /var/www/authentication
