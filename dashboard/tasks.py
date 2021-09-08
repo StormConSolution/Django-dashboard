@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
 import requests
-import cld3
+import fasttext
 
 from .celery import app
 from .sms import send_sms
@@ -20,6 +20,9 @@ logger = get_task_logger(__name__)
 
 MAX_TWEETS = 3000
 VALID_LANGS = [l[0] for l in settings.LANGUAGES]
+
+# Load the model for fasttext.
+lang_id_model = fasttext.load_model(settings.FASTTEXT_MODEL)
 
 @app.task
 def process_data(kwargs):
@@ -54,10 +57,13 @@ def process_data(kwargs):
     if not kwargs.get('lang'):
         # No language set; use language detection.
         try:
-            prediction = cld3.get_language(kwargs['text'])
-            kwargs['lang'] = prediction.language
+            prediction, _ = lang_id_model.predict(kwargs['text'])
+            # The return value of `prediction` looks like: ('__label__en',)
+            kwargs['lang'] = prediction[0].split('__label__')[1]
         except Exception as e:
             logger.error("Error detecting language {}: {}".format(kwargs, e))
+            # Default to english.
+            kwargs['lang'] = 'en'
 
     resp = requests.post('{HOST}/v4/{APIKEY}/all.json'.format(
         HOST=settings.API_HOST, APIKEY=apikey), 
