@@ -139,14 +139,6 @@ class Source(models.Model):
         ordering = ('label',)
 
 
-class Keyword(models.Model):
-    label = models.CharField(
-        max_length=300, unique=True, blank=False, null=False)
-
-    def __str__(self):
-        return self.label
-
-
 class Country(models.Model):
     label = models.CharField(
         max_length=300, unique=True, blank=True, null=True)
@@ -158,7 +150,6 @@ class Country(models.Model):
     def __str__(self):
         return self.label
 
-
 class Summary(models.Model):
     date_created = models.DateField(auto_now=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -167,7 +158,6 @@ class Summary(models.Model):
 
     def __str__(self):
         return self.title
-
 
 class AlertRule(models.Model):
     """
