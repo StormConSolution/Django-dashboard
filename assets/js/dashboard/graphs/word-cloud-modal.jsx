@@ -1,13 +1,30 @@
 import * as d3 from 'd3'
 import cloud from 'd3-cloud'
+import React from 'react';
+import ReactDOM from 'react-dom'
+import ReactWordCloud from 'react-wordcloud';
 
 export default function word_cloud(url) {
     let wordsContainer = document.querySelector("#word-cloud-modal-container")
+    ReactDOM.unmountComponentAtNode(wordsContainer)
+    let words = []
     wordsContainer.innerHTML = "Loading..."
     fetch(url).then(response => response.json()).then(data => {
-        let width = window.innerWidth * 0.8
+        for(let element of data){
+            words.push({text: element.keyword, value: element.keywordCount})
+        }
+        const options = {
+            rotations: 0,
+            fontSizes: [20, 45]
+        }
+        console.log(words.length)
+        let component = () => {
+            return <ReactWordCloud words={words} options={options} maxWords={50}/>
+        }
+        ReactDOM.render(component(), wordsContainer)
+        /*let width = window.innerWidth * 0.8
         let height = window.innerHeight * 0.7
-  
+        console.log(data)
         wordsContainer.innerHTML = ""
         if(data[0]){
 
@@ -49,7 +66,7 @@ export default function word_cloud(url) {
             layout.start();
         } else {
             document.querySelector("#word-cloud-modal-container").innerHTML = "No keywords available"
-        }
+        }*/
     })
     .catch(()=>{
         document.querySelector("#word-cloud-modal-container").innerHTML = "No keywords available"
