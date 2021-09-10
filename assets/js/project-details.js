@@ -6,6 +6,7 @@ import {getGraphs, generatePDF} from './dashboard/pdf/pdf';
 import "./project-details/text-search"
 import  "./dashboard/countrymap.js";
 import "./components/Pagination";
+import ReactDOM from 'react-dom'
 let timeOut
 let timeOutUpdateDelay
 let currentTab = "overview-tab"
@@ -207,6 +208,7 @@ document.querySelector("#show-word-cloud-modal").addEventListener("click", (e)=>
 })
 
 document.querySelector("#close-word-cloud-modal").addEventListener("click", (e)=>{
+    ReactDOM.unmountComponentAtNode(document.querySelector("#word-cloud-modal-container"))
     document.querySelector("#word-cloud-modal").style.display = "none"
 })
 

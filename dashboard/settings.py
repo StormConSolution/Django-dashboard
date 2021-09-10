@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import urllib.parse
@@ -303,8 +304,22 @@ LOGGING = {
             'formatter': 'file',
             'stream': sys.stdout
         },
+        # 'logzio': {
+        #     'class': 'logzio.handler.LogzioHandler',
+        #     'level': 'INFO',
+        #     'formatter': 'logzioFormat',
+        #     'token': 'fLQyzTQpLrLGHXcZQpwDRbqwCgAIIXjm',
+        #     'logs_drain_timeout': 5,
+        #     'url': 'https://listener.logz.io:8071',
+        #     'debug': True,
+        # }
     },
     'loggers': {
+        # '': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['logzio'],
+        #     'propagate': True
+        # },
         'tasks': {
             'handlers': ['console'],
             'level': 'INFO',
@@ -326,9 +341,15 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
+        # 'logzioFormat': {
+        #     'format': '{"additional_field": "value"}',
+        #     'validate': False
+        # }
     },
 }
 
 import logging.config
 
 logging.config.dictConfig(LOGGING)
+#logger = logging.getLogger("logzio")
+#logger.info("test")

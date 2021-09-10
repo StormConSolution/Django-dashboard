@@ -4,10 +4,10 @@ import React from 'react';
 import ReactDOM from 'react-dom'
 import ReactWordCloud from 'react-wordcloud';
 
+let words = []
+let wordsContainer = document.querySelector("#word-cloud-modal-container")
 export default function word_cloud(url) {
-    let wordsContainer = document.querySelector("#word-cloud-modal-container")
     ReactDOM.unmountComponentAtNode(wordsContainer)
-    let words = []
     wordsContainer.innerHTML = "Loading..."
     fetch(url).then(response => response.json()).then(data => {
         for(let element of data){
@@ -15,13 +15,14 @@ export default function word_cloud(url) {
         }
         const options = {
             rotations: 0,
-            fontSizes: [20, 45]
+            fontSizes: [25, 50],
+            padding: 10
         }
-        console.log(words.length)
         let component = () => {
             return <ReactWordCloud words={words} options={options} maxWords={50}/>
         }
         ReactDOM.render(component(), wordsContainer)
+
         /*let width = window.innerWidth * 0.8
         let height = window.innerHeight * 0.7
         console.log(data)
