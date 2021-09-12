@@ -14,10 +14,21 @@ export default function word_cloud(url) {
             words.push({text: element.keyword, value: element.keywordCount})
         }
 
-            const options = {
-                rotations: 0,
-                fontSizes: [25, 50],
-            }
+		const options = {
+		  colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"],
+		  enableTooltip: false,
+		  deterministic: false,
+		  fontFamily: "impact",
+		  fontSizes: [18, 80],
+		  fontStyle: "normal",
+		  fontWeight: "normal",
+		  padding: 1,
+		  rotations: 3,
+		  rotationAngles: [0, 90],
+		  scale: "sqrt",
+		  spiral: "archimedean",
+		  transitionDuration: 1000
+		};
             let component = () => {
                 return <ReactWordCloud words={words} options={options} maxWords={50}/>
             }
