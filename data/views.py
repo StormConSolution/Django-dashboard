@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Sum, Case, When, IntegerField
 from django.db.models.functions import Coalesce
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.urls import reverse
@@ -72,6 +72,11 @@ class Projects(View):
     def get(self, request):
         user = request.user
         projects = list(data_models.Project.objects.filter(users=user).values("name", "id"))
+        
+        if len(projects) == 0 and 'welcome' not in request.GET:
+            # Redirect to the ?welcome=1 URL so we show the UserGuiding walkthrough.
+            return HttpResponseRedirect(reverse("project") + "?welcome=1")
+
         for project in projects:
             data = data_models.Data.objects.filter(project=project["id"]).aggregate(
                 positive_count=Coalesce(Sum(Case(When(sentiment__gt=0, then=1)), output_field=IntegerField()), 0),
