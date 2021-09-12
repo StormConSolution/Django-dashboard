@@ -78,13 +78,11 @@ let editDataItem = element => {
 let refreshDataItem = element=> {
     let target = element.currentTarget
     let dataID = target.getAttribute("data-item-id")
-    console.log(dataID)
     fetch(`/api/data-item/${dataID}/`, {
         method:"PUT",
         credentials:"include"
     })
         .then(response =>{
-            console.log("test")
             if(response.status == 200){
                 location.reload()
             }
