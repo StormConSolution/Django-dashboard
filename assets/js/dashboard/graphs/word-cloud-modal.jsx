@@ -7,21 +7,21 @@ import ReactWordCloud from 'react-wordcloud';
 let words = []
 let wordsContainer = document.querySelector("#word-cloud-modal-container")
 export default function word_cloud(url) {
+    words = []
     ReactDOM.unmountComponentAtNode(wordsContainer)
-    wordsContainer.innerHTML = "Loading..."
     fetch(url).then(response => response.json()).then(data => {
         for(let element of data){
             words.push({text: element.keyword, value: element.keywordCount})
         }
-        const options = {
-            rotations: 0,
-            fontSizes: [25, 50],
-            padding: 10
-        }
-        let component = () => {
-            return <ReactWordCloud words={words} options={options} maxWords={50}/>
-        }
-        ReactDOM.render(component(), wordsContainer)
+
+            const options = {
+                rotations: 0,
+                fontSizes: [25, 50],
+            }
+            let component = () => {
+                return <ReactWordCloud words={words} options={options} maxWords={50}/>
+            }
+            ReactDOM.render(component(), wordsContainer)
 
         /*let width = window.innerWidth * 0.8
         let height = window.innerHeight * 0.7
@@ -70,6 +70,23 @@ export default function word_cloud(url) {
         }*/
     })
     .catch(()=>{
+        ReactDOM.unmountComponentAtNode(wordsContainer)
         document.querySelector("#word-cloud-modal-container").innerHTML = "No keywords available"
     })
 }
+
+function renderWordCloud(){
+
+    if(words.length){
+        const options = {
+            rotations: 0,
+            fontSizes: [25, 50],
+        }
+        let component = () => {
+            return <ReactWordCloud words={words} options={options} maxWords={50}/>
+        }
+        ReactDOM.render(component(), wordsContainer)
+    }
+}
+
+document.querySelector("#show-word-cloud-modal").addEventListener("click", renderWordCloud)
