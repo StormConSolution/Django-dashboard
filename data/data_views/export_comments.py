@@ -1,3 +1,6 @@
+#import logging
+#logger = logging.getLogger('standard')
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,7 +10,6 @@ from exportcomments import ExportComments
 
 from data import models as data_models
 from data.export_comments import get_source
-
 
 @login_required(login_url=settings.LOGIN_REDIRECT_URL)
 def export_comments(request):
@@ -25,22 +27,23 @@ def export_comments(request):
     
     source = get_source(url)
     if not source:
-        messages.add_message(request, messages.ERROR,
-                             'Fetch only supports YouTube, Twitter, Instagram, TikTok and Vimeo')
+        messages.add_message(request, messages.ERROR, 'Unsupported source URL: {}'.format(url))
         return redirect("project", project_id)
 
     ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
-    exportcomments_response = ex.exports.create(
+    ex_response = ex.exports.create(
         url=url, replies='false', twitterType='Tweets'
     )
     
+    #logger.info("URL: {} Body: {}".format(url, ex_response.body))
+    
     try:
-        guid = exportcomments_response.body["data"]["guid"]
+        guid = ex_response.body["data"]["guid"]
         export_comment = data_models.ExportComments.objects.create(
             project=project,
             source=source[0],
             url=url,
-            guid=exportcomments_response.body["data"]["guid"],
+            guid=guid,
             status=data_models.RUNNING,
         )
     except KeyError:
@@ -50,8 +53,9 @@ def export_comments(request):
             project=project,
             source=source[0],
             url=url,
-            guid=exportcomments_response.body["data"]["guid"],
+            guid='',
             status=data_models.QUEUED
         )
+        #logger.error("Error in fetching: {} with response body: {}".format(url, ex_response.body))
 
     return redirect("project", project_id)
