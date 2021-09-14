@@ -5,6 +5,7 @@ from django import template
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.mail import mail_admins
 from django.core.paginator import Paginator
@@ -772,13 +773,6 @@ class SentimentList(View):
         sentiment_language = request.POST.get("sentiment-language")
         api_key = request.POST.get("api-key")
 
-        for val in (sentiment_label, text_definition, sentiment, sentiment_language, api_key):
-            if not val:
-                return HttpResponse("Some fields are missing values", status=400)
-
-        text_definition_count = len(text_definition.split())
-        if text_definition_count < 1 or text_definition_count > 5:
-            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 5 words", status=400)
         if sentiment == "positive":
             sentiment_value = "pos"
         elif sentiment == "negative":
@@ -791,21 +785,29 @@ class SentimentList(View):
             "sentiment": sentiment_value,
             "lang": sentiment_language
         }
-
+        
         try:
             resp = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data).json()
-            s = data_models.Sentiment.objects.create(
-                label=sentiment_label,
-                definition=text_definition,
-                sentiment=sentiment,
-                language=sentiment_language,
-                rule_id=resp["rule_id"],
-                api_key=api_key,
-            )
-            s.users.add(user)
-        except:
-            return HttpResponse("Unable to add rule", status=500)
+        except json.JSONDecodeError:
+            # Could not decode JSON.
+            messages.error(request, 'Unable to add new rule')
+            return redirect("sentiment")
+        
+        if resp['status'] != 'OK':
+            messages.error(request, "Unable to add rule: {}".format(resp['description']))
+            return redirect("sentiment")
 
+        s = data_models.Sentiment.objects.create(
+            label=sentiment_label,
+            definition=text_definition,
+            sentiment=sentiment,
+            language=sentiment_language,
+            rule_id=resp["rule_id"],
+            api_key=api_key,
+        )
+        s.users.add(user)
+
+        messages.success(request, "New sentiment rule added")
         return redirect("sentiment")
 
 
