@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -291,6 +292,10 @@ SWAGGER_SETTINGS = {
 
 LOGGING_CONFIG = None
 
+LOGZ_TOKEN = os.environ.get("LOGZ_TOKEN", "")
+LOGZ_LISTENER = os.environ.get("LOGZ_LISTENER", "")
+log_additional_field = {}
+log_additional_field['website'] = REPUSTATE_WEBSITE
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -304,26 +309,21 @@ LOGGING = {
             'formatter': 'file',
             'stream': sys.stdout
         },
-        # 'logzio': {
-        #     'class': 'logzio.handler.LogzioHandler',
-        #     'level': 'INFO',
-        #     'formatter': 'logzioFormat',
-        #     'token': 'fLQyzTQpLrLGHXcZQpwDRbqwCgAIIXjm',
-        #     'logs_drain_timeout': 5,
-        #     'url': 'https://listener.logz.io:8071',
-        #     'debug': True,
-        # }
+        'logzio': {
+            'class': 'logzio.handler.LogzioHandler',
+            'level': 'INFO',
+            'formatter': 'logzioFormat',
+            'token': LOGZ_TOKEN,
+            'logs_drain_timeout': 5,
+            'url': LOGZ_LISTENER,
+            'debug': True,
+        }
     },
     'loggers': {
-        # '': {
-        #     'level': 'DEBUG',
-        #     'handlers': ['logzio'],
-        #     'propagate': True
-        # },
-        'tasks': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['logzio'],
+            'propagate': True
         },
         'django.request': {
             'handlers': ['mail_admins'],
@@ -341,15 +341,14 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
-        # 'logzioFormat': {
-        #     'format': '{"additional_field": "value"}',
-        #     'validate': False
-        # }
+        'logzioFormat': {
+            'format': json.dumps(log_additional_field),
+            'validate': False
+        }
     },
 }
-
+CELERYD_HIJACK_ROOT_LOGGER = False
 import logging.config
 
 logging.config.dictConfig(LOGGING)
-#logger = logging.getLogger("logzio")
-#logger.info("test")
+logger = logging.getLogger()
