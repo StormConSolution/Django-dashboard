@@ -6,11 +6,11 @@ import json
 from django.conf import settings
 import requests
 
-def api_request(method, url, data=None, params=None):
+def api_request(method, url, data=None, params=None, json=None):
     """
     Send API call to Repustate server. Check response and return True/False plus JSON response.
     """
-    raw_resp = method(url, data=data, params=params)
+    raw_resp = method(url, data=data, params=params, json=json)
     try:
         resp = raw_resp.json()
     except json.JSONDecodeError:
@@ -46,18 +46,9 @@ def save_aspect_model(aspect_model):
             request_rule["predefinedAspect"] = rule.rule_name
         body["rules"].append(request_rule)
 
-    url = (settings.API_HOST +
-           "/v4/{}/custom-aspect.json".format(aspect_model.api_key))
-
-    resp = requests.post(
-        url=url,
-        json=body
-    ).json()
-
-    if resp['status'] != 'OK':
-        return False, resp['description']
-
-    return True, ''
+    url = settings.API_HOST + "/v4/{}/custom-aspect.json".format(aspect_model.api_key)
+    
+    return api_request(requests.post, url, json=body)
 
 
 def delete_aspect_model(aspect_model):
@@ -67,16 +58,8 @@ def delete_aspect_model(aspect_model):
         "name": aspect_model.label,
         "lang": aspect_model.language,
     }
-
-    resp = requests.delete(
-        url=url,
-        json=body
-    ).json()
     
-    if resp['status'] != 'OK':
-        return False, resp['description']
-    
-    return True, ''
+    return api_request(requests.delete, url, json=body)
 
 def add_entity_model(entity_model):
     url = settings.API_HOST + "/v4/{}/custom-entities.json".format(entity_model.api_key)
@@ -112,17 +95,10 @@ def add_entity_model(entity_model):
     return True, {'status':'OK'}
 
 def delete_entity_model(entity_model):
-    url = (settings.API_HOST +
-           "/v4/{}/custom-entities.json".format(entity_model.api_key))
+    url = settings.API_HOST + "/v4/{}/custom-entities.json".format(entity_model.api_key)
 
-    resp = requests.delete(
-        url=url,
-        params={
-            "title": entity_model.label
-        }
-    ).json()
-
-    if resp['status'] != 'OK':
-        return False, resp['description']
+    params={
+        "title": entity_model.label
+    }
     
-    return True, ''
+    return api_request(requests.delete, url, params=params)

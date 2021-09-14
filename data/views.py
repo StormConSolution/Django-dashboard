@@ -460,11 +460,13 @@ class AspectsList(View):
             aspect_rule.save()
 
         # Sync with the API.
-        server_api.save_aspect_model(aspect_model)
-        
-        messages.success(request, 'New aspect model added')
+        result, resp = server_api.save_aspect_model(aspect_model)
+        if not result:
+            messages.error(request, resp['description'])
+        else:
+            messages.success(request, 'New aspect model added')
 
-        return JsonResponse({'status':'OK'}, status=200)
+        return redirect('/aspect/')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -477,10 +479,13 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if server_api.delete_aspect_model(aspect.get()):
+        result, resp = server_api.delete_aspect_model(aspect.get())
+        if result:
             aspect.delete()
             return HttpResponse(status=200)
-        return HttpResponse(status=500)
+        else:
+            messages.error(request, resp['description'])
+            return HttpResponse(status=400)
 
     @method_decorator(login_required)
     def get(self, request, aspect_id):
@@ -573,10 +578,13 @@ class Aspect(View):
                     aspect_model=aspect,
                     rule_name=predefined_rule, predefined=True)
 
-        if server_api.save_aspect_model(aspect):
+        result, resp = server_api.save_aspect_model(aspect)
+        if result:
+            messages.success(request, 'Changes to aspect model saved')
             return HttpResponse(status=200)
-        
-        return HttpResponse(status=500)
+        else:
+            messages.error(request, resp['description'])
+            return HttpResponse(status=400)
 
 class EntitiesList(View):
 
