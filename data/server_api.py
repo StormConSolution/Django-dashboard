@@ -78,10 +78,8 @@ def delete_aspect_model(aspect_model):
     
     return True, ''
 
-def save_entity_model(entity_model):
-    url = (settings.API_HOST +
-           "/v4/{}/custom-entities.json".format(entity_model.api_key))
-    aliases = entity_model.aliases.split(",")
+def add_entity_model(entity_model):
+    url = settings.API_HOST + "/v4/{}/custom-entities.json".format(entity_model.api_key)
     classifications = []
 
     for elem in entity_model.classifications.all():
@@ -93,31 +91,25 @@ def save_entity_model(entity_model):
         "classifications": classifications
     }
 
-    resp = requests.put(
-        url=url,
-        data=body
-    ).json()
-    
-    if resp['status'] != 'OK':
-        return False, resp['description']
+    result, resp = api_request(requests.put, url, data=body)
+    if not result:
+        return False, resp
 
-    url = (settings.API_HOST +
-           "/v4/{}/custom-aliases.json".format(entity_model.api_key))
+    url = settings.API_HOST + "/v4/{}/custom-aliases.json".format(entity_model.api_key)
     
-    for alias in aliases:
-        resp = requests.put(
-            url=url,
+    if entity_model.aliases:
+        aliases = entity_model.aliases.split(",")
+        for alias in aliases:
             params={
                 "title": entity_model.label,
                 "lang": entity_model.language,
                 "alias": alias,
-            },
-        ).json()
-        
-        if resp['status'] != 'OK':
-            return False, resp['description']
+            }
+            result, resp = api_request(requests.put, url, params=params)
+            if not result:
+                return False, resp
     
-    return True, ''
+    return True, {'status':'OK'}
 
 def delete_entity_model(entity_model):
     url = (settings.API_HOST +

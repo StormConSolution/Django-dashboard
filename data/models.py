@@ -126,7 +126,7 @@ class Entity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Entities'
-        unique_together = ('label', 'english_label', 'language')
+        unique_together = ('label', 'english_label', 'language', 'api_key')
 
 
 class Source(models.Model):

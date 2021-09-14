@@ -11,8 +11,10 @@ document.querySelectorAll('[data-role="delete-entity"]').forEach((e) => {
             if (response.status == 200) {
                 location.reload()
             } else {
-                alert("Error deleting entity")
-            }
+				response.json().then(data => {
+					alert(data.description)
+				})
+			}
         })
     })
 });

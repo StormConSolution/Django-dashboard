@@ -619,12 +619,13 @@ class EntitiesList(View):
         entity_classifications = request.POST.get("entity-classifications", "")
         entity_aliases = request.POST.get("entity-aliases", "")
         api_key = request.POST.get("api-key", "")
-
+        
         entity_model, _ = data_models.Entity.objects.get_or_create(
             label=entity_name,
             language=entity_lang,
             api_key=api_key,
         )
+
         entity_model.users.add(user)
 
         entity_classifications = entity_classifications.split(",")
@@ -635,13 +636,15 @@ class EntitiesList(View):
         entity_model.aliases = entity_aliases
         entity_model.save()
 
-        status, msg = server_api.save_entity_model(entity_model)
-        if not status:
+        result, resp = server_api.add_entity_model(entity_model)
+        if not result:
             # Delete the newly created instance. Probably should rollback here instead?
             entity_model.delete()
-            return JsonResponse({'status':'Fail', 'description':msg}, status=400)
-
-        return JsonResponse({'status':'OK'})
+            messages.error(request, resp['description'])
+        else:
+            messages.success(request, 'New entity added')
+        
+        return redirect('/entity/')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -652,12 +655,14 @@ class Entity(View):
         user = request.user
         entity = data_models.Entity.objects.filter(users=user, pk=entity_id)
         if entity.count() == 0:
-            return HttpResponse(status=404)
+            return JsonResponse({'description':'Entity not found'}, status=400)
 
-        if server_api.delete_entity_model(entity.get()):
-            entity.delete()
-            return HttpResponse(status=200)
-        return HttpResponse(status=500)
+        result, resp = server_api.delete_entity_model(entity.get())
+        if not result:
+            return JsonResponse(resp, status=400)
+
+        entity.delete()
+        return JsonResponse({'status':'OK'}, status=200)
 
     @method_decorator(login_required)
     def get(self, request, entity_id):
@@ -691,7 +696,7 @@ class Entity(View):
 
         entity = data_models.Entity.objects.filter(users=user, pk=entity_id)
         if entity.count() == 0:
-            return HttpResponse(status=403)
+            return JsonResponse({'status':'Fail', 'description':'Entity not found'}, status=404)
 
         server_api.delete_entity_model(entity.get())
         entity.delete()
@@ -700,8 +705,12 @@ class Entity(View):
         entity_classifications = request.POST.get("entity-classifications", "")
         entity_aliases = request.POST.get("entity-aliases", "")
         api_key = request.POST.get("api-key", "")
-        entity_model = data_models.Entity.objects.create(label=entity_name,
-                                                         language=entity_lang, api_key=api_key)
+        
+        entity_model = data_models.Entity.objects.create(
+            label=entity_name,
+            language=entity_lang,
+            api_key=api_key)
+
         entity_model.users.add(user)
 
         entity_classifications = entity_classifications.split(",")
@@ -711,7 +720,12 @@ class Entity(View):
 
         entity_model.aliases = entity_aliases
         entity_model.save()
-        server_api.save_entity_model(entity_model)
+
+        result, resp = server_api.add_entity_model(entity_model)
+        if not result:
+            messages.error(request, resp['description'])
+        else:
+            messages.success(request, 'Changes to entity saved')
 
         return redirect("entities")
 
@@ -849,7 +863,7 @@ class Sentiment(View):
         )
         s.users.add(request.user)
 
-        messages.success(request, "Sentiment rule changed")
+        messages.success(request, "Changes to sentiment rule saved")
         
         return JsonResponse(resp)
 
