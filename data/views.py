@@ -23,6 +23,7 @@ from natsort import natsorted
 import requests
 
 from data import models as data_models
+from data import server_api
 from data.forms import AlertRuleForm
 import data.helpers as data_helpers
 
@@ -459,9 +460,11 @@ class AspectsList(View):
             aspect_rule.save()
 
         # Sync with the API.
-        data_helpers.save_aspect_model(aspect_model)
+        server_api.save_aspect_model(aspect_model)
+        
+        messages.success(request, 'New aspect model added')
 
-        return redirect("aspects")
+        return JsonResponse({'status':'OK'}, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -474,7 +477,7 @@ class Aspect(View):
         if aspect.count() == 0:
             return HttpResponse(status=404)
 
-        if data_helpers.delete_aspect_model(aspect.get()):
+        if server_api.delete_aspect_model(aspect.get()):
             aspect.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -534,36 +537,14 @@ class Aspect(View):
         # get all no predefined rules for aspect model
         rules = data_models.AspectRule.objects.filter(aspect_model=aspect, predefined=False)
 
-        """
-        if request does not contain the rule id that was already defined 
-        delete it
-        """
+        # If request does not contain the rule id that was already defined then
+        # delete it.
         for rule in rules:
             rule_name = rule.rule_name
             if rule_name not in rule_names:
                 rule.delete()
 
         rules_len = len(rules_id)
-        count = 0
-        """
-        for rule_name in rule_names:
-            if count >= rules_len:
-                data_models.AspectRule.objects.create(
-                        rule_name=rule_names[count], 
-                        definition=rule_definitions[count], 
-                        aspect_model=aspect,
-                        classifications=rule_classifications[count])
-                continue
-            rule_id = rules_id[count]
-            rule_to_change = data_models.AspectRule.objects.filter(aspect_model=aspect, pk=rule_id)
-            if rule_to_change.count() !=0:
-                rule_to_change = rule_to_change.get()
-                rule_to_change.definition = rule_definitions[count]
-                rule_to_change.label = rule_names[count]
-                rule_to_change.classifications = rule_classifications[count]
-                rule_to_change.save()
-            count = count + 1
-        """
         count = 0
         for rule_name in rule_names:
             rule_name_query = data_models.AspectRule.objects.filter(aspect_model=aspect, rule_name=rule_name)
@@ -592,10 +573,10 @@ class Aspect(View):
                     aspect_model=aspect,
                     rule_name=predefined_rule, predefined=True)
 
-        if data_helpers.save_aspect_model(aspect):
+        if server_api.save_aspect_model(aspect):
             return HttpResponse(status=200)
+        
         return HttpResponse(status=500)
-
 
 class EntitiesList(View):
 
@@ -639,8 +620,11 @@ class EntitiesList(View):
         entity_aliases = request.POST.get("entity-aliases", "")
         api_key = request.POST.get("api-key", "")
 
-        entity_model, _ = data_models.Entity.objects.get_or_create(label=entity_name,
-                                                                   language=entity_lang, api_key=api_key)
+        entity_model, _ = data_models.Entity.objects.get_or_create(
+            label=entity_name,
+            language=entity_lang,
+            api_key=api_key,
+        )
         entity_model.users.add(user)
 
         entity_classifications = entity_classifications.split(",")
@@ -651,9 +635,13 @@ class EntitiesList(View):
         entity_model.aliases = entity_aliases
         entity_model.save()
 
-        data_helpers.save_entity_model(entity_model)
+        status, msg = server_api.save_entity_model(entity_model)
+        if not status:
+            # Delete the newly created instance. Probably should rollback here instead?
+            entity_model.delete()
+            return JsonResponse({'status':'Fail', 'description':msg}, status=400)
 
-        return redirect("entities")
+        return JsonResponse({'status':'OK'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -666,7 +654,7 @@ class Entity(View):
         if entity.count() == 0:
             return HttpResponse(status=404)
 
-        if data_helpers.delete_entity_model(entity.get()):
+        if server_api.delete_entity_model(entity.get()):
             entity.delete()
             return HttpResponse(status=200)
         return HttpResponse(status=500)
@@ -705,7 +693,7 @@ class Entity(View):
         if entity.count() == 0:
             return HttpResponse(status=403)
 
-        data_helpers.delete_entity_model(entity.get())
+        server_api.delete_entity_model(entity.get())
         entity.delete()
         entity_name = request.POST.get("entity-name", "")
         entity_lang = request.POST.get("entity-lang", "")
@@ -723,7 +711,7 @@ class Entity(View):
 
         entity_model.aliases = entity_aliases
         entity_model.save()
-        data_helpers.save_entity_model(entity_model)
+        server_api.save_entity_model(entity_model)
 
         return redirect("entities")
 
@@ -786,16 +774,10 @@ class SentimentList(View):
             "sentiment": sentiment_value,
             "lang": sentiment_language
         }
-        
-        try:
-            resp = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data).json()
-        except json.JSONDecodeError:
-            # Could not decode JSON.
-            return JsonResponse({'status':'Fail', 'description':'Unable to add new rule'}, status=500)
-        
-        if resp['status'] != 'OK':
-            msg = "Unable to add rule: {}".format(resp['description'])
-            return JsonResponse({'status':'Fail', 'description':msg}, status=400)
+    
+        result, resp = server_api.add_sentiment_rule(api_key, data)
+        if not result:
+            return JsonResponse(resp, status=400)
 
         s = data_models.Sentiment.objects.create(
             label=sentiment_label,
@@ -809,7 +791,7 @@ class SentimentList(View):
 
         messages.success(request, "New sentiment rule added")
 
-        return JsonResponse({'status':'OK'}, status=200)
+        return JsonResponse(resp, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -819,48 +801,57 @@ class Sentiment(View):
         user = request.user
 
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
-
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" %
-                        (settings.API_HOST, sentiment.api_key, sentiment.rule_id))
-
+        result, resp = server_api.delete_sentiment_rule(sentiment)
+        if not result:
+            return JsonResponse(resp, status=400)
+        
         sentiment.delete()
-
-        return HttpResponse(status=200)
+        return JsonResponse(resp)
 
     @method_decorator(login_required)
     def post(self, request, sentiment_id):
+        """
+        We're editing a rule. We don't actually support editing a rule so what
+        we do is delete the old version and re-create a new one.
+        """
         user = request.user
         sentiment_label = request.POST.get("sentiment-label", "")
         text_definition = request.POST.get("sentiment-definition", "")
         sentiment_value = request.POST.get("sentiment", "")
         sentiment_language = request.POST.get("sentiment-language", "")
+        
         sentiment = get_object_or_404(data_models.Sentiment, pk=sentiment_id, users=user)
         api_key = sentiment.api_key
-        if sentiment_label == "":
-            return HttpResponse("Sentiment Name is empty", status=400)
-        text_definition_count = len(text_definition.split())
-        if text_definition_count < 1 or text_definition_count > 3:
-            return HttpResponse("Text Definition need to have at least 1 word and a maximum of 3 words", status=400)
-        requests.delete("%s/v4/%s/sentiment-rules.json?rule_id=%s" %
+        
+        result, resp = server_api.delete_sentiment_rule(sentiment)
+        if not result:
+            return JsonResponse(resp, status=400)
 
-                        (settings.API_HOST, api_key, sentiment.rule_id))
+        sentiment.delete()
+
         data = {
             "text": text_definition,
             "sentiment": sentiment_value,
             "lang": sentiment_language
         }
-        req = requests.post('%s/v4/%s/sentiment-rules.json' %
-                            (settings.API_HOST, api_key), data=data)
-        json_data = json.loads(req.text)
-        sentiment.label = sentiment_label
-        sentiment.definition = text_definition
-        sentiment.sentiment = sentiment_value
-        sentiment.language = sentiment_language
-        sentiment.rule_id = json_data["rule_id"]
 
-        sentiment.save()
-        return HttpResponse(status=200)
+        result, resp = server_api.add_sentiment_rule(api_key, data)
+        if not result:
+            return JsonResponse(resp, status=400)
+        
+        s = data_models.Sentiment.objects.create(
+            label=sentiment_label,
+            definition=text_definition,
+            sentiment=sentiment_value,
+            language=sentiment_language,
+            rule_id=resp["rule_id"],
+            api_key=api_key,
+        )
+        s.users.add(request.user)
 
+        messages.success(request, "Sentiment rule changed")
+        
+        return JsonResponse(resp)
 
 def support(request):
     """

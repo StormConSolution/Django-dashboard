@@ -1,13 +1,12 @@
 from urllib import parse
 import hmac
 import json
-from kombu.exceptions import EncodeError
-import requests
 import re
 
 from django.conf import settings
-from data.models import Project
+import requests
 
+from data.models import Project
 
 def get_filters_sql(request):
     dateFrom = request.GET.get("date_from")
@@ -105,7 +104,6 @@ def get_teammates(user):
 
     return resp
 
-
 def get_api_keys(user):
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.username, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
@@ -115,99 +113,5 @@ def get_api_keys(user):
         user.username,
         hashkey)).json()
 
-def save_aspect_model(aspect_model):
-    rules = list(aspect_model.aspectrule_set.all())
-
-    body = {
-        "name": aspect_model.label,
-        "lang": aspect_model.language,
-        "rules": []
-    }
-
-    for rule in rules:
-        request_rule = {
-            "name": rule.rule_name,
-            "terms": rule.definition,
-            "classifications": rule.classifications,
-        }
-        if rule.predefined:
-            request_rule["predefinedAspect"] = rule.rule_name
-        body["rules"].append(request_rule)
-
-    url = (settings.API_HOST +
-           "/v4/{}/custom-aspect.json".format(aspect_model.api_key))
-
-    req = requests.post(
-        url=url,
-        json=body
-    )
-    if req.status_code != 200:
-        return False
-    return True
-
-
-def delete_aspect_model(aspect_model):
-    url = (settings.API_HOST +
-           "/v4/{}/custom-aspect.json".format(aspect_model.api_key))
-
-    body = {
-        "name": aspect_model.label,
-        "lang": aspect_model.language,
-    }
-
-    req = requests.delete(
-        url=url,
-        json=body
-    )
-    if req.status_code != 200 and req.status_code != 404:
-        return False
-    return True
-
-
 def get_project_api_key(project_id):
     return Project.objects.get(id=project_id).api_key
-
-
-def save_entity_model(entity_model):
-    url = (settings.API_HOST +
-           "/v4/{}/custom-entities.json".format(entity_model.api_key))
-    aliases = entity_model.aliases.split(",")
-    classifications = []
-
-    for elem in entity_model.classifications.all():
-        classifications.append(elem.label)
-
-    body = {
-        "title": entity_model.label,
-        "lang": entity_model.language,
-        "classifications": classifications
-    }
-    resp = requests.put(
-        url=url,
-        data=body
-    )
-    url = (settings.API_HOST +
-           "/v4/{}/custom-aliases.json".format(entity_model.api_key))
-    for alias in aliases:
-        resp = requests.put(
-            url=url,
-            params={
-                "title": entity_model.label,
-                "lang": entity_model.language,
-                "alias": alias,
-            },
-        )
-    return True
-
-
-def delete_entity_model(entity_model):
-    url = (settings.API_HOST +
-           "/v4/{}/custom-entities.json".format(entity_model.api_key))
-
-    requests.delete(
-        url=url,
-        params={
-            "title": entity_model.label
-        }
-    )
-    return True

@@ -11,8 +11,10 @@ document.querySelectorAll("[data-role='delete-sentiment']").forEach((element) =>
             if(response.status == 200){
                 location.reload()
             } else {
-                alert("Error deleting sentiment")
-            }
+				response.json().then(data => {
+					alert(data.description)
+				})
+			}
         })
     })
 })
