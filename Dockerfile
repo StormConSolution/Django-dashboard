@@ -1,5 +1,5 @@
 FROM ubuntu
-RUN apt update
+RUN apt update 
 ENV TZ=America/Toronto
 ENV DEBIAN_FRONTEND=noninteractive
 RUN  apt install python3 python3-pip nginx postgresql postgresql-contrib git libpq-dev -y

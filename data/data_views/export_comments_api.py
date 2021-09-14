@@ -1,6 +1,4 @@
 import json
-import locale
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 from django.conf import settings
 from django.http.response import HttpResponse
@@ -37,8 +35,8 @@ def export_comments_api(request):
         e.status = data_models.DONE
 
         # Sometimes this number has a comma in it e.g. 3,200 so we have to
-        # convert it using locale.
-        e.total = locale.atoi(export_request["total_exported"])
+        # convert it.
+        e.total = int(export_request["total_exported"].replace(',', ''))
         e.save()
 
         ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
