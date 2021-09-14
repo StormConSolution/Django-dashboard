@@ -16,6 +16,7 @@ document.querySelectorAll("[data-role='delete-sentiment']").forEach((element) =>
         })
     })
 })
+
 document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((element) => {
     element.addEventListener("click", (e) => {
         $("#edit-sentiment-modal").modal()
@@ -36,6 +37,7 @@ document.querySelectorAll("[data-role='edit-sentiment-button']").forEach((elemen
         document.querySelector("#edit-sentiment-rule-api-key-select").value = apikey
     })
 })
+
 document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=>{
     e.preventDefault()
     let formData = new FormData(e.currentTarget)
@@ -45,15 +47,14 @@ document.querySelector("#create-sentiment-form").addEventListener("submit", (e)=
     }).then(response => {
         if(response.status == 200){
             location.reload()
-        } else if(response.status == 400){
-            response.text().then(data =>{
-                alert("Error creating sentiment: " + data)
-            })
         } else {
-            alert("Error creating sentiment")
+            response.json().then(data => {
+				alert(data.description)
+            })
         }
     })
 })
+
 document.querySelector("#test-sentiment-form").addEventListener("submit", (e)=>{
     e.preventDefault()
     let formData = new FormData(e.currentTarget)
@@ -73,6 +74,7 @@ document.querySelector("#test-sentiment-form").addEventListener("submit", (e)=>{
         }
     })
 })
+
 document.querySelector("#edit-sentiment-form").addEventListener("submit", (e)=>{
     e.preventDefault()
     let formData = new FormData(e.currentTarget)

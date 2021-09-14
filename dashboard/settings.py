@@ -6,6 +6,8 @@ import urllib.parse
 from decouple import config
 from unipath import Path
 
+from django.contrib.messages import constants as messages
+
 SITE_URL = ""
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -221,6 +223,16 @@ MARKDOWNIFY_WHITELIST_TAGS = {
 EXPORTCOMMENTS_API_KEY = ''
 
 FASTTEXT_MODEL = os.path.join(BASE_DIR, 'models', 'lid.176.ftz')
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-secondary',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+ }
 
 try:
     from .settings_local import *

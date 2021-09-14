@@ -732,6 +732,7 @@ class SentimentList(View):
 
     @method_decorator(login_required)
     def get(self, request):
+        
         page_number = int(request.GET.get("page", 1))
         page_size = int(request.GET.get("page_size", 10))
         user = request.user
@@ -760,7 +761,7 @@ class SentimentList(View):
         context["meta"]["page_items_from"] = (page_number - 1) * 10 + 1
         context["meta"]["page_items_to"] = page_number * 10
         context["languages"] = settings.LANGUAGES
-
+        
         return render(request, "sentiment-list.html", context)
 
     @method_decorator(login_required)
@@ -790,12 +791,11 @@ class SentimentList(View):
             resp = requests.post('%s/v4/%s/sentiment-rules.json' % (settings.API_HOST, api_key), data=data).json()
         except json.JSONDecodeError:
             # Could not decode JSON.
-            messages.error(request, 'Unable to add new rule')
-            return redirect("sentiment")
+            return JsonResponse({'status':'Fail', 'description':'Unable to add new rule'}, status=500)
         
         if resp['status'] != 'OK':
-            messages.error(request, "Unable to add rule: {}".format(resp['description']))
-            return redirect("sentiment")
+            msg = "Unable to add rule: {}".format(resp['description'])
+            return JsonResponse({'status':'Fail', 'description':msg}, status=400)
 
         s = data_models.Sentiment.objects.create(
             label=sentiment_label,
@@ -808,7 +808,8 @@ class SentimentList(View):
         s.users.add(user)
 
         messages.success(request, "New sentiment rule added")
-        return redirect("sentiment")
+
+        return JsonResponse({'status':'OK'}, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -889,7 +890,7 @@ def support(request):
             headers=headers,
         )
 
-        if response.status_code != 201:
+        if response.status != 201:
             mail_admins(
                 'Zendesk ticket not issued',
                 'There was an error in creating a zendesk ticket: User: {}\n\n Issue:{}\n\nResponse: {}'.format(
