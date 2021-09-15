@@ -1,6 +1,7 @@
 import os
 
-from celery import Celery
+from celery import Celery, signals
+
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 
@@ -13,3 +14,10 @@ app.autodiscover_tasks()
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+
+@signals.setup_logging.connect
+def setup_celery_logging(**kwargs):
+    pass
+
+# Moving the call here works
+app.log.setup()

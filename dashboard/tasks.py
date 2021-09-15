@@ -1,5 +1,7 @@
 from datetime import datetime
-
+import uuid
+import logging
+import logging.config
 from celery.utils.log import get_task_logger
 from dateutil import parser
 from django.conf import settings
@@ -16,24 +18,29 @@ from .nlp_phrases import nlp_phrase_lookup
 from data import models as data_models
 from data.helpers import get_project_api_key, get_api_keys
 
-logger = get_task_logger(__name__)
 
 MAX_TWEETS = 3000
 VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 
 # Load the model for fasttext.
 lang_id_model = fasttext.load_model(settings.FASTTEXT_MODEL)
-
+log = logging.getLogger()
 @app.task
 def process_data(kwargs):
+    logs = {
+        "correlation_id": str(uuid.uuid4())
+    }
     # If data id is defined just run again the same data item
     existing_data_item = None
-
     if kwargs.get("data_id"):
         try:
             existing_data_item = data_models.Data.objects.get(pk=kwargs["data_id"])
         except:
             # Object does not exist.
+            log.error('trying change data item that does not exist', extra={
+                'data_id': kwargs["data_id"],
+                **logs
+            })
             return
 
         kwargs["lang"] = existing_data_item.language
@@ -52,16 +59,17 @@ def process_data(kwargs):
     
     apikey = get_project_api_key(kwargs["project_id"])
 
-    logger.info("Data received {} in process_data task".format(kwargs))
+    log.info("process celery task", extra={**kwargs, **logs})
 
     if not kwargs.get('lang'):
         # No language set; use language detection.
+
         try:
             prediction, _ = lang_id_model.predict(kwargs['text'])
             # The return value of `prediction` looks like: ('__label__en',)
             kwargs['lang'] = prediction[0].split('__label__')[1]
         except Exception as e:
-            logger.error("Error detecting language {}: {}".format(kwargs, e))
+            log.error("Error detecting language {}: {}".format(kwargs, e), extra={**logs, **kwargs})
             # Default to english.
             kwargs['lang'] = 'en'
 
@@ -70,7 +78,7 @@ def process_data(kwargs):
         data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
 
     if 'score' not in resp:
-        logger.error("Error processing {}: {}".format(kwargs, resp))
+        log.error("Error processing {}: {}".format(kwargs, resp), extra={**logs, **kwargs})
         return
 
     sentiment = resp['score']
@@ -211,13 +219,13 @@ def notify(alert):
             alert.rule.emails.split(','),
             fail_silently=False,
         )
-        logger.warn("Response from send_mail for alert {}: {}".format(alert, r))
+        log.warn("Response from send_mail for alert {}: {}".format(alert, r))
 
     if alert.rule.sms:
         body = 'Alert [{}] from {}: "{}" ...'.format(alert.rule.name, alert.data.source, alert.data.text[:100])
         for phone_number in alert.rule.sms.split(','):
             m = send_sms(body, phone_number)
-            logger.warn("Response from sms for alert {}: {}".format(alert, m))
+            log.warn("Response from sms for alert {}: {}".format(alert, m))
 
 @app.task
 def job_complete(guid):
@@ -228,7 +236,7 @@ def job_complete(guid):
     
     project = ex.project
     
-    logger.info("Data processing request complete for project {}".format(project.id))
+    log.info("Data processing request complete for project {}".format(project.id))
 
     # Send an email to all people on this project.
     if not settings.DEBUG:
@@ -250,7 +258,7 @@ def process_twitter_search(job_id):
     
     apikeys = get_api_keys(ts.created_by)
     if not apikeys.get("apikeys"):
-        logger.error("No API keys found for {}".format(ts.created_by))
+        log.error("No API keys found for {}".format(ts.created_by))
         return
         
     project = data_models.Project.objects.create(

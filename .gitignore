@@ -45,6 +45,8 @@ dashboard/static/assets/js/alerts.js
 dashboard/static/assets/js/alerts-guest.js
 dashboard/static/assets/js/entity.js
 dashboard/static/assets/js/entity-guest.js
+dashboard/static/assets/js/120.js
+dashboard/static/assets/js/120.js.LICENSE.txt
 .env
 firebase-credentials.json
 
