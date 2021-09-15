@@ -28,8 +28,8 @@ log = logging.getLogger()
 
 @app.task
 def process_data(kwargs):
-    logs = {
-        "correlation_id": str(uuid.uuid4())
+    params = {
+        "request_id": str(uuid.uuid4())
     }
     # If data id is defined just run again the same data item
     existing_data_item = None
@@ -40,7 +40,7 @@ def process_data(kwargs):
             # Object does not exist.
             log.error('trying change data item that does not exist', extra={
                 'data_id': kwargs["data_id"],
-                **logs
+                **params
             })
             return
 
@@ -60,7 +60,7 @@ def process_data(kwargs):
     
     apikey = get_project_api_key(kwargs["project_id"])
 
-    log.info("process celery task", extra={**kwargs, **logs})
+    log.info("process celery task", extra={**kwargs, **params})
 
     if not kwargs.get('lang'):
         # No language set; use language detection.
@@ -70,7 +70,7 @@ def process_data(kwargs):
             # The return value of `prediction` looks like: ('__label__en',)
             kwargs['lang'] = prediction[0].split('__label__')[1]
         except Exception as e:
-            log.error("Error detecting language {}: {}".format(kwargs, e), extra={**logs, **kwargs})
+            log.error("Error detecting language {}: {}".format(kwargs, e), extra={**params, **kwargs})
             # Default to english.
             kwargs['lang'] = 'en'
 
@@ -79,7 +79,7 @@ def process_data(kwargs):
         data={'text': kwargs["text"], 'lang': kwargs["lang"]}).json()
 
     if 'score' not in resp:
-        log.error("Error processing {}: {}".format(kwargs, resp), extra={**logs, **kwargs})
+        log.error("Error processing {}: {}".format(kwargs, resp), extra={**params, **kwargs})
         return
 
     sentiment = resp['score']

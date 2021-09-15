@@ -42,7 +42,7 @@ def export_comments(request):
     }
     
     log.info("Exportcomments request made",
-            extra={'url':url, 'body':ex_response.body, 'project_id':project_id}, **params)
+            extra={'url':url, 'body':ex_response.body, 'project_id':project_id, **params})
     
     try:
         guid = ex_response.body["data"]["guid"]
@@ -63,6 +63,6 @@ def export_comments(request):
             guid='',
             status=data_models.QUEUED
         )
-        log.error("Error in requesting exportcomments fetch", **params)
+        log.error("Error in requesting exportcomments fetch", extra={**params})
 
     return redirect("project", project_id)
