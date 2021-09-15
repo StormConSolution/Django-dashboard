@@ -292,10 +292,12 @@ SWAGGER_SETTINGS = {
 
 LOGGING_CONFIG = None
 
-LOGZ_TOKEN = os.environ.get("LOGZ_TOKEN", "")
-LOGZ_LISTENER = os.environ.get("LOGZ_LISTENER", "")
+LOGZ_TOKEN = os.environ.get("LOGZ_TOKEN", config("LOGZ_TOKEN", ""))
+LOGZ_LISTENER = os.environ.get("LOGZ_LISTENER", config("LOGZ_LISTENER", ""))
+
 log_additional_field = {}
 log_additional_field['website'] = REPUSTATE_WEBSITE
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

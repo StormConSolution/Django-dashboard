@@ -19,6 +19,5 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 def setup_celery_logging(**kwargs):
     pass
 
-
 # Moving the call here works
 app.log.setup()
