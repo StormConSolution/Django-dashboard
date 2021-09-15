@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 import logging
-import logging.config
+
 from celery.utils.log import get_task_logger
 from dateutil import parser
 from django.conf import settings
@@ -9,8 +9,8 @@ from django.contrib.postgres.search import SearchVector
 from django.core.mail import send_mail
 from django.db import connection
 from django.db.models import Value, CharField
-import requests
 import fasttext
+import requests
 
 from .celery import app
 from .sms import send_sms
@@ -25,6 +25,7 @@ VALID_LANGS = [l[0] for l in settings.LANGUAGES]
 # Load the model for fasttext.
 lang_id_model = fasttext.load_model(settings.FASTTEXT_MODEL)
 log = logging.getLogger()
+
 @app.task
 def process_data(kwargs):
     logs = {

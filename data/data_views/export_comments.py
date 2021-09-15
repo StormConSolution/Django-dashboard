@@ -1,5 +1,6 @@
-#import logging
-#logger = logging.getLogger('standard')
+import logging
+log = logging.getLogger()
+import uuid
 
 from django.conf import settings
 from django.contrib import messages
@@ -20,14 +21,14 @@ def export_comments(request):
     project_id = request.POST.get("project-id", "")
 
     if not url or not project_id:
-        messages.add_message(request, messages.ERROR, 'URL and project ID are required')
+        messages.error(request, 'URL and project ID are required')
         return redirect("project")
 
     project = data_models.Project.objects.get(pk=project_id)
     
     source = get_source(url)
     if not source:
-        messages.add_message(request, messages.ERROR, 'Unsupported source URL: {}'.format(url))
+        messages.error(request, 'Unsupported source URL: {}'.format(url))
         return redirect("project", project_id)
 
     ex = ExportComments(settings.EXPORTCOMMENTS_API_KEY)
@@ -35,7 +36,13 @@ def export_comments(request):
         url=url, replies='false', twitterType='Tweets'
     )
     
-    #logger.info("URL: {} Body: {}".format(url, ex_response.body))
+    # Request ID to keep these logs together.
+    params = {
+        "request_id": str(uuid.uuid4())
+    }
+    
+    log.info("Exportcomments request made",
+            extra={'url':url, 'body':ex_response.body, 'project_id':project_id}, **params)
     
     try:
         guid = ex_response.body["data"]["guid"]
@@ -56,6 +63,6 @@ def export_comments(request):
             guid='',
             status=data_models.QUEUED
         )
-        #logger.error("Error in fetching: {} with response body: {}".format(url, ex_response.body))
+        log.error("Error in requesting exportcomments fetch", **params)
 
     return redirect("project", project_id)

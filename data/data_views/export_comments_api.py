@@ -1,4 +1,6 @@
 import json
+import logging
+log = logging.getLogger()
 
 from django.conf import settings
 from django.http.response import HttpResponse
@@ -21,6 +23,9 @@ def export_comments_api(request):
     our celery queue.
     """
     body_unicode = request.body.decode('utf-8')
+    
+    log.info('Callback received from exportcomments', extra={'payload':body_unicode})
+
     try:
         export_request = json.loads(body_unicode)
     except json.JSONDecodeError:
