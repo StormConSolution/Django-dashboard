@@ -28,9 +28,12 @@ log = logging.getLogger()
 
 @app.task
 def process_data(kwargs):
+    
     params = {
-        "request_id": str(uuid.uuid4())
+        "request_id": str(uuid.uuid4()),
+        "server_name": settings.SERVER_NAME,
     }
+
     # If data id is defined just run again the same data item
     existing_data_item = None
     if kwargs.get("data_id"):

@@ -24,7 +24,8 @@ def export_comments_api(request):
     """
     body_unicode = request.body.decode('utf-8')
     
-    log.info('Callback received from exportcomments', extra={'payload':body_unicode})
+    log.info('Callback received from exportcomments',
+        extra={'payload':body_unicode, "server_name":settings.SERVER_NAME})
 
     try:
         export_request = json.loads(body_unicode)

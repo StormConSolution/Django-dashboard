@@ -38,7 +38,8 @@ def export_comments(request):
     
     # Request ID to keep these logs together.
     params = {
-        "request_id": str(uuid.uuid4())
+        "request_id": str(uuid.uuid4()),
+        "server_name": settings.SERVER_NAME,
     }
     
     log.info("Exportcomments request made",
