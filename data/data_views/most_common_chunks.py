@@ -8,6 +8,8 @@ from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
+from Levenshtein import distance, ratio
+
 import data.models as data_models
 from data.helpers import get_where_clauses
 
@@ -86,11 +88,17 @@ def most_common_chunks(request, project_id):
         merged = False
         for other in merged_chunks:
             if t['chunk'].lower() in other['chunk'].lower() and _similar_sentiment(t, other):
-                other['positiveCount'] += t['positiveCount']
-                other['negativeCount'] += t['negativeCount']
-                other['total'] += t['total']
-                merged = True
-                break
+                
+                # Make sure they really are similar. Check two string metrics.
+                d = distance(t['chunk'].lower(), other['chunk'].lower())
+                r = ratio(t['chunk'].lower(), other['chunk'].lower())
+
+                if d < len(t['chunk']) and r > 0.75:
+                    other['positiveCount'] += t['positiveCount']
+                    other['negativeCount'] += t['negativeCount']
+                    other['total'] += t['total']
+                    merged = True
+                    break
 
         if not merged:
             merged_chunks.append(t)
