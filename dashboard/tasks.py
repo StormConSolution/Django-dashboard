@@ -69,7 +69,12 @@ def process_data(kwargs):
         # No language set; use language detection.
 
         try:
-            prediction, _ = lang_id_model.predict(kwargs['text'])
+            text = kwargs['text']
+            # Facebook predict only takes one line at a time.
+            if '\n' in text:
+                text = text.split('\n')[0]
+
+            prediction, _ = lang_id_model.predict(text)
             # The return value of `prediction` looks like: ('__label__en',)
             kwargs['lang'] = prediction[0].split('__label__')[1]
         except Exception as e:
@@ -233,6 +238,10 @@ def notify(alert):
 
 @app.task
 def job_complete(guid):
+    """
+    When a file upload complete or a request through ExportComments completes,
+    we fire this job off.
+    """
     ex = data_models.ExportComments.objects.get(guid=guid)
     
     ex.status = data_models.DONE
@@ -257,7 +266,7 @@ def job_complete(guid):
 @app.task
 def process_twitter_search(job_id):
     ts = data_models.TwitterSearch.objects.get(pk=job_id)
-    ts.status = data_models.TwitterSearch.RUNNING
+    ts.status = data_models.RUNNING
     ts.save()
     
     apikeys = get_api_keys(ts.created_by)
@@ -268,10 +277,20 @@ def process_twitter_search(job_id):
     project = data_models.Project.objects.create(
         name=ts.project_name,
         aspect_model=ts.aspect,
-        api_key=apikeys['apikeys'][0]
+        api_key=apikeys['apikeys'][0]['key']
     )
     project.users.add(ts.created_by)
     project.save()
+    
+    # Create a transasction we can keep track off.
+    ex = data_models.ExportComments.objects.create(
+        project=project,
+        source=data_models.Source.objects.get(label='Twitter'),
+        url='',
+        guid=str(uuid.uuid4()),
+        status=data_models.RUNNING,
+        total=0,
+    )
 
     import twint
     config = twint.Config()
@@ -297,10 +316,14 @@ def process_twitter_search(job_id):
         
         process_data.delay(post_data)
     
-    # TODO: Temporary hack until we get a better solution.
+    # TODO: Temporary hack until we get a better solution like moving this to a
+    # lambda function.
+    ex.total = len(twint.output.tweets_list)
+    ex.save()
+
     twint.output.clean_lists()
 
-    ts.status = data_models.TwitterSearch.DONE
+    ts.status = data_models.DONE
     ts.save()
 
-    job_complete.delay(project.pk)
+    twitter_job_complete.delay(project.id, job_id)

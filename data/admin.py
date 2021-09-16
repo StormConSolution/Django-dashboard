@@ -136,9 +136,18 @@ class EntityAdmin(admin.ModelAdmin):
     filter_horizontal = ('classifications',)
 
 
+def re_run(modeladmin, request, queryset):
+    """
+    Force re-run the twitter search.
+    """
+    for obj in queryset:
+        tasks.process_twitter_search.delay(obj.id)
+    messages.add_message(request, messages.SUCCESS, 'Twitter search sent to job queue')
+
+
 class TwitterSearchAdmin(admin.ModelAdmin):
     list_display = ('query', 'project_name', 'status', 'created_by',)
-    
+    actions = (re_run,) 
     fieldsets = (
         (None, {
             'fields':('query', 'project_name', 'aspect', 'status'),

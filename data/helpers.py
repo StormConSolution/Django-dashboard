@@ -105,6 +105,10 @@ def get_teammates(user):
     return resp
 
 def get_api_keys(user):
+    """
+    Return value is a list of dictionaries:
+    {"apikeys":[{"key":"abcd", "nickname":"my key"}]}
+    """
     h = hmac.new(bytes(settings.HMAC_SECRET, 'utf8'), bytes(user.username, 'utf8'), 'sha256')
     hashkey = h.hexdigest()
 
