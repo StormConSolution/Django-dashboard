@@ -269,6 +269,13 @@ def process_twitter_search(job_id):
     ts.status = data_models.RUNNING
     ts.save()
     
+    params = {
+        "server_name": settings.SERVER_NAME,
+        "job_id":job_id,
+    }
+    
+    log.info("Twitter search request received", extra=params)
+    
     apikeys = get_api_keys(ts.created_by)
     if not apikeys.get("apikeys"):
         log.error("No API keys found for {}".format(ts.created_by))
@@ -291,6 +298,8 @@ def process_twitter_search(job_id):
         status=data_models.RUNNING,
         total=0,
     )
+    
+    log.info("Twitter search request started", extra=params)
 
     import twint
     config = twint.Config()
@@ -316,6 +325,8 @@ def process_twitter_search(job_id):
         
         process_data.delay(post_data)
     
+    log.info("Twitter search request completed", extra=params)
+    
     # TODO: Temporary hack until we get a better solution like moving this to a
     # lambda function.
     ex.total = len(twint.output.tweets_list)
@@ -326,4 +337,4 @@ def process_twitter_search(job_id):
     ts.status = data_models.DONE
     ts.save()
 
-    twitter_job_complete.delay(project.id, job_id)
+    job_complete.delay(ex.guid)
