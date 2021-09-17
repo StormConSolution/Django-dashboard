@@ -927,7 +927,9 @@ def save_users(request, project_id):
     this_project.users.add(request.user)
     emails = request.POST.getlist('users')
     for email in emails:
-        u = User.objects.get(username__iexact=email)
+        # We use get_or_create here because the User might not exist in this
+        # database yet, only in the website's database. So we lazily add it.
+        u, _ = User.objects.get_or_create(username__iexact=email)
         this_project.users.add(u)
 
     return redirect("project", this_project.id)
